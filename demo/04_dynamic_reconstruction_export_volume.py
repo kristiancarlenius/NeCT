@@ -5,8 +5,13 @@ Demo 04: Reconstruct a dynamic volume and export volumes of the reconstruction. 
 from pathlib import Path
 
 from nect.download_demo_data import download_demo_data, get_demo_data_path
-
 import nect
+import torch
+print(torch.__version__)
+print(torch.cuda.get_arch_list())
+print(torch.cuda.get_device_name(0))
+print(torch.cuda.current_device())
+print(torch.cuda.is_available())
 
 download_demo_data("SimulatedFluidInvasion")
 demo_dir = get_demo_data_path("SimulatedFluidInvasion")
