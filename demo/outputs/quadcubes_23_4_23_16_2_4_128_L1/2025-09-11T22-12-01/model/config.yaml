@@ -1,0 +1,73 @@
+accumulation_steps: null
+add_poisson: false
+base_lr: 0.0001
+batch_per_proj: 1
+channel_order: NHW
+checkpoint_interval: 1800
+checkpoint_prior: null
+clip_grad_value: null
+concat: null
+continous_scanning: false
+crop:
+  bottom: 0
+  left_right: 0
+  top: 0
+downsampling_detector:
+  end: 1
+  start: 2
+  update_interval: 1000
+encoder:
+  base_resolution: 16
+  log2_hashmap_size: 23
+  max_resolution_factor: 2
+  max_resolution_type: nDetector
+  n_features_per_level: 4
+  n_levels: 23
+  otype: HashGrid
+  sample_outside: 0
+epochs: 351
+evaluation: null
+geometry: SAME_FOLDER
+image_interval: 600
+img_path: /cluster/home/kristiac/NeCT/.venv/lib/python3.12/site-packages/nect/data/SimulatedFluidInvasion/projections.npy
+loss: L1
+lr: 0.00016085024090749757
+lr_scheduler:
+  lrf: 0.02849002849002849
+  otype: cosine
+mode: dynamic
+model: quadcubes
+net:
+  activation: LeakyReLU
+  include_adaptive_skip: null
+  include_identity: true
+  n_hidden_layers: 4
+  n_neurons: 128
+  otype: FullyFusedMLP
+  output_activation: None
+num_workers: 0
+optimizer:
+  beta1: 0.9
+  beta2: 0.999
+  otype: Adam
+  weight_decay: 0.0
+plot_type: XZ
+points_per_batch: 2587280
+points_per_ray:
+  end: 2225
+  linear: true
+  start: 100
+  update_interval: 93
+reconstruction_mode: voxel
+s3im: false
+sample_outside: 0
+save_mode: null
+save_volume: false
+sparse_view: null
+tv: 0.0
+uniform_ray_spacing: true
+use_prior: false
+warmup:
+  lr0: 0.0001
+  otype: null
+  steps: 500
