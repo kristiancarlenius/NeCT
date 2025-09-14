@@ -75,9 +75,7 @@ class BaseTrainer:
                 raise ValueError(f"Tried set cancel of job at '{cancel_at}', which is an invalid ISO-datetime.")
         self.config = config
         self.setup_dataset()
-        self.dataloader = torch.utils.data.DataLoader(
-            dataset=self.dataset, batch_size=1, shuffle=True, num_workers=config.num_workers
-        )
+        self.dataloader = torch.utils.data.DataLoader(dataset=self.dataset, batch_size=1, shuffle=True, num_workers=config.num_workers)
         if isinstance(self.config.epochs, str):
             fraction = self.config.epochs.split("x")
             self.config.epochs = math.ceil(49 / len(self.dataset) * max(config.geometry.nDetector))
@@ -91,9 +89,7 @@ class BaseTrainer:
         if log:
             if output_directory is None:
                 # raise a error that is due to coding error and not the user
-                raise ValueError(
-                    "Output directory must be provided if logging or saving checkpoints. This is a bug in the code."
-                )
+                raise ValueError("Output directory must be provided if logging or saving checkpoints. This is a bug in the code.")
             tensorboard_logger = TensorBoardLogger(root_dir=output_directory, name="logs")
         else:
             self.config.image_interval = -1
@@ -117,11 +113,7 @@ class BaseTrainer:
         warnings.resetwarnings()
         self.model = config.get_model()
         self.optim = config.get_optimizer(self.model)
-        (
-            self.lr_scheduler_warmup,
-            self.lr_scheduler,
-            self.lr_scheduler_warmup_downsample,
-        ) = config.get_lr_schedulers(self.optim)
+        (self.lr_scheduler_warmup, self.lr_scheduler, self.lr_scheduler_warmup_downsample,) = config.get_lr_schedulers(self.optim)
         self.current_epoch = 0
         self.current_angle = 0
         self.angle = 0.0
@@ -131,11 +123,7 @@ class BaseTrainer:
 
         self.downsample_detector_factor = config.downsampling_detector.start
         self.points_per_ray = config.points_per_ray.start
-        self.geometry = nect.Geometry.from_cfg(
-            config.geometry,
-            reconstruction_mode=config.reconstruction_mode,
-            sample_outside=config.sample_outside,
-        )
+        self.geometry = nect.Geometry.from_cfg(config.geometry, reconstruction_mode=config.reconstruction_mode, sample_outside=config.sample_outside,)
         if config.points_per_batch == "auto":
             raise ValueError("`points_per_batch` should already have been calculated at this point.")
         self.projector = nect.sampling.Projector(
@@ -168,6 +156,7 @@ class BaseTrainer:
                     factor = float(update_interval[0])
                 else:
                     raise ValueError(f"Invalid format for `points_per_ray.update_interval`, got '{config.points_per_ray.update_interval}'")
+                
             projections = len(self.dataset)
             epochs = self.config.epochs * factor
             total_updates = projections * epochs / torch.cuda.device_count()
@@ -179,6 +168,7 @@ class BaseTrainer:
         else:
             self.checkpoint_directory_base = "needs_to_be_defined_but_not_used"  # must be defined
             self.image_directory_base = "needs_to_be_defined_but_not_used"
+
         self.last_checkpoint_time = time.perf_counter()
         self.last_image_time = time.perf_counter()
         self.last_evaluation_time = time.perf_counter()
@@ -220,14 +210,12 @@ class BaseTrainer:
             # save the model summary to a txt file
             with open(f"{Path(self.image_directory_base).parent/'model_summary.txt'}", "w") as file:
                 file.write(str(model_summary))
+
         if self.fabric.is_global_zero and checkpoint is None and output_directory is not None:
             config.save(output_directory)
 
     def setup_dataset(self):
-        self.dataset = NeCTDataset(
-            config=self.config,
-            device="cpu",  # if gpu memory is less than 50 GB, load to cpu
-        )
+        self.dataset = NeCTDataset(config=self.config, device="cpu",)  # if gpu memory is less than 50 GB, load to cpu
 
     def setup_evaluator(self):
         pass
@@ -262,6 +250,7 @@ class BaseTrainer:
             and self.config.points_per_ray.linear is True
         ):
             self.points_per_ray += 1
+
         self.projector.update(
             angle=self.angle,
             detector_binning=self.downsample_detector_factor,
@@ -278,12 +267,14 @@ class BaseTrainer:
     def on_train_epoch_end(self):
         if(self.config.checkpoint_epoch is not None and self.config.checkpoint_epoch > 0 and self.current_epoch % self.config.checkpoint_epoch == 0):
             self.save_model()
+
         self.current_epoch = self.current_epoch + 1
 
     def on_angle_end(self):
         if self.cancel_at is not None and datetime.datetime.now(datetime.UTC) > self.cancel_at:
             self.save_model(last=True)
             exit()
+
         self.current_projection = self.current_projection + 1
         self.lr_scheduler.step()
         if self.current_projection <= self.config.warmup.steps:
@@ -296,9 +287,11 @@ class BaseTrainer:
         time_since_last_image = time.perf_counter() - self.last_image_time
         if time_since_last_image > self.config.image_interval and self.config.image_interval > 0:
             self.generate_image()
+
         time_since_last_checkpoint = time.perf_counter() - self.last_checkpoint_time
         if time_since_last_checkpoint > self.config.checkpoint_interval and self.config.checkpoint_interval > 0:
             self.save_model()
+
         time_last_evaluation = time.perf_counter() - self.last_evaluation_time
         if (
             self.config.evaluation is not None
@@ -306,12 +299,10 @@ class BaseTrainer:
             and time_last_evaluation > self.config.evaluation.evaluate_interval
         ):
             self.evaluate()
+
         if self.downsample_detector_factor != 1:
-            self.proj = F.avg_pool2d(
-                self.proj.unsqueeze(0),
-                kernel_size=self.downsample_detector_factor,
-                stride=self.downsample_detector_factor,
-            ).squeeze(0)
+            self.proj = F.avg_pool2d(self.proj.unsqueeze(0), kernel_size=self.downsample_detector_factor, stride=self.downsample_detector_factor,).squeeze(0)
+        
         self.proj = self.proj.flatten()
         self.current_angle = self.current_angle + 1
 
@@ -326,24 +317,31 @@ class BaseTrainer:
         with torch.no_grad():
             if self.config.points_per_batch == "auto":
                 return
+            
             plot = self.config.plot_type
             if plot is None:
                 return
+            
             if self.fabric.is_global_zero:
                 size = [*self.config.geometry.nVoxel]
                 sample_size = [*size]
                 rm = self.config.sample_outside
                 if rm > 0:
                     sample_size = [size[0], size[1] + 2 * rm, size[2] + 2 * rm]
+
                 if plot == "XZ":
                     size[1] = 1
+
                 elif plot == "YZ":
                     size[2] = 1
+
                 elif plot == "XY":
                     size[0] = 1
+
                 if size[0] * size[1] * size[2] > self.config.points_per_batch:
                     sample_size = [sample_size[i] // 3 for i in range(3)]
                     sample_size = [s if s > 0 else 1 for s in sample_size]
+
                 z, y, x = torch.meshgrid(
                     [
                         torch.linspace(0, 1, steps=sample_size[0]) if plot != "XY" else torch.tensor(0.5),
@@ -372,8 +370,10 @@ class BaseTrainer:
                         dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
                         dynamic = dynamic + self.dataset.minimum.item()
                         axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
+
                     for ax in axes.ravel():
                         ax.set_axis_off()
+
                     fig.tight_layout()
                 else:
                     if size[0] * size[1] * size[2] < self.config.points_per_batch:
@@ -390,6 +390,7 @@ class BaseTrainer:
                                 .cpu()
                                 .numpy()
                             )
+
                     output = output / self.geometry.max_distance_traveled
                     output = output * (self.dataset.maximum.item() - self.dataset.minimum.item())
                     output = output + self.dataset.minimum.item()
@@ -404,6 +405,7 @@ class BaseTrainer:
     def create_volume(self, save=True, save_path: str | None = None, timestep: float | None = None, cpu=False):
         if self.config.mode == "dynamic" and timestep is None:
             return
+        
         with torch.no_grad():
             if self.fabric.is_global_zero:
                 size = tuple([*self.config.geometry.nVoxel])
@@ -435,12 +437,12 @@ class BaseTrainer:
                         ],
                         indexing="ij",
                     )
-
                     grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t()
                     if self.config.mode == "static":
                         output_slice = self.model(grid).reshape(size[1], size[2])
                     else:
                         output_slice = self.model(grid, timestep).reshape(size[1], size[2])
+
                     output_slice = output_slice / self.geometry.max_distance_traveled
                     output_slice = output_slice * (self.dataset.maximum.item() - self.dataset.minimum.item())
                     output_slice = output_slice + self.dataset.minimum.item()
@@ -449,6 +451,7 @@ class BaseTrainer:
                     if save_path is None:
                         save_path = f"{self.image_directory_base}/final.npy"
                     np.save(f"{self.image_directory_base}/final.npy", output.cpu().numpy())
+
                 return output.float()
 
     def save_model(self, last=False):
@@ -497,26 +500,30 @@ class BaseTrainer:
                 for i, (proj, angle, timestep) in tqdm_bar:
                     if i < self.current_angle:
                         continue
-                    self.on_angle_start(proj, angle)
 
+                    self.on_angle_start(proj, angle)
                     memory_info = nvmlDeviceGetMemoryInfo(h)
                     if self.verbose:
                         tqdm_bar.set_postfix({"GPU mem%": f"{round(int(memory_info.used)/1024**3, 1)}/{int(memory_info.total)/1024**3}G"})
                         tqdm_bar.refresh()
+
                     for batch_num in range(min(cast(int, self.batch_per_proj), self.projector.batch_per_epoch)):
                         self.optim.zero_grad()
                         self.model.train()
                         points, y = self.projector(batch_num=batch_num, proj=self.proj)
                         if points is None or y is None:
                             continue
+
                         zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
                         points_shape = points.size()
                         if points_shape[1] == 0:
                             self.logger.warning("No points in the batch")
                             continue
+
                         points = points.view(-1, 3)[~zero_points_mask]
                         if points.size(0) == 0:
                             continue
+
                         atten_hats = []
                         points_per_batch = 5000000  # 5 million points per batch is about the maximum that can be processed at once with tinycudann
                         for points_num in range(0, points.size(0), points_per_batch):
@@ -525,6 +532,7 @@ class BaseTrainer:
                             else:
                                 atten_hat = self.model(points[points_num : points_num + points_per_batch]).squeeze(0)  # .view((points.size(0), points.size(1)))
                             atten_hats.append(atten_hat)
+
                         atten_hat = torch.cat(atten_hats)
                         processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
                         processed_tensor[~zero_points_mask] = atten_hat
@@ -532,10 +540,10 @@ class BaseTrainer:
                         y_pred = torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
                         if self.config.add_poisson:
                             y_pred = (y_pred + torch.poisson(y_pred * 1e5) / 1e5) / 2
+
                         if self.config.s3im and self.current_projection > self.config.warmup.steps:
                             loss = 0
                             patch_size = min(math.floor(math.sqrt(self.projector.total_detector_pixels)), math.floor(math.sqrt(self.batch_size)),)  # 25x25 patch size, add a parameter later
-
                             self.fabric.log_dict({"patch_size": patch_size}, step=self.step)
                             loss += self.loss_fn(y_pred, y, i)
                             loss += self.s3im_loss(y_pred, y, patch_size=patch_size)
@@ -584,11 +592,8 @@ class BaseTrainer:
                         )
                         if hasattr(self.model, "skip_alpha"):
                             self.fabric.log_dict({"skip_alpha_value": self.model.skip_alpha.item()}, step=self.step,)
-                        if (
-                            self.config.mode == "static"
-                            and self.current_projection > self.config.warmup.steps
-                            and self.config.tv > 0
-                        ):
+                            
+                        if (self.config.mode == "static" and self.current_projection > self.config.warmup.steps and self.config.tv > 0):
                             rand_zyx = np.random.rand(3) * 0.8
                             z, y, x = torch.meshgrid(
                                 [
