@@ -276,6 +276,8 @@ class BaseTrainer:
             self.current_angle = 0
 
     def on_train_epoch_end(self):
+        if(self.config.checkpoint_epoch is not None and self.config.checkpoint_epoch > 0 and self.current_epoch % self.config.checkpoint_epoch == 0):
+            self.save_model()
         self.current_epoch = self.current_epoch + 1
 
     def on_angle_end(self):
@@ -489,20 +491,9 @@ class BaseTrainer:
             self.training_time = time.perf_counter()
             nvmlInit()
             h = nvmlDeviceGetHandleByIndex(0)
-            for epoch in self.tqdm(
-                range(self.current_epoch, self.config.epochs),
-                total=self.config.epochs,
-                initial=self.current_epoch,
-                leave=True,
-                desc="Epochs",
-            ):
+            for epoch in self.tqdm(range(self.current_epoch, self.config.epochs), total=self.config.epochs, initial=self.current_epoch, leave=True, desc="Epochs",):
                 self.on_train_epoch_start()
-                tqdm_bar = self.tqdm(
-                    enumerate(self.dataloader),
-                    total=len(self.dataloader),
-                    leave=False,
-                    desc="Projections",
-                )
+                tqdm_bar = self.tqdm(enumerate(self.dataloader), total=len(self.dataloader), leave=False, desc="Projections",)
                 for i, (proj, angle, timestep) in tqdm_bar:
                     if i < self.current_angle:
                         continue
@@ -510,9 +501,7 @@ class BaseTrainer:
 
                     memory_info = nvmlDeviceGetMemoryInfo(h)
                     if self.verbose:
-                        tqdm_bar.set_postfix(
-                            {"GPU mem%": f"{round(int(memory_info.used)/1024**3, 1)}/{int(memory_info.total)/1024**3}G"}
-                        )
+                        tqdm_bar.set_postfix({"GPU mem%": f"{round(int(memory_info.used)/1024**3, 1)}/{int(memory_info.total)/1024**3}G"})
                         tqdm_bar.refresh()
                     for batch_num in range(min(cast(int, self.batch_per_proj), self.projector.batch_per_epoch)):
                         self.optim.zero_grad()
@@ -532,34 +521,20 @@ class BaseTrainer:
                         points_per_batch = 5000000  # 5 million points per batch is about the maximum that can be processed at once with tinycudann
                         for points_num in range(0, points.size(0), points_per_batch):
                             if self.config.mode == "dynamic":
-                                atten_hat = self.model(
-                                    points[points_num : points_num + points_per_batch],
-                                    float(timestep),
-                                ).squeeze(0)  # .view((points.size(0), points.size(1)))
+                                atten_hat = self.model(points[points_num : points_num + points_per_batch], float(timestep),).squeeze(0)  # .view((points.size(0), points.size(1)))
                             else:
-                                atten_hat = self.model(points[points_num : points_num + points_per_batch]).squeeze(
-                                    0
-                                )  # .view((points.size(0), points.size(1)))
+                                atten_hat = self.model(points[points_num : points_num + points_per_batch]).squeeze(0)  # .view((points.size(0), points.size(1)))
                             atten_hats.append(atten_hat)
                         atten_hat = torch.cat(atten_hats)
-                        processed_tensor = torch.zeros(
-                            (points_shape[0], points_shape[1], 1),
-                            dtype=torch.float32,
-                            device=self.fabric.device,
-                        ).view(-1, 1)
+                        processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
                         processed_tensor[~zero_points_mask] = atten_hat
                         atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
-                        y_pred = torch.sum(atten_hat, dim=1) * (
-                            self.projector.distances / (self.geometry.max_distance_traveled)
-                        )  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
+                        y_pred = torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
                         if self.config.add_poisson:
                             y_pred = (y_pred + torch.poisson(y_pred * 1e5) / 1e5) / 2
                         if self.config.s3im and self.current_projection > self.config.warmup.steps:
                             loss = 0
-                            patch_size = min(
-                                math.floor(math.sqrt(self.projector.total_detector_pixels)),
-                                math.floor(math.sqrt(self.batch_size)),
-                            )  # 25x25 patch size, add a parameter later
+                            patch_size = min(math.floor(math.sqrt(self.projector.total_detector_pixels)), math.floor(math.sqrt(self.batch_size)),)  # 25x25 patch size, add a parameter later
 
                             self.fabric.log_dict({"patch_size": patch_size}, step=self.step)
                             loss += self.loss_fn(y_pred, y, i)
@@ -608,10 +583,7 @@ class BaseTrainer:
                             step=self.step,
                         )
                         if hasattr(self.model, "skip_alpha"):
-                            self.fabric.log_dict(
-                                {"skip_alpha_value": self.model.skip_alpha.item()},
-                                step=self.step,
-                            )
+                            self.fabric.log_dict({"skip_alpha_value": self.model.skip_alpha.item()}, step=self.step,)
                         if (
                             self.config.mode == "static"
                             and self.current_projection > self.config.warmup.steps
