@@ -312,6 +312,7 @@ class Config:
         elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "quadcubes_split"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
+            
             if model == "hash_grid":
                 from nect.network import HashGrid
 
@@ -321,6 +322,7 @@ class Config:
                     encoding_config=self.encoder, 
                     network_config=self.net
                 )
+
             elif model == "double_hash_grid":
                 from nect.network import DoubleHashGrid
 
@@ -330,6 +332,7 @@ class Config:
                     encoding_config=self.encoder,
                     network_config=self.net,
                 )
+
             elif model == "quadcubes_split":
                 from nect.network import QuadCubesSplit
 
@@ -342,6 +345,7 @@ class Config:
                     prior=self.use_prior,
                     concat=self.concat if self.concat is not None else True,
                 )
+
             elif model == "quadcubes":
                 from nect.network import QuadCubes
 
@@ -354,6 +358,7 @@ class Config:
                     prior=self.use_prior,
                     concat=self.concat if self.concat is not None else True,
                 )
+
             elif model == "hypercubes":
                 from nect.network import HyperCubes
 
@@ -366,6 +371,7 @@ class Config:
                 )
             else:
                 raise ValueError(f"Model type {model} is not supported")
+            
         else:
             raise ValueError(f"Model type {model} is not supported")
         # compute size of model
@@ -457,15 +463,18 @@ class Config:
                 return 1 / (warmup_factor_exponential ** (self.warmup.steps - projections))
             else:
                 return 1
+            
         warmup_factor_linear = (1 - self.warmup.lr0) / self.warmup.steps
         def warmup_lr_linear(projections):
             if projections < self.warmup.steps:
                 return projections * warmup_factor_linear
             return 1
+        
         if self.warmup.otype == "linear":
             warmup_lr = warmup_lr_linear
         else:
             warmup_lr = warmup_lr_exponential
+
         lr_scheduler_warmup = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=warmup_lr)
         lr_scheduler_warmup_downsample = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=lambda x: x / 500)
         if isinstance(self.epochs, str):
@@ -478,6 +487,7 @@ class Config:
         if "exponential".casefold() == self.lr_scheduler.otype.casefold():
             gamma = self.lr_scheduler.lrf ** (1 / (self.epochs * len(self.geometry.angles)))
             lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=gamma)
+
         elif "cosine".casefold() == self.lr_scheduler.otype.casefold():
             lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 optim,
@@ -491,16 +501,19 @@ class Config:
             def l1_loss(pred, target, *args, **kwargs):
                 return torch.nn.functional.l1_loss(pred, target)
             return l1_loss
+        
         elif "l2".casefold() in self.loss.casefold():
             def l2_loss(pred, target, *args, **kwargs):
                 return torch.nn.functional.mse_loss(pred, target)
             return l2_loss
+        
         elif "l1+l2".casefold() in self.loss.casefold():
             def l1_l2_loss(pred, target, i, *args, **kwargs):
                 if i % 2 == 0:
                     return torch.nn.functional.l1_loss(pred, target)
                 return torch.nn.functional.mse_loss(pred, target)
             return l1_l2_loss
+        
         else:
             raise NotImplementedError(f"Loss {self.loss} is not supported")
 
@@ -514,14 +527,18 @@ class Config:
             config["encoder"].pop("nVoxel", None)
             config["mode"] = self.mode
             yaml.dump(config, f)
+
         with open(os.path.join(output_directory, "model", "geometry.yaml"), "w") as f:
             if isinstance(geometry["angles"], np.ndarray):
                 geometry["angles"] = geometry["angles"].tolist()
+
             if isinstance(geometry["timesteps"], np.ndarray):
                 geometry["timesteps"] = geometry["timesteps"].tolist()
+
             geometry["angles"] = list(geometry["angles"])
             if geometry["timesteps"] is not None:
                 geometry["timesteps"] = list(geometry["timesteps"])
+
             geometry["nDetector"] = list(geometry["nDetector"])
             geometry["dDetector"] = list(geometry["dDetector"])
             geometry["nVoxel"] = list(geometry["nVoxel"])
@@ -547,8 +564,7 @@ class Config:
                     y2 = target[suffle_idx][: patch_size**2]
                     ssim_value = 1 - ssim(
                         y_pred2.reshape(-1, patch_size, patch_size).unsqueeze(1),
-                        y2.reshape(-1, patch_size, patch_size).unsqueeze(1),
-                    )
+                        y2.reshape(-1, patch_size, patch_size).unsqueeze(1),)
                     loss += ssim_value / 5
                 loss = loss * 3
             return loss
@@ -623,11 +639,13 @@ def cfg_dict_to_dataclass(config: dict):
     geometry_cfg = load_config(config.get("geometry"))
     if geometry_cfg is None:
         raise ValueError("Geometry configuration is not provided")
+    
     config.update({"geometry": geometry_cfg})
     cfg_sanity_check(config)
     cfg: Config = from_dict(data_class=Config, data=config)
     if cfg.geometry.mode == "cone":
         cfg.geometry = from_dict(data_class=GeometryCone, data=geometry_cfg)
+
     return cfg
 
 
@@ -650,6 +668,7 @@ def get_cfg(path: str | pathlib.Path, model: str | None = None, static: bool | N
             model = cfg_specific.get("model")
             if model is None:
                 raise ValueError("Model type via parameter 'model' is not provided")
+            
         if static is None:
             static_cfg = cfg_specific.get("mode")
             if static_cfg not in ["static", "dynamic"]:
@@ -657,24 +676,32 @@ def get_cfg(path: str | pathlib.Path, model: str | None = None, static: bool | N
                     static_cfg = "static"
                 else:
                     static_cfg = "dynamic"
+
             static = static_cfg == "static"
+
     if static:
         cfg = get_static_cfg(model)
     else:
         cfg = get_dynamic_cfg(model)
+
     if not os.path.exists(path):
         raise FileNotFoundError(f"Path {path} does not exist")
+    
     if cfg_specific is None:
         cfg.update(load_config(path))
     else:
         cfg.update(cfg_specific)
+
     if cfg.get("geometry") == "SAME_FOLDER":
         cfg["geometry"] = os.path.join(os.path.dirname(path), "geometry.yaml")
+
     if not pathlib.Path(cfg["img_path"]).is_absolute():
         cfg["img_path"] = os.path.join(os.path.dirname(path), cfg["img_path"])
+
     geometry_cfg = load_config(cfg.get("geometry"))
     if geometry_cfg is None:
         raise ValueError("Geometry configuration is not provided")
+    
     cfg.update({"geometry": geometry_cfg})
     cfg_sanity_check(cfg)
     if cfg.get("lr") is None:
@@ -695,6 +722,7 @@ def setup_cfg(cfg: dict) -> Config:
     config = from_dict(data_class=Config, data=cfg)
     if config.geometry.mode == "cone":
         config.geometry = from_dict(data_class=GeometryCone, data=cfg["geometry"])
+
     return config
 
 
@@ -709,18 +737,9 @@ def cfg_sanity_check(cfg: dict):
     mode = cfg.get("mode")
     if mode not in ["static", "dynamic"]:
         raise ValueError(f"Mode {mode} is not valid, must be either 'static' or 'dynamic'")
+    
     in_func = lambda x, y: x.casefold() in [y_el.casefold() for y_el in y]
-    supported_activation_functions = [
-        "none",
-        "relu",
-        "sigmoid",
-        "leakyrelu",
-        "exponential",
-        "tanh",
-        "sine",
-        "squareplus",
-        "softplus",
-    ]
+    supported_activation_functions = ["none", "relu", "sigmoid", "leakyrelu", "exponential", "tanh", "sine", "squareplus", "softplus",]
 
     in_list = "in the list"
     gt_eq = "greater or equal to"
@@ -736,108 +755,53 @@ def cfg_sanity_check(cfg: dict):
         "log2_hashmap_size": (int, [(int.__ge__, 1, gt_eq)]),
         "base_resolution": (int, [(int.__ge__, 1, gt_eq)]),
         "max_resolution_factor": (float, [(float.__gt__, 0.0, gt)]),
-        "max_resolution_type": (Optional[str], [(in_func, ["nVoxel", "nDetector"], in_list)])
-    }
+        "max_resolution_type": (Optional[str], [(in_func, ["nVoxel", "nDetector"], in_list)])}
+    
     mlp_net = {
         "otype": (str, [(in_func, ["FullyFusedMLP", "CutlassMLP"], in_list)]),
         "n_hidden_layers": (int, [(int.__ge__, 1, gt_eq)]),
         "n_neurons": (int, [(int.__ge__, 1, gt_eq)]),
         "activation": (str, [(in_func, supported_activation_functions, in_list)]),
-        "output_activation": (
-            str,
-            [(in_func, supported_activation_functions, in_list)],
-        ),
+        "output_activation": (str, [(in_func, supported_activation_functions, in_list)]),
         "include_adaptive_skip": (Optional[bool], []),
-        "include_identity": (Optional[bool], []),
-    }
+        "include_identity": (Optional[bool], []),}
 
     sanity = {
         "hash_grid": {"encoder": hash_encoder, "net": mlp_net},
         "kplanes": {
             "encoder": {
                 "grid_dimensions": (int, [(int.__eq__, 2, eq)]),
-                "input_coordinate_dim": (
-                    int,
-                    [(lambda x, y: x == y, 3 if mode == "static" else 4, eq)],
-                ),
+                "input_coordinate_dim": (int, [(lambda x, y: x == y, 3 if mode == "static" else 4, eq)],),
                 "output_coordinate_dim": (int, [(int.__ge__, 1, gt_eq)]),
-                "resolution": (
-                    list,
-                    [
-                        (
-                            lambda x, y: len(x) == y,
-                            3 if mode == "static" else 4,
-                            len_eq,
-                        ),
-                        (
-                            lambda x, y: all(isinstance(i, y) for i in x),
-                            int,
-                            correct_type,
-                        ),
-                    ],
-                ),
+                "resolution": (list, [(lambda x, y: len(x) == y, 3 if mode == "static" else 4, len_eq,), (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type,),],),
                 "regularization": {
                     "space_lambda": (float, [(float.__ge__, 0.0, gt_eq)]),
                     "time_lambda": (float, [(float.__ge__, 0.0, gt_eq)]),
-                    "time_type": (
-                        str,
-                        [(in_func, ["l1", "smoothnes"], in_list)],
-                    ),
+                    "time_type": (str, [(in_func, ["l1", "smoothnes"], in_list)],),
                 },
             },
             "net": mlp_net,
         },
         "double_hash_grid": {"encoder": hash_encoder, "net": mlp_net},
-        "quadcubes": {
-            "encoder": hash_encoder,
-            "net": mlp_net,
-            "cat": (Optional[bool], []),
-        },
-        "hypercubes": {
-            "encoder": hash_encoder,
-            "net": mlp_net,
-            "cat": (Optional[bool], []),
-        },
-    }
+        "quadcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "quadcubes_split": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },}
+    
     sanity["kplanes_dynamic"] = sanity["kplanes"]
     sanity_all = {
         "image_interval": (float, []),
         "checkpoint_interval": (float, []),
-        "epochs": (
-            str,
-            [
-                (
-                    lambda x, y: x == y or (len(x.split("x")) == 2 and float(x.split("x")[0]) > 0) or int(x) > 0,
-                    "auto",
-                    "not a int or 'auto' or '<float>x'",
-                )
-            ],
-        ),
+        "epochs": (str, [(lambda x, y: x == y or (len(x.split("x")) == 2 and float(x.split("x")[0]) > 0) or int(x) > 0, "auto", "not a int or 'auto' or '<float>x'",)],),
         "loss": (str, [(in_func, ["L1", "L2", "L1+L2"], in_list)]),
         "optimizer": {
-            "otype": (
-                str,
-                [(in_func, ["Adam", "NAdam", "RAdam", "Lion", "SGD"], in_list)],
-            ),
+            "otype": (str, [(in_func, ["Adam", "NAdam", "RAdam", "Lion", "SGD"], in_list)],),
             "weight_decay": (float, [(float.__ge__, 0.0, gt_eq)]),
             "beta1": (float, [(float.__ge__, 0.0, gt_eq), (float.__le__, 1.0, lt_eq)]),
-            "beta2": (
-                Optional[float],
-                [(float.__ge__, 0.0, gt_eq), (float.__le__, 1.0, lt_eq)],
-            ),
+            "beta2": (Optional[float], [(float.__ge__, 0.0, gt_eq), (float.__le__, 1.0, lt_eq)],),
         },
         "lr_scheduler": {
             "otype": (str, [(in_func, ["Exponential", "Cosine"], in_list)]),
-            "lrf": (
-                str,
-                [
-                    (
-                        lambda x, y: x == y or (float(x) > 0 and float(x) <= 1),
-                        "auto",
-                        "not a float or 'auto'",
-                    )
-                ],
-            ),
+            "lrf": (str, [(lambda x, y: x == y or (float(x) > 0 and float(x) <= 1), "auto", "not a float or 'auto'",)],),
         },
         "warmup": {
             "steps": (int, [(int.__ge__, 0, gt_eq)]),
@@ -847,122 +811,27 @@ def cfg_sanity_check(cfg: dict):
         "s3im": (bool, []),
         "points_per_ray": {
             "start": (int, [(int.__ge__, 1, gt_eq)]),
-            "end": (
-                str,
-                [
-                    (
-                        lambda x, y: x == y or (len(x.split("x")) == 2 and float(x.split("x")[0]) > 0) or int(x) > 0,
-                        "auto",
-                        "not a int or 'auto' or '<float>x'",
-                    )
-                ],
-            ),
-            "update_interval": (
-                str,
-                [
-                    (
-                        lambda x, y: x == y or (len(x.split("x")) == 2 and float(x.split("x")[0]) > 0) or int(x) > 0,
-                        "auto",
-                        "not a int or 'auto' or '<float>x'"
-                    )
-                ],
-            ),
+            "end": (str, [(lambda x, y: x == y or (len(x.split("x")) == 2 and float(x.split("x")[0]) > 0) or int(x) > 0, "auto", "not a int or 'auto' or '<float>x'",)],),
+            "update_interval": (str, [(lambda x, y: x == y or (len(x.split("x")) == 2 and float(x.split("x")[0]) > 0) or int(x) > 0, "auto", "not a int or 'auto' or '<float>x'")],),
             "linear": (Optional[bool], []),
         },
-        "batch_per_proj": (
-            str,
-            [(lambda x, y: x == y or int(x) > 0, "all", "not a int or 'all'")],
-        ),
+        "batch_per_proj": (str,  [(lambda x, y: x == y or int(x) > 0, "all", "not a int or 'all'")],),
         "add_poisson": (bool, []),
-        "points_per_batch": (
-            str,
-            [(lambda x, y: x == y or int(x) > 0, "auto", "not a int or 'auto'")],
-        ),
+        "points_per_batch": (str, [(lambda x, y: x == y or int(x) > 0, "auto", "not a int or 'auto'")],),
         "reconstruction_mode": (str, [(in_func, ["voxel", "cylindrical"], in_list)]),
         "img_path": (str, [], ),
         "uniform_ray_spacing": (bool, []),
         "geometry": {
-            "nDetector": (
-                list,
-                [
-                    (lambda x, y: len(x) == y, 2, len_eq),
-                    (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type),
-                ],
-            ),
-            "dDetector": (
-                list,
-                [
-                    (lambda x, y: len(x) == y, 2, len_eq),
-                    (
-                        lambda x, y: all(isinstance(i, y) for i in x),
-                        float | int,
-                        correct_type,
-                    ),
-                ],
-            ),
-            "nVoxel": (
-                list,
-                [
-                    (lambda x, y: len(x) == y, 3, len_eq),
-                    (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type),
-                ],
-            ),
-            "dVoxel": (
-                list,
-                [
-                    (lambda x, y: len(x) == y, 3, len_eq),
-                    (
-                        lambda x, y: all(isinstance(i, y) for i in x),
-                        float | int,
-                        correct_type,
-                    ),
-                ],
-            ),
-            "offOrigin": (
-                list,
-                [
-                    (lambda x, y: len(x) == y, 3, len_eq),
-                    (
-                        lambda x, y: all(isinstance(i, y) for i in x),
-                        float | int,
-                        correct_type,
-                    ),
-                ],
-            ),
-            "offDetector": (
-                list,
-                [
-                    (lambda x, y: len(x) == y, 2, len_eq),
-                    (
-                        lambda x, y: all(isinstance(i, y) for i in x),
-                        float | int,
-                        correct_type,
-                    ),
-                ],
-            ),
-            "rotDetector": (
-                Optional[list],
-                [
-                    (lambda x, y: len(x) == y, 3, len_eq),
-                    (
-                        lambda x, y: all(isinstance(i, y) for i in x),
-                        float | int,
-                        correct_type,
-                    ),
-                ],
-            ),
+            "nDetector": (list, [(lambda x, y: len(x) == y, 2, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type),],),
+            "dDetector": (list, [(lambda x, y: len(x) == y, 2, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), float | int, correct_type,),],),
+            "nVoxel": (list, [(lambda x, y: len(x) == y, 3, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type),],),
+            "dVoxel": (list, [(lambda x, y: len(x) == y, 3, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), float | int, correct_type,),],),
+            "offOrigin": (list, [(lambda x, y: len(x) == y, 3, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), float | int, correct_type,),],),
+            "offDetector": (list, [(lambda x, y: len(x) == y, 2, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), float | int, correct_type,),],),
+            "rotDetector": (Optional[list], [(lambda x, y: len(x) == y, 3, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), float | int, correct_type,),],),
             "mode": (str, [(in_func, ["parallel", "cone"], in_list)]),
             "COR": (float, []),
-            "angles": (
-                list,
-                [
-                    (
-                        lambda x, y: all(isinstance(i, y) for i in x),
-                        float | int,
-                        correct_type,
-                    )
-                ],
-            ),
+            "angles": (list, [(lambda x, y: all(isinstance(i, y) for i in x), float | int, correct_type,)],),
             "radians": (bool, []),
             "timesteps": (Optional[list], []),
             "radius": (Optional[float], []),
@@ -972,45 +841,20 @@ def cfg_sanity_check(cfg: dict):
             "flip": (Optional[bool], []),
             "DSD": (Optional[float], []),
             "DSO": (Optional[float], []),
-            "invert_angles": (Optional[bool], []),
-        },
-    }
+            "invert_angles": (Optional[bool], []), },}
+    
     sanity_optional = {
         "save_volume": (bool, []),
         "clip_grad_value": (float, [(float.__ge__, 0.0, gt_eq)]),
         "plot_type": (str, [(in_func, ["XY", "XZ", "YZ"])]),
-        "sparse_view": (
-            list,
-            [
-                (lambda x, y: len(x) == y, 2, len_eq),
-                (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type),
-                (
-                    lambda x, y: x[0] < x[1],
-                    None,
-                    "first element is not less than the second",
-                ),
-            ],
-        ),
+        "sparse_view": (list, [(lambda x, y: len(x) == y, 2, len_eq), (lambda x, y: all(isinstance(i, y) for i in x), int, correct_type), (lambda x, y: x[0] < x[1], None, "first element is not less than the second",),],),
         "channel_order": (str, []),
-        "downsampling_detector": {
-            "start": (int, [(int.__ge__, 1, gt_eq)]),
-            "end": (int, [(int.__ge__, 1, gt_eq)]),
-            "update_interval": (int, [(int.__ge__, 1, gt_eq)]),
-        },
+        "downsampling_detector": {"start": (int, [(int.__ge__, 1, gt_eq)]), "end": (int, [(int.__ge__, 1, gt_eq)]), "update_interval": (int, [(int.__ge__, 1, gt_eq)]),},
         "evaluation": {
-            "gt_path": (str, []),
-            "gt_path_mode": (
-                str,
-                [
-                    (
-                        lambda x, y: x in y or os.path.exists(x),
-                        ["SciVis", "PorousMedium"],
-                        "path does not exist",
-                    )
-                ],
-            ),
+            "gt_path": (str, []), 
+            "gt_path_mode": (str,[(lambda x, y: x in y or os.path.exists(x), ["SciVis", "PorousMedium"], "path does not exist",)],),
             "evaluate_interval": (float, [(float.__ge__, 1.0, gt_eq)]),
-        },
+            },
         "crop": {
             "top": (float, [(float.__ge__, 0.0, gt_eq)]),
             "bottom": (float, [(float.__ge__, 0.0, gt_eq)]),
@@ -1024,14 +868,15 @@ def cfg_sanity_check(cfg: dict):
         "sample_outside": (int, [(int.__ge__, 0, gt_eq)]),
         "accumulation_steps": (Optional[int], [(int.__ge__, 1, gt_eq)]),
         "continous_scanning": (bool, []),
-        "num_workers": (int, [(int.__ge__, 0, gt_eq)]),
-    }
+        "num_workers": (int, [(int.__ge__, 0, gt_eq)]),}
+    
     model = cfg.get("model")
     if model is None:
         raise ValueError("Model type is not provided")
 
     if model not in sanity.keys():
         raise ValueError(f"Model type {model} is not supported, must be one of {list(sanity.keys())}")
+    
     check_cfg(sanity[model], cfg)
     check_cfg(sanity_all, cfg)
     check_cfg(sanity_optional, cfg, optional=True)
@@ -1056,10 +901,12 @@ def check_cfg(sanity: dict, cfg: dict, nested_key: list = [], optional: bool = F
             if optional or isinstance(None, value[0]):  # check if the value is optional
                 continue
             raise ValueError(f"Key {key} is not in the configuration at key {nested_key_}")
+        
         if isinstance(value, dict):
             if not isinstance(cfg_value, dict):
                 raise ValueError(f"Value {cfg_value} is not a dictionary, but is supposed to be, at key {nested_key_}")
             check_cfg(value, cfg_value, nested_key_)
+
         elif isinstance(value, tuple):
             try:
                 cast = value[0]
@@ -1072,11 +919,10 @@ def check_cfg(sanity: dict, cfg: dict, nested_key: list = [], optional: bool = F
                     ), f"Value {cfg_value} is not of type {value[0]} at key {nested_key_}"
             except Exception as e:
                 raise ValueError(f"Value {cfg_value} is not of type {value[0]} at key {nested_key_}") from e
+            
             for check in value[1]:
                 if not check[0](typed_cfg_value, check[1]):
-                    raise ValueError(
-                        f"Value {cfg_value} does not satisfy the condition {check[2], check[1]} at key {nested_key_}"
-                    )
+                    raise ValueError(f"Value {cfg_value} does not satisfy the condition {check[2], check[1]} at key {nested_key_}")
 
 
 def get_config(
@@ -1101,20 +947,16 @@ def get_config(
     """
     if mode not in ["static", "dynamic"]:
         raise ValueError(f"Mode {mode} is not valid, must be either 'static' or 'dynamic")
+    
     if model is None:
         model = "hash_grid" if mode == "static" else "quadcubes"
+
     if mode == "static":
         cfg = get_static_cfg(model)
     else:
         cfg = get_dynamic_cfg(model)
-    cfg.update(
-        {
-            "geometry": geometry.to_dict(),
-            "img_path": img_path,
-            "channel_order": channel_order,
-            "model": model
-        }
-    )
+
+    cfg.update({"geometry": geometry.to_dict(), "img_path": img_path, "channel_order": channel_order, "model": model})
     return setup_cfg(cfg)
 
 

@@ -152,24 +152,22 @@ def reconstruct(
         The path to the reconstruction directory if mode is dynamic. If static, a np.ndarray is returned.
     """
     logger.remove()
-    logger.add(
-        sys.stdout,
-        colorize=True,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
-        level="INFO" if verbose else "WARNING",
-    )
+    logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>", level="INFO" if verbose else "WARNING",)
 
     if mode == "static":
         cfg = get_static_cfg(name="hash_grid")
     elif mode == "dynamic":
         cfg = get_dynamic_cfg(name="quadcubes")
+
     if channel_order is not None:
         cfg["channel_order"] = channel_order
+
     cfg["flip"] = flip_projections
     if isinstance(projections, (str, Path)):
         cfg["img_path"] = projections
     else:
         cfg["img_path"] = "RECONSTRUCTING_FROM_ARRAY"
+
     if quality in ["poor", "low"]:
         cfg["loss"] = "L2"
         cfg["encoder"]["log2_hashmap_size"] = 19
@@ -179,13 +177,16 @@ def reconstruct(
         elif quality == "low":
             cfg["epochs"] = "0.1x"
             cfg["base_lr"] *= 5
+
     elif quality == "medium":
         cfg["epochs"] = "0.3x"
         cfg["base_lr"] *= 2
+
     elif quality == "high":
         cfg["epochs"] = "1x"
         cfg["base_lr"] /= 2
         cfg["warmup"]["steps"] = 500
+
     elif quality in ["higher", "highest"]:
 #        cfg["net"]["n_neurons"] = 64
 #        cfg["net"]["n_hidden_layers"] = 6
@@ -202,28 +203,38 @@ def reconstruct(
             cfg["lr_scheduler"]["lrf"] = 0.01
             cfg["points_per_ray"]["end"] = "1.5x"
             cfg["encoder"]["log2_hashmap_size"] = 23
+
     if niter is not None:
         cfg["epochs"] = niter
+
     if lr is not None:
         cfg["base_lr"] = lr
+
     if angles is not None:
         geometry.set_angles(angles, radians)
+
     elif geometry.angles is None:
         raise ValueError("angles must be provided, either as an argument or in the `Geometry` object.")
+    
     if timesteps is not None:
         geometry.set_timesteps(timesteps)
+
     if config_override is not None:
         cfg.update(config_override)
+
     cfg["geometry"] = geometry.to_dict()
     config = setup_cfg(cfg)
     if exp_name is None:
         log_path = Path("outputs")
     else:
         log_path = Path("outputs") / exp_name
+
     if mode == "dynamic":
         log = True
-    if isinstance(projections, (str, Path)):
-        trainer = BaseTrainer(
+
+    if config.model == "quadcubes_split":
+        from nect.trainers.split_trainer import SplitTrainer
+        trainer = SplitTrainer(
             config=config,
             output_directory=log_path if log else None,
             save_ckpt=save_ckpt,
@@ -233,22 +244,33 @@ def reconstruct(
             log=log,
         )
     else:
-        trainer = ProjectionsLoadedTrainer(
-            config=config,
-            projections=projections,
-            output_directory=log_path if log else None,
-            save_ckpt=save_ckpt,
-            save_last=False if mode == "static" else True,
-            save_optimizer=False,
-            verbose=verbose,
-            log=log,
-        )
+        if isinstance(projections, (str, Path)):
+            trainer = BaseTrainer(
+                config=config,
+                output_directory=log_path if log else None,
+                save_ckpt=save_ckpt,
+                save_last=False if mode == "static" else True,
+                save_optimizer=False,
+                verbose=verbose,
+                log=log,
+            )
+        else:
+            trainer = ProjectionsLoadedTrainer(
+                config=config,
+                projections=projections,
+                output_directory=log_path if log else None,
+                save_ckpt=save_ckpt,
+                save_last=False if mode == "static" else True,
+                save_optimizer=False,
+                verbose=verbose,
+                log=log,
+            )
+            
     trainer.fit()
     if mode == "static":
         return torch.rot90(cast(torch.Tensor, trainer.create_volume(save=False, cpu=True)), 2, (1, 2)).cpu().numpy()
     else:
         return Path(trainer.checkpoint_directory_base).parent
-
 
 def reconstruct_from_config_file(
     cfg: str | Path,
