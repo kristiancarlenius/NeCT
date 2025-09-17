@@ -559,25 +559,26 @@ class KPlanes(nn.Module):
         return output
 
 class QuadCubesSplit(nn.Module):
-    def __init__(self, encoding_config, network_config, prior=False, concat=True):
+    def __init__(self, encoding_config, network_config, prior: bool = False, concat: bool = True):
         super().__init__()
         self.concat = concat
-        self.include_identity = network_config.include_identity
+        self.include_identity = bool(getattr(network_config, "include_identity", False))
 
         if not prior:
             encoding = {
                 "otype": "Composite",
                 "nested": [
-                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
-                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
-                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
-                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
-                ]
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                ],
             }
             if self.include_identity:
-                encoding["nested"].append(
-                    { "n_dims_to_encode": 4, "otype": "Identity" }
-                )
+                encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
+        else:
+            # if prior=True you probably set up something external; keep placeholder to avoid NameError
+            encoding = {"otype": "Identity", "n_dims_to_encode": 12 + (4 if self.include_identity else 0)}
 
         # Encoder only
         self.encoder = tcnn.Encoding(
@@ -592,25 +593,89 @@ class QuadCubesSplit(nn.Module):
             network_config=network_config.get_network_config(),
         )
 
-    def forward(self, zyx, t):
-        yxt = torch.cat([zyx[..., [1, 2]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
-        xzt = torch.cat([zyx[..., [2, 0]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
-        zyt = torch.cat([zyx[..., [0, 1]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+    # ---- helpers ----
+    @staticmethod
+    def _as_col(t_like, N, device, dtype):
+        """
+        Make t a (N,1) column tensor on the right device/dtype.
+        Accepts float/int scalar, (N,), or (N,1).
+        """
+        t = torch.as_tensor(t_like, device=device, dtype=dtype)
+        if t.ndim == 0:
+            t = t.expand(N).contiguous()
+        if t.ndim == 1:
+            t = t.view(-1, 1)
+        elif t.ndim == 2 and t.shape[1] == 1:
+            pass
+        else:
+            raise ValueError(f"t must be scalar, (N,), or (N,1); got shape {tuple(t.shape)}")
+        if t.shape[0] != N:
+            # allow scalar broadcasting only
+            raise ValueError(f"t has length {t.shape[0]} but points have length {N}")
+        return t
+
+    def _assemble_inputs(self, zyx: torch.Tensor, t) -> torch.Tensor:
+        """
+        zyx: (N,3) in [0,1] normalized volume coordinates
+        t: scalar / (N,) / (N,1)
+        returns: raw input vector to the Composite encoder
+        """
+        if zyx.ndim != 2 or zyx.shape[1] != 3:
+            raise ValueError(f"zyx must be (N,3); got {tuple(zyx.shape)}")
+        N = zyx.shape[0]
+        t_col = self._as_col(t, N=N, device=zyx.device, dtype=zyx.dtype)
+
+        # permutations used by QuadCubes
+        yxt = torch.cat([zyx[..., [1, 2]], t_col], dim=-1)  # (N,3)
+        xzt = torch.cat([zyx[..., [2, 0]], t_col], dim=-1)  # (N,3)
+        zyt = torch.cat([zyx[..., [0, 1]], t_col], dim=-1)  # (N,3)
 
         if self.include_identity:
-            zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
-            inputs = torch.cat([zyx, yxt, xzt, zyt, zyxt], dim=-1)
+            zyxt = torch.cat([zyx, t_col], dim=-1)          # (N,4)
+            inputs = torch.cat([zyx, yxt, xzt, zyt, zyxt], dim=-1)  # (N, 12+4)
         else:
-            inputs = torch.cat([zyx, yxt, xzt, zyt], dim=-1)
+            inputs = torch.cat([zyx, yxt, xzt, zyt], dim=-1)        # (N, 12)
+        return inputs
 
-        encoded = self.encoder(inputs)
-        return self.net(encoded)
-    
-    def precompute_encodings(model, dataset, device="cuda"):
-        all_points, all_timesteps = dataset.get_all_points_and_timesteps()  # needs implementing
-        encoded = []
-        for pts, ts in zip(all_points, all_timesteps):
-            encoded.append(model.encode_inputs(pts.to(device), ts).detach().cpu())
-        encoded = torch.cat(encoded, dim=0)
-        torch.save(encoded, "encoded_inputs.pt")
-        return encoded
+    # ---- public API ----
+    def encode_inputs(self, zyx: torch.Tensor, t) -> torch.Tensor:
+        """
+        Returns encoder features (no MLP).
+        Shape: (N, F)
+        """
+        inputs = self._assemble_inputs(zyx, t)
+        return self.encoder(inputs)
+
+    def forward(self, zyx: torch.Tensor, t) -> torch.Tensor:
+        """
+        Full forward: encoder -> MLP. Returns (N,1).
+        """
+        encoded = self.encode_inputs(zyx, t)
+        out = self.net(encoded)
+        return out
+
+    @torch.no_grad()
+    def precompute_encodings(
+        self,
+        points: torch.Tensor,
+        t,
+        out_path: str | None = None,
+        chunk: int = 5_000_000,
+        dtype: torch.dtype = torch.float16,
+    ) -> torch.Tensor:
+        """
+        Convenience helper to encode a big (N,3) tensor once.
+        Runs on the module's device, returns CPU tensor (optionally saved).
+        NOTE: for production use, do this in the trainer where you also store masks/shape/dist.
+        """
+        self.eval()
+        device = next(self.parameters()).device
+        pts = points.to(device, non_blocking=True)
+        feats = []
+        for s in range(0, pts.shape[0], chunk):
+            enc = self.encode_inputs(pts[s : s + chunk], t)
+            feats.append(enc.detach().to(dtype).cpu())
+        X = torch.cat(feats, dim=0)
+        if out_path is not None:
+            torch.save(X, out_path)
+        return X
