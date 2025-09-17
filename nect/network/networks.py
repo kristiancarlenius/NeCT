@@ -605,3 +605,12 @@ class QuadCubesSplit(nn.Module):
 
         encoded = self.encoder(inputs)
         return self.net(encoded)
+    
+    def precompute_encodings(model, dataset, device="cuda"):
+        all_points, all_timesteps = dataset.get_all_points_and_timesteps()  # needs implementing
+        encoded = []
+        for pts, ts in zip(all_points, all_timesteps):
+            encoded.append(model.encode_inputs(pts.to(device), ts).detach().cpu())
+        encoded = torch.cat(encoded, dim=0)
+        torch.save(encoded, "encoded_inputs.pt")
+        return encoded

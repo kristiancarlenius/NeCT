@@ -308,12 +308,8 @@ class Config:
                 model = KPlanes(encoding_config=self.encoder, network_config=self.net)
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
-        elif model in [
-            "hash_grid",
-            "double_hash_grid",
-            "quadcubes",
-            "hypercubes",
-        ]:
+            
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "quadcubes_split"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             if model == "hash_grid":
@@ -333,6 +329,18 @@ class Config:
                 model = DoubleHashGrid(
                     encoding_config=self.encoder,
                     network_config=self.net,
+                )
+            elif model == "quadcubes_split":
+                from nect.network import QuadCubesSplit
+
+                # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
+
+                model = QuadCubesSplit(
+                    encoding_config=self.encoder,
+                    network_config=self.net,
+                    prior=self.use_prior,
+                    concat=self.concat if self.concat is not None else True,
                 )
             elif model == "quadcubes":
                 from nect.network import QuadCubes
@@ -562,6 +570,7 @@ cfg_paths: dict = {
         "kplanes_dynamic": pathlib.Path(__file__).parent / "cfg/dynamic/kplanes_dynamic.yaml",
         "double_hash_grid": pathlib.Path(__file__).parent / "cfg/dynamic/double_hash_grid.yaml",
         "quadcubes": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes.yaml",
+        "quadcubes_split": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_split.yaml",
         "hypercubes": pathlib.Path(__file__).parent / "cfg/dynamic/hypercubes.yaml",
     },
 }
