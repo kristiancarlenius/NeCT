@@ -23,7 +23,7 @@ reconstruction_path = nect.reconstruct(
     mode="dynamic",
     config_override={
         "epochs": "3x",  # a multiplier of base-epochs. Base-epochs is: floor(49 / num_projections * max(nDetector))
-        "checkpoint_interval": 1800,  # How often to save the model in seconds
+        "checkpoint_interval": 0,  # How often to save the model in seconds
         "image_interval": 600,  # How often to save images in seconds
         "plot_type": "XZ",  # XZ or XY, YZ
     },

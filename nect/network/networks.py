@@ -557,3 +557,51 @@ class KPlanes(nn.Module):
 
         output = self.sigma_net(features)
         return output
+
+class QuadCubesSplit(nn.Module):
+    def __init__(self, encoding_config, network_config, prior=False, concat=True):
+        super().__init__()
+        self.concat = concat
+        self.include_identity = network_config.include_identity
+
+        if not prior:
+            encoding = {
+                "otype": "Composite",
+                "nested": [
+                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
+                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
+                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
+                    { "n_dims_to_encode": 3, **encoding_config.get_encoder_config() },
+                ]
+            }
+            if self.include_identity:
+                encoding["nested"].append(
+                    { "n_dims_to_encode": 4, "otype": "Identity" }
+                )
+
+        # Encoder only
+        self.encoder = tcnn.Encoding(
+            n_input_dims=12 + (4 if self.include_identity else 0),
+            encoding_config=encoding,
+        )
+
+        # MLP only
+        self.net = tcnn.Network(
+            n_input_dims=self.encoder.n_output_dims,
+            n_output_dims=1,
+            network_config=network_config.get_network_config(),
+        )
+
+    def forward(self, zyx, t):
+        yxt = torch.cat([zyx[..., [1, 2]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        xzt = torch.cat([zyx[..., [2, 0]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        zyt = torch.cat([zyx[..., [0, 1]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+
+        if self.include_identity:
+            zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+            inputs = torch.cat([zyx, yxt, xzt, zyt, zyxt], dim=-1)
+        else:
+            inputs = torch.cat([zyx, yxt, xzt, zyt], dim=-1)
+
+        encoded = self.encoder(inputs)
+        return self.net(encoded)

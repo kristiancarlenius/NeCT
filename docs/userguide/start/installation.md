@@ -54,3 +54,9 @@ export TCNN_CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES}
 export TORCH_CUDA_ARCH_LIST="6.0 7.0 8.0 9.0"
 export FORCE_CUDA="1"
 ```
+### RUN ON IDUN
+
+in directory:
+    module load CUDA/11.7.0
+    module load cuDNN/8.4.1.50-CUDA-11.7.0
+    module load load tiny-cuda-nn/1.6-foss-2022a-CUDA-11.7.0
