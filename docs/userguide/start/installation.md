@@ -42,7 +42,7 @@ pip install -v git+https://github.com/haakonnese/nect
 pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
 ```
 
-
+con
 ### Install Multiple Compute Capabilities
 
 To build for multiple compute capabilities (e.g., 60=P100, 70=V100, 80=A100, 90=H100), set these environment variables **before** installing NeCT:
