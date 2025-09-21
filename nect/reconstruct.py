@@ -226,10 +226,14 @@ def reconstruct(
 
     cfg["geometry"] = geometry.to_dict()
     config = setup_cfg(cfg)
+    
     if exp_name is None:
         log_path = Path("outputs")
     else:
         log_path = Path("outputs") / exp_name
+    
+    (log_path / "model").mkdir(parents=True, exist_ok=True)
+    config.save(log_path / "model")
 
     if mode == "dynamic":
         log = True
