@@ -490,7 +490,7 @@ class BaseTrainer:
     
     def save_epoch_checkpoint(self):
         """Save full model + optimizer every N epochs into outputs/run_name/checkpoints/epoch_xxxx.ckpt"""
-        run_name = getattr(self.config, "exp_name", "default_run")
+        run_name = getattr(self.config, "model", "default_run")
         base_dir = Path("outputs") / run_name / "checkpoints"
         base_dir.mkdir(parents=True, exist_ok=True)
 

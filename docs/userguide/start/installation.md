@@ -56,7 +56,7 @@ export FORCE_CUDA="1"
 ```
 ### RUN ON IDUN
 
-in directory:
-    module load CUDA/11.7.0
-    module load cuDNN/8.4.1.50-CUDA-11.7.0
-    module load load tiny-cuda-nn/1.6-foss-2022a-CUDA-11.7.0
+source nect_a100/bin/activate
+git pull origin master
+uv pip install -e .
+python -m demo.01_static_reconstruct_from_array.py
