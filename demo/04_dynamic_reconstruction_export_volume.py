@@ -24,8 +24,16 @@ reconstruction_path = nect.reconstruct(
     config_override={
         "epochs": "3x",  # a multiplier of base-epochs. Base-epochs is: floor(49 / num_projections * max(nDetector))
         "checkpoint_interval": 0,  # How often to save the model in seconds
-        "image_interval": 600,  # How often to save images in seconds
+        "image_interval": 0,  # How often to save images in seconds
         "plot_type": "XZ",  # XZ or XY, YZ
+        "encoder": {
+            "otype": "HashGrid",
+            "n_levels": 20,
+            "n_features_per_level": 4,
+            "log2_hashmap_size": 21,
+            "base_resolution": 16,
+            "max_resolution_factor": 2
+        },
     },
 )
 nect.export_volumes(reconstruction_path, binning=3, avg_timesteps=5)
