@@ -19,7 +19,7 @@ geometry = nect.Geometry(
     mode="cone",  # Geometry mode (cone or parallel)
     radians=False,  # Angle units (radians (True) or degrees (False))
 )
-download_demo_data("Carp-cone", force_download=True) # Download the demo data. You can force a re-download by setting force_download=True
+download_demo_data("Carp-cone", force_download=False) # Download the demo data. You can force a re-download by setting force_download=True
 demo_dir = get_demo_data_path("Carp-cone")
 projections = np.load(demo_dir / "projections.npy")
 volume = nect.reconstruct(geometry=geometry, projections=projections, quality="high")
