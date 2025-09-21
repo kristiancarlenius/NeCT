@@ -131,31 +131,26 @@ def prune_from_path(base_path: str | Path):
     
 def prune_model(model: torch.nn.Module, base_path: str | Path):
     """
-    Prunes model to remove optimizer.
-    
-    Args:
-        model (torch.nn.Module): Model to prune.
-        base_path (str | Path): Path to the run directory (with checkpoints).
+    Save a pruned version of the model (no optimizer state) along with config and geometry.
     """
-    state = {
-        "model": model.state_dict(),
-    }
-
     base_path = Path(base_path)
     pruned_path = base_path.parent / "pruned"
     model_path = pruned_path / "checkpoints" / "last.ckpt"
     model_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # save minimal checkpoint
+    # Save model weights only
+    state = {"model": model.state_dict()}
     torch.save(state, model_path)
 
-    # Try root-level config/geometry first, else fallback to model/
+    # Copy config + geometry from model subdir
+    model_dir = base_path / "model"
     for fname in ["config.yaml", "geometry.yaml"]:
-        src = base_path / fname
+        src = model_dir / fname
+        dst = pruned_path / fname
         if not src.exists():
-            src = base_path / "model" / fname
-        if not src.exists():
-            raise FileNotFoundError(f"Could not find {fname} in {base_path} or {base_path / 'model'}")
-        shutil.copy(src, pruned_path / fname)
+            raise FileNotFoundError(f"Could not find {src} when pruning model")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src, dst)
+
 
     

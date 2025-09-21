@@ -519,7 +519,12 @@ class Config:
             raise NotImplementedError(f"Loss {self.loss} is not supported")
 
     def save(self, output_directory: str | pathlib.Path):
-        with open(os.path.join(output_directory, "model", "config.yaml"), "w") as f:
+        output_directory = pathlib.Path(output_directory)
+        model_dir = output_directory / "model"
+        model_dir.mkdir(parents=True, exist_ok=True)   # <-- this fixes the error
+
+        # Save config.yaml
+        with open(model_dir / "config.yaml", "w") as f:
             config = asdict(self)
             geometry = config.pop("geometry")
             config["geometry"] = "SAME_FOLDER"
@@ -529,10 +534,10 @@ class Config:
             config["mode"] = self.mode
             yaml.dump(config, f)
 
-        with open(os.path.join(output_directory, "model", "geometry.yaml"), "w") as f:
+        # Save geometry.yaml
+        with open(model_dir / "geometry.yaml", "w") as f:
             if isinstance(geometry["angles"], np.ndarray):
                 geometry["angles"] = geometry["angles"].tolist()
-
             if isinstance(geometry["timesteps"], np.ndarray):
                 geometry["timesteps"] = geometry["timesteps"].tolist()
 
