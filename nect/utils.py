@@ -129,8 +129,7 @@ def prune_from_path(base_path: str | Path):
     shutil.copy(base_path / "geometry.yaml", pruned_path / "geometry.yaml")
     logger.info(f"Pruned model saved to {pruned_path}")
     
-def prune_model(model: torch.nn.Module,
-                base_path: str | Path):
+def prune_model(model: torch.nn.Module, base_path: str | Path):
     """
     Prunes model to remove optimizer.
     
