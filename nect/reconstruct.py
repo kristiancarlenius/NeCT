@@ -156,8 +156,10 @@ def reconstruct(
 
     if mode == "static":
         cfg = get_static_cfg(name="hash_grid")
+        cfg["model"] = "hash_grid"
     elif mode == "dynamic":
         cfg = get_dynamic_cfg(name="quadcubes")
+        cfg["model"] = "quadcubes"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order
