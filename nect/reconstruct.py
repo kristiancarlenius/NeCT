@@ -232,8 +232,8 @@ def reconstruct(
     else:
         log_path = Path("outputs") / exp_name
     
-    (log_path / "model").mkdir(parents=True, exist_ok=True)
-    config.save(log_path / "model")
+    (log_path).mkdir(parents=True, exist_ok=True)
+    config.save(log_path)
 
     if mode == "dynamic":
         log = True
