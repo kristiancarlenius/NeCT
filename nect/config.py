@@ -264,6 +264,7 @@ class Config:
     use_prior: bool = False
     lr: float | None = None
     checkpoint_prior: Optional[str] = None
+    checkpoint_epoch: int
     tv: float = 0.0
     sample_outside: int = 0
     accumulation_steps: int | None = None
