@@ -254,7 +254,6 @@ class Config:
     points_per_ray: PointsPerRay
     s3im: bool
     model: str
-    checkpoint_epoch: int
     encoder: HashEncoderConfig | KPlanesEncoderConfig
     net: MLPNetConfig | PirateNetConfig
     concat: Optional[bool]
@@ -265,6 +264,7 @@ class Config:
     use_prior: bool = False
     lr: float | None = None
     checkpoint_prior: Optional[str] = None
+    checkpoint_epoch: Optional[int] = None 
     tv: float = 0.0
     sample_outside: int = 0
     accumulation_steps: int | None = None
