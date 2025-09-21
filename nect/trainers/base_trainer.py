@@ -266,7 +266,7 @@ class BaseTrainer:
 
     def on_train_epoch_end(self):
         if(self.config.checkpoint_epoch is not None and self.config.checkpoint_epoch > 0 and self.current_epoch % self.config.checkpoint_epoch == 0):
-            self.save_model()
+            self.save_epoch_checkpoint()
 
         self.current_epoch = self.current_epoch + 1
 
@@ -487,7 +487,26 @@ class BaseTrainer:
             self.last_checkpoint_time = time.perf_counter()
         if last and self.prune and self.fabric.is_global_zero:
             prune_model(self.model, Path(self.checkpoint_directory_base).parent)
-        
+    
+    def save_epoch_checkpoint(self):
+        """Save full model + optimizer every N epochs into outputs/run_name/checkpoints/epoch_xxxx.ckpt"""
+        run_name = getattr(self.config, "exp_name", "default_run")
+        base_dir = Path("outputs") / run_name / "checkpoints"
+        base_dir.mkdir(parents=True, exist_ok=True)
+
+        filename = base_dir / f"epoch_{self.current_epoch:04d}.ckpt"
+
+        state = {
+            "epoch": self.current_epoch,
+            "model_state_dict": self.model.state_dict(),
+            "optimizer_state_dict": self.optim.state_dict() if self.save_optimizer else None,
+            "lr_scheduler_state_dict": self.lr_scheduler.state_dict() if hasattr(self, "lr_scheduler") else None,
+            "config": self.config,
+        }
+
+        torch.save(state, filename)
+        self.logger.info(f"Saved checkpoint: {filename}")
+
     def fit(self):
         try:
             self.step = 0
