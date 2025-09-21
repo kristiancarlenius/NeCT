@@ -253,7 +253,7 @@ def reconstruct(
                 save_optimizer=False,
                 verbose=verbose,
                 log=log,
-                prune=prune,
+                prune=False,
             )
         else:
             trainer = ProjectionsLoadedTrainer(
