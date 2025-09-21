@@ -38,7 +38,7 @@ setup(
     license="MIT",  # Change if using a different license
     url="https://github.com/haakonnese/nect",
     packages=find_packages(".", include=["nect", "nect.*", "torch_extra", "torch_extra.*"]),
-    package_data={"nect.cfg": ["**/*"]},
+    package_data={"nect": ["**/*"]},   # fix here
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.11",
