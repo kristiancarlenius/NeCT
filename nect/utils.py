@@ -135,16 +135,27 @@ def prune_model(model: torch.nn.Module, base_path: str | Path):
     
     Args:
         model (torch.nn.Module): Model to prune.
-        path (str | Path): Path to save the pruned model.
+        base_path (str | Path): Path to the run directory (with checkpoints).
     """
     state = {
         "model": model.state_dict(),
     }
+
     base_path = Path(base_path)
     pruned_path = base_path.parent / "pruned"
     model_path = pruned_path / "checkpoints" / "last.ckpt"
     model_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # save minimal checkpoint
     torch.save(state, model_path)
-    shutil.copy(base_path / "config.yaml", pruned_path / "config.yaml")
-    shutil.copy(base_path / "geometry.yaml", pruned_path / "geometry.yaml")
+
+    # Try root-level config/geometry first, else fallback to model/
+    for fname in ["config.yaml", "geometry.yaml"]:
+        src = base_path / fname
+        if not src.exists():
+            src = base_path / "model" / fname
+        if not src.exists():
+            raise FileNotFoundError(f"Could not find {fname} in {base_path} or {base_path / 'model'}")
+        shutil.copy(src, pruned_path / fname)
+
     
