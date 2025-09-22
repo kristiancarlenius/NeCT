@@ -333,3 +333,22 @@ def export_video_projections(config_path: str | Path, file: str | Path, skip_fir
     config = get_cfg(config_path)
     dataset = NeCTDataset(config)
     dataset.export_video(file, skip_first, num_projections)
+
+def export_dataset_to_npy(config_path: str | Path, output_file: str | Path, downsample: int = 1):
+        """
+        Load the dataset and export it as a single .npy file.
+
+        Args:
+            config_path (str | Path): Path to the config YAML.
+            output_file (str | Path): Path where the .npy file will be saved.
+            downsample (int): Downsampling factor (default=1 = no downsampling).
+        """
+        config = get_cfg(config_path)
+        dataset = NeCTDataset(config)
+
+        projections = dataset.get_full_projections(downsample_projections_factor=downsample)
+
+        output_file = Path(output_file).with_suffix(".npy")
+        np.save(output_file, projections)
+
+        print(f"Saved projections with shape {projections.shape} to {output_file}")

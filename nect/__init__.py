@@ -9,6 +9,7 @@ from .sampling import *  # noqa
 from .sampling.geometry import Geometry
 from .trainers import *  # noqa
 from .download_demo_data import download_demo_data
+from .data import export_dataset_to_npy
 
 __all__ = [
     "export_volumes",
@@ -20,4 +21,5 @@ __all__ = [
     "fdk",
     "fdk_from_config",
     "download_demo_data",
+    "export_dataset_to_npy",
 ]

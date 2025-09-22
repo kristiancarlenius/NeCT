@@ -312,20 +312,22 @@ def reconstruct_from_config_file(
     exp_name = os.path.join(log_path, output_folder, config.mode)
     if checkpoint:
         exp_name = Path(checkpoint).parent.parent.parent
+
     trainer = BaseTrainer
+    
     if config.evaluation is not None:
         if config.evaluation.gt_path_mode.upper() == "SCIVIS":
             from nect.trainers.scivis_trainer import SciVisTrainer
-
             trainer = SciVisTrainer
+
         elif config.evaluation.gt_path_mode.upper() == "POROUSMEDIUM":
             from nect.trainers.porous_medium_trainer import PorousMediumTrainer
-
             trainer = PorousMediumTrainer
+
     if config.continous_scanning is True:
         from nect.trainers.continous_scanning_trainer import ContinousScanningTrainer
-
         trainer = ContinousScanningTrainer
+
     trainer = trainer(
         config=config,
         checkpoint=checkpoint,

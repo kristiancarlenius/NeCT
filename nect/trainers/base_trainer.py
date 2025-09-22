@@ -614,27 +614,11 @@ class BaseTrainer:
                             
                         if (self.config.mode == "static" and self.current_projection > self.config.warmup.steps and self.config.tv > 0):
                             rand_zyx = np.random.rand(3) * 0.8
-                            z, y, x = torch.meshgrid(
-                                [
-                                    torch.linspace(
-                                        rand_zyx[0],
-                                        rand_zyx[0] + 0.2,
-                                        steps=100,
-                                        device=self.fabric.device,
-                                    ),
-                                    torch.linspace(
-                                        rand_zyx[1],
-                                        rand_zyx[1] + 0.2,
-                                        steps=100,
-                                        device=self.fabric.device,
-                                    ),
-                                    torch.linspace(
-                                        rand_zyx[2],
-                                        rand_zyx[2] + 0.2,
-                                        steps=100,
-                                        device=self.fabric.device,
-                                    ),
-                                ],
+                            z, y, x = torch.meshgrid([
+                                    torch.linspace(rand_zyx[0], rand_zyx[0] + 0.2, steps=100, device=self.fabric.device,),
+                                    torch.linspace(rand_zyx[1], rand_zyx[1] + 0.2, steps=100, device=self.fabric.device,),
+                                    torch.linspace(rand_zyx[2], rand_zyx[2] + 0.2, steps=100, device=self.fabric.device,),
+                                    ],
                                 indexing="ij",
                             )
                             grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).view(3, -1).t()
@@ -643,20 +627,24 @@ class BaseTrainer:
                             atten_hat = atten_hat.view(100, 100, 100)
                             tv_loss = total_variation_3d(atten_hat, weight=self.config.tv)
                             loss += tv_loss
+
                         self.fabric.backward(loss)
                         if self.config.clip_grad_value is not None:
                             torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)
+
                         self.optim.step()
                         self.step += 1
+
                     self.on_angle_end()
+
                 self.on_train_epoch_end()
+
             self.evaluate()
             self.save_model(last=True)
+
         except KeyboardInterrupt:
             if self.step > 3000:
                 self.logger.info("Please wait before canceling again as the model now is beeing saved")
                 self.save_model(last=True)
             else:
-                self.logger.info(
-                    f"The model was trained for {self.step} steps, so it will not save the model before exiting."
-                )
+                self.logger.info(f"The model was trained for {self.step} steps, so it will not save the model before exiting.")
