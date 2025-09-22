@@ -1,39 +1,48 @@
 from pathlib import Path
-import nect 
-import numpy as np
 import yaml
+import numpy as np
+import nect
 
 data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
-config_file = data_path+"config.yaml"
-geometry_file = data_path+"geometry.yaml"
+config_file = Path(data_path) / "config.yaml"
+geometry_file = Path(data_path) / "geometry.yaml"
 
+# load config
 with open(config_file, "r") as f:
     config = yaml.safe_load(f)
 
+# update img_path to point to projections folder
+config["img_path"] = str(Path(data_path) / "projections")
+
+# write the updated config to a temporary yaml
+tmp_config_file = Path(data_path) / "config_tmp.yaml"
+with open(tmp_config_file, "w") as f:
+    yaml.safe_dump(config, f)
+
+# export dataset to npy (requires the helper function we discussed earlier)
+nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
+
+# load geometry
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-config["img_path"] = data_path+"projections" # need to change the img_path to point to the path of the projections
-nect.export_dataset_to_npy('config.yaml', 'dataset.npy')
-
+# run reconstruction using the new .npy projections
 reconstruction_path = nect.reconstruct(
     geometry=geometry,
-    projections=data_path+"projections.npy",
+    projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
     config_override={
-        "epochs": "3x",  # a multiplier of base-epochs. Base-epochs is: floor(49 / num_projections * max(nDetector))
-        "checkpoint_interval": 0,  # How often to save the model in seconds
-        "image_interval": 0,  # How often to save images in seconds
-        "plot_type": "XZ",  # XZ or XY, YZ
+        "epochs": "3x",
+        "checkpoint_interval": 0,
+        "image_interval": 0,
+        "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
             "n_levels": 20,
             "n_features_per_level": 4,
             "log2_hashmap_size": 21,
             "base_resolution": 16,
-            "max_resolution_factor": 2
+            "max_resolution_factor": 2,
         },
     },
 )
-
-
