@@ -310,7 +310,7 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
-        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "quadcubes_split"]:
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
@@ -332,19 +332,6 @@ class Config:
                 model = DoubleHashGrid(
                     encoding_config=self.encoder,
                     network_config=self.net,
-                )
-
-            elif model == "quadcubes_split":
-                from nect.network import QuadCubesSplit
-
-                # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
-                memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
-
-                model = QuadCubesSplit(
-                    encoding_config=self.encoder,
-                    network_config=self.net,
-                    prior=self.use_prior,
-                    concat=self.concat if self.concat is not None else True,
                 )
 
             elif model == "quadcubes":
@@ -380,6 +367,7 @@ class Config:
         memory_per_point *= 1.5  # buffer
         if isinstance(self.net, MLPNetConfig):
             memory_per_point += self.net.n_hidden_layers * self.net.n_neurons * 2 * 1.5  # 1.5 for buffer
+
         elif isinstance(self.encoder, HashEncoderConfig):
             memory_per_point += (
                 self.net.n_modules
@@ -388,9 +376,11 @@ class Config:
                 * (2 if self.mode == "dynamic" else 1)
                 * byte_size
             )
+
         model_and_optimizer_size = sum(p.numel() for p in model.parameters()) * 4 * 3
         if torch.cuda.device_count() > 1:
             model_and_optimizer_size *= 2  # ddp stores copy
+
         model_and_optimizer_size += 1024**3 * 3 + max(1024**3 * 3, model_and_optimizer_size * 0.3)  # buffer
         if self.points_per_batch == "auto":
             # memory_per_point = memory_per_point * 2 # buffer as we need for some calculation during backprop
@@ -398,20 +388,22 @@ class Config:
                 avg_memory_per_point = memory_per_point / 4 * 3
             else:
                 avg_memory_per_point = memory_per_point
+
             self.points_per_batch = int((free_memory - model_and_optimizer_size) / avg_memory_per_point)
             self.points_per_batch = min(5_000_000, self.points_per_batch)
             logger.info(f"Setting points_per_batch to {self.points_per_batch:_}")
             if self.points_per_batch < 1:
                 raise ValueError("Not enough memory to store even one point")
+            
         return model
 
     def get_optimizer(self, model: torch.nn.Module) -> torch.optim.Optimizer:
         if self.points_per_batch == "auto":
-            raise ValueError(
-                "`batch_per_proj` should already have been calculated as `get_model` should have been called before `get_optimizer`"
-            )
+            raise ValueError("`batch_per_proj` should already have been calculated as `get_model` should have been called before `get_optimizer`")
+        
         if self.lr is None:
             self.lr = self.base_lr * math.sqrt((self.points_per_batch * torch.cuda.device_count()) / 1_000_000)
+
         if "adam".casefold() in self.optimizer.otype.casefold():
             if "adam".casefold() == self.optimizer.otype.casefold():
                 adam_optim = torch.optim.Adam
@@ -425,8 +417,8 @@ class Config:
                 model.parameters(),
                 lr=self.lr,
                 betas=(self.optimizer.beta1, self.optimizer.beta2),
-                weight_decay=self.optimizer.weight_decay,
-            )
+                weight_decay=self.optimizer.weight_decay,)
+            
         elif "lion".casefold() == self.optimizer.otype.casefold():
             from lion_pytorch import Lion
 
@@ -435,27 +427,21 @@ class Config:
                 lr=self.lr,
                 betas=(self.optimizer.beta1, self.optimizer.beta2),
                 weight_decay=self.optimizer.weight_decay,
-                use_triton=True,
-            )
+                use_triton=True,)
+            
         elif "sgd".casefold() == self.optimizer.otype.casefold():
             optim = torch.optim.SGD(
                 model.parameters(),
                 lr=self.lr,
                 momentum=self.optimizer.beta1,
-                weight_decay=self.optimizer.weight_decay,
-            )
+                weight_decay=self.optimizer.weight_decay,)
+            
         else:
             NotImplementedError(f"Optimizer {self.optimizer.otype} is not supported")
 
         return optim
 
-    def get_lr_schedulers(
-        self, optim: torch.optim.Optimizer
-    ) -> tuple[
-        torch.optim.lr_scheduler.LRScheduler,
-        torch.optim.lr_scheduler.LRScheduler,
-        torch.optim.lr_scheduler.LRScheduler,
-    ]:
+    def get_lr_schedulers(self, optim: torch.optim.Optimizer) -> tuple[torch.optim.lr_scheduler.LRScheduler, torch.optim.lr_scheduler.LRScheduler, torch.optim.lr_scheduler.LRScheduler,]:
         warmup_factor_exponential = (1 / self.warmup.lr0) ** (1 / self.warmup.steps)
 
         def warmup_lr_exponential(projections):
@@ -592,7 +578,6 @@ cfg_paths: dict = {
         "kplanes_dynamic": pathlib.Path(__file__).parent / "cfg/dynamic/kplanes_dynamic.yaml",
         "double_hash_grid": pathlib.Path(__file__).parent / "cfg/dynamic/double_hash_grid.yaml",
         "quadcubes": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes.yaml",
-        "quadcubes_split": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_split.yaml",
         "hypercubes": pathlib.Path(__file__).parent / "cfg/dynamic/hypercubes.yaml",
     },
 }
@@ -790,7 +775,6 @@ def cfg_sanity_check(cfg: dict):
         },
         "double_hash_grid": {"encoder": hash_encoder, "net": mlp_net},
         "quadcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
-        "quadcubes_split": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]

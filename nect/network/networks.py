@@ -404,31 +404,15 @@ class QuadCubes(nn.Module):
             encoding = {
                 "otype": "Composite",
                 "nested": [
-                    {
-                        "n_dims_to_encode": 3,
-                        **encoding_config.get_encoder_config()
-                    },
-                    {
-                        "n_dims_to_encode": 3,
-                        **encoding_config.get_encoder_config()
-                    },
-                    {
-                        "n_dims_to_encode": 3,
-                        **encoding_config.get_encoder_config()
-                    },
-                    {
-                        "n_dims_to_encode": 3,
-                        **encoding_config.get_encoder_config()
-                    }
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
+                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()}
                 ]
             }
             if self.include_identity:
-                encoding["nested"].append(
-                    {
-                        "n_dims_to_encode": 4,
-                        "otype": "Identity"
-                    }
-                )
+                encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
+                
         self.net = tcnn.NetworkWithInputEncoding(
             n_input_dims=12 + (4 if self.include_identity else 0),
             n_output_dims=1,

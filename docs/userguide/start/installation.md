@@ -59,4 +59,4 @@ export FORCE_CUDA="1"
 source nect_a100/bin/activate
 git pull origin master
 uv pip install -e .
-python -m demo.01_static_reconstruct_from_array.py
+python -m demo.08_static_initialization.py
