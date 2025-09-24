@@ -53,4 +53,4 @@ reconstruction_mode: voxel         # (str) Reconstruction mode. Supported: voxel
 
 model: null                        # (str) Model type. Supported: hash_grid, double_hash, time_encode_feature_vector, double_hash_encoder, double_hash_encoder_double_network, kplanes, pirate. See docs for more information about what the different models do
 uniform_ray_spacing: True          # (bool) Sample with uniform distance if True, if False, sample uniform number of points
-checkpoint_epoch: 3          # save every N epochs, set None/0 to disable
+checkpoint_epoch: 0          # save every N epochs, set None/0 to disable

@@ -126,7 +126,7 @@ def reconstruct(
     flip_projections: bool = False,
     channel_order: str | None = None,
     config_override: dict | None = None,
-    save_ckpt: bool = False
+    save_ckpt: bool = True
 ) -> np.ndarray | Path:
     """
     Create a 3D or 4D-CT reconstruction from a set of 2D projections.
@@ -235,8 +235,8 @@ def reconstruct(
     (log_path).mkdir(parents=True, exist_ok=True)
     config.save(log_path)
 
-    if mode == "dynamic":
-        log = True
+    #if mode == "dynamic":
+    log = True
 
     if config.model == "quadcubes_split":
         from nect.trainers.split_trainer import SplitTrainer
@@ -255,8 +255,8 @@ def reconstruct(
                 config=config,
                 output_directory=log_path if log else None,
                 save_ckpt=save_ckpt,
-                save_last=False if mode == "static" else True,
-                save_optimizer=False,
+                save_last= True,#False if mode == "static" else True,
+                save_optimizer=True, #False,
                 verbose=verbose,
                 log=log,
                 prune=False,
@@ -267,8 +267,8 @@ def reconstruct(
                 projections=projections,
                 output_directory=log_path if log else None,
                 save_ckpt=save_ckpt,
-                save_last=False if mode == "static" else True,
-                save_optimizer=False,
+                save_last=True, #False if mode == "static" else True,
+                save_optimizer=True, #False,
                 verbose=verbose,
                 log=log,
             )

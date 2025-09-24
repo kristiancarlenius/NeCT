@@ -22,9 +22,10 @@ reconstruction_path = nect.reconstruct(
     geometry=geometry,
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
-    mode="dynamic",
+    mode="static",
+    exp_name="static_initilalization",
     config_override={
-        "epochs": "9x",
+        "epochs": "2x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -38,3 +39,5 @@ reconstruction_path = nect.reconstruct(
         },
     },
 )
+
+nect.export_volumes(reconstruction_path, binning=3, avg_timesteps=5)

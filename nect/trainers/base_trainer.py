@@ -420,20 +420,9 @@ class BaseTrainer:
                 )
                 for i in range(size[0]):
                     z, y, x = torch.meshgrid(
-                        [
-                            z_lin[i],
-                            torch.linspace(
-                                0.5 / sample_size[1],
-                                1 - 0.5 / sample_size[1],
-                                steps=sample_size[1],
-                                device=self.fabric.device,
-                            )[slice(rm, -rm) if rm > 0 else slice(None)],
-                            torch.linspace(
-                                0.5 / sample_size[2],
-                                1 - 0.5 / sample_size[2],
-                                steps=sample_size[2],
-                                device=self.fabric.device,
-                            )[slice(rm, -rm) if rm > 0 else slice(None)],
+                        [z_lin[i],
+                        torch.linspace(0.5 / sample_size[1], 1 - 0.5 / sample_size[1], steps=sample_size[1], device=self.fabric.device,)[slice(rm, -rm) if rm > 0 else slice(None)],
+                        torch.linspace(0.5 / sample_size[2], 1 - 0.5 / sample_size[2], steps=sample_size[2], device=self.fabric.device,)[slice(rm, -rm) if rm > 0 else slice(None)],
                         ],
                         indexing="ij",
                     )
