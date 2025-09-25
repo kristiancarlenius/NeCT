@@ -126,7 +126,8 @@ def reconstruct(
     flip_projections: bool = False,
     channel_order: str | None = None,
     config_override: dict | None = None,
-    save_ckpt: bool = True
+    save_ckpt: bool = True,
+    static_init: str | None = None, 
 ) -> np.ndarray | Path:
     """
     Create a 3D or 4D-CT reconstruction from a set of 2D projections.
@@ -160,9 +161,6 @@ def reconstruct(
     elif mode == "dynamic":
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"
-    elif mode == "dynamic_init":
-        cfg = get_dynamic_cfg(name="quadcubes")
-        cfg["model"] = "quadcubes_init"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order
@@ -241,12 +239,13 @@ def reconstruct(
     #if mode == "dynamic":
     log = True
 
-    if config.model == "quadcubes_init":
+    if static_init is not None:
         from nect.trainers.initrainer import IniTrainer
         trainer = IniTrainer(
             config=config,
             output_directory=log_path if log else None,
             init_mode="hash_to_quadcubes",
+            static_init=static_init,
             save_ckpt=save_ckpt,
             save_last=True if mode == "static" else True,
             save_optimizer=True,

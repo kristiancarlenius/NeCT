@@ -3,12 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import cast, Dict, Any
-
+import logging
 import torch
 import torch.utils.data
 from loguru import logger
-from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlInit
-
 from nect.trainers.base_trainer import BaseTrainer
 from typing import Literal, Optional
 MAX_POINTS_ENC_CHUNK = 5_000_000  # matches BaseTrainer comfort zone
