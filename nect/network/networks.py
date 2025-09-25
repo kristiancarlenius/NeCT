@@ -412,7 +412,7 @@ class QuadCubes(nn.Module):
             }
             if self.include_identity:
                 encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
-                
+
         self.net = tcnn.NetworkWithInputEncoding(
             n_input_dims=12 + (4 if self.include_identity else 0),
             n_output_dims=1,
@@ -542,62 +542,3 @@ class KPlanes(nn.Module):
         output = self.sigma_net(features)
         return output
 
-class QuadCubesSplit(nn.Module):
-    def __init__(self, encoding_config, network_config, prior: bool = False, concat: bool = True):
-        super().__init__()
-        self.concat = concat
-        self.include_identity = bool(getattr(network_config, "include_identity", False))
-
-        if not prior:
-            encoding = {
-                "otype": "Composite",
-                "nested": [
-                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
-                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
-                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
-                    {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},
-                ],
-            }
-            if self.include_identity:
-                encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
-        else:
-            encoding = {"otype": "Identity", "n_dims_to_encode": 12 + (4 if self.include_identity else 0)}
-
-        self.encoder = tcnn.Encoding(
-            n_input_dims=12 + (4 if self.include_identity else 0),
-            encoding_config=encoding,
-        )
-
-        self.net = tcnn.Network(
-            n_input_dims=self.encoder.n_output_dims,
-            n_output_dims=1,
-            network_config=network_config.get_network_config(),
-        )
-
-    @staticmethod
-    def _as_col(t_like, N, device, dtype):
-        t = torch.as_tensor(t_like, device=device, dtype=dtype)
-        if t.ndim == 0: t = t.expand(N)
-        if t.ndim == 1: t = t.view(-1, 1)
-        if t.ndim != 2 or t.shape[1] != 1: raise ValueError(f"t must be scalar/(N,)/(N,1); got {tuple(t.shape)}")
-        if t.shape[0] != N: raise ValueError(f"t length {t.shape[0]} != N {N}")
-        return t
-
-    def _assemble_inputs(self, zyx: torch.Tensor, t) -> torch.Tensor:
-        if zyx.ndim != 2 or zyx.shape[1] != 3:
-            raise ValueError(f"zyx must be (N,3); got {tuple(zyx.shape)}")
-        N = zyx.shape[0]
-        t_col = self._as_col(t, N=N, device=zyx.device, dtype=zyx.dtype)
-        yxt = torch.cat([zyx[..., [1, 2]], t_col], dim=-1)
-        xzt = torch.cat([zyx[..., [2, 0]], t_col], dim=-1)
-        zyt = torch.cat([zyx[..., [0, 1]], t_col], dim=-1)
-        if self.include_identity:
-            zyxt = torch.cat([zyx, t_col], dim=-1)
-            return torch.cat([zyx, yxt, xzt, zyt, zyxt], dim=-1)
-        return torch.cat([zyx, yxt, xzt, zyt], dim=-1)
-
-    def encode_inputs(self, zyx: torch.Tensor, t) -> torch.Tensor:
-        return self.encoder(self._assemble_inputs(zyx, t))
-
-    def forward(self, zyx: torch.Tensor, t) -> torch.Tensor:
-        return self.net(self.encode_inputs(zyx, t))

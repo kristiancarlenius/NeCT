@@ -160,6 +160,9 @@ def reconstruct(
     elif mode == "dynamic":
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"
+    elif mode == "dynamic_init":
+        cfg = get_dynamic_cfg(name="quadcubes")
+        cfg["model"] = "quadcubes_init"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order
@@ -238,16 +241,18 @@ def reconstruct(
     #if mode == "dynamic":
     log = True
 
-    if config.model == "quadcubes_split":
-        from nect.trainers.split_trainer import SplitTrainer
-        trainer = SplitTrainer(
+    if config.model == "quadcubes_init":
+        from nect.trainers.initrainer import IniTrainer
+        trainer = IniTrainer(
             config=config,
             output_directory=log_path if log else None,
+            init_mode="hash_to_quadcubes",
             save_ckpt=save_ckpt,
-            save_last=False if mode == "static" else True,
-            save_optimizer=False,
+            save_last=True if mode == "static" else True,
+            save_optimizer=True,
             verbose=verbose,
             log=log,
+            prune=False,
         )
     else:
         if isinstance(projections, (str, Path)):

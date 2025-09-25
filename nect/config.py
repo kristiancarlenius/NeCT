@@ -310,7 +310,7 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
-        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes"]:
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "quadcubes_init", "hypercubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
@@ -334,7 +334,7 @@ class Config:
                     network_config=self.net,
                 )
 
-            elif model == "quadcubes":
+            elif model == "quadcubes" or model == "quadcubes_init":
                 from nect.network import QuadCubes
 
                 # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
