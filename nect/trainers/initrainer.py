@@ -28,6 +28,15 @@ class IniTrainer(BaseTrainer):
 
         self.logger.info(f"Initializing model from '{static_init}' with mode '{init_mode}'")
         sd = _extract_state_dict_any(static_init)
+        qc_sd = self.model.state_dict()
+
+        print("\n=== HashGrid ckpt keys (first 20) ===")
+        for k in list(sd.keys())[:20]:
+            print(k, sd[k].shape)
+
+        print("\n=== QuadCubes model keys (first 30) ===")
+        for k in list(qc_sd.keys())[:30]:
+            print(k, qc_sd[k].shape)
 
         if init_mode == "direct":
             # Use *only* when architectures match exactly.
