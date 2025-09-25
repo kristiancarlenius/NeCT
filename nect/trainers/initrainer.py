@@ -68,9 +68,12 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     logger(f"HashGrid net.params: {hg_params.shape}")
     logger(f"QuadCubes net.params: {qc_params.shape}")
 
-    # Build dummy HashGrid to know split sizes
+    # Load full config with geometry resolved
+    from nect.config import get_cfg
+    hg_config = get_cfg(hash_config_path, model="hash_grid", static=True)
+
+    # Build dummy HashGrid
     from nect.network import HashGrid
-    hg_config = setup_cfg(load_config(hash_config_path))
     dummy_hg = HashGrid(
         encoding_config=hg_config.encoder,
         network_config=hg_config.net,
@@ -86,7 +89,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
 
     qc_params_new = qc_params.clone()
 
-    # ---- Copy encoder ----
+    # ---- Encoder copy ----
     enc_src = hg_params[:n_enc_hg]
     enc_dst = qc_params_new[:n_enc0_qc]
     if enc_src.shape == enc_dst.shape:
@@ -95,7 +98,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     else:
         logger(f"Encoder mismatch: src={enc_src.shape}, dst={enc_dst.shape}")
 
-    # ---- Copy MLP with padding ----
+    # ---- MLP copy with padding ----
     mlp_src = hg_params[n_enc_hg:]
     mlp_dst = qc_params_new[-n_net_qc:]
 
@@ -106,6 +109,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     qc_sd["net.params"] = qc_params_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
+
 
 
 
