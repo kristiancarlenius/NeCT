@@ -50,6 +50,7 @@ reconstruction_path = nect.reconstruct(
     mode="dynamic",
     exp_name="dynamic_initilalized",
     static_init = "/cluster/home/kristiac/NeCT/outputs/static_initilalization/hash_grid_20_4_21_16_2_6_64_L1/2025-09-24T10-44-45/model/checkpoints/last.ckpt",
+    static_init_config="/cluster/home/kristiac/NeCT/outputs/static_initilalization/hash_grid_20_4_21_16_2_6_64_L1/2025-09-24T10-44-45/model/config.yaml",
     config_override={
         "epochs": "0.1x",
         "checkpoint_interval": 0,

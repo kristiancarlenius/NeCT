@@ -128,6 +128,7 @@ def reconstruct(
     config_override: dict | None = None,
     save_ckpt: bool = True,
     static_init: str | None = None, 
+    static_init_config: str | None = None, 
 ) -> np.ndarray | Path:
     """
     Create a 3D or 4D-CT reconstruction from a set of 2D projections.
@@ -246,6 +247,7 @@ def reconstruct(
             output_directory=log_path if log else None,
             init_mode="hash_to_quadcubes",
             static_init=static_init,
+            static_init_config=static_init_config,
             save_ckpt=save_ckpt,
             save_last=True if mode == "static" else True,
             save_optimizer=True,
