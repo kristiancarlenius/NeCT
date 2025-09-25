@@ -66,12 +66,12 @@ def _transfer_hash_to_quadcubes(hash_ckpt, qc_model, logger=print):
     qc_sd = qc_model.state_dict()
     hg_params = _extract_state_dict(hash_ckpt)["net.params"]  # flat vector
 
-    # Try to measure sizes
+    # Query param sizes from tinycudann
     try:
-        qc_enc0_size = qc_model.net.encoding.nested[0].params.numel()
-        qc_mlp_size = qc_model.net.network.params.numel()
+        qc_enc0_size = qc_model.net.n_encoding_params
+        qc_mlp_size = qc_model.net.n_network_params
     except Exception as e:
-        logger(f"Failed to query param sizes: {e}")
+        logger(f"Failed to query n_encoding_params / n_network_params: {e}")
         return
 
     logger(f"=== HashGrid ckpt params ===")
@@ -84,8 +84,12 @@ def _transfer_hash_to_quadcubes(hash_ckpt, qc_model, logger=print):
     # Slice from HashGrid
     hg_enc = hg_params[:qc_enc0_size]
     hg_mlp = hg_params[-qc_mlp_size:]
+    hg_middle = hg_params[qc_enc0_size: -qc_mlp_size]
 
-    logger(f"Slicing offsets: enc0 [: {qc_enc0_size}], mlp [-{qc_mlp_size}:]")
+    logger(f"Slicing offsets:")
+    logger(f"  enc0 [: {qc_enc0_size}] → {hg_enc.numel()} params")
+    logger(f"  middle [{qc_enc0_size} : -{qc_mlp_size}] → {hg_middle.numel()} params (unused)")
+    logger(f"  mlp [-{qc_mlp_size}:] → {hg_mlp.numel()} params")
 
     # Prepare a new flat tensor for QuadCubes
     qc_params = qc_sd["net.params"].clone()
