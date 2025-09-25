@@ -7,8 +7,10 @@ import torch
 import torch.utils.data
 from loguru import logger
 from nect.trainers.base_trainer import BaseTrainer
-from nect.config import setup_cfg, load_config
 from typing import Literal, Optional
+from nect.config import get_cfg
+from nect.network import HashGrid, QuadCubes
+
 MAX_POINTS_ENC_CHUNK = 5_000_000  # matches BaseTrainer comfort zone
 
 
@@ -35,6 +37,10 @@ class IniTrainer(BaseTrainer):
 
         ckpt = torch.load(static_init, map_location="cpu")
         sd = _extract_state_dict(ckpt)
+        print("Hash_grid sanity check")
+        sanity_check_params(static_init_config, "hash_grid")
+        print("Quadcubes sanity check")
+        sanity_check_params("/cluster/home/kristiac/NeCT/outputs/dynamic_initilalized/model/config.yaml", "quadcubes")
 
         if init_mode == "direct":
             missing, unexpected = self.model.load_state_dict(sd, strict=False)
@@ -68,49 +74,99 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     logger(f"HashGrid net.params: {hg_params.shape}")
     logger(f"QuadCubes net.params: {qc_params.shape}")
 
-    # Load full config with geometry resolved
-    from nect.config import get_cfg
+    # Load full config (so SAME_FOLDER resolves geometry)
     hg_config = get_cfg(hash_config_path, model="hash_grid", static=True)
 
-    # Build dummy HashGrid
-    from nect.network import HashGrid
-    dummy_hg = HashGrid(
-        encoding_config=hg_config.encoder,
-        network_config=hg_config.net,
-    )
+    # ---- Compute HashGrid parameter split ----
+    n_levels = hg_config.encoder.n_levels
+    n_feat = hg_config.encoder.n_features_per_level
+    log2_size = hg_config.encoder.log2_hashmap_size
 
-    n_enc_hg = dummy_hg.net.encoding.n_params()
-    n_net_hg = dummy_hg.net.network.n_params()
-    logger(f"HashGrid split: enc={n_enc_hg}, mlp={n_net_hg}, total={n_enc_hg+n_net_hg}")
+    table_size = (1 << log2_size)
+    per_level_size = n_feat * table_size
+    enc_size_hg = n_levels * per_level_size
 
-    n_enc0_qc = qc_model.net.encoding.nested[0].n_params()
-    n_net_qc = qc_model.net.network.n_params()
-    logger(f"QuadCubes split: enc0={n_enc0_qc}, mlp={n_net_qc}, total={n_enc0_qc+n_net_qc}")
+    # MLP params = total - encoder
+    mlp_size_hg = hg_params.numel() - enc_size_hg
+
+    # ---- Compute QuadCubes encoder0 size ----
+    qc_n_levels = hg_config.encoder.n_levels
+    qc_feat = hg_config.encoder.n_features_per_level
+    qc_log2_size = hg_config.encoder.log2_hashmap_size
+
+    qc_table_size = (1 << qc_log2_size)
+    per_level_size_qc = qc_feat * qc_table_size
+    enc_size_qc = qc_n_levels * per_level_size_qc
+
+    # For MLP in QuadCubes: everything else
+    mlp_size_qc = qc_params.numel() - 4 * enc_size_qc
+
+    logger(f"Split HashGrid: enc={enc_size_hg}, mlp={mlp_size_hg}")
+    logger(f"Split QuadCubes: enc0={enc_size_qc}, mlp={mlp_size_qc}")
 
     qc_params_new = qc_params.clone()
 
-    # ---- Encoder copy ----
-    enc_src = hg_params[:n_enc_hg]
-    enc_dst = qc_params_new[:n_enc0_qc]
-    if enc_src.shape == enc_dst.shape:
-        qc_params_new[:n_enc0_qc] = enc_src
-        logger(f"Copied encoder: {enc_src.shape}")
-    else:
-        logger(f"Encoder mismatch: src={enc_src.shape}, dst={enc_dst.shape}")
+    # ---- Copy encoder ----
+    enc_src = hg_params[:enc_size_hg]
+    enc_dst = qc_params_new[:enc_size_qc]
+    Ncopy = min(enc_src.numel(), enc_dst.numel())
+    enc_dst[:Ncopy] = enc_src[:Ncopy]
+    logger(f"Copied encoder0: {Ncopy}/{enc_dst.numel()} values")
 
-    # ---- MLP copy with padding ----
-    mlp_src = hg_params[n_enc_hg:]
-    mlp_dst = qc_params_new[-n_net_qc:]
-
+    # ---- Copy MLP ----
+    mlp_src = hg_params[enc_size_hg:]
+    mlp_dst = qc_params_new[-mlp_size_qc:]
     Ncopy = min(mlp_src.numel(), mlp_dst.numel())
     mlp_dst[:Ncopy] = mlp_src[:Ncopy]
-    logger(f"Copied MLP {Ncopy}/{mlp_src.numel()} into {mlp_dst.numel()}")
+    logger(f"Copied MLP: {Ncopy}/{mlp_dst.numel()} values")
 
     qc_sd["net.params"] = qc_params_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
 
+def sanity_check_params(config_path: str, model: str = "hash_grid"):
+    """
+    Build model from config and print a breakdown of net.params into encoder/MLP.
+    This helps verify param ordering in tiny-cuda-nn checkpoints.
+    """
+    cfg = get_cfg(config_path, model=model, static=(model == "hash_grid"))
+    net = cfg.get_model()
+    sd = net.state_dict()
 
+    if "net.params" not in sd:
+        print(f"[{model}] no net.params in state_dict!")
+        return
+
+    params = sd["net.params"]
+    print(f"[{model}] net.params total: {params.numel()} ({params.shape})")
+
+    if model == "hash_grid":
+        # derive encoder param count
+        n_levels = cfg.encoder.n_levels
+        n_feat = cfg.encoder.n_features_per_level
+        table_size = 1 << cfg.encoder.log2_hashmap_size
+        enc_size = n_levels * n_feat * table_size
+        mlp_size = params.numel() - enc_size
+        print(f"[{model}] expect enc_size={enc_size}, mlp_size={mlp_size}")
+        print(f"  encoder slice: params[0:{enc_size}]")
+        print(f"  mlp slice: params[{enc_size}:]")
+
+    elif model == "quadcubes":
+        n_levels = cfg.encoder.n_levels
+        n_feat = cfg.encoder.n_features_per_level
+        table_size = 1 << cfg.encoder.log2_hashmap_size
+        enc_size = n_levels * n_feat * table_size
+        total_enc = 4 * enc_size
+        mlp_size = params.numel() - total_enc
+        print(f"[{model}] expect enc0_size={enc_size}, total_enc={total_enc}, mlp_size={mlp_size}")
+        print(f"  encoder0 slice: params[0:{enc_size}]")
+        print(f"  encoder1 slice: params[{enc_size}:{2*enc_size}]")
+        print(f"  encoder2 slice: params[{2*enc_size}:{3*enc_size}]")
+        print(f"  encoder3 slice: params[{3*enc_size}:{4*enc_size}]")
+        print(f"  mlp slice: params[{4*enc_size}:]")
+
+    else:
+        print(f"Sanity checker not implemented for model={model}")
 
 
 
