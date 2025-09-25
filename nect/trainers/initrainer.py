@@ -15,106 +15,88 @@ class IniTrainer(BaseTrainer):
         self,
         config,
         output_directory=None,
-        checkpoint: Optional[str] = None,   # resume same-arch
-        static_init: Optional[str] = None,  # preload from HashGrid or same-arch weights
-        init_mode: Literal["hash_to_quadcubes","direct"] = "hash_to_quadcubes",
+        checkpoint: Optional[str] = None,          # normal resume (same-arch)
+        static_init: Optional[str] = None,        # NEW: path to weights you want to initialize from
+        init_mode: Literal["hash_to_quadcubes", "direct"] = "hash_to_quadcubes",
         **kwargs,
     ):
+        """
+        init_mode:
+          - "hash_to_quadcubes": treat static_init as a trained HashGrid,
+                                 transfer encoder(x,y,z)+MLP into QuadCubes
+          - "direct": load_state_dict directly (same-architecture)
+        """
+        # Run normal BaseTrainer init (builds model, wraps with Fabric, etc.)
         super().__init__(config=config, output_directory=output_directory, checkpoint=checkpoint, **kwargs)
 
-        # If we actually resumed training (checkpoint=...), skip init-from-static
         if static_init is None:
-            return
+            return  # nothing to do
 
         self.logger.info(f"Initializing model from '{static_init}' with mode '{init_mode}'")
-        sd = _extract_state_dict_any(static_init)
-        qc_sd = self.model.state_dict()
-
-        print("\n=== HashGrid ckpt keys (first 20) ===")
-        for k in list(sd.keys())[:20]:
-            print(k, sd[k].shape)
-
-        print("\n=== QuadCubes model keys (first 30) ===")
-        for k in list(qc_sd.keys())[:30]:
-            print(k, qc_sd[k].shape)
+        ckpt = torch.load(static_init, map_location="cpu")
 
         if init_mode == "direct":
-            # Use *only* when architectures match exactly.
+            # Same-architecture init
+            sd = _extract_state_dict(ckpt)
             missing, unexpected = self.model.load_state_dict(sd, strict=False)
-            self.logger.info(f"Direct load complete. Missing={len(missing)}, Unexpected={len(unexpected)}")
-            return
+            self.logger.info(f"Loaded directly. Missing={len(missing)}, Unexpected={len(unexpected)}")
 
-        if init_mode == "hash_to_quadcubes":
-            qc_sd = self.model.state_dict()
-            remapped = _remap_hashgrid_to_quadcubes(sd, qc_sd, log=self.logger.info)
+        elif init_mode == "hash_to_quadcubes":
+            _transfer_hash_to_quadcubes(ckpt, self.model, logger=self.logger.info)
 
-            # Merge remapped into the current QC state and load
-            qc_sd.update(remapped)
-            missing, unexpected = self.model.load_state_dict(qc_sd, strict=False)
+        else:
+            raise ValueError(f"Unknown init_mode: {init_mode}")
+        
 
-            self.logger.info(f"Transferred tensors: {len(remapped)}")
-            # Show a few actual mappings for sanity:
-            for i, (k, _) in enumerate(remapped.items()):
-                if i >= 8: break
-                self.logger.info(f"  copied → {k}")
-            # These 'missing' will typically be the 3 time-encoders
-            self.logger.info(f"Missing={len(missing)} (expected extra encoders), Unexpected={len(unexpected)}")
-            return
+def _extract_state_dict(ckpt_obj):
+    # Support {"model_state_dict": ...}, {"model": dict}, or raw dict
+    if isinstance(ckpt_obj, dict):
+        if "model_state_dict" in ckpt_obj:
+            return ckpt_obj["model_state_dict"]
+        if "model" in ckpt_obj and isinstance(ckpt_obj["model"], dict):
+            return ckpt_obj["model"]
+    return ckpt_obj
 
-        raise ValueError(f"Unknown init_mode: {init_mode}")
 
-def _extract_state_dict_any(ckpt_path: str) -> dict:
-    """Return a pure state_dict from a variety of checkpoint formats."""
-    ckpt = torch.load(ckpt_path, map_location="cpu")
-
-    # epoch-style: explicit dict of tensors
-    if isinstance(ckpt, dict) and "model_state_dict" in ckpt and isinstance(ckpt["model_state_dict"], dict):
-        return ckpt["model_state_dict"]
-
-    # sometimes people save raw state_dict
-    if isinstance(ckpt, dict) and all(isinstance(v, torch.Tensor) for v in ckpt.values()):
-        return ckpt
-
-    # fabric 'last.ckpt' often stores the model object
-    if isinstance(ckpt, dict) and "model" in ckpt:
-        model_obj = ckpt["model"]
-        if hasattr(model_obj, "state_dict") and callable(model_obj.state_dict):
-            return model_obj.state_dict()
-        if isinstance(model_obj, dict):  # rare, but handle anyway
-            return model_obj
-
-    raise ValueError(f"Could not extract a state_dict from: {ckpt_path}")
-
-def _remap_hashgrid_to_quadcubes(hg_sd: dict, qc_sd: dict, log=print) -> dict:
+def _transfer_hash_to_quadcubes(hash_ckpt, qc_model, logger=print):
     """
-    Build a *remapped* state_dict containing:
-      - encoder(x,y,z): HashGrid 'net.encoding.*'  -> QuadCubes 'net.encoding.nested.0.*'
-      - MLP:            HashGrid 'net.network.*'   -> QuadCubes 'net.network.*'
-    Only keys that exist & match shape on the QuadCubes side are kept.
+    Copy encoder(x,y,z) + MLP from a trained HashGrid into QuadCubes.
+    Leaves the other encoders untouched.
     """
-    remapped = {}
-    transferred_enc = transferred_mlp = 0
+    qc_sd = qc_model.state_dict()
+    hg_params = _extract_state_dict(hash_ckpt)["net.params"]  # flat vector
 
-    # (A) Encoder: HashGrid has single encoding at 'net.encoding.*'
-    # Build target as 'net.encoding.nested.0.' + tail
-    for k, v in hg_sd.items():
-        if not k.startswith("net.encoding."):
-            continue
-        tail = k[len("net.encoding."):]         # e.g. 'params' or 'levels.0.params' etc.
-        tgt = f"net.encoding.nested.0.{tail}"   # encoder 0 is (x,y,z) branch
-        if tgt in qc_sd and qc_sd[tgt].shape == v.shape:
-            remapped[tgt] = v
-            transferred_enc += 1
+    # Try to measure sizes
+    try:
+        qc_enc0_size = qc_model.net.encoding.nested[0].params.numel()
+        qc_mlp_size = qc_model.net.network.params.numel()
+    except Exception as e:
+        logger(f"Failed to query param sizes: {e}")
+        return
 
-    # (B) MLP: names usually match 1:1
-    for k, v in hg_sd.items():
-        if not k.startswith("net.network."):
-            continue
-        if k in qc_sd and qc_sd[k].shape == v.shape:
-            remapped[k] = v
-            transferred_mlp += 1
+    logger(f"=== HashGrid ckpt params ===")
+    logger(f"HG flat tensor size: {hg_params.numel()}")
+    logger(f"=== QuadCubes model params ===")
+    logger(f"QC flat tensor size: {qc_sd['net.params'].numel()}")
+    logger(f"QC encoder0 size: {qc_enc0_size}")
+    logger(f"QC MLP size: {qc_mlp_size}")
 
-    log(f"Encoder(x,y,z) tensors prepared: {transferred_enc}")
-    log(f"MLP tensors prepared: {transferred_mlp}")
-    return remapped
+    # Slice from HashGrid
+    hg_enc = hg_params[:qc_enc0_size]
+    hg_mlp = hg_params[-qc_mlp_size:]
 
+    logger(f"Slicing offsets: enc0 [: {qc_enc0_size}], mlp [-{qc_mlp_size}:]")
+
+    # Prepare a new flat tensor for QuadCubes
+    qc_params = qc_sd["net.params"].clone()
+
+    # Replace encoder0 and MLP
+    qc_params[:qc_enc0_size] = hg_enc
+    qc_params[-qc_mlp_size:] = hg_mlp
+
+    # Load back into state_dict
+    qc_sd["net.params"] = qc_params
+    qc_model.load_state_dict(qc_sd, strict=False)
+
+    logger(f"Transferred encoder0 ({hg_enc.numel()} params) and MLP ({hg_mlp.numel()} params) "
+           f"from HashGrid → QuadCubes")
