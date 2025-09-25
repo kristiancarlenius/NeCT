@@ -10,46 +10,37 @@ from nect.trainers.base_trainer import BaseTrainer
 from typing import Literal, Optional
 MAX_POINTS_ENC_CHUNK = 5_000_000  # matches BaseTrainer comfort zone
 
+
 class IniTrainer(BaseTrainer):
     def __init__(
         self,
         config,
         output_directory=None,
-        checkpoint: Optional[str] = None,          # normal resume (same-arch)
-        static_init: Optional[str] = None,        # NEW: path to weights you want to initialize from
+        checkpoint: Optional[str] = None,
+        static_init: Optional[str] = None,
         init_mode: Literal["hash_to_quadcubes", "direct"] = "hash_to_quadcubes",
         **kwargs,
     ):
-        """
-        init_mode:
-          - "hash_to_quadcubes": treat static_init as a trained HashGrid,
-                                 transfer encoder(x,y,z)+MLP into QuadCubes
-          - "direct": load_state_dict directly (same-architecture)
-        """
-        # Run normal BaseTrainer init (builds model, wraps with Fabric, etc.)
         super().__init__(config=config, output_directory=output_directory, checkpoint=checkpoint, **kwargs)
 
         if static_init is None:
-            return  # nothing to do
+            return
 
         self.logger.info(f"Initializing model from '{static_init}' with mode '{init_mode}'")
         ckpt = torch.load(static_init, map_location="cpu")
 
+        sd = _extract_state_dict(ckpt)
+
         if init_mode == "direct":
-            # Same-architecture init
-            sd = _extract_state_dict(ckpt)
             missing, unexpected = self.model.load_state_dict(sd, strict=False)
             self.logger.info(f"Loaded directly. Missing={len(missing)}, Unexpected={len(unexpected)}")
-
         elif init_mode == "hash_to_quadcubes":
-            _transfer_hash_to_quadcubes(ckpt, self.model, logger=self.logger.info)
-
+            _transfer_hashgrid_to_quadcubes(sd, self.model, logger=self.logger.info)
         else:
             raise ValueError(f"Unknown init_mode: {init_mode}")
-        
+
 
 def _extract_state_dict(ckpt_obj):
-    # Support {"model_state_dict": ...}, {"model": dict}, or raw dict
     if isinstance(ckpt_obj, dict):
         if "model_state_dict" in ckpt_obj:
             return ckpt_obj["model_state_dict"]
@@ -58,49 +49,63 @@ def _extract_state_dict(ckpt_obj):
     return ckpt_obj
 
 
-def _transfer_hash_to_quadcubes(hash_ckpt, qc_model, logger=print):
-    """
-    Copy encoder(x,y,z) + MLP from a trained HashGrid into QuadCubes.
-    Leaves the other encoders untouched.
-    """
-    qc_sd = qc_model.state_dict()
-    hg_params = _extract_state_dict(hash_ckpt)["net.params"]  # flat vector
+def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, logger=print) -> None:
+    """Copy HashGrid → QuadCubes: encoder (xyz) exact, MLP partial with padding."""
 
-    # Query param sizes from tinycudann
-    try:
-        qc_enc0_size = qc_model.net.n_encoding_params
-        qc_mlp_size = qc_model.net.n_network_params
-    except Exception as e:
-        logger(f"Failed to query n_encoding_params / n_network_params: {e}")
+    qc_sd = qc_model.state_dict()
+    if "net.params" not in hg_sd or "net.params" not in qc_sd:
+        logger("Checkpoint missing net.params")
         return
 
-    logger(f"=== HashGrid ckpt params ===")
-    logger(f"HG flat tensor size: {hg_params.numel()}")
-    logger(f"=== QuadCubes model params ===")
-    logger(f"QC flat tensor size: {qc_sd['net.params'].numel()}")
-    logger(f"QC encoder0 size: {qc_enc0_size}")
-    logger(f"QC MLP size: {qc_mlp_size}")
+    hg_params = hg_sd["net.params"]
+    qc_params = qc_sd["net.params"]
 
-    # Slice from HashGrid
-    hg_enc = hg_params[:qc_enc0_size]
-    hg_mlp = hg_params[-qc_mlp_size:]
-    hg_middle = hg_params[qc_enc0_size: -qc_mlp_size]
+    logger(f"HashGrid net.params: {hg_params.shape}")
+    logger(f"QuadCubes net.params: {qc_params.shape}")
 
-    logger(f"Slicing offsets:")
-    logger(f"  enc0 [: {qc_enc0_size}] → {hg_enc.numel()} params")
-    logger(f"  middle [{qc_enc0_size} : -{qc_mlp_size}] → {hg_middle.numel()} params (unused)")
-    logger(f"  mlp [-{qc_mlp_size}:] → {hg_mlp.numel()} params")
+    # Extract offsets from both
+    hg_offsets = hg_sd["net.offsets"].cpu().numpy()
+    qc_offsets = qc_sd["net.offsets"].cpu().numpy()
 
-    # Prepare a new flat tensor for QuadCubes
-    qc_params = qc_sd["net.params"].clone()
+    logger(f"HashGrid offsets: {hg_offsets}")
+    logger(f"QuadCubes offsets: {qc_offsets}")
 
-    # Replace encoder0 and MLP
-    qc_params[:qc_enc0_size] = hg_enc
-    qc_params[-qc_mlp_size:] = hg_mlp
+    hg_enc_slice = slice(hg_offsets[0], hg_offsets[1])   # encoder weights
+    hg_mlp_slice = slice(hg_offsets[1], hg_offsets[-1]) # mlp weights
 
-    # Load back into state_dict
-    qc_sd["net.params"] = qc_params
-    qc_model.load_state_dict(qc_sd, strict=False)
+    qc_enc0_slice = slice(qc_offsets[0], qc_offsets[1])  # first encoder (x,y,z)
+    qc_mlp_slice = slice(qc_offsets[-2], qc_offsets[-1]) # mlp weights
 
-    logger(f"Transferred encoder0 ({hg_enc.numel()} params) and MLP ({hg_mlp.numel()} params) "
-           f"from HashGrid → QuadCubes")
+    logger(f"Encoder slice HashGrid={hg_enc_slice}, QuadCubes={qc_enc0_slice}")
+    logger(f"MLP slice HashGrid={hg_mlp_slice}, QuadCubes={qc_mlp_slice}")
+
+    # Make a copy of target weights
+    qc_params_new = qc_params.clone()
+
+    # ---- Copy encoder ----
+    enc_src = hg_params[hg_enc_slice]
+    enc_dst = qc_params_new[qc_enc0_slice]
+    if enc_src.shape == enc_dst.shape:
+        qc_params_new[qc_enc0_slice] = enc_src
+        logger(f"Copied encoder (x,y,z): {enc_src.shape}")
+    else:
+        logger(f"Encoder shape mismatch: src={enc_src.shape}, dst={enc_dst.shape}")
+
+    # ---- Copy MLP partially ----
+    mlp_src = hg_params[hg_mlp_slice]
+    mlp_dst = qc_params_new[qc_mlp_slice]
+
+    logger(f"Hash MLP raw shape: {mlp_src.shape}")
+    logger(f"Quad MLP raw shape: {mlp_dst.shape}")
+
+    # Strategy: put src weights into top-left block
+    Nsrc, Ndst = mlp_src.numel(), mlp_dst.numel()
+    Ncopy = min(Nsrc, Ndst)
+
+    qc_params_new[qc_mlp_slice][:Ncopy] = mlp_src[:Ncopy]
+    logger(f"Copied MLP {Ncopy}/{Nsrc} values into {Ndst}-sized tensor")
+
+    # Replace in state dict and load
+    qc_sd["net.params"] = qc_params_new
+    missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
+    logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
