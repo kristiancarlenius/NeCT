@@ -57,8 +57,6 @@ def _extract_state_dict(ckpt_obj):
 
 
 def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash_config_path: str, logger=print) -> None:
-    """Copy HashGrid → QuadCubes: encoder (xyz) exact, MLP partial with padding."""
-
     qc_sd = qc_model.state_dict()
     if "net.params" not in hg_sd or "net.params" not in qc_sd:
         logger("Checkpoint missing net.params")
@@ -70,50 +68,47 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     logger(f"HashGrid net.params: {hg_params.shape}")
     logger(f"QuadCubes net.params: {qc_params.shape}")
 
-    # Query offsets from live QuadCubes
-    qc_offsets = qc_model.net.offsets.cpu().numpy()
-    logger(f"QuadCubes offsets: {qc_offsets}")
-
-    # Build dummy HashGrid model using its original config
+    # Build dummy HashGrid to know split sizes
     from nect.network import HashGrid
     hg_config = setup_cfg(load_config(hash_config_path))
     dummy_hg = HashGrid(
         encoding_config=hg_config.encoder,
         network_config=hg_config.net,
     )
-    hg_offsets = dummy_hg.net.offsets.cpu().numpy()
-    logger(f"HashGrid offsets (from dummy model): {hg_offsets}")
 
-    # Slice
-    hg_enc_slice = slice(hg_offsets[0], hg_offsets[1])
-    hg_mlp_slice = slice(hg_offsets[1], hg_offsets[-1])
+    n_enc_hg = dummy_hg.net.encoding.n_params()
+    n_net_hg = dummy_hg.net.network.n_params()
+    logger(f"HashGrid split: enc={n_enc_hg}, mlp={n_net_hg}, total={n_enc_hg+n_net_hg}")
 
-    qc_enc0_slice = slice(qc_offsets[0], qc_offsets[1])
-    qc_mlp_slice = slice(qc_offsets[-2], qc_offsets[-1])
-
-    logger(f"Encoder slice HashGrid={hg_enc_slice}, QuadCubes={qc_enc0_slice}")
-    logger(f"MLP slice HashGrid={hg_mlp_slice}, QuadCubes={qc_mlp_slice}")
+    n_enc0_qc = qc_model.net.encoding.nested[0].n_params()
+    n_net_qc = qc_model.net.network.n_params()
+    logger(f"QuadCubes split: enc0={n_enc0_qc}, mlp={n_net_qc}, total={n_enc0_qc+n_net_qc}")
 
     qc_params_new = qc_params.clone()
 
-    # ---- Encoder copy ----
-    enc_src = hg_params[hg_enc_slice]
-    enc_dst = qc_params_new[qc_enc0_slice]
+    # ---- Copy encoder ----
+    enc_src = hg_params[:n_enc_hg]
+    enc_dst = qc_params_new[:n_enc0_qc]
     if enc_src.shape == enc_dst.shape:
-        qc_params_new[qc_enc0_slice] = enc_src
-        logger(f"Copied encoder (x,y,z): {enc_src.shape}")
+        qc_params_new[:n_enc0_qc] = enc_src
+        logger(f"Copied encoder: {enc_src.shape}")
     else:
         logger(f"Encoder mismatch: src={enc_src.shape}, dst={enc_dst.shape}")
 
-    # ---- MLP copy with padding ----
-    mlp_src = hg_params[hg_mlp_slice]
-    mlp_dst = qc_params_new[qc_mlp_slice]
+    # ---- Copy MLP with padding ----
+    mlp_src = hg_params[n_enc_hg:]
+    mlp_dst = qc_params_new[-n_net_qc:]
 
     Ncopy = min(mlp_src.numel(), mlp_dst.numel())
-    qc_params_new[qc_mlp_slice][:Ncopy] = mlp_src[:Ncopy]
-    logger(f"Copied MLP {Ncopy}/{mlp_src.numel()} values into {mlp_dst.numel()}")
+    mlp_dst[:Ncopy] = mlp_src[:Ncopy]
+    logger(f"Copied MLP {Ncopy}/{mlp_src.numel()} into {mlp_dst.numel()}")
 
-    # Replace in state dict
     qc_sd["net.params"] = qc_params_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
+
+
+
+
+#from nect.network import HashGrid
+#hg_config = setup_cfg(load_config(hash_config_path))
