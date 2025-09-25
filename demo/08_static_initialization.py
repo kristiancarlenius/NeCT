@@ -3,6 +3,7 @@ import yaml
 import numpy as np
 import nect
 import torch 
+from nect.config import MLPNetConfig
 
 data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
 """
@@ -39,14 +40,15 @@ reconstruction_path_static = nect.reconstruct(
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
-        "net": {
-            "otype": "FullyFusedMLP",
-            "activation": "LeakyReLU",
-            "output_activation": None,
-            "n_neurons": 128,
-            "n_hidden_layers": 4,
-            "include_identity": True,
-        },
+        "net": MLPNetConfig(
+            otype="FullyFusedMLP",
+            activation="LeakyReLU",
+            output_activation=None,
+            n_neurons=128,
+            n_hidden_layers=4,
+            include_identity=True,
+            include_adaptive_skip=False,
+        ),
     },
 )
 
