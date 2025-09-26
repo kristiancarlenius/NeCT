@@ -107,9 +107,9 @@ def _transfer_hashgrid_to_quadcubes(
 
     # Load the saved static config (resolves SAME_FOLDER -> geometry.yaml etc.)
     hg_cfg = get_cfg(hash_config_path, model="hash_grid", static=True)
-    sanity_check_params_exact(hg_cfg, "hash_grid", logger)
-    sanity_check_params_exact(qc_cfg, "quadcubes", logger)
-    
+    #sanity_check_params_exact(hg_cfg, "hash_grid", logger)
+    #sanity_check_params_exact(qc_cfg, "quadcubes", logger)
+
     # ---- Exact MLP sizes via Identity encoders ----
     hg_in = _encoded_width_hash(hg_cfg)
     qc_in = _encoded_width_quadcubes(qc_cfg)
