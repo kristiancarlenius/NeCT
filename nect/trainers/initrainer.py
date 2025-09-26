@@ -51,11 +51,6 @@ def _extract_state_dict(ckpt_obj):
     return ckpt_obj
 
 def _estimate_mlp_params_via_identity(in_dim: int, net_cfg) -> int:
-    """
-    Build a tiny NetworkWithInputEncoding that uses Identity(in_dim) as the encoder
-    (0 params) and the same MLP config. Then the size of net.params is exactly the
-    MLP parameter count (including all tcnn padding/alignment).
-    """
     enc = {"otype": "Identity", "n_dims_to_encode": int(in_dim)}
     dummy = tcnn.NetworkWithInputEncoding(
         n_input_dims=in_dim,
@@ -63,7 +58,14 @@ def _estimate_mlp_params_via_identity(in_dim: int, net_cfg) -> int:
         encoding_config=enc,
         network_config=net_cfg.get_network_config(),
     )
-    return dummy.state_dict()["net.params"].numel()
+    sd = dummy.state_dict()
+    print("Dummy state_dict keys:", sd.keys())
+    if "net.params" in sd:
+        return sd["net.params"].numel()
+    elif "params" in sd:
+        return sd["params"].numel()
+    else:
+        raise KeyError(f"No params key found in dummy net state_dict: {list(sd.keys())}")
 
 
 def _encoded_width_hash(cfg: Config) -> int:
