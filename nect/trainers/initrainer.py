@@ -116,10 +116,13 @@ def _transfer_hashgrid_to_quadcubes(
 
     mlp_size_hg = _estimate_mlp_params_via_identity(hg_in, hg_cfg.net)
     mlp_size_qc = _estimate_mlp_params_via_identity(qc_in, qc_cfg.net)
-    
+    logger(f"HashGrid mlp_size: {mlp_size_hg}")
+    logger(f"QuadCubes mlp_size: {mlp_size_qc}")
     # Encoders are "everything else"
     enc_size_hg_total = hg_params.numel() - mlp_size_hg
     enc_size_qc_total = qc_params.numel() - mlp_size_qc
+    logger(f"HashGrid enc_size_hg_total: {enc_size_hg_total}")
+    logger(f"QuadCubes enc_size_hg_total: {enc_size_qc_total}")
     if enc_size_qc_total % 4 != 0:
         logger(f"[warn] QuadCubes encoder total ({enc_size_qc_total}) not divisible by 4; rounding down.")
     enc0_size_qc = enc_size_qc_total // 4
