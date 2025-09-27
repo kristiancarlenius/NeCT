@@ -62,9 +62,9 @@ reconstruction_path_dynamic = nect.reconstruct(
     static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-27T13-50-23/model/checkpoints/last.ckpt",
     static_init_config="/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-27T13-50-23/model/config.yaml",
     config_override={
-        "epochs": "8x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 80,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
