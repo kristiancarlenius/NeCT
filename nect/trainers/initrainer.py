@@ -149,7 +149,7 @@ def _transfer_hashgrid_to_quadcubes(
     enc_dst = qc_new[:enc0_size_qc]
     n_enc_copy = min(enc_src.numel(), enc_dst.numel())
     if n_enc_copy > 0:
-        enc_dst[:n_enc_copy] = 0.8*enc_src[:n_enc_copy]
+        enc_dst[:n_enc_copy] = 0.9*enc_src[:n_enc_copy]
     if n_enc_copy < enc_dst.numel():
         enc_dst[n_enc_copy:].zero_()
     logger(f"Copied encoder0: {n_enc_copy}/{enc_dst.numel()} values")
@@ -159,7 +159,7 @@ def _transfer_hashgrid_to_quadcubes(
     mlp_src = hg_params[-mlp_size_hg:] if mlp_size_hg > 0 else hg_params.new_empty(0)
     n_mlp_copy = min(mlp_src.numel(), mlp_dst.numel())
     if n_mlp_copy > 0:
-        mlp_dst[:n_mlp_copy] = 0.3 * mlp_src[:n_mlp_copy]
+        mlp_dst[:n_mlp_copy] = 0 * mlp_src[:n_mlp_copy]
     if n_mlp_copy < mlp_dst.numel():
         mlp_dst[n_mlp_copy:].zero_()
     logger(f"Copied MLP (scaled 0.7): {n_mlp_copy}/{mlp_dst.numel()} values")
