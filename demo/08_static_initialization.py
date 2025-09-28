@@ -19,7 +19,7 @@ nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-
+"""
 # run reconstruction using the new .npy projections
 reconstruction_path_static, output_path = nect.reconstruct(
     geometry=geometry,
@@ -51,7 +51,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
         ),
     },
 )
-
+"""
 
 reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
@@ -59,12 +59,12 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     quality="high",
     mode="dynamic",
     exp_name="dynamic_init",
-    static_init = Path(output_path) / "/model/checkpoints/last.ckpt",
-    static_init_config= Path(output_path) / "/model/config.yaml",
+    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-28T18-59-29/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
+    static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-28T18-59-29/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
     config_override={
         "epochs": "6x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 40,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
