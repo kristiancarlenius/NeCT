@@ -42,14 +42,6 @@ class IniTrainer(BaseTrainer):
         _transfer_hashgrid_to_quadcubes(sd, self.model, hash_config_path=static_init_config, qc_cfg=self.config, logger=self.logger.info)
 
 
-def _extract_state_dict(ckpt_obj):
-    if isinstance(ckpt_obj, dict):
-        if "model_state_dict" in ckpt_obj:
-            return ckpt_obj["model_state_dict"]
-        if "model" in ckpt_obj and isinstance(ckpt_obj["model"], dict):
-            return ckpt_obj["model"]
-    return ckpt_obj
-
 def _estimate_mlp_params_via_identity(in_dim: int, net_cfg) -> int:
     enc = {"otype": "Identity", "n_dims_to_encode": int(in_dim)}
     dummy = tcnn.NetworkWithInputEncoding(
@@ -83,6 +75,29 @@ def _encoded_width_quadcubes(cfg: Config) -> int:
     add = 4 if (getattr(cfg.net, "include_identity", False) or False) else 0
     return 4 * (L * F) + add
 
+def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
+    """
+    Return list of param sizes per MLP layer (weights + bias),
+    using Identity encoder with in_dim to simulate tcnn layout.
+    """
+    enc = {"otype": "Identity", "n_dims_to_encode": int(in_dim)}
+    dummy = tcnn.NetworkWithInputEncoding(
+        n_input_dims=in_dim,
+        n_output_dims=1,
+        encoding_config=enc,
+        network_config=net_cfg.get_network_config(),
+    )
+    params = dummy.state_dict().get("net.params", dummy.state_dict().get("params"))
+    sizes = []
+    offset = 0
+    # Each layer (weight + bias) is stored sequentially in net.params
+    for p in dummy.parameters():
+        n = p.numel()
+        sizes.append(n)
+        offset += n
+    assert sum(sizes) == params.numel()
+    return sizes
+
 
 def _transfer_hashgrid_to_quadcubes(
     hg_sd: dict,
@@ -90,12 +105,7 @@ def _transfer_hashgrid_to_quadcubes(
     hash_config_path: str | Path,
     qc_cfg: Config,
     logger=print,
-    ) -> None:
-    """
-    Copy HashGrid → QuadCubes (encoder0 + MLP) using exact MLP sizes measured via Identity encoders.
-    - No use of non-existent tcnn attributes.
-    - Works with FullyFusedMLP padding/alignment.
-    """
+) -> None:
     qc_sd = qc_model.state_dict()
     if "net.params" not in hg_sd or "net.params" not in qc_sd:
         logger("Checkpoint missing net.params")
@@ -107,52 +117,53 @@ def _transfer_hashgrid_to_quadcubes(
     logger(f"HashGrid net.params: {hg_params.shape}")
     logger(f"QuadCubes net.params: {qc_params.shape}")
 
-    # Load the saved static config (resolves SAME_FOLDER -> geometry.yaml etc.)
     hg_cfg = get_cfg(hash_config_path, model="hash_grid", static=True)
-    #sanity_check_params_exact(hg_cfg, "hash_grid", logger)
-    #sanity_check_params_exact(qc_cfg, "quadcubes", logger)
 
-    # ---- Exact MLP sizes via Identity encoders ----
+    # Enc sizes
     hg_in = _encoded_width_hash(hg_cfg)
     qc_in = _encoded_width_quadcubes(qc_cfg)
 
-    mlp_size_hg = _estimate_mlp_params_via_identity(hg_in, hg_cfg.net)
-    mlp_size_qc = _estimate_mlp_params_via_identity(qc_in, qc_cfg.net)
-    logger(f"HashGrid mlp_size: {mlp_size_hg}")
-    logger(f"QuadCubes mlp_size: {mlp_size_qc}")
-    # Encoders are "everything else"
-    enc_size_hg_total = hg_params.numel() - mlp_size_hg
-    enc_size_qc_total = qc_params.numel() - mlp_size_qc
-    logger(f"HashGrid enc_size_hg_total: {enc_size_hg_total}")
-    logger(f"QuadCubes enc_size_hg_total: {enc_size_qc_total}")
-    if enc_size_qc_total % 4 != 0:
-        logger(f"[warn] QuadCubes encoder total ({enc_size_qc_total}) not divisible by 4; rounding down.")
+    # Layer-wise splits
+    hg_splits = _mlp_layer_splits(hg_in, hg_cfg.net)
+    qc_splits = _mlp_layer_splits(qc_in, qc_cfg.net)
+
+    # Encoder param sizes
+    enc_size_hg_total = hg_params.numel() - sum(hg_splits)
+    enc_size_qc_total = qc_params.numel() - sum(qc_splits)
     enc0_size_qc = enc_size_qc_total // 4
 
-    logger(f"Split HashGrid: mlp={mlp_size_hg}, enc={enc_size_hg_total}")
-    logger(f"Split QuadCubes: mlp={mlp_size_qc}, enc_total={enc_size_qc_total}, enc0={enc0_size_qc}")
+    logger(f"HashGrid enc_size={enc_size_hg_total}, MLP splits={hg_splits}")
+    logger(f"QuadCubes enc_total={enc_size_qc_total}, enc0={enc0_size_qc}, MLP splits={qc_splits}")
 
-    # ---- Copy slices ----
     qc_new = qc_params.clone()
 
-    # Encoder0: fill as much as possible from the HG encoder block
+    # ---- Encoder copy ----
     enc_src = hg_params[:enc_size_hg_total]
     enc_dst = qc_new[:enc0_size_qc]
     n_enc_copy = min(enc_src.numel(), enc_dst.numel())
     enc_dst[:n_enc_copy] = enc_src[:n_enc_copy]
-    logger(f"Copied encoder0: {n_enc_copy}/{enc_dst.numel()} values")
+    logger(f"Copied encoder0: {n_enc_copy}/{enc_dst.numel()}")
 
-    # MLP: copy tail-to-tail (sizes can differ; copy the overlap)
-    mlp_src = hg_params[-mlp_size_hg:] if mlp_size_hg > 0 else hg_params.new_empty(0)
-    mlp_dst = qc_new[-mlp_size_qc:] if mlp_size_qc > 0 else qc_new.new_empty(0)
-    n_mlp_copy = min(mlp_src.numel(), mlp_dst.numel())
-    if n_mlp_copy > 0:
-        mlp_dst[:n_mlp_copy] = mlp_src[:n_mlp_copy]
-    logger(f"Copied MLP: {n_mlp_copy}/{mlp_dst.numel()} values")
+    # ---- MLP copy (skip first layer) ----
+    hg_mlp = hg_params[enc_size_hg_total:]
+    qc_mlp = qc_new[enc_size_qc_total:]
+
+    # cumulative offsets
+    hg_offsets = [0] + list(torch.cumsum(torch.tensor(hg_splits), dim=0).tolist())
+    qc_offsets = [0] + list(torch.cumsum(torch.tensor(qc_splits), dim=0).tolist())
+
+    # skip layer 0 (input layer)
+    for li in range(1, len(hg_splits)):  # start from hidden layer 1
+        hg_slice = hg_mlp[hg_offsets[li]:hg_offsets[li+1]]
+        qc_slice = qc_mlp[qc_offsets[li]:qc_offsets[li+1]]
+        n_copy = min(hg_slice.numel(), qc_slice.numel())
+        qc_slice[:n_copy] = hg_slice[:n_copy]
+        logger(f"Copied MLP layer {li}: {n_copy}/{qc_slice.numel()}")
 
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
+
 
 def sanity_check_params_exact(cfg: Config, model_name: str, logger=print):
     if model_name == "hash_grid":
