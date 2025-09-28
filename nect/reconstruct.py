@@ -281,9 +281,9 @@ def reconstruct(
             
     trainer.fit()
     if mode == "static":
-        return torch.rot90(cast(torch.Tensor, trainer.create_volume(save=False, cpu=True)), 2, (1, 2)).cpu().numpy()
+        return torch.rot90(cast(torch.Tensor, trainer.create_volume(save=False, cpu=True)), 2, (1, 2)).cpu().numpy(), trainer.get_outputdir()
     else:
-        return Path(trainer.checkpoint_directory_base).parent
+        return Path(trainer.checkpoint_directory_base).parent, trainer.get_outputdir()
 
 def reconstruct_from_config_file(
     cfg: str | Path,

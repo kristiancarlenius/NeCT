@@ -159,7 +159,7 @@ def _transfer_hashgrid_to_quadcubes(
         hg_slice = hg_mlp[hg_offsets[li]:hg_offsets[li+1]]
         qc_slice = qc_mlp[qc_offsets[li]:qc_offsets[li+1]]
         n_copy = min(hg_slice.numel(), qc_slice.numel())
-        qc_slice[:n_copy] = 0.1*hg_slice[:n_copy]
+        qc_slice[:n_copy] = hg_slice[:n_copy]
         logger(f"Copied MLP layer {li}: {n_copy}/{qc_slice.numel()}")
 
     qc_sd["net.params"] = qc_new

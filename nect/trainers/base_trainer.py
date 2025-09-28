@@ -213,6 +213,11 @@ class BaseTrainer:
 
         if self.fabric.is_global_zero and checkpoint is None and output_directory is not None:
             config.save(output_directory)
+        
+        self.outputdir = output_directory
+    
+    def get_outputdir(self):
+        return self.outputdir
 
     def setup_dataset(self):
         self.dataset = NeCTDataset(config=self.config, device="cpu",)  # if gpu memory is less than 50 GB, load to cpu
