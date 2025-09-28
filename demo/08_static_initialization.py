@@ -19,7 +19,7 @@ nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-
+"""
 # run reconstruction using the new .npy projections
 reconstruction_path_static = nect.reconstruct(
     geometry=geometry,
@@ -59,8 +59,8 @@ reconstruction_path_dynamic = nect.reconstruct(
     quality="high",
     mode="dynamic",
     exp_name="dynamic_init",
-    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-27T13-50-23/model/checkpoints/last.ckpt",
-    static_init_config="/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-27T13-50-23/model/config.yaml",
+    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-28T11-14-52/model/checkpoints/last.ckpt",
+    static_init_config="/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-28T11-14-52/model/config.yaml",
     config_override={
         "epochs": "6x",
         "checkpoint_interval": 0,
@@ -85,7 +85,7 @@ reconstruction_path_dynamic = nect.reconstruct(
         ),
     },
 )
-nect.export_volume(reconstruction_path_dynamic, binning=3)
+#nect.export_volume(reconstruction_path_dynamic, binning=3)
 
-"""
+
 
