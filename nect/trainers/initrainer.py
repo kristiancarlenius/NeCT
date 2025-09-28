@@ -126,7 +126,7 @@ def _transfer_hashgrid_to_quadcubes(
     # Layer-wise splits
     hg_splits = _mlp_layer_splits(hg_in, hg_cfg.net)
     qc_splits = _mlp_layer_splits(qc_in, qc_cfg.net)
-
+    
     # Encoder param sizes
     enc_size_hg_total = hg_params.numel() - sum(hg_splits)
     enc_size_qc_total = qc_params.numel() - sum(qc_splits)
@@ -148,6 +148,8 @@ def _transfer_hashgrid_to_quadcubes(
     hg_mlp = hg_params[enc_size_hg_total:]
     qc_mlp = qc_new[enc_size_qc_total:]
 
+    logger(f"HashGrid MLP no-input-layer={hg_mlp}")
+    logger(f"Quadcubes MLP no-input-layer={qc_mlp}")
     # cumulative offsets
     hg_offsets = [0] + list(torch.cumsum(torch.tensor(hg_splits), dim=0).tolist())
     qc_offsets = [0] + list(torch.cumsum(torch.tensor(qc_splits), dim=0).tolist())
@@ -157,7 +159,7 @@ def _transfer_hashgrid_to_quadcubes(
         hg_slice = hg_mlp[hg_offsets[li]:hg_offsets[li+1]]
         qc_slice = qc_mlp[qc_offsets[li]:qc_offsets[li+1]]
         n_copy = min(hg_slice.numel(), qc_slice.numel())
-        qc_slice[:n_copy] = hg_slice[:n_copy]
+        qc_slice[:n_copy] = 0.1*hg_slice[:n_copy]
         logger(f"Copied MLP layer {li}: {n_copy}/{qc_slice.numel()}")
 
     qc_sd["net.params"] = qc_new
