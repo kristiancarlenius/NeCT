@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/simulatedfluidinvasion/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/simulatedporusmedia/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -19,7 +19,7 @@ nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
+
 # run reconstruction using the new .npy projections
 reconstruction_path_static = nect.reconstruct(
     geometry=geometry,
@@ -28,7 +28,7 @@ reconstruction_path_static = nect.reconstruct(
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "2x",
+        "epochs": "1x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XZ",
@@ -46,7 +46,7 @@ reconstruction_path_static = nect.reconstruct(
             output_activation="ReLU",
             n_neurons=128,
             n_hidden_layers=4,
-            include_identity=True,
+            include_identity=False,
             include_adaptive_skip=False,
         ),
     },
@@ -80,12 +80,12 @@ reconstruction_path_dynamic = nect.reconstruct(
             output_activation="ReLU",
             n_neurons=128,
             n_hidden_layers=4,
-            include_identity=True,
+            include_identity=False,
             include_adaptive_skip=False,
         ),
     },
 )
-
 nect.export_volume(reconstruction_path_dynamic, binning=3)
 
+"""
 

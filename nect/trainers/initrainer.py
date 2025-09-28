@@ -90,14 +90,11 @@ def _transfer_hashgrid_to_quadcubes(
     hash_config_path: str | Path,
     qc_cfg: Config,
     logger=print,
-) -> None:
+    ) -> None:
     """
     Copy HashGrid → QuadCubes (encoder0 + MLP) using exact MLP sizes measured via Identity encoders.
-    Additionally:
-      - zero encoders 1–3 in QuadCubes
-      - zero any leftover (non-copied) part of encoder0
-      - zero any leftover (non-copied) part of the QuadCubes MLP
-      - scale all transferred weights by 0.9 for stability
+    - No use of non-existent tcnn attributes.
+    - Works with FullyFusedMLP padding/alignment.
     """
     qc_sd = qc_model.state_dict()
     if "net.params" not in hg_sd or "net.params" not in qc_sd:
@@ -110,8 +107,10 @@ def _transfer_hashgrid_to_quadcubes(
     logger(f"HashGrid net.params: {hg_params.shape}")
     logger(f"QuadCubes net.params: {qc_params.shape}")
 
-    # Load the saved static config
+    # Load the saved static config (resolves SAME_FOLDER -> geometry.yaml etc.)
     hg_cfg = get_cfg(hash_config_path, model="hash_grid", static=True)
+    #sanity_check_params_exact(hg_cfg, "hash_grid", logger)
+    #sanity_check_params_exact(qc_cfg, "quadcubes", logger)
 
     # ---- Exact MLP sizes via Identity encoders ----
     hg_in = _encoded_width_hash(hg_cfg)
@@ -121,54 +120,39 @@ def _transfer_hashgrid_to_quadcubes(
     mlp_size_qc = _estimate_mlp_params_via_identity(qc_in, qc_cfg.net)
     logger(f"HashGrid mlp_size: {mlp_size_hg}")
     logger(f"QuadCubes mlp_size: {mlp_size_qc}")
-
     # Encoders are "everything else"
     enc_size_hg_total = hg_params.numel() - mlp_size_hg
     enc_size_qc_total = qc_params.numel() - mlp_size_qc
     logger(f"HashGrid enc_size_hg_total: {enc_size_hg_total}")
     logger(f"QuadCubes enc_size_hg_total: {enc_size_qc_total}")
-
     if enc_size_qc_total % 4 != 0:
         logger(f"[warn] QuadCubes encoder total ({enc_size_qc_total}) not divisible by 4; rounding down.")
     enc0_size_qc = enc_size_qc_total // 4
-    total_enc_qc = enc0_size_qc * 4
 
     logger(f"Split HashGrid: mlp={mlp_size_hg}, enc={enc_size_hg_total}")
     logger(f"Split QuadCubes: mlp={mlp_size_qc}, enc_total={enc_size_qc_total}, enc0={enc0_size_qc}")
 
-    # ---- Build new param vector ----
+    # ---- Copy slices ----
     qc_new = qc_params.clone()
 
-    # 1) Zero encoders 1–3 entirely
-    qc_new[enc0_size_qc : 2 * enc0_size_qc].zero_()
-    qc_new[2 * enc0_size_qc : 3 * enc0_size_qc].zero_()
-    qc_new[3 * enc0_size_qc : total_enc_qc].zero_()
-
-    # 2) Copy encoder0 from HG → QC 
+    # Encoder0: fill as much as possible from the HG encoder block
     enc_src = hg_params[:enc_size_hg_total]
     enc_dst = qc_new[:enc0_size_qc]
     n_enc_copy = min(enc_src.numel(), enc_dst.numel())
-    if n_enc_copy > 0:
-        enc_dst[:n_enc_copy] = 0.9*enc_src[:n_enc_copy]
-    if n_enc_copy < enc_dst.numel():
-        enc_dst[n_enc_copy:].zero_()
+    enc_dst[:n_enc_copy] = enc_src[:n_enc_copy]
     logger(f"Copied encoder0: {n_enc_copy}/{enc_dst.numel()} values")
 
-    # 3) Copy MLP tail-to-tail, scale, zero rest
-    mlp_dst = qc_new[-mlp_size_qc:] if mlp_size_qc > 0 else qc_new.new_empty(0)
+    # MLP: copy tail-to-tail (sizes can differ; copy the overlap)
     mlp_src = hg_params[-mlp_size_hg:] if mlp_size_hg > 0 else hg_params.new_empty(0)
+    mlp_dst = qc_new[-mlp_size_qc:] if mlp_size_qc > 0 else qc_new.new_empty(0)
     n_mlp_copy = min(mlp_src.numel(), mlp_dst.numel())
     if n_mlp_copy > 0:
-        mlp_dst[:n_mlp_copy] = 0 * mlp_src[:n_mlp_copy]
-    if n_mlp_copy < mlp_dst.numel():
-        mlp_dst[n_mlp_copy:].zero_()
-    logger(f"Copied MLP (scaled 0.7): {n_mlp_copy}/{mlp_dst.numel()} values")
+        mlp_dst[:n_mlp_copy] = mlp_src[:n_mlp_copy]
+    logger(f"Copied MLP: {n_mlp_copy}/{mlp_dst.numel()} values")
 
-    # 4) Write back
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
-
 
 def sanity_check_params_exact(cfg: Config, model_name: str, logger=print):
     if model_name == "hash_grid":
