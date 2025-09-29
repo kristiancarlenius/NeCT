@@ -148,8 +148,8 @@ def _transfer_hashgrid_to_quadcubes(
     hg_mlp = hg_params[enc_size_hg_total:]
     qc_mlp = qc_new[enc_size_qc_total:]
 
-    logger(f"HashGrid MLP no-input-layer={hg_mlp}")
-    logger(f"Quadcubes MLP no-input-layer={qc_mlp}")
+    logger(f"HashGrid MLP no-input-layer={hg_mlp.size()}")
+    logger(f"Quadcubes MLP no-input-layer={qc_mlp.size()}")
     # cumulative offsets
     hg_offsets = [0] + list(torch.cumsum(torch.tensor(hg_splits), dim=0).tolist())
     qc_offsets = [0] + list(torch.cumsum(torch.tensor(qc_splits), dim=0).tolist())
