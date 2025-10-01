@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/simulatedfluidinvasion/"#bentheimer/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
