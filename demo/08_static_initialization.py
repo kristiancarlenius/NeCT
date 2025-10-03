@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/simulatedfluidinvasion/"#bentheimer/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"#simulatedfluidinvasion/"#
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -59,8 +59,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     quality="high",
     mode="dynamic",
     exp_name="dynamic_init",
-    #static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-28T18-59-29/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
-    #static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/2025-09-28T18-59-29/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
+    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_05/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
+    static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_05/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
     config_override={
         "epochs": "6x",
         "checkpoint_interval": 0,
