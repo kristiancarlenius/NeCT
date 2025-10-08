@@ -4,7 +4,7 @@
 #SBATCH --mem=48GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --cpus-per-task=4 # Number of CPU cores required. Most V100 nodes has 4 CPU cores per GPU, so to maximize usage of the nodes, leave it to 4 (unless you know that your specific node has more than 4 cores/GPU).
-#SBATCH --job-name=dynamic_static_test # Set this to whatever you want
+#SBATCH --job-name=job_09 # Set this to whatever you want
 #SBATCH --output=/cluster/work/kristiac/NeCT/run_log.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
 #SBATCH --time=50:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.

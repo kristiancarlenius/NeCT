@@ -143,7 +143,7 @@ def _transfer_hashgrid_to_quadcubes(
     n_enc_copy = min(enc_src.numel(), enc_dst.numel())
     enc_dst[:n_enc_copy] = enc_src[:n_enc_copy]
     logger(f"Copied encoder0: {n_enc_copy}/{enc_dst.numel()}")
-
+    """
     # ---- MLP copy (skip first layer) ----
     hg_mlp = hg_params[enc_size_hg_total:]
     qc_mlp = qc_new[enc_size_qc_total:]
@@ -161,7 +161,7 @@ def _transfer_hashgrid_to_quadcubes(
         n_copy = min(hg_slice.numel(), qc_slice.numel())
         qc_slice[:n_copy] = hg_slice[:n_copy]
         logger(f"Copied MLP layer {li}: {n_copy}/{qc_slice.numel()}")
-
+    """
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
