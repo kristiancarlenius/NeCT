@@ -28,7 +28,7 @@ reconstruction_path_static, output_path_0 = nect.reconstruct(
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "0.5x",
+        "epochs": "3x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XZ",
@@ -58,7 +58,7 @@ reconstruction_path_static, output_path_1 = nect.reconstruct(
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "1x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XZ",
@@ -88,7 +88,7 @@ reconstruction_path_static, output_path_2 = nect.reconstruct(
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "1.5x",
+        "epochs": "9x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XZ",
@@ -118,7 +118,7 @@ reconstruction_path_static, output_path_3 = nect.reconstruct(
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "2x",
+        "epochs": "12x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XZ",
@@ -142,6 +142,6 @@ reconstruction_path_static, output_path_3 = nect.reconstruct(
     },
 )
 liste = [output_path_0, output_path_1, output_path_2, output_path_3]
-with open("file_overview.txt", "a") as f:
+with open("file_overview_longer.txt", "a") as f:
   for write_out in liste:
     f.write(write_out)

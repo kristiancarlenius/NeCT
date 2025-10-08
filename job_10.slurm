@@ -21,4 +21,5 @@ echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 cd NeCT
 source nect_a100/bin/activate
-python -m demo.08_static_initialization
+git pull origin master
+python -m demo.10_static_initialization
