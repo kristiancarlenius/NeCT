@@ -64,7 +64,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     config_override={
         "epochs": "6x",
         "checkpoint_interval": 0,
-        "image_interval": 40,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",

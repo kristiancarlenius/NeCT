@@ -30,7 +30,7 @@ reconstruction_path_static, output_path_0 = nect.reconstruct(
     config_override={
         "epochs": "3x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
@@ -60,7 +60,7 @@ reconstruction_path_static, output_path_1 = nect.reconstruct(
     config_override={
         "epochs": "6x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
@@ -90,7 +90,7 @@ reconstruction_path_static, output_path_2 = nect.reconstruct(
     config_override={
         "epochs": "9x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
@@ -120,7 +120,7 @@ reconstruction_path_static, output_path_3 = nect.reconstruct(
     config_override={
         "epochs": "12x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
