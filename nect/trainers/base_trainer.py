@@ -271,7 +271,7 @@ class BaseTrainer:
 
     def on_train_epoch_end(self):
         if(self.config.checkpoint_epoch is not None and self.config.checkpoint_epoch > 0 and self.current_epoch % self.config.checkpoint_epoch == 0):
-            self.save_model()
+            self.generate_image()
 
         self.current_epoch = self.current_epoch + 1
 
