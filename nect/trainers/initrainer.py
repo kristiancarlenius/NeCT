@@ -167,7 +167,8 @@ def _transfer_hashgrid_to_quadcubes(
     logger(f"QuadCubes enc_total={enc_size_qc_total}, enc0={enc0_size_qc}, MLP splits={qc_splits}")
 
     qc_new = qc_params.clone()
-    scales = [0.8, 0.4, 0.4, 0.4]
+    damp_multi = 0.4
+    scales = [0.8, damp_multi, damp_multi, damp_multi]
 
     # ---- Encoder copy (checks only; no auto-fix) ----
     enc_src = hg_params[:enc_size_hg_total]
@@ -239,8 +240,8 @@ def _transfer_hashgrid_to_quadcubes(
 
     if not ok_mlp and only_tail_ok:
         logger("[WARN] W0 layout differs; copying b0 and tail only.")
-        b0_qc[:] = b0_hg[:] * 0.4
-        tail_qc[:] = tail_hg[:] * 0.4
+        b0_qc[:] = b0_hg[:] * damp_multi
+        tail_qc[:] = tail_hg[:] * damp_multi
 
     elif ok_mlp:
         # Full copy: W0 (tiled), b0, and tail
@@ -252,8 +253,8 @@ def _transfer_hashgrid_to_quadcubes(
             hi = (i + 1) * quarter
             W0_qc[lo:hi] = W0_hg * s
 
-        b0_qc[:] = b0_hg[:] * 0.4
-        tail_qc[:] = tail_hg[:] * 0.4
+        b0_qc[:] = b0_hg[:] * damp_multi
+        tail_qc[:] = tail_hg[:] * damp_multi
         logger("[OK] MLP copied (W0 tiled into 4 quarters, b0 and tail copied).")
     else:
         logger("[ABORT] Not copying MLP.")
