@@ -134,6 +134,120 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
 
     # ---- Encoder copy (four equal blocks) ----
     enc_src = hg_params[:enc_size_hg_total]
+    enc0    = enc_size_qc_total // 4
+
+    ok_encoder = True
+    if enc_size_qc_total % 4 != 0:
+        logger(f"[ERR] QC encoder params ({enc_size_qc_total}) not divisible by 4.")
+        ok_encoder = False
+
+    if enc_src.numel() != enc0:
+        logger(f"[ERR] Encoder size mismatch: HG enc={enc_src.numel()} vs QC quarter={enc0}")
+        ok_encoder = False
+
+    logger(f"Encoder check — HG enc={enc_src.numel()}, QC enc_total={enc_size_qc_total}, QC enc/4={enc0}")
+
+    if not ok_encoder:
+        logger("[ABORT] Not copying encoders due to mismatch.")
+    else:
+        for i, s in enumerate(scales):
+            lo = i * enc0
+            hi = (i + 1) * enc0
+            qc_new[lo:hi] = enc_src * s
+        logger("[OK] Encoders copied (4 quarters).")
+
+    # ---- MLP copy (shape-accurate) ----
+    hg_mlp = hg_params[enc_size_hg_total:]
+    qc_mlp = qc_new[enc_size_qc_total:]
+
+    def prefix_offsets(sizes):
+        offs = [0]
+        for s in sizes: offs.append(offs[-1] + s)
+        return offs
+
+    hg_off = prefix_offsets(hg_splits)
+    qc_off = prefix_offsets(qc_splits)
+
+    W0_hg_size = hg_splits[0]
+    b0_hg_size = hg_splits[1]
+    W0_qc_size = qc_splits[0]
+    b0_qc_size = qc_splits[1]
+
+    # Checks only, no fixes
+    ok_mlp = True
+
+    if b0_hg_size != b0_qc_size:
+        logger(f"[ERR] b0 size mismatch: HG={b0_hg_size} vs QC={b0_qc_size}")
+        ok_mlp = False
+
+    if W0_qc_size % 4 != 0:
+        logger(f"[ERR] QC W0 ({W0_qc_size}) not divisible by 4.")
+        ok_mlp = False
+
+    quarter = W0_qc_size // 4
+    if W0_hg_size != quarter:
+        logger(f"[ERR] W0 mismatch: HG W0={W0_hg_size} vs QC quarter={quarter} (expected equal).")
+        ok_mlp = False
+
+    tail_hg = hg_mlp[hg_off[2]:]
+    tail_qc = qc_mlp[qc_off[2]:]
+    if tail_hg.numel() != tail_qc.numel():
+        logger(f"[ERR] Tail (layers 1..end) size mismatch: HG={tail_hg.numel()} vs QC={tail_qc.numel()}")
+        ok_mlp = False
+
+    logger(f"MLP check — W0: HG={W0_hg_size}, QC={W0_qc_size} (quarter={quarter}); b0: {b0_hg_size}; tail: HG={tail_hg.numel()}, QC={tail_qc.numel()}")
+
+    if not ok_mlp:
+        logger("[ABORT] Not copying MLP due to mismatch.")
+    else:
+        # Proceed to copy since all checks passed
+        W0_hg  = hg_mlp[hg_off[0]:hg_off[1]]
+        b0_hg  = hg_mlp[hg_off[1]:hg_off[2]]
+        W0_qc  = qc_mlp[qc_off[0]:qc_off[1]]
+        b0_qc  = qc_mlp[qc_off[1]:qc_off[2]]
+        tail_qc[:] = tail_hg[:] * 0.4
+
+        for i, s in enumerate(scales):
+            lo = i * quarter
+            hi = (i + 1) * quarter
+            W0_qc[lo:hi] = W0_hg * s
+
+        b0_qc[:] = b0_hg * 0.4
+        logger("[OK] MLP copied (W0 tiled into 4 quarters, b0 and tail copied).")
+
+
+    qc_sd["net.params"] = qc_new
+    missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
+    logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
+
+
+def sanity_check_params_exact(cfg: Config, model_name: str, logger=print):
+    if model_name == "hash_grid":
+        in_dim = _encoded_width_hash(cfg)
+    elif model_name == "quadcubes":
+        in_dim = _encoded_width_quadcubes(cfg)
+    else:
+        logger(f"Unsupported model: {model_name}")
+        return
+
+    # Build a dummy same-MLP network but with Identity encoder to read exact MLP size
+    mlp_exact = _estimate_mlp_params_via_identity(in_dim, cfg.net)
+
+    # Build the real model and read total
+    net = cfg.get_model()
+    total = net.state_dict()["net.params"].numel()
+
+    if model_name == "quadcubes":
+        enc_total = total - mlp_exact
+        logger(f"[{model_name}] total={total}, enc_total={enc_total}, enc0≈{enc_total//4}, mlp_exact={mlp_exact}")
+    else:
+        enc_total = total - mlp_exact
+        logger(f"[{model_name}] total={total}, enc={enc_total}, mlp_exact={mlp_exact}")
+
+
+    """
+    # ---- Encoder copy (four equal blocks) ----
+    enc_src = hg_params[:enc_size_hg_total]
     enc0 = enc_size_qc_total // 4
     for i, s in enumerate(scales):
         lo = i * enc0
@@ -141,8 +255,6 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
 
     logger(f"Should be equal hg, qc/4: {enc_src.numel(), enc0}")
 
-
-    """
     # ---- Encoder copy ----
     enc_src = hg_params[:enc_size_hg_total]
     enc_dst = qc_new[:enc0_size_qc]
@@ -160,7 +272,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
 
     logger(f"Copied to the other three endocers (from, to, to, to): {n_enc_copy, n_enc_copy*2, n_enc_copy*3, n_enc_copy*4}")
     logger(f"Total should be equal to 4x encoder (tot, 4*enc): {enc_size_qc_total, n_enc_copy*4}")
-    """
+    
     # ---- MLP copy (shape-accurate) ----
     hg_mlp = hg_params[enc_size_hg_total:]
     qc_mlp = qc_new[enc_size_qc_total:]
@@ -222,7 +334,6 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     logger(f"Hidden/topology beyond input layer qc should be same as hg: {tail_qc.numel(), tail_hg.numel()}")
     tail_qc[:] = tail_hg[:] * 0.4
 
-    """
     # ---- MLP copy ----
     hg_mlp = hg_params[enc_size_hg_total:]
     qc_mlp = qc_new[enc_size_qc_total:]
@@ -257,31 +368,3 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
         logger(f"Copied MLP layer {li}: {n_copy}/{qc_slice.numel()}")
     
     """
-
-    qc_sd["net.params"] = qc_new
-    missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
-    logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
-
-
-def sanity_check_params_exact(cfg: Config, model_name: str, logger=print):
-    if model_name == "hash_grid":
-        in_dim = _encoded_width_hash(cfg)
-    elif model_name == "quadcubes":
-        in_dim = _encoded_width_quadcubes(cfg)
-    else:
-        logger(f"Unsupported model: {model_name}")
-        return
-
-    # Build a dummy same-MLP network but with Identity encoder to read exact MLP size
-    mlp_exact = _estimate_mlp_params_via_identity(in_dim, cfg.net)
-
-    # Build the real model and read total
-    net = cfg.get_model()
-    total = net.state_dict()["net.params"].numel()
-
-    if model_name == "quadcubes":
-        enc_total = total - mlp_exact
-        logger(f"[{model_name}] total={total}, enc_total={enc_total}, enc0≈{enc_total//4}, mlp_exact={mlp_exact}")
-    else:
-        enc_total = total - mlp_exact
-        logger(f"[{model_name}] total={total}, enc={enc_total}, mlp_exact={mlp_exact}")
