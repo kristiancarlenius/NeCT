@@ -85,13 +85,10 @@ def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
       2) Build a TCNN dummy (Identity encoder, same net cfg) and read the true
          flattened size from 'net.params'/'params'.
       3) Adjust ONLY the first layer's weight size (W0) by the difference so that
-         sum(splits) == flat.numel(). This accounts for any TCNN internal padding
-         that depends on D_in, while keeping later layers intact.
-
-    This keeps the interface identical to your previous code (a list of splits),
-    but guarantees it matches the actual TCNN storage size for the given config.
+         sum(splits) == flat.numel(). This accounts for TCNN internal padding
+         tied to D_in; later layers remain intact.
     """
-    # Get H (width) and L (hidden layers), and a concrete dict for tcnn
+    # Pull H and L & concrete dict for tcnn
     if hasattr(net_cfg, "n_neurons"):
         H = int(net_cfg.n_neurons)
         L = int(net_cfg.n_hidden_layers)
@@ -102,19 +99,16 @@ def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
         L = int(net_conf["n_hidden_layers"])
 
     D_in = int(in_dim)
-    D_out = 1  # your networks emit a single scalar
+    D_out = 1  # single scalar output
 
     # Analytic (unpadded) splits
     splits: list[int] = []
-    # input -> hidden0
-    splits += [H * D_in, H]            # W0, b0
-    # hidden stacks: (L-1) times
+    splits += [H * D_in, H]               # W0, b0
     for _ in range(L - 1):
-        splits += [H * H, H]           # Wk, bk
-    # hidden_last -> output
-    splits += [D_out * H, D_out]       # W_out, b_out
+        splits += [H * H, H]              # Wk, bk
+    splits += [D_out * H, D_out]          # W_out, b_out
 
-    # Validate against dummy TCNN (and absorb any padding into W0)
+    # Validate vs dummy TCNN and fold any padding into W0
     enc = {"otype": "Identity", "n_dims_to_encode": D_in}
     dummy = tcnn.NetworkWithInputEncoding(
         n_input_dims=D_in,
@@ -125,17 +119,13 @@ def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
     flat = dummy.state_dict().get("net.params", dummy.state_dict().get("params"))
     assert flat is not None, "TCNN dummy state_dict missing 'net.params'/'params'."
 
-    analytic_total = sum(splits)
-    actual_total = flat.numel()
-    diff = actual_total - analytic_total
+    diff = flat.numel() - sum(splits)
     if diff != 0:
-        # Absorb all padding difference into W0 so our sum matches TCNN's.
-        # (All other layers are independent of D_in and should not change.)
-        splits[0] += diff
-    # Final guard: must match exactly
-    assert sum(splits) == actual_total, (
+        splits[0] += diff  # absorb padding into W0 only
+
+    assert sum(splits) == flat.numel(), (
         f"Splits do not match TCNN storage even after padding W0: "
-        f"sum={sum(splits)} vs tcnn={actual_total} (D_in={D_in}, H={H}, L={L})"
+        f"sum={sum(splits)} vs tcnn={flat.numel()} (D_in={D_in}, H={H}, L={L})"
     )
     return splits
 
@@ -160,15 +150,15 @@ def _transfer_hashgrid_to_quadcubes(
 
     hg_cfg = get_cfg(hash_config_path, model="hash_grid", static=True)
 
-    # Encoded input widths (no include_identity handling per your request)
+    # Encoded input widths (no include_identity handling)
     hg_in = _encoded_width_hash(hg_cfg)
     qc_in = _encoded_width_quadcubes(qc_cfg)
 
-    # Layer-wise MLP splits (padded to match TCNN via the dummy)
+    # Layer-wise MLP splits (padded to TCNN via dummy)
     hg_splits = _mlp_layer_splits(hg_in, hg_cfg.net)
     qc_splits = _mlp_layer_splits(qc_in, qc_cfg.net)
 
-    # Encoder param sizes = total - MLP total
+    # Encoder sizes
     enc_size_hg_total = hg_params.numel() - sum(hg_splits)
     enc_size_qc_total = qc_params.numel() - sum(qc_splits)
     enc0_size_qc = enc_size_qc_total // 4
@@ -189,10 +179,7 @@ def _transfer_hashgrid_to_quadcubes(
         logger(f"[ERR] Encoder size mismatch: HG enc={enc_src.numel()} vs QC quarter={enc0_size_qc}")
         ok_encoder = False
 
-    logger(
-        f"Encoder check — HG enc={enc_src.numel()}, "
-        f"QC enc_total={enc_size_qc_total}, QC enc/4={enc0_size_qc}"
-    )
+    logger(f"Encoder check — HG enc={enc_src.numel()}, QC enc_total={enc_size_qc_total}, QC enc/4={enc0_size_qc}")
 
     if not ok_encoder:
         logger("[ABORT] Not copying encoders due to mismatch.")
@@ -222,12 +209,17 @@ def _transfer_hashgrid_to_quadcubes(
     W0_qc_size = qc_splits[0]
     b0_qc_size = qc_splits[1]
 
+    # Build slices we'll need regardless of branch
+    b0_hg  = hg_mlp[hg_off[1]:hg_off[2]]
+    b0_qc  = qc_mlp[qc_off[1]:qc_off[2]]
+    tail_hg = hg_mlp[hg_off[2]:]
+    tail_qc = qc_mlp[qc_off[2]:]
+
     ok_mlp = True
     if b0_hg_size != b0_qc_size:
         logger(f"[ERR] b0 size mismatch: HG={b0_hg_size} vs QC={b0_qc_size}")
         ok_mlp = False
 
-    # With padding folded into W0, quartering should still hold if QC input is 4× HG input
     quarter = W0_qc_size // 4
     if W0_qc_size % 4 != 0:
         logger(f"[ERR] QC W0 ({W0_qc_size}) not divisible by 4.")
@@ -236,40 +228,40 @@ def _transfer_hashgrid_to_quadcubes(
         logger(f"[ERR] W0 mismatch: HG W0={W0_hg_size} vs QC quarter={quarter} (expected equal after padding).")
         ok_mlp = False
 
-    # Tail (everything after W0|b0) must match exactly for a safe copy
-    tail_hg = hg_mlp[hg_off[2]:]
-    tail_qc = qc_mlp[qc_off[2]:]
     if tail_hg.numel() != tail_qc.numel():
         logger(f"[ERR] Tail (layers 1..end) size mismatch: HG={tail_hg.numel()} vs QC={tail_qc.numel()}")
         ok_mlp = False
 
-    logger(
-        f"MLP check — W0: HG={W0_hg_size}, QC={W0_qc_size} (quarter={quarter}); "
-        f"b0: {b0_hg_size}; tail: HG={tail_hg.numel()}, QC={tail_qc.numel()}"
-    )
+    logger(f"MLP check — W0: HG={W0_hg_size}, QC={W0_qc_size} (quarter={quarter}); b0: {b0_hg_size}; tail: HG={tail_hg.numel()}, QC={tail_qc.numel()}")
 
-    if not ok_mlp:
-        logger("[ABORT] Not copying MLP due to mismatch.")
-    else:
-        # Proceed to copy since all checks passed
+    # Decide what to copy
+    only_tail_ok = (b0_hg_size == b0_qc_size) and (tail_hg.numel() == tail_qc.numel())
+
+    if not ok_mlp and only_tail_ok:
+        logger("[WARN] W0 layout differs; copying b0 and tail only.")
+        b0_qc[:] = b0_hg[:] * 0.4
+        tail_qc[:] = tail_hg[:] * 0.4
+
+    elif ok_mlp:
+        # Full copy: W0 (tiled), b0, and tail
         W0_hg  = hg_mlp[hg_off[0]:hg_off[1]]
-        b0_hg  = hg_mlp[hg_off[1]:hg_off[2]]
         W0_qc  = qc_mlp[qc_off[0]:qc_off[1]]
-        b0_qc  = qc_mlp[qc_off[1]:qc_off[2]]
 
-        # Tile W0 into 4 quarters; copy b0 and the rest
         for i, s in enumerate(scales):
             lo = i * quarter
             hi = (i + 1) * quarter
             W0_qc[lo:hi] = W0_hg * s
 
-        b0_qc[:] = b0_hg * 0.4
+        b0_qc[:] = b0_hg[:] * 0.4
         tail_qc[:] = tail_hg[:] * 0.4
         logger("[OK] MLP copied (W0 tiled into 4 quarters, b0 and tail copied).")
+    else:
+        logger("[ABORT] Not copying MLP.")
 
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
+
 
 
 
