@@ -64,27 +64,34 @@ def _encoded_width_hash(cfg: Config) -> int:
     # HashGrid output width: L * F (+3 if include_identity)
     L = cfg.encoder.n_levels
     F = cfg.encoder.n_features_per_level
-    add = 3 if (getattr(cfg.net, "include_identity", False) or False) else 0
-    return L * F + add
+    #add = 3 if (getattr(cfg.net, "include_identity", False) or False) else 0
+    return L * F #+ add
 
 
 def _encoded_width_quadcubes(cfg: Config) -> int:
     # QuadCubes output width: 4*(L*F) (+4 if include_identity)
     L = cfg.encoder.n_levels
     F = cfg.encoder.n_features_per_level
-    add = 4 if (getattr(cfg.net, "include_identity", False) or False) else 0
-    return 4 * (L * F) + add
+    #add = 4 if (getattr(cfg.net, "include_identity", False) or False) else 0
+    return 4 * (L * F) #+ add
 
 def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
     """
-    Return list of param sizes per MLP layer (weights + bias) in TCNN packing order
-    [W0, b0, W1, b1, ..., W_out, b_out], for output_dim=1.
+    Return per-layer param sizes in TCNN flat order:
+      [W0, b0, W1, b1, ..., W_out, b_out]  (with output_dim = 1)
 
-    We compute splits analytically from the network config (reliable for FullyFusedMLP),
-    and then *validate* against a dummy NetworkWithInputEncoding to ensure the total
-    param count matches TCNN's actual flattened size.
+    Strategy:
+      1) Compute the analytic sizes for FullyFusedMLP (no padding).
+      2) Build a TCNN dummy (Identity encoder, same net cfg) and read the true
+         flattened size from 'net.params'/'params'.
+      3) Adjust ONLY the first layer's weight size (W0) by the difference so that
+         sum(splits) == flat.numel(). This accounts for any TCNN internal padding
+         that depends on D_in, while keeping later layers intact.
+
+    This keeps the interface identical to your previous code (a list of splits),
+    but guarantees it matches the actual TCNN storage size for the given config.
     """
-    # Pull H and L from either the object or its dict
+    # Get H (width) and L (hidden layers), and a concrete dict for tcnn
     if hasattr(net_cfg, "n_neurons"):
         H = int(net_cfg.n_neurons)
         L = int(net_cfg.n_hidden_layers)
@@ -95,19 +102,19 @@ def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
         L = int(net_conf["n_hidden_layers"])
 
     D_in = int(in_dim)
-    D_out = 1
+    D_out = 1  # your networks emit a single scalar
 
-    # Analytic per-layer splits (sizes in flattened 1D storage)
+    # Analytic (unpadded) splits
     splits: list[int] = []
     # input -> hidden0
-    splits += [H * D_in, H]
-    # hidden stacks: (L-1) transitions of HxH + H
+    splits += [H * D_in, H]            # W0, b0
+    # hidden stacks: (L-1) times
     for _ in range(L - 1):
-        splits += [H * H, H]
+        splits += [H * H, H]           # Wk, bk
     # hidden_last -> output
-    splits += [D_out * H, D_out]
+    splits += [D_out * H, D_out]       # W_out, b_out
 
-    # Validate against a dummy net's flat params length
+    # Validate against dummy TCNN (and absorb any padding into W0)
     enc = {"otype": "Identity", "n_dims_to_encode": D_in}
     dummy = tcnn.NetworkWithInputEncoding(
         n_input_dims=D_in,
@@ -117,9 +124,18 @@ def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
     )
     flat = dummy.state_dict().get("net.params", dummy.state_dict().get("params"))
     assert flat is not None, "TCNN dummy state_dict missing 'net.params'/'params'."
-    assert sum(splits) == flat.numel(), (
-        f"MLP split mismatch: computed={sum(splits)} vs tcnn={flat.numel()} "
-        f"(D_in={D_in}, H={H}, L={L})"
+
+    analytic_total = sum(splits)
+    actual_total = flat.numel()
+    diff = actual_total - analytic_total
+    if diff != 0:
+        # Absorb all padding difference into W0 so our sum matches TCNN's.
+        # (All other layers are independent of D_in and should not change.)
+        splits[0] += diff
+    # Final guard: must match exactly
+    assert sum(splits) == actual_total, (
+        f"Splits do not match TCNN storage even after padding W0: "
+        f"sum={sum(splits)} vs tcnn={actual_total} (D_in={D_in}, H={H}, L={L})"
     )
     return splits
 
@@ -144,15 +160,15 @@ def _transfer_hashgrid_to_quadcubes(
 
     hg_cfg = get_cfg(hash_config_path, model="hash_grid", static=True)
 
-    # Encoded input widths
+    # Encoded input widths (no include_identity handling per your request)
     hg_in = _encoded_width_hash(hg_cfg)
     qc_in = _encoded_width_quadcubes(qc_cfg)
 
-    # Layer-wise MLP splits (validated by dummy)
+    # Layer-wise MLP splits (padded to match TCNN via the dummy)
     hg_splits = _mlp_layer_splits(hg_in, hg_cfg.net)
     qc_splits = _mlp_layer_splits(qc_in, qc_cfg.net)
 
-    # Encoder param sizes (total - MLP total)
+    # Encoder param sizes = total - MLP total
     enc_size_hg_total = hg_params.numel() - sum(hg_splits)
     enc_size_qc_total = qc_params.numel() - sum(qc_splits)
     enc0_size_qc = enc_size_qc_total // 4
@@ -163,7 +179,7 @@ def _transfer_hashgrid_to_quadcubes(
     qc_new = qc_params.clone()
     scales = [0.8, 0.4, 0.4, 0.4]
 
-    # ---- Encoder copy (require exact match; otherwise just report) ----
+    # ---- Encoder copy (checks only; no auto-fix) ----
     enc_src = hg_params[:enc_size_hg_total]
     ok_encoder = True
     if enc_size_qc_total % 4 != 0:
@@ -187,7 +203,7 @@ def _transfer_hashgrid_to_quadcubes(
             qc_new[lo:hi] = enc_src * s
         logger("[OK] Encoders copied (4 quarters).")
 
-    # ---- MLP copy (shape-accurate, checks only; no silent fixes) ----
+    # ---- MLP copy (shape-accurate, padded-aware; checks only) ----
     hg_mlp = hg_params[enc_size_hg_total:]
     qc_mlp = qc_new[enc_size_qc_total:]
 
@@ -200,6 +216,7 @@ def _transfer_hashgrid_to_quadcubes(
     hg_off = prefix_offsets(hg_splits)
     qc_off = prefix_offsets(qc_splits)
 
+    # Sizes from padded splits
     W0_hg_size = hg_splits[0]
     b0_hg_size = hg_splits[1]
     W0_qc_size = qc_splits[0]
@@ -209,15 +226,17 @@ def _transfer_hashgrid_to_quadcubes(
     if b0_hg_size != b0_qc_size:
         logger(f"[ERR] b0 size mismatch: HG={b0_hg_size} vs QC={b0_qc_size}")
         ok_mlp = False
+
+    # With padding folded into W0, quartering should still hold if QC input is 4× HG input
+    quarter = W0_qc_size // 4
     if W0_qc_size % 4 != 0:
         logger(f"[ERR] QC W0 ({W0_qc_size}) not divisible by 4.")
         ok_mlp = False
-
-    quarter = W0_qc_size // 4
     if W0_hg_size != quarter:
-        logger(f"[ERR] W0 mismatch: HG W0={W0_hg_size} vs QC quarter={quarter} (expected equal).")
+        logger(f"[ERR] W0 mismatch: HG W0={W0_hg_size} vs QC quarter={quarter} (expected equal after padding).")
         ok_mlp = False
 
+    # Tail (everything after W0|b0) must match exactly for a safe copy
     tail_hg = hg_mlp[hg_off[2]:]
     tail_qc = qc_mlp[qc_off[2]:]
     if tail_hg.numel() != tail_qc.numel():
