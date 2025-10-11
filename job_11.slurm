@@ -3,8 +3,8 @@
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
 #SBATCH --mem=64GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
-#SBATCH --job-name=job_10 # Set this to whatever you want
-#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_10.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
+#SBATCH --job-name=job_11 # Set this to whatever you want
+#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_11.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
 #SBATCH --time=24:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
@@ -18,7 +18,7 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "static init 1.5x"
+echo "static init 1.0x"
 cd NeCT
 source nect_a100/bin/activate
 git pull origin master

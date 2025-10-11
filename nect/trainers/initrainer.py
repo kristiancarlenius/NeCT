@@ -130,13 +130,7 @@ def _mlp_layer_splits(in_dim: int, net_cfg) -> list[int]:
     return splits
 
 
-def _transfer_hashgrid_to_quadcubes(
-    hg_sd: dict,
-    qc_model: torch.nn.Module,
-    hash_config_path: str | Path,
-    qc_cfg: Config,
-    logger=print,
-) -> None:
+def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash_config_path: str | Path, qc_cfg: Config, logger=print, ) -> None:
     qc_sd = qc_model.state_dict()
     if "net.params" not in hg_sd or "net.params" not in qc_sd:
         logger("Checkpoint missing net.params")
@@ -167,8 +161,8 @@ def _transfer_hashgrid_to_quadcubes(
     logger(f"QuadCubes enc_total={enc_size_qc_total}, enc0={enc0_size_qc}, MLP splits={qc_splits}")
 
     qc_new = qc_params.clone()
-    damp_multi = 0.4
-    scales = [0.8, damp_multi, damp_multi, damp_multi]
+    #damp_multi = qc_cfg["damp_multi"][1]
+    scales = [qc_cfg["damp_multi"][0], qc_cfg["damp_multi"][1], qc_cfg["damp_multi"][1], qc_cfg["damp_multi"][1]]
 
     # ---- Encoder copy (checks only; no auto-fix) ----
     enc_src = hg_params[:enc_size_hg_total]
@@ -240,8 +234,8 @@ def _transfer_hashgrid_to_quadcubes(
 
     if not ok_mlp and only_tail_ok:
         logger("[WARN] W0 layout differs; copying b0 and tail only.")
-        b0_qc[:] = b0_hg[:] * damp_multi
-        tail_qc[:] = tail_hg[:] * damp_multi
+        b0_qc[:] = b0_hg[:] * qc_cfg["damp_multi"][2]
+        tail_qc[:] = tail_hg[:] * qc_cfg["damp_multi"][2]
 
     elif ok_mlp:
         # Full copy: W0 (tiled), b0, and tail
@@ -253,8 +247,8 @@ def _transfer_hashgrid_to_quadcubes(
             hi = (i + 1) * quarter
             W0_qc[lo:hi] = W0_hg * s
 
-        b0_qc[:] = b0_hg[:] * damp_multi
-        tail_qc[:] = tail_hg[:] * damp_multi
+        b0_qc[:] = b0_hg[:] * qc_cfg["damp_multi"][2]
+        tail_qc[:] = tail_hg[:] * qc_cfg["damp_multi"][2]
         logger("[OK] MLP copied (W0 tiled into 4 quarters, b0 and tail copied).")
     else:
         logger("[ABORT] Not copying MLP.")
