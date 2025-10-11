@@ -284,6 +284,9 @@ class Config:
             self.encoder.nVoxel = self.geometry.nVoxel
             self.encoder.sample_outside = self.sample_outside
 
+    def get_dm(self) -> list[float]:
+        return self.damp_multi
+
     def get_str(self) -> str:
         return f"{self.model}_{str(self.encoder)}_{str(self.net)}_{self.loss}"
 
