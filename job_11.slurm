@@ -1,7 +1,7 @@
 #!/bin/sh
 #SBATCH --partition=GPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
-#SBATCH --mem=64GB # Total memory you need. Most DL jobs should do fine with 64GB.
+#SBATCH --mem=56GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_11 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_11.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
@@ -22,4 +22,4 @@ echo "static init 1.0x"
 cd NeCT
 source nect_a100/bin/activate
 git pull origin master
-python -m demo.10_static_initialization
+python -m demo.11_static_initialization
