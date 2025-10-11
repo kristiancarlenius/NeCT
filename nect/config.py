@@ -265,7 +265,7 @@ class Config:
     lr: float | None = None
     checkpoint_prior: Optional[str] = None
     checkpoint_epoch: Optional[int] = None 
-    damp_multi: Optional[float] = None 
+    damp_multi: Optional[list[float]] = None 
     tv: float = 0.0
     sample_outside: int = 0
     accumulation_steps: int | None = None
