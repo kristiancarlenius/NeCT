@@ -68,8 +68,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
-            "steps": 1400*10,
-            "lr0": 0.001,
+            "steps": 1400*2,
+            "lr0": 0.0002,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -88,7 +88,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "damp_multi": [1, 0.0, 1],
+        "damp_multi": [1, 0.0, 0.7],
         "w0_steps": int(1400),
         "w0_lr_multi": 1,
     },
