@@ -66,6 +66,11 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
+        "base_lr": 0.0001,
+        "warmup": {
+            "steps": 1400*3,
+            "lr0": 0.0002,
+        },
         "encoder": {
             "otype": "HashGrid",
             "n_levels": 21,
@@ -83,7 +88,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "damp_multi": [1.0, 0.0, 1.0],
+        "damp_multi": [1, 0.0, 0.9],
+        "w0_steps": int(1400*3),
+        "w0_lr_multi": 0.5,
     },
 )
 #nect.export_volume(reconstruction_path_dynamic, binning=3)
