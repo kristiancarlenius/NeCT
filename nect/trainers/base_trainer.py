@@ -670,7 +670,7 @@ class BaseTrainer:
                 H = int(net_conf["n_neurons"])
                 L = int(net_conf["n_hidden_layers"])
             D_in = int(in_dim)
-            D_out = 1
+            D_out = 1  # single scalar output
 
             splits: list[int] = []
             splits += [H * D_in, H]                 # W0, b0
@@ -678,7 +678,7 @@ class BaseTrainer:
                 splits += [H * H, H]                # Wk, bk
             splits += [D_out * H, D_out]            # W_out, b_out
 
-            # Validate vs dummy and fold padding into W0
+            # Validate vs dummy and fold any padding into W0
             enc = {"otype": "Identity", "n_dims_to_encode": D_in}
             dummy = tcnn.NetworkWithInputEncoding(
                 n_input_dims=D_in,
@@ -697,9 +697,10 @@ class BaseTrainer:
             return splits
 
         def _encoded_width_quadcubes_from_cfg(cfg) -> int:
+            # No include_identity handling as requested
             L = cfg.encoder.n_levels
             F = cfg.encoder.n_features_per_level
-            return 4 * (L * F)  # no include_identity handling as requested
+            return 4 * (L * F)
 
         # ---- Locate the flat TCNN parameter and build a W0/b0 mask ----
         # Find the flat parameter (usually named 'net.params')
@@ -727,26 +728,29 @@ class BaseTrainer:
         # Offsets inside MLP tail
         def _prefix_offsets(szs: list[int]) -> list[int]:
             offs = [0]
-            for s in szs: offs.append(offs[-1] + s)
+            for s in szs:
+                offs.append(offs[-1] + s)
             return offs
 
         off = _prefix_offsets(splits)
         W0_lo, W0_hi = enc_total + off[0], enc_total + off[1]   # first weight block
         b0_lo, b0_hi = enc_total + off[1], enc_total + off[2]   # first bias block
+
         # Build mask: True for trainable indices, False elsewhere
         mask = torch.zeros(total_len, dtype=torch.bool, device=flat_param.device)
         mask[W0_lo:W0_hi] = True
         if include_b0:
             mask[b0_lo:b0_hi] = True
 
-        self.logger.info(f"[W0 warm-up] total={total_len}, enc_total={enc_total}, "
-                        f"W0=[{W0_lo},{W0_hi}), b0=[{b0_lo},{b0_hi}) trainable={int(mask.sum().item())}")
+        self.logger.info(
+            f"[W0 warm-up] total={total_len}, enc_total={enc_total}, "
+            f"W0=[{W0_lo},{W0_hi}), b0=[{b0_lo},{b0_hi}) trainable={int(mask.sum().item())}"
+        )
 
         # Register grad mask hook on the flat param
         def _grad_mask_hook(grad: torch.Tensor) -> torch.Tensor:
             g = grad
             if g.is_sparse:
-                # rare for TCNN; just in case
                 g = g.to_dense()
             g = g.masked_fill(~mask, 0)
             return g
@@ -775,70 +779,82 @@ class BaseTrainer:
                 dataloader_iter = iter(self.dataloader)
                 proj, angle, timestep = next(dataloader_iter)
 
-            # Minimal per-angle prep (no schedulers/images/checkpoints)
+            # Optional downsampling, then flatten
             if self.downsample_detector_factor != 1:
-                proj = F.avg_pool2d(proj.unsqueeze(0), kernel_size=self.downsample_detector_factor, stride=self.downsample_detector_factor,).squeeze(0)
+                proj = F.avg_pool2d(
+                    proj.unsqueeze(0),
+                    kernel_size=self.downsample_detector_factor,
+                    stride=self.downsample_detector_factor,
+                ).squeeze(0)
             proj = proj.flatten()
 
-            # Projector step(s)
-            # Determine how many batches to take per projection safely
-            proj_batches_cap = int(self.batch_per_proj) if isinstance(self.batch_per_proj, int) else 1_000_000_000
-            proj_batches_avail = int(getattr(self.projector, "batch_per_epoch", proj_batches_cap))
-            num_batches = max(1, min(proj_batches_cap, proj_batches_avail))
+            # Ensure projector has per-angle sizing (sets batch_size, distances, batch_per_epoch, etc.)
+            self.angle = float(angle) if torch.is_tensor(angle) else float(angle)
+            self.projector.update(
+                angle=self.angle,
+                detector_binning=self.downsample_detector_factor,
+                points_per_ray=self.points_per_ray,
+                random_offset_detector=0.5 if self.downsample_detector_factor > 1 else 0,
+            )
 
-            for batch_num in range(num_batches):
-                warmup_optim.zero_grad(set_to_none=True)
+            # Exactly one projector batch per step (config.batch_per_proj == 1)
+            batch_num = 0
+            warmup_optim.zero_grad(set_to_none=True)
 
-                points, y = self.projector(batch_num=batch_num, proj=proj)
-                if points is None or y is None:
-                    continue
+            points, y = self.projector(batch_num=batch_num, proj=proj)
+            if points is None or y is None:
+                continue
 
-                zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
-                points_shape = points.size()
-                if points_shape[1] == 0:
-                    continue
+            zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
+            points_shape = points.size()
+            if points_shape[1] == 0:
+                continue
 
-                pts_flat = points.view(-1, 3)[~zero_points_mask]
-                if pts_flat.size(0) == 0:
-                    continue
+            pts_flat = points.view(-1, 3)[~zero_points_mask]
+            if pts_flat.size(0) == 0:
+                continue
 
-                atten_hats = []
-                ppb = 5_000_000
-                for p0 in range(0, pts_flat.size(0), ppb):
-                    if self.config.mode == "dynamic":
-                        atten_hat = self.model(pts_flat[p0:p0+ppb], float(timestep)).squeeze(0)
-                    else:
-                        atten_hat = self.model(pts_flat[p0:p0+ppb]).squeeze(0)
-                    atten_hats.append(atten_hat)
+            # Forward chunking for TCNN comfort (~5M points per chunk)
+            atten_hats = []
+            ppb = 5_000_000
+            for p0 in range(0, pts_flat.size(0), ppb):
+                if self.config.mode == "dynamic":
+                    atten_hat = self.model(pts_flat[p0:p0+ppb], float(timestep)).squeeze(0)
+                else:
+                    atten_hat = self.model(pts_flat[p0:p0+ppb]).squeeze(0)
+                atten_hats.append(atten_hat)
 
-                atten_hat = torch.cat(atten_hats) if atten_hats else torch.empty(0, device=self.fabric.device)
+            atten_hat = torch.cat(atten_hats) if atten_hats else torch.empty(0, device=self.fabric.device)
 
-                processed = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device).view(-1, 1)
-                processed[~zero_points_mask] = atten_hat
-                atten_hat = processed.view(points_shape[0], points_shape[1])
+            processed = torch.zeros(
+                (points_shape[0], points_shape[1], 1),
+                dtype=torch.float32,
+                device=self.fabric.device,
+            ).view(-1, 1)
+            processed[~zero_points_mask] = atten_hat
+            atten_hat = processed.view(points_shape[0], points_shape[1])
 
-                y_pred = torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))
-                loss = self.loss_fn(y_pred, y, 0)
+            y_pred = torch.sum(atten_hat, dim=1) * (
+                self.projector.distances / (self.geometry.max_distance_traveled)
+            )
+            loss = self.loss_fn(y_pred, y, 0)
 
-                self.fabric.backward(loss)
-                if getattr(self.config, "clip_grad_value", None) is not None:
-                    torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)
+            self.fabric.backward(loss)
+            if getattr(self.config, "clip_grad_value", None) is not None:
+                torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)
 
-                warmup_optim.step()
-                steps_done += 1
+            warmup_optim.step()
+            steps_done += 1
 
-                if self.fabric.is_global_zero and steps_done % 50 == 0:
-                    self.fabric.log_dict(
-                        {
-                            "w0_warmup/loss": loss.detach(),
-                            "w0_warmup/steps_done": steps_done,
-                            "w0_warmup/lr": lr,
-                        },
-                        step=steps_done,
-                    )
-
-                if steps_done >= steps:
-                    break
+            if self.fabric.is_global_zero and steps_done % 50 == 0:
+                self.fabric.log_dict(
+                    {
+                        "w0_warmup/loss": loss.detach(),
+                        "w0_warmup/steps_done": steps_done,
+                        "w0_warmup/lr": lr,
+                    },
+                    step=steps_done,
+                )
 
         dt = time.perf_counter() - start_t
         self.logger.info(f"[W0 warm-up] finished {steps_done} steps in {dt:.1f}s")
@@ -849,4 +865,5 @@ class BaseTrainer:
             pg["lr"] = 0.0
         del warmup_optim
         torch.cuda.empty_cache()
+
 
