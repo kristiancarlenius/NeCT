@@ -89,7 +89,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_adaptive_skip=False,
         ),
         "damp_multi": [1, 0.0, 1],
-        "w0_steps": int(1400*6),
+        "w0_steps": int(1400*10),
         "w0_lr_multi": 0.8,
     },
 )
