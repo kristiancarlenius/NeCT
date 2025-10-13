@@ -55,3 +55,5 @@ model: null                        # (str) Model type. Supported: hash_grid, dou
 uniform_ray_spacing: True          # (bool) Sample with uniform distance if True, if False, sample uniform number of points
 checkpoint_epoch: 1          # save every N epochs, set None/0 to disable
 damp_multi: [0.8, 0.4, 0.4] #[enc0, enc1-3, mpl] dampening factors
+w0_steps: 1400
+w0_lr_multi: 1

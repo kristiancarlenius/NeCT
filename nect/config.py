@@ -263,6 +263,8 @@ class Config:
     crop: Crop = Crop(0, 0, 0)
     use_prior: bool = False
     lr: float | None = None
+    w0_steps: int | None = None
+    w0_lr_multi: float | None = None 
     checkpoint_prior: Optional[str] = None
     checkpoint_epoch: Optional[int] = None 
     damp_multi: Optional[list[float]] = None 
@@ -286,6 +288,9 @@ class Config:
 
     def get_dm(self) -> list[float]:
         return self.damp_multi
+    
+    def get_w0(self):
+        return self.w0_steps, self.w0_lr_multi
 
     def get_str(self) -> str:
         return f"{self.model}_{str(self.encoder)}_{str(self.net)}_{self.loss}"

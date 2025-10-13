@@ -40,7 +40,8 @@ class IniTrainer(BaseTrainer):
             raise ValueError("static_init_config (path to saved static HashGrid config.yaml) is required")
 
         _transfer_hashgrid_to_quadcubes(sd, self.model, hash_config_path=static_init_config, qc_cfg=self.config, logger=self.logger.info)
-        self.warmup_w0_only(steps=1400, lr_mult=1, include_b0=False)
+        steps, lr_multi = self.config.get_w0()
+        self.warmup_w0_only(steps=steps, lr_mult=lr_multi, include_b0=False)
 
 def _estimate_mlp_params_via_identity(in_dim: int, net_cfg) -> int:
     enc = {"otype": "Identity", "n_dims_to_encode": int(in_dim)}
