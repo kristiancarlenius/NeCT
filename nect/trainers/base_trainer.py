@@ -781,7 +781,12 @@ class BaseTrainer:
             proj = proj.flatten()
 
             # Projector step(s)
-            for batch_num in range(min(cast(int, self.batch_per_proj), self.projector.batch_per_epoch)):
+            # Determine how many batches to take per projection safely
+            proj_batches_cap = int(self.batch_per_proj) if isinstance(self.batch_per_proj, int) else 1_000_000_000
+            proj_batches_avail = int(getattr(self.projector, "batch_per_epoch", proj_batches_cap))
+            num_batches = max(1, min(proj_batches_cap, proj_batches_avail))
+
+            for batch_num in range(num_batches):
                 warmup_optim.zero_grad(set_to_none=True)
 
                 points, y = self.projector(batch_num=batch_num, proj=proj)
@@ -793,20 +798,21 @@ class BaseTrainer:
                 if points_shape[1] == 0:
                     continue
 
-                points_lin = points.view(-1, 3)[-zero_points_mask == False]
-                if points_lin.size(0) == 0:
+                pts_flat = points.view(-1, 3)[~zero_points_mask]
+                if pts_flat.size(0) == 0:
                     continue
 
                 atten_hats = []
                 ppb = 5_000_000
-                for p0 in range(0, points_lin.size(0), ppb):
+                for p0 in range(0, pts_flat.size(0), ppb):
                     if self.config.mode == "dynamic":
-                        atten_hat = self.model(points_lin[p0:p0+ppb], float(timestep)).squeeze(0)
+                        atten_hat = self.model(pts_flat[p0:p0+ppb], float(timestep)).squeeze(0)
                     else:
-                        atten_hat = self.model(points_lin[p0:p0+ppb]).squeeze(0)
+                        atten_hat = self.model(pts_flat[p0:p0+ppb]).squeeze(0)
                     atten_hats.append(atten_hat)
 
                 atten_hat = torch.cat(atten_hats) if atten_hats else torch.empty(0, device=self.fabric.device)
+
                 processed = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device).view(-1, 1)
                 processed[~zero_points_mask] = atten_hat
                 atten_hat = processed.view(points_shape[0], points_shape[1])
@@ -821,12 +827,13 @@ class BaseTrainer:
                 warmup_optim.step()
                 steps_done += 1
 
-                # Optional lightweight logging
                 if self.fabric.is_global_zero and steps_done % 50 == 0:
                     self.fabric.log_dict(
-                        {"w0_warmup/loss": loss.detach(),
-                        "w0_warmup/steps_done": steps_done,
-                        "w0_warmup/lr": lr},
+                        {
+                            "w0_warmup/loss": loss.detach(),
+                            "w0_warmup/steps_done": steps_done,
+                            "w0_warmup/lr": lr,
+                        },
                         step=steps_done,
                     )
 
