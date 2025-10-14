@@ -28,7 +28,7 @@ reconstruction_path_static, output_path_0 = nect.reconstruct(
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "3x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -51,6 +51,7 @@ reconstruction_path_static, output_path_0 = nect.reconstruct(
         ),
     },
 )
+"""
 reconstruction_path_static, output_path_1 = nect.reconstruct(
     geometry=geometry,
     projections=str(Path(data_path) / "projections.npy"),
@@ -145,3 +146,5 @@ liste = [output_path_0, output_path_1, output_path_2, output_path_3]
 with open("file_overview_longer.txt", "a") as f:
   for write_out in liste:
     f.write(write_out)
+
+"""
