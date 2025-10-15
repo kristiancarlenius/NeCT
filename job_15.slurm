@@ -5,7 +5,7 @@
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_15 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_15.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
-#SBATCH --time=30:00:00 # Maximum running time of your job.
+#SBATCH --time=16:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100" # GPU type and number of GPUs.
@@ -18,7 +18,7 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "static init 3.0x"
+echo "static init 1.0x"
 cd NeCT
 source nect_a100/bin/activate
 git pull origin master

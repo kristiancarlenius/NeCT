@@ -240,7 +240,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     if not ok_mlp and only_tail_ok:
         logger("[WARN] W0 layout differs; copying b0 and tail,only not anymore.")
         
-        W0_qc[:quarter] = W0_hg * damp_multi[1]
+        W0_qc[:quarter] = W0_hg[:quarter] * damp_multi[1]
         W0_qc[quarter:] *= damp_multi[2]
         b0_qc[:] = b0_hg[:] * damp_multi[2]
         tail_qc[:] = tail_hg[:] * damp_multi[2]
