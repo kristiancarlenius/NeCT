@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import cast, Dict, Any
 import logging
 import torch
+import numpy
 import torch.utils.data
 from loguru import logger
 from nect.trainers.base_trainer import BaseTrainer
@@ -264,7 +265,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
-    logger(f"The start network:{qc_sd["net.params"]}")
+    logger(f"The start network:{qc_sd.detach().cpu().numpy()}")
 
 
 
