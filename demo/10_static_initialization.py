@@ -62,14 +62,14 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
     static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
     config_override={
-        "epochs": "4x",
+        "epochs": "2.5x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
-            "steps": 1400*3,
-            "lr0": 0.0001,
+            "steps": 1400*10,
+            "lr0": 0.0005,
         },
         "encoder": {
             "otype": "HashGrid",
