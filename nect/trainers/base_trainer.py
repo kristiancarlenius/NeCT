@@ -167,9 +167,11 @@ class BaseTrainer:
 
         if self.fabric.is_global_zero and output_directory is not None:
             self.checkpoint_directory_base, self.image_directory_base = create_sub_folders(output_directory)
+            self.epoch_loss_log_path = Path(self.checkpoint_directory_base).parent / "epoch_losses.txt"
         else:
             self.checkpoint_directory_base = "needs_to_be_defined_but_not_used"  # must be defined
             self.image_directory_base = "needs_to_be_defined_but_not_used"
+            self.epoch_loss_log_path = None
 
         self.last_checkpoint_time = time.perf_counter()
         self.last_image_time = time.perf_counter()
@@ -270,7 +272,7 @@ class BaseTrainer:
             self.use_checkpoint = False
         else:
             self.current_angle = 0
-            
+
         if(self.current_epoch==0):
             self.generate_image()
 
@@ -278,6 +280,15 @@ class BaseTrainer:
         if(self.config.checkpoint_epoch is not None and self.config.checkpoint_epoch > 0 and self.current_epoch % self.config.checkpoint_epoch == 0):
             self.generate_image()
 
+        if self.fabric.is_global_zero and getattr(self, "_epoch_loss_count", 0) > 0 and self.epoch_loss_log_path is not None:
+            avg_loss = self._epoch_loss_sum / max(1, self._epoch_loss_count)
+            try:
+                self.epoch_loss_log_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(self.epoch_loss_log_path, "a", encoding="utf-8") as f:
+                    f.write(f"epoch={self.current_epoch}, avg_loss={avg_loss:.6f}\n")
+            except Exception as e:
+                self.logger.warning(f"Failed writing epoch loss log: {e}")
+                
         self.current_epoch = self.current_epoch + 1
 
     def on_angle_end(self):
@@ -514,6 +525,8 @@ class BaseTrainer:
             h = nvmlDeviceGetHandleByIndex(0)
             for epoch in self.tqdm(range(self.current_epoch, self.config.epochs), total=self.config.epochs, initial=self.current_epoch, leave=True, desc="Epochs",):
                 self.on_train_epoch_start()
+                self._epoch_loss_sum = 0.0
+                self._epoch_loss_count = 0
                 tqdm_bar = self.tqdm(enumerate(self.dataloader), total=len(self.dataloader), leave=False, desc="Projections",)
                 for i, (proj, angle, timestep) in tqdm_bar:
                     if i < self.current_angle:
@@ -630,6 +643,10 @@ class BaseTrainer:
                         self.fabric.backward(loss)
                         if self.config.clip_grad_value is not None:
                             torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)
+
+                        if torch.isfinite(loss):
+                            self._epoch_loss_sum += float(loss.item())
+                            self._epoch_loss_count += 1
 
                         self.optim.step()
                         self.step += 1
