@@ -158,8 +158,10 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     enc_size_qc_total = qc_params.numel() - sum(qc_splits)
     enc0_size_qc = enc_size_qc_total // 4
 
-    logger(f"HashGrid enc_size={enc_size_hg_total}, MLP splits={hg_splits}")
-    logger(f"QuadCubes enc_total={enc_size_qc_total}, enc0={enc0_size_qc}, MLP splits={qc_splits}")
+    logger(f"HashGrid enc_size={enc_size_hg_total}, MLP size ={sum(hg_splits)}")
+    logger(f"HashGrid MLP layers ={hg_splits}")
+    logger(f"QuadCubes enc_total={enc_size_qc_total}, MLP sizes={sum(qc_splits)}")
+    logger(f"QuadCubes MLP splits={qc_splits}")
 
     qc_new = qc_params.clone()
     damp_multi = qc_cfg.get_dm()
