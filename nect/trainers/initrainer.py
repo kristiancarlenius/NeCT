@@ -40,8 +40,8 @@ class IniTrainer(BaseTrainer):
             raise ValueError("static_init_config (path to saved static HashGrid config.yaml) is required")
 
         _transfer_hashgrid_to_quadcubes(sd, self.model, hash_config_path=static_init_config, qc_cfg=self.config, logger=self.logger.info)
-        steps, lr_multi = self.config.get_w0()
-        self.warmup_w0_only(steps=steps, lr_mult=lr_multi, include_b0=False)
+        #steps, lr_multi = self.config.get_w0()
+        #self.warmup_w0_only(steps=steps, lr_mult=lr_multi, include_b0=False)
 
 def _estimate_mlp_params_via_identity(in_dim: int, net_cfg) -> int:
     enc = {"otype": "Identity", "n_dims_to_encode": int(in_dim)}
@@ -208,6 +208,8 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     b0_qc_size = qc_splits[1]
 
     # Build slices we'll need regardless of branch
+    W0_hg  = hg_mlp[hg_off[0]:hg_off[1]]
+    W0_qc  = qc_mlp[qc_off[0]:qc_off[1]]
     b0_hg  = hg_mlp[hg_off[1]:hg_off[2]]
     b0_qc  = qc_mlp[qc_off[1]:qc_off[2]]
     tail_hg = hg_mlp[hg_off[2]:]
@@ -236,7 +238,10 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     only_tail_ok = (b0_hg_size == b0_qc_size) and (tail_hg.numel() == tail_qc.numel())
 
     if not ok_mlp and only_tail_ok:
-        logger("[WARN] W0 layout differs; copying b0 and tail only.")
+        logger("[WARN] W0 layout differs; copying b0 and tail,only not anymore.")
+        
+        W0_qc[:quarter] = W0_hg * damp_multi[1]
+        W0_qc[quarter:] *= damp_multi[2]
         b0_qc[:] = b0_hg[:] * damp_multi[2]
         tail_qc[:] = tail_hg[:] * damp_multi[2]
 
@@ -259,7 +264,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
-
+    logger(f"The start network:{qc_sd["net.params"]}")
 
 
 
@@ -286,127 +291,3 @@ def sanity_check_params_exact(cfg: Config, model_name: str, logger=print):
         enc_total = total - mlp_exact
         logger(f"[{model_name}] total={total}, enc={enc_total}, mlp_exact={mlp_exact}")
 
-
-    """
-    # ---- Encoder copy (four equal blocks) ----
-    enc_src = hg_params[:enc_size_hg_total]
-    enc0 = enc_size_qc_total // 4
-    for i, s in enumerate(scales):
-        lo = i * enc0
-        qc_new[lo:lo+enc0] = enc_src * s
-
-    logger(f"Should be equal hg, qc/4: {enc_src.numel(), enc0}")
-
-    # ---- Encoder copy ----
-    enc_src = hg_params[:enc_size_hg_total]
-    enc_dst = qc_new[:enc0_size_qc]
-    n_enc_copy = min(enc_src.numel(), enc_dst.numel())
-    
-    enc_dst[:n_enc_copy] = enc_src[:n_enc_copy]*0.8
-
-    logger(f"Copied encoder0: {n_enc_copy}/{enc_dst.numel()}")
-
-    #Adding into the other encoders 
-    damp_mult = 0.4
-    enc_dst[n_enc_copy:n_enc_copy*2] = enc_src[:n_enc_copy]*damp_mult    #*(1/6) #1/4*2/3
-    enc_dst[n_enc_copy*2:n_enc_copy*3] = enc_src[:n_enc_copy]*damp_mult
-    enc_dst[n_enc_copy*3:n_enc_copy*4] = enc_src[:n_enc_copy]*damp_mult
-
-    logger(f"Copied to the other three endocers (from, to, to, to): {n_enc_copy, n_enc_copy*2, n_enc_copy*3, n_enc_copy*4}")
-    logger(f"Total should be equal to 4x encoder (tot, 4*enc): {enc_size_qc_total, n_enc_copy*4}")
-    
-    # ---- MLP copy (shape-accurate) ----
-    hg_mlp = hg_params[enc_size_hg_total:]
-    qc_mlp = qc_new[enc_size_qc_total:]
-
-    def prefix_offsets(sizes):
-        offs = [0]
-        for s in sizes:
-            offs.append(offs[-1] + s)
-        return offs
-
-    hg_off = prefix_offsets(hg_splits)
-    qc_off = prefix_offsets(qc_splits)
-
-    # W0 / b0 sizes via splits
-    W0_hg_size = hg_splits[0]
-    b0_size    = hg_splits[1]              # should equal qc_splits[1]
-    W0_qc_size = qc_splits[0]
-
-    # Sanity checks
-    logger(f"Hidden width (b0) must match: {b0_size, qc_splits[1]}")
-    logger(f"QC W0 must be divisible by 4 (True): {W0_qc_size % 4 == 0}")
-    logger(f"HG W0 must be equal (or less?) one QC quarter: {W0_hg_size, (W0_qc_size // 4)}")
-
-    # Offsets inside the MLP tails
-    W0_hg_lo, W0_hg_hi = hg_off[0], hg_off[1]        # [0 : W0_hg_size]
-    b0_hg_lo, b0_hg_hi = hg_off[1], hg_off[2]        # [W0_hg : W0_hg + b0]
-    tail_hg_lo         = hg_off[2]                    # start of W1
-
-    W0_qc_lo, W0_qc_hi = qc_off[0], qc_off[1]
-    b0_qc_lo, b0_qc_hi = qc_off[1], qc_off[2]
-    tail_qc_lo         = qc_off[2]
-
-    # Slice out the actual flat segments
-    W0_hg = hg_mlp[W0_hg_lo:W0_hg_hi]
-    b0_hg = hg_mlp[b0_hg_lo:b0_hg_hi]
-    tail_hg = hg_mlp[tail_hg_lo:]          # (W1,b1,...) flattened
-
-    W0_qc = qc_mlp[W0_qc_lo:W0_qc_hi]
-    b0_qc = qc_mlp[b0_qc_lo:b0_qc_hi]
-    tail_qc = qc_mlp[tail_qc_lo:]
-
-    # Tile HG's W0 into the four QC quarters
-    quarter = W0_qc_size // 4
-    copy_len = min(W0_hg_size, quarter)
-
-    # scales for the four branches (first gets the strongest)
-    for i, s in enumerate(scales):
-        lo = i * quarter
-        hi = lo + copy_len
-        W0_qc[lo:hi] = W0_hg[:copy_len] * s
-        # zero any leftover space in the quarter (optional)
-        if quarter > copy_len:
-            logger("Size differences in input weights")
-
-    # Copy b0 directly (same hidden width)
-    b0_qc[:] = b0_hg[:] * 0.4
-
-    # Copy the rest of the layers 1..end directly (same shapes)
-    logger(f"Hidden/topology beyond input layer qc should be same as hg: {tail_qc.numel(), tail_hg.numel()}")
-    tail_qc[:] = tail_hg[:] * 0.4
-
-    # ---- MLP copy ----
-    hg_mlp = hg_params[enc_size_hg_total:]
-    qc_mlp = qc_new[enc_size_qc_total:]
-    logger(f"HashGrid MLP ={hg_mlp.size()}")
-    logger(f"Quadcubes MLP ={qc_mlp.size()}")
-
-    mlp_overflow = qc_mlp.size()-hg_mlp.size()
-    encoder_input_layer_size = int(mlp_overflow/3)
-
-    qc_mlp[:encoder_input_layer_size] = hg_mlp[:encoder_input_layer_size]*damp_mult
-    qc_mlp[encoder_input_layer_size:encoder_input_layer_size*2] = hg_mlp[:encoder_input_layer_size]*damp_mult
-    qc_mlp[encoder_input_layer_size*2:encoder_input_layer_size*3] = hg_mlp[:encoder_input_layer_size]*damp_mult
-    qc_mlp[encoder_input_layer_size*3:encoder_input_layer_size*4] = hg_mlp[:encoder_input_layer_size]*damp_mult
-    qc_mlp[encoder_input_layer_size*4:] = hg_mlp[encoder_input_layer_size:]*damp_mult
-
-    logger(f"Copied over nn and copies of input layer: {encoder_input_layer_size}")
-    logger(f"Remaining network should be equal for qc and hc: {qc_mlp.size()-encoder_input_layer_size*4, hg_mlp.size()-encoder_input_layer_size}")
-
-    
-    logger(f"HashGrid MLP no-input-layer={hg_mlp.size()}")
-    logger(f"Quadcubes MLP no-input-layer={qc_mlp.size()}")
-    # cumulative offsets
-    hg_offsets = [0] + list(torch.cumsum(torch.tensor(hg_splits), dim=0).tolist())
-    qc_offsets = [0] + list(torch.cumsum(torch.tensor(qc_splits), dim=0).tolist())
-
-    # skip layer 0 (input layer)
-    for li in range(1, len(hg_splits)):  # start from hidden layer 1
-        hg_slice = hg_mlp[hg_offsets[li]:hg_offsets[li+1]]
-        qc_slice = qc_mlp[qc_offsets[li]:qc_offsets[li+1]]
-        n_copy = min(hg_slice.numel(), qc_slice.numel())
-        qc_slice[:n_copy] = hg_slice[:n_copy]*0.3
-        logger(f"Copied MLP layer {li}: {n_copy}/{qc_slice.numel()}")
-    
-    """

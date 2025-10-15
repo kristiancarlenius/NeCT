@@ -270,6 +270,9 @@ class BaseTrainer:
             self.use_checkpoint = False
         else:
             self.current_angle = 0
+            
+        if(self.current_epoch==0):
+            self.generate_image()
 
     def on_train_epoch_end(self):
         if(self.config.checkpoint_epoch is not None and self.config.checkpoint_epoch > 0 and self.current_epoch % self.config.checkpoint_epoch == 0):
