@@ -88,7 +88,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "damp_multi": [1, 0.0, 0.9],
+        "damp_multi": [1, 0.0, 1.0],
     },
 )
 #nect.export_volume(reconstruction_path_dynamic, binning=3)
