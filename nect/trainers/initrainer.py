@@ -265,7 +265,7 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
     qc_sd["net.params"] = qc_new
     missing, unexpected = qc_model.load_state_dict(qc_sd, strict=False)
     logger(f"Final load: Missing={len(missing)}, Unexpected={len(unexpected)}")
-    logger(f"The start network:{qc_sd.detach().cpu().numpy()}")
+    #logger(f"The start network:{qc_sd.detach().cpu().numpy()}")
 
 
 
