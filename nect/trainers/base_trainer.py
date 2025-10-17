@@ -168,11 +168,14 @@ class BaseTrainer:
         if self.fabric.is_global_zero and output_directory is not None:
             self.checkpoint_directory_base, self.image_directory_base = create_sub_folders(output_directory)
             self.epoch_loss_log_path = Path(self.checkpoint_directory_base).parent / "epoch_losses.txt"
+            self.initial_state_path = Path(self.checkpoint_directory_base).parent / "initial_state.txt"
         else:
             self.checkpoint_directory_base = "needs_to_be_defined_but_not_used"  # must be defined
             self.image_directory_base = "needs_to_be_defined_but_not_used"
             self.epoch_loss_log_path = None
+            self.initial_state_path = None
 
+        self._initial_state_saved = False
         self.last_checkpoint_time = time.perf_counter()
         self.last_image_time = time.perf_counter()
         self.last_evaluation_time = time.perf_counter()
@@ -516,13 +519,45 @@ class BaseTrainer:
 
         torch.save(state, filename)
         self.logger.info(f"Saved checkpoint: {filename}")
+    
+    def _save_initial_parameters_text(self):
+        """
+        Save the entire model parameter vector as plain text (one number per line),
+        with NO extra text. Runs only on global rank zero.
+        """
+        if self._initial_state_saved:
+            return
+        if not (self.fabric.is_global_zero and self.initial_state_path is not None):
+            return
+
+        try:
+            # Flatten all parameters into a single 1D tensor (preserve dtypes)
+            with torch.no_grad():
+                vec = torch.nn.utils.parameters_to_vector([p.detach() for p in self.model.parameters()])
+
+            # Move to CPU numpy for text write; keep numeric-only content
+            np_arr = vec.detach().cpu().numpy()
+
+            # Ensure parent dir exists
+            self.initial_state_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Write ONLY numbers (no headers/footers), one per line
+            # Using numpy tofile with sep + format avoids any extra text.
+            np_arr.tofile(self.initial_state_path, sep="\n", format="%.18e")
+
+            self._initial_state_saved = True
+        except Exception as e:
+            # Don't crash training on logging failure; warn instead.
+            self.logger.warning(f"Failed to save initial_state.txt: {e}")
 
     def fit(self):
         try:
             self.step = 0
             self.training_time = time.perf_counter()
+            self._save_initial_parameters_text()
             nvmlInit()
             h = nvmlDeviceGetHandleByIndex(0)
+
             for epoch in self.tqdm(range(self.current_epoch, self.config.epochs), total=self.config.epochs, initial=self.current_epoch, leave=True, desc="Epochs",):
                 self.on_train_epoch_start()
                 self._epoch_loss_sum = 0.0
