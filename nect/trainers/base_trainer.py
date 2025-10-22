@@ -223,6 +223,12 @@ class BaseTrainer:
         
         self.outputdir = output_directory
     
+    def get_model(self):
+        return self.model
+    
+    def set_model(self, newmodel):
+        self.model = newmodel
+        
     def get_outputdir(self):
         return self.outputdir
 

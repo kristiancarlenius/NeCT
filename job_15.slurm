@@ -18,7 +18,7 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "non init 15.0x"
+echo "non init continious scan 10.0x"
 cd NeCT
 source nect_a100/bin/activate
 git pull origin master

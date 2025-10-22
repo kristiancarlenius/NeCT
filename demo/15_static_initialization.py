@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"#simulatedfluidinvasion/"#
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scanning/"#simulatedfluidinvasion/"#
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -62,7 +62,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     #static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_10/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
     #static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_10/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
     config_override={
-        "epochs": "15x",
+        "epochs": "10x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
