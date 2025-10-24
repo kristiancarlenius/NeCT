@@ -18,6 +18,7 @@ from nect.config import (
 )
 from nect.sampling.geometry import Geometry
 from nect.trainers import BaseTrainer, ProjectionsLoadedTrainer
+from nect.trainers.continous_scanning_trainer import ContinousScanningTrainer
 
 _list = list[float] | np.ndarray | torch.Tensor
 
@@ -284,6 +285,134 @@ def reconstruct(
         return torch.rot90(cast(torch.Tensor, trainer.create_volume(save=False, cpu=True)), 2, (1, 2)).cpu().numpy(), trainer.get_outputdir()
     else:
         return Path(trainer.checkpoint_directory_base).parent, trainer.get_outputdir()
+
+def reconstruct_continious_scan(
+    geometry: Geometry,
+    projections: str | Path | torch.Tensor | np.ndarray,
+    mode="static",
+    angles: _list | None = None,
+    radians: bool = True,
+    quality: Literal["poor", "low", "medium", "high", "higher", "highest"] = "high",
+    niter: int | None = None,
+    lr: float | None = None,
+    timesteps: _list | None = None,
+    verbose: bool = True,
+    log: bool = False,
+    exp_name: str | None = None,
+    flip_projections: bool = False,
+    channel_order: str | None = None,
+    config_override: dict | None = None,
+    save_ckpt: bool = True,
+) -> np.ndarray | Path:
+
+    logger.remove()
+    logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>", level="INFO" if verbose else "WARNING",)
+
+    if mode == "static":
+        cfg = get_static_cfg(name="hash_grid")
+        cfg["model"] = "hash_grid"
+    elif mode == "dynamic":
+        cfg = get_dynamic_cfg(name="quadcubes")
+        cfg["model"] = "quadcubes"
+
+    if channel_order is not None:
+        cfg["channel_order"] = channel_order
+
+    cfg["flip"] = flip_projections
+    if isinstance(projections, (str, Path)):
+        cfg["img_path"] = projections
+    else:
+        cfg["img_path"] = "RECONSTRUCTING_FROM_ARRAY"
+
+    if quality in ["poor", "low"]:
+        cfg["loss"] = "L2"
+        cfg["encoder"]["log2_hashmap_size"] = 19
+        if quality == "poor":
+            cfg["epochs"] = "0.02x"
+            cfg["base_lr"] *= 10
+        elif quality == "low":
+            cfg["epochs"] = "0.1x"
+            cfg["base_lr"] *= 5
+
+    elif quality == "medium":
+        cfg["epochs"] = "0.3x"
+        cfg["base_lr"] *= 2
+
+    elif quality == "high":
+        cfg["epochs"] = "1x"
+        cfg["base_lr"] /= 2
+        cfg["warmup"]["steps"] = 500
+
+    elif quality in ["higher", "highest"]:
+#        cfg["net"]["n_neurons"] = 64
+#        cfg["net"]["n_hidden_layers"] = 6
+        if quality == "higher":
+            cfg["epochs"] = "2x"
+            cfg["base_lr"] /= 2
+            cfg["warmup"]["steps"] = 3000
+            cfg["lr_scheduler"]["lrf"] = 0.05
+            cfg["points_per_ray"]["end"] = "1.5x"
+        elif quality == "highest":
+            cfg["epochs"] = "4x"
+            cfg["base_lr"] /= 5
+            cfg["warmup"]["steps"] = 5000
+            cfg["lr_scheduler"]["lrf"] = 0.01
+            cfg["points_per_ray"]["end"] = "1.5x"
+            cfg["encoder"]["log2_hashmap_size"] = 23
+
+    if niter is not None:
+        cfg["epochs"] = niter
+
+    if lr is not None:
+        cfg["base_lr"] = lr
+
+    if angles is not None:
+        geometry.set_angles(angles, radians)
+
+    elif geometry.angles is None:
+        raise ValueError("angles must be provided, either as an argument or in the `Geometry` object.")
+    
+    if timesteps is not None:
+        geometry.set_timesteps(timesteps)
+
+    if config_override is not None:
+        cfg.update(config_override)
+
+    cfg["geometry"] = geometry.to_dict()
+    config = setup_cfg(cfg)
+    
+    if exp_name is None:
+        log_path = Path("outputs")
+    else:
+        log_path = Path("outputs") / exp_name
+    
+    (log_path).mkdir(parents=True, exist_ok=True)
+    config.save(log_path)
+
+    #if mode == "dynamic":
+    log = True
+    
+    trainer = ContinousScanningTrainer
+    trainer = trainer(
+        config=config,
+        output_directory=log_path if log else None,
+        save_ckpt=save_ckpt,
+        save_last=True,
+        save_optimizer=True,
+        prune=False,
+        
+        #init_mode="hash_to_quadcubes",
+        #save_optimizer=True,
+        #verbose=verbose,
+        #log=log,
+    )
+            
+    trainer.fit()
+    if mode == "static":
+        return torch.rot90(cast(torch.Tensor, trainer.create_volume(save=False, cpu=True)), 2, (1, 2)).cpu().numpy(), trainer.get_outputdir()
+    else:
+        return Path(trainer.checkpoint_directory_base).parent, trainer.get_outputdir()
+    
 
 def reconstruct_from_config_file(
     cfg: str | Path,
