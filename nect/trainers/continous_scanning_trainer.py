@@ -88,57 +88,53 @@ class ContinousScanningTrainer(BaseTrainer):
                         self.config.accumulation_steps + 1,
                         endpoint=True,
                     )
-                    linspace = [
-                        (end_linspace[k] + end_linspace[k + 1]) / 2 for k in range(self.config.accumulation_steps)
-                    ]
+                    linspace = [(end_linspace[k] + end_linspace[k + 1]) / 2 for k in range(self.config.accumulation_steps)]
                     for ang in linspace:
                         self.projector.update_angle(ang)
                         points, y = self.projector(batch_num=batch_num, proj=self.proj)
                         if points is None or y is None:
                             continue
+
                         zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
                         points_shape = points.size()
                         if points_shape[1] == 0:
                             self.logger.warning("No points in the batch")
                             continue
+
                         points = points.view(-1, 3)[~zero_points_mask]
                         if points.size(0) == 0:
                             continue
+
                         atten_hats = []
                         points_per_batch = 5000000  # 5 million points per batch is about the maximum that can be processed at once with tinycudann
                         for points_num in range(0, points.size(0), points_per_batch):
                             if self.config.mode == "dynamic":
-                                atten_hat = self.model(
-                                    points[points_num : points_num + points_per_batch],
-                                    float(timestep),
-                                ).squeeze(0)  # .view((points.size(0), points.size(1)))
+                                atten_hat = self.model(points[points_num : points_num + points_per_batch], float(timestep),).squeeze(0)  # .view((points.size(0), points.size(1)))
                             else:
-                                atten_hat = self.model(points[points_num : points_num + points_per_batch]).squeeze(
-                                    0
-                                )  # .view((points.size(0), points.size(1)))
+                                atten_hat = self.model(points[points_num : points_num + points_per_batch]).squeeze(0)  # .view((points.size(0), points.size(1)))
+                            
                             atten_hats.append(atten_hat)
+
                         atten_hat = torch.cat(atten_hats)
                         processed_tensor = torch.zeros(
                             (points_shape[0], points_shape[1], 1),
                             dtype=torch.float32,
                             device=self.fabric.device,
                         ).view(-1, 1)
+
                         processed_tensor[~zero_points_mask] = atten_hat
                         atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
                         if y_pred is None:
-                            y_pred = (
-                                torch.sum(atten_hat, dim=1)
-                                * (self.projector.distances / (self.geometry.max_distance_traveled))
-                                / self.config.accumulation_steps
-                            )  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
+                            y_pred = (torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))
+                                / self.config.accumulation_steps)  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
                         else:
                             y_pred += (
-                                torch.sum(atten_hat, dim=1)
-                                * (self.projector.distances / (self.geometry.max_distance_traveled))
-                                / self.config.accumulation_steps
-                            )
+                                torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))
+                                / self.config.accumulation_steps)
+                            
                     if self.config.add_poisson:
                         y_pred = (y_pred + torch.poisson(y_pred * 1e5) / 1e5) / 2
+
                     if self.config.s3im and self.current_projection > self.config.warmup.steps:
                         loss = 0
                         patch_size = min(
@@ -149,6 +145,7 @@ class ContinousScanningTrainer(BaseTrainer):
                         self.fabric.log_dict({"patch_size": patch_size}, step=self.step)
                         loss += self.loss_fn(y_pred, y)
                         loss += self.s3im_loss(y_pred, y, patch_size=patch_size)
+                        
                     else:
                         loss = self.loss_fn(y_pred, y)
 
