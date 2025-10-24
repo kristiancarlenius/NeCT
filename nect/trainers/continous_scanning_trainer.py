@@ -85,8 +85,8 @@ class ContinousScanningTrainer(BaseTrainer):
                     self.model.train()
                     y_pred = None
                     end_linspace = np.linspace(
-                        angle_start,
-                        angle_stop,
+                        float(angle_start.detach().cpu()),
+                        float(angle_stop.detach().cpu()),
                         self.config.accumulation_steps + 1,
                         endpoint=True,
                     )
