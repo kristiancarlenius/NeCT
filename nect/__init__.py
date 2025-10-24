@@ -4,7 +4,7 @@ import nect.data
 from .dynamic_export import export_video, export_volumes
 from .static_export import export_volume
 from .fdk import fdk, fdk_from_config
-from .reconstruct import reconstruct, reconstruct_from_config_file
+from .reconstruct import reconstruct, reconstruct_from_config_file, reconstruct_continious_scan
 from .sampling import *  # noqa
 from .sampling.geometry import Geometry
 from .trainers import *  # noqa
