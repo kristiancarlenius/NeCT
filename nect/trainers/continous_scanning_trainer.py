@@ -116,21 +116,14 @@ class ContinousScanningTrainer(BaseTrainer):
                             atten_hats.append(atten_hat)
 
                         atten_hat = torch.cat(atten_hats)
-                        processed_tensor = torch.zeros(
-                            (points_shape[0], points_shape[1], 1),
-                            dtype=torch.float32,
-                            device=self.fabric.device,
-                        ).view(-1, 1)
 
+                        processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
                         processed_tensor[~zero_points_mask] = atten_hat
                         atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
                         if y_pred is None:
-                            y_pred = (torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))
-                                / self.config.accumulation_steps)  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
+                            y_pred = (torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled)) / self.config.accumulation_steps)  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
                         else:
-                            y_pred += (
-                                torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled))
-                                / self.config.accumulation_steps)
+                            y_pred += (torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled)) / self.config.accumulation_steps)
                             
                     if self.config.add_poisson:
                         y_pred = (y_pred + torch.poisson(y_pred * 1e5) / 1e5) / 2
