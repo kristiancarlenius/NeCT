@@ -17,6 +17,7 @@ __all__ = [
     "export_volume",
     "reconstruct",
     "reconstruct_from_config_file",
+    "reconstruct_continious_scan",
     "Geometry",
     "fdk",
     "fdk_from_config",

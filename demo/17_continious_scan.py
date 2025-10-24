@@ -53,7 +53,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path_dynamic, _ = nect.reconstruct(
+reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
