@@ -186,7 +186,8 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
         for i, s in enumerate(scales):
             lo = i * enc0_size_qc
             hi = (i + 1) * enc0_size_qc
-            qc_new[lo:hi] = enc_src * s
+            with torch.no_grad():
+                qc_new[lo:hi] = enc_src * s
         logger("[OK] Encoders copied (4 quarters).")
 
     # ---- MLP copy (shape-accurate, padded-aware; checks only) ----
@@ -240,25 +241,25 @@ def _transfer_hashgrid_to_quadcubes(hg_sd: dict, qc_model: torch.nn.Module, hash
 
     if not ok_mlp and only_tail_ok:
         logger("[WARN] W0 layout differs; copying b0 and tail,only not anymore.")
-        
-        W0_qc[:quarter] = W0_hg[:quarter] * damp_multi[1]
-        W0_qc[quarter:] *= damp_multi[2]
-        b0_qc[:] = b0_hg[:] * damp_multi[2]
-        tail_qc[:] = tail_hg[:] * damp_multi[2]
+        with torch.no_grad():
+            W0_qc[:quarter] = W0_hg[:quarter] * damp_multi[1]
+            W0_qc[quarter:] *= damp_multi[2]
+            b0_qc[:] = b0_hg[:] * damp_multi[2]
+            tail_qc[:] = tail_hg[:] * damp_multi[2]
 
     elif ok_mlp:
         # Full copy: W0 (tiled), b0, and tail
         W0_hg  = hg_mlp[hg_off[0]:hg_off[1]]
         W0_qc  = qc_mlp[qc_off[0]:qc_off[1]]
+        with torch.no_grad():
+            for i, s in enumerate(scales):
+                lo = i * quarter
+                hi = (i + 1) * quarter
+                W0_qc[lo:hi] = W0_hg * s
 
-        for i, s in enumerate(scales):
-            lo = i * quarter
-            hi = (i + 1) * quarter
-            W0_qc[lo:hi] = W0_hg * s
-
-        b0_qc[:] = b0_hg[:] * damp_multi[2]
-        tail_qc[:] = tail_hg[:] * damp_multi[2]
-        logger("[OK] MLP copied (W0 tiled into 4 quarters, b0 and tail copied).")
+            b0_qc[:] = b0_hg[:] * damp_multi[2]
+            tail_qc[:] = tail_hg[:] * damp_multi[2]
+            logger("[OK] MLP copied (W0 tiled into 4 quarters, b0 and tail copied).")
     else:
         logger("[ABORT] Not copying MLP.")
 
