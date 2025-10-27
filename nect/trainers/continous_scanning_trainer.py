@@ -56,19 +56,9 @@ class ContinousScanningTrainer(BaseTrainer):
         self.training_time = time.perf_counter()
         nvmlInit()
         h = nvmlDeviceGetHandleByIndex(0)
-        for epoch in self.tqdm(
-            range(self.current_epoch, self.config.epochs),
-            total=self.config.epochs,
-            leave=True,
-            desc="Epochs",
-        ):
+        for epoch in self.tqdm(range(self.current_epoch, self.config.epochs), total=self.config.epochs, leave=True, desc="Epochs",):
             self.on_train_epoch_start()
-            tqdm_bar = self.tqdm(
-                enumerate(self.dataloader),
-                total=len(self.dataloader),
-                leave=False,
-                desc="Projections",
-            )
+            tqdm_bar = self.tqdm(enumerate(self.dataloader), total=len(self.dataloader), leave=False, desc="Projections",)
             for i, (proj, angle_start, angle_stop, timestep) in tqdm_bar:
                 if i < self.current_angle:
                     continue
