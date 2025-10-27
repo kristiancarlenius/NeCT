@@ -57,6 +57,8 @@ class ContinousScanningTrainer(BaseTrainer):
         nvmlInit()
         h = nvmlDeviceGetHandleByIndex(0)
         for epoch in self.tqdm(range(self.current_epoch, self.config.epochs), total=self.config.epochs, leave=True, desc="Epochs",):
+            self._epoch_loss_sum = 0.0
+            self._epoch_loss_count = 0
             self.on_train_epoch_start()
             tqdm_bar = self.tqdm(enumerate(self.dataloader), total=len(self.dataloader), leave=False, desc="Projections",)
             for i, (proj, angle_start, angle_stop, timestep) in tqdm_bar:
@@ -158,6 +160,9 @@ class ContinousScanningTrainer(BaseTrainer):
                         torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)
                     self.optim.step()
                     self.step += 1
+                    if torch.isfinite(loss):
+                            self._epoch_loss_sum += float(loss.item())
+                            self._epoch_loss_count += 1
                 self.on_angle_end()
             self.on_train_epoch_end()
         self.evaluate()
