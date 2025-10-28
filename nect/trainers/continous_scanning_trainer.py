@@ -124,11 +124,7 @@ class ContinousScanningTrainer(BaseTrainer):
 
                     if self.config.s3im and self.current_projection > self.config.warmup.steps:
                         loss = 0
-                        patch_size = min(
-                            math.floor(math.sqrt(self.projector.total_detector_pixels)),
-                            math.floor(math.sqrt(self.batch_size)),
-                        )  # 25x25 patch size, add a parameter later
-
+                        patch_size = min(math.floor(math.sqrt(self.projector.total_detector_pixels)), math.floor(math.sqrt(self.batch_size)),)  # 25x25 patch size, add a parameter later
                         self.fabric.log_dict({"patch_size": patch_size}, step=self.step)
                         loss += self.loss_fn(y_pred, y)
                         loss += self.s3im_loss(y_pred, y, patch_size=patch_size)
