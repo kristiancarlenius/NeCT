@@ -17,7 +17,4 @@ echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "static 6x full-init all encoders and whole mlp with input layer warmedup"
-cd NeCT
-source nect_a100/bin/activate
-git pull origin master
 python -m nect.list_files_by_size
