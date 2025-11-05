@@ -1,14 +1,12 @@
 #!/bin/sh
-#SBATCH --partition=GPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
+#SBATCH --partition=CPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
 #SBATCH --mem=56GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_05 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_05.txt # The output file. NOTE! The output directory has to exist before you submit the job!
-#SBATCH --time=25:00:00 # Maximum running time of your job.
+#SBATCH --time=5:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --gres=gpu:1
-#SBATCH --constraint="a100" # GPU type and number of GPUs.
 #SBATCH --ntasks-per-node=4 #CPU cores  
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
@@ -22,4 +20,4 @@ echo "static 6x full-init all encoders and whole mlp with input layer warmedup"
 cd NeCT
 source nect_a100/bin/activate
 git pull origin master
-python -m demo.08_static_initialization
+python -m nect.list_files_by_size
