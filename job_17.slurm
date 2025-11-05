@@ -5,11 +5,7 @@
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_17 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_17.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
-<<<<<<< HEAD
 #SBATCH --time=24:00:00 # Maximum running time of your job.
-=======
-#SBATCH --time=45:00:00 # Maximum running time of your job.
->>>>>>> 5f43c433e0ec5f7967f9375f092fbb3d5f738f0d
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100" # GPU type and number of GPUs.
