@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     mode="static",
     exp_name="static_continious",
     config_override={
-        "epochs": "5x",
+        "epochs": "12x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
