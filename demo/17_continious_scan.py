@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     mode="static",
     exp_name="static_continious",
     config_override={
-        "epochs": "12x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -80,13 +80,13 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
-            output_activation="ReLU",
+            output_activation=None,
             n_neurons=128,
             n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 4,
+        "accumulation_steps": 5,
         "continous_scanning": True,
         
     },)

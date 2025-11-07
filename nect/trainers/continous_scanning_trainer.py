@@ -9,7 +9,7 @@ import numpy as np
 import torch
 import torch.utils.data
 from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlInit
-
+import matplotlib.pyplot as plt
 from nect.config import Config
 from nect.trainers.base_trainer import BaseTrainer
 
@@ -51,6 +51,89 @@ class ContinousScanningTrainer(BaseTrainer):
         if config.continous_scanning is False:
             raise ValueError("continous_scanning must be True")
 
+    def generate_image(self, prior: bool = False):
+        with torch.no_grad():
+            if self.config.points_per_batch == "auto":
+                return
+            
+            plot = self.config.plot_type
+            if plot is None:
+                return
+            
+            if self.fabric.is_global_zero:
+                size = [*self.config.geometry.nVoxel]
+                sample_size = [*size]
+                rm = self.config.sample_outside
+                if rm > 0:
+                    sample_size = [size[0], size[1] + 2 * rm, size[2] + 2 * rm]
+
+                if plot == "XZ":
+                    size[1] = 1
+
+                elif plot == "YZ":
+                    size[2] = 1
+
+                elif plot == "XY":
+                    size[0] = 1
+
+                if size[0] * size[1] * size[2] > self.config.points_per_batch:
+                    sample_size = [sample_size[i] // 3 for i in range(3)]
+                    sample_size = [s if s > 0 else 1 for s in sample_size]
+
+                z, y, x = torch.meshgrid(
+                    [
+                        torch.linspace(0, 1, steps=sample_size[0]) if plot != "XY" else torch.tensor(0.5),
+                        torch.linspace(0, 1, steps=sample_size[1])[slice(rm, -rm) if rm > 0 else slice(None)] if plot != "XZ" else torch.tensor(0.5),
+                        torch.linspace(0, 1, steps=sample_size[2])[slice(rm, -rm) if rm > 0 else slice(None)] if plot != "YZ" else torch.tensor(0.5),
+                    ],
+                    indexing="ij",
+                )
+                grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t().to(self.fabric.device)
+                self.model.eval()
+                if self.config.mode == "dynamic":
+                    fig, axes = plt.subplots(2, 3, figsize=(24, 10))
+                    avg = self.model(grid, torch.tensor(0)).squeeze().reshape(size).squeeze().detach().cpu().numpy()
+                    for i in range(3):
+                        dynamic = (
+                            self.model(grid, torch.tensor((i + 1) / 4))
+                            .squeeze()
+                            .reshape(size)
+                            .squeeze()
+                            .detach()
+                            .cpu()
+                            .numpy()
+                        )
+                        axes[0, i].imshow(dynamic - avg, cmap="gray", interpolation="none")
+                        dynamic = dynamic / (self.geometry.max_distance_traveled * 2)
+                        dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
+                        dynamic = dynamic + self.dataset.minimum.item()
+                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
+
+                    for ax in axes.ravel():
+                        ax.set_axis_off()
+
+                    fig.tight_layout()
+                else:
+                    if size[0] * size[1] * size[2] < self.config.points_per_batch:
+                        output = self.model(grid).squeeze().reshape(size).squeeze().detach().cpu().numpy()
+                    else:
+                        output = torch.zeros(size).numpy()
+                        for i in range(size[0]):
+                            output[i] = (self.model(grid[i * size[1] * size[2] : (i + 1) * size[1] * size[2]]).squeeze(0).reshape(size[1], size[2]).squeeze(1).detach().cpu().numpy())
+
+                    output = output / self.geometry.max_distance_traveled
+                    output = output * (self.dataset.maximum.item() - self.dataset.minimum.item())
+                    output = output + self.dataset.minimum.item()
+                    fig, axes = plt.subplots(1, 2, figsize=(24, 6))
+                    vmin = float(self.dataset.minimum.item())
+                    vmax = float(self.dataset.maximum.item())
+                    axes[0].hist(output.flatten(), bins=100, range=(vmin, vmax))
+                    axes[1].imshow(output, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
+                save_path = f"{self.image_directory_base}/{self.current_epoch:04}_{self.current_angle:04}.png"
+                plt.savefig(save_path, dpi=300)
+                plt.close()
+            self.last_image_time = time.perf_counter()
+
     def fit(self):
         self.step = 0
         self.training_time = time.perf_counter()
@@ -76,12 +159,7 @@ class ContinousScanningTrainer(BaseTrainer):
                     self.optim.zero_grad()
                     self.model.train()
                     y_pred = None
-                    end_linspace = np.linspace(
-                        float(angle_start.detach().cpu()),
-                        float(angle_stop.detach().cpu()),
-                        self.config.accumulation_steps + 1,
-                        endpoint=True,
-                    )
+                    end_linspace = np.linspace(float(angle_start.detach().cpu()), float(angle_stop.detach().cpu()), self.config.accumulation_steps + 1, endpoint=True, )
                     linspace = [(end_linspace[k] + end_linspace[k + 1]) / 2 for k in range(self.config.accumulation_steps)]
                     for ang in linspace:
                         self.projector.update_angle(ang)
