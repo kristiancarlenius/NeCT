@@ -94,15 +94,7 @@ class ContinousScanningTrainer(BaseTrainer):
                     fig, axes = plt.subplots(2, 3, figsize=(24, 10))
                     avg = self.model(grid, torch.tensor(0)).squeeze().reshape(size).squeeze().detach().cpu().numpy()
                     for i in range(3):
-                        dynamic = (
-                            self.model(grid, torch.tensor((i + 1) / 4))
-                            .squeeze()
-                            .reshape(size)
-                            .squeeze()
-                            .detach()
-                            .cpu()
-                            .numpy()
-                        )
+                        dynamic = (self.model(grid, torch.tensor((i + 1) / 4)).squeeze().reshape(size).squeeze().detach().cpu().numpy())
                         axes[0, i].imshow(dynamic - avg, cmap="gray", interpolation="none")
                         dynamic = dynamic / (self.geometry.max_distance_traveled * 2)
                         dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
