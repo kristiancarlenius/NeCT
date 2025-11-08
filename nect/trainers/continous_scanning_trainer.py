@@ -118,7 +118,7 @@ class ContinousScanningTrainer(BaseTrainer):
                     output = output + self.dataset.minimum.item()
                     fig, axes = plt.subplots(1, 2, figsize=(24, 6))
                     vmin = float(self.dataset.minimum.item())
-                    vmax = float(self.dataset.maximum.item())
+                    vmax = float(0.75)
                     axes[0].hist(output.flatten(), bins=100, range=(vmin, vmax))
                     axes[1].imshow(output, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
                 save_path = f"{self.image_directory_base}/{self.current_epoch:04}_{self.current_angle:04}.png"
@@ -139,14 +139,13 @@ class ContinousScanningTrainer(BaseTrainer):
             for i, (proj, angle_start, angle_stop, timestep) in tqdm_bar:
                 if i < self.current_angle:
                     continue
-                self.on_angle_start(proj, angle_start)
 
+                self.on_angle_start(proj, angle_start)
                 memory_info = nvmlDeviceGetMemoryInfo(h)
                 if self.verbose:
-                    tqdm_bar.set_postfix(
-                        {"GPU mem%": f"{round(int(memory_info.used)/1024**3, 1)}/{int(memory_info.total)/1024**3}G"}
-                    )
+                    tqdm_bar.set_postfix({"GPU mem%": f"{round(int(memory_info.used)/1024**3, 1)}/{int(memory_info.total)/1024**3}G"})
                     tqdm_bar.refresh()
+
                 for batch_num in range(min(cast(int, self.batch_per_proj), self.projector.batch_per_epoch)):
                     self.optim.zero_grad()
                     self.model.train()
