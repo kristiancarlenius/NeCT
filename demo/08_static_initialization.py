@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"#simulatedfluidinvasion/"#
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -16,7 +16,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry.yaml"
+geometry_file = Path(data_path) / "geometry_1400_step.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
@@ -55,14 +55,12 @@ reconstruction_path_static, output_path = nect.reconstruct(
 
 reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections.npy"),
+    projections=str(Path(data_path) / "projections_1400_step.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_init",
-    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
-    static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
+    exp_name="normal_1400_steps",
     config_override={
-        "epochs": "2.5x",
+        "epochs": "5x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -88,7 +86,6 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "damp_multi": [1, 0.0, 1],
     },
 )
 #nect.export_volume(reconstruction_path_dynamic, binning=3)
