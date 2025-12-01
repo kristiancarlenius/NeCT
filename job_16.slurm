@@ -19,7 +19,6 @@ echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "static init 1.0x"
-cd NeCT
 source nect_a100/bin/activate
 git pull origin master
 python -m demo.16_static_initialization
