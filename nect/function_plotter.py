@@ -46,7 +46,7 @@ def square_pulse(x, period=1.0, pulse_ratio=0.15):
 
 
 # Three full repeats over x ∈ [0, 3]
-x = np.linspace(0, 3, 2000)
+x = np.linspace(0, 6, 2000)
 
 y_bow   = bowed_plateau(x, period=1.0, flat_ratio=0.6)
 y_square = square_pulse(x, period=0.5, pulse_ratio=0.15)  # much shorter width
@@ -56,7 +56,7 @@ plt.plot(x, y_bow,    label="Bow with long flat top")
 plt.plot(x, y_square, label="Short square pulse")
 
 # Only positive x and y
-plt.xlim(0, 3)
+plt.xlim(0, 6)
 plt.ylim(0, 1.1)
 
 plt.axhline(0, linewidth=1)
