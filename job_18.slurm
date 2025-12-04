@@ -1,11 +1,11 @@
 #!/bin/sh
 #SBATCH --partition=GPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
-#SBATCH --mem=80GB # Total memory you need. Most DL jobs should do fine with 64GB.
+#SBATCH --mem=64GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_18 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_18.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
-#SBATCH --time=50:00:00 # Maximum running time of your job.
+#SBATCH --time=24:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100" # GPU type and number of GPUs.
