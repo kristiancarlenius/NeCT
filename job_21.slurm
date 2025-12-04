@@ -3,8 +3,8 @@
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
 #SBATCH --mem=64GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
-#SBATCH --job-name=job_18 # Set this to whatever you want
-#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_18.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
+#SBATCH --job-name=job_21 # Set this to whatever you want
+#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_21.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
 #SBATCH --time=24:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
@@ -20,4 +20,4 @@ echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "continious scan 8x"
 source nect_a100/bin/activate
-python -m demo.18_continious_scan
+python -m demo.21_continious_scan
