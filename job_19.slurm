@@ -20,4 +20,4 @@ echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "continious scan 8x"
 source nect_a100/bin/activate
-python -m demo.18_continious_scan
+python -m demo.19_continious_scan
