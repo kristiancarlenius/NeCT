@@ -16,7 +16,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_100.yaml"
+geometry_file = Path(data_path) / "geometry_360.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
@@ -55,7 +55,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
 
 reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections_100.npy"),
+    projections=str(Path(data_path) / "projections_360.npy"),
     quality="high",
     mode="static",
     exp_name="static_continious",
@@ -86,7 +86,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 2,
+        "accumulation_steps": 8,
         "continous_scanning": True,
         
     },)
