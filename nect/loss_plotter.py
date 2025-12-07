@@ -21,7 +21,7 @@ def parse_log(filepath):
     seen_epochs = set()
     x_vals, y_vals = [], []
     for epoch, loss in matches:
-        epoch = int(epoch)
+        epoch = float(epoch*0.0095)
         if epoch not in seen_epochs:
             seen_epochs.add(epoch)
             x_vals.append(epoch)
