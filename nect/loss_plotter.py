@@ -3,10 +3,13 @@ import matplotlib.pyplot as plt
 
 # === Set your log file paths here ===
 log_files = [
-    "run1.txt",
-    "run2.txt",
-    "run3.txt",
-    "run4.txt"
+    "/home/user/Documents/img_comp/pr360_ac6/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr100_ac6/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr360_ac4/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr100_ac4/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr360_ac3/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr100_ac3/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr100_ac2/epoch_losses.txt"
 ]
 
 # === Helper function to extract first loss per epoch ===
