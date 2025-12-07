@@ -57,7 +57,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
     projections=str(Path(data_path) / "projections_1400_step.npy"),
     quality="high",
-    mode="dynamic",
+    mode="static",
     exp_name="normal_1400_steps",
     config_override={
         "epochs": "5x",
