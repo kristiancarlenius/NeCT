@@ -17,16 +17,16 @@ import matplotlib.pyplot as plt
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"ref.png"   # path to your "perfect" image
-TEST_PATH = r"test.png" # path to your reconstruction image
+REF_PATH = r"/home/user/Documents/img_comp/pr360_ac6/1425_0360.png"   # path to your "perfect" image
+TEST_PATH = r"/home/user/Documents/img_comp/pr100_ac4/0100_0100.png" # path to your reconstruction image
 
 # Crop rectangle (in pixel coordinates)
 # (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
 # Example: crop from x=100..300, y=150..350
-CROP_X0 = 100
-CROP_Y0 = 150
-CROP_X1 = 300
-CROP_Y1 = 350
+CROP_X0 = 4700
+CROP_Y0 = 220
+CROP_X1 = 5650
+CROP_Y1 = 1580
 # ================================
 
 
