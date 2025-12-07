@@ -23,10 +23,10 @@ TEST_PATH = r"/home/user/Documents/img_comp/pr360_ac4/0500_0360.png" # path to y
 # Crop rectangle (in pixel coordinates)
 # (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
 # Example: crop from x=100..300, y=150..350
-CROP_X0 = 4700
-CROP_Y0 = 220
+CROP_X0 = 4800
+CROP_Y0 = 250
 CROP_X1 = 5650
-CROP_Y1 = 1580
+CROP_Y1 = 1550
 # ================================
 
 
