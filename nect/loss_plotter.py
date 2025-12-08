@@ -3,17 +3,21 @@ import matplotlib.pyplot as plt
 
 # === Set your log file paths here ===
 log_files = [
-    "/home/user/Documents/img_comp/pr100_ac2/epoch_losses_norm36.txt",
-    "/home/user/Documents/img_comp/pr360_ac6/epoch_losses.txt",
-    "/home/user/Documents/img_comp/pr100_ac6/epoch_losses_norm36.txt",
-    "/home/user/Documents/img_comp/pr360_ac4/epoch_losses.txt",
-    "/home/user/Documents/img_comp/pr100_ac4/epoch_losses_norm36.txt",
-    "/home/user/Documents/img_comp/pr360_ac3/epoch_losses.txt",
-    "/home/user/Documents/img_comp/pr100_ac3/epoch_losses_norm36.txt"
+    "/home/user/Documents/img_comp/pr1400_ac1/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr100_ac2/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr100_ac3/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr100_ac4/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr100_ac6/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr100_ac8/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr360_ac2/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr360_ac8/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr360_ac6/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr360_ac4/epoch_losses_norm140.txt",
+    "/home/user/Documents/img_comp/pr360_ac3/epoch_losses_norm140.txt",
 ]
 
 # === Helper function to extract first loss per epoch ===
-def parse_log(filepath):
+def parse_log_360(filepath):
     with open(filepath, 'r') as f:
         content = f.read()
     # Extract (epoch, loss)
@@ -21,7 +25,37 @@ def parse_log(filepath):
     seen_epochs = set()
     x_vals, y_vals = [], []
     for epoch, loss in matches:
-        epoch = float(int(epoch)*0.0095)
+        epoch = float(int(epoch)*0.0258)
+        if epoch not in seen_epochs:
+            seen_epochs.add(epoch)
+            x_vals.append(epoch)
+            y_vals.append(float(loss))
+    return x_vals, y_vals
+
+def parse_log_100(filepath):
+    with open(filepath, 'r') as f:
+        content = f.read()
+    # Extract (epoch, loss)
+    matches = re.findall(r"epoch=(\d+),\s*avg_loss=([\d.]+)", content)
+    seen_epochs = set()
+    x_vals, y_vals = [], []
+    for epoch, loss in matches:
+        epoch = float(int(epoch)*0.027)
+        if epoch not in seen_epochs:
+            seen_epochs.add(epoch)
+            x_vals.append(epoch)
+            y_vals.append(float(loss))
+    return x_vals, y_vals
+
+def parse_log_non(filepath):
+    with open(filepath, 'r') as f:
+        content = f.read()
+    # Extract (epoch, loss)
+    matches = re.findall(r"epoch=(\d+),\s*avg_loss=([\d.]+)", content)
+    seen_epochs = set()
+    x_vals, y_vals = [], []
+    for epoch, loss in matches:
+        epoch = float(int(epoch)*0.016)
         if epoch not in seen_epochs:
             seen_epochs.add(epoch)
             x_vals.append(epoch)
@@ -31,7 +65,10 @@ def parse_log(filepath):
 # === Parse and plot all runs ===
 plt.figure(figsize=(9, 6))
 for i, path in enumerate(log_files, start=1):
-    x, y = parse_log(path)
+    if(i!=0):
+        x, y = parse_log(path)
+    else:
+
     plt.plot(x, y, marker='o', linewidth=2, markersize=4, label=log_files[i-1][30:39])
 
 plt.title("Comparison of Average Loss per Epoch by Hour", fontsize=14)
