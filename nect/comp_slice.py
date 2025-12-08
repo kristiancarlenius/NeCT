@@ -25,7 +25,7 @@ except ImportError:
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"/home/user/Documents/img_comp/pr360_ac6/0500_0360.png"   # path to your "perfect" image
+REF_PATH = r"/home/user/Documents/img_comp/pr360_ac6/0300_0360.png"   # path to your "perfect" image
 TEST_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png" # path to your reconstruction image
 
 # Crop rectangle (in pixel coordinates)
@@ -120,7 +120,7 @@ def visualize(ref_crop: np.ndarray,
 
     # 1) Reference
     axes[0].imshow(ref_crop, cmap="gray")
-    axes[0].set_title("100 projections 1400 epochs")
+    axes[0].set_title("360 projections 400 epochs")
     axes[0].axis("off")
 
     # 2) Test
@@ -139,7 +139,7 @@ def visualize(ref_crop: np.ndarray,
     # alpha proportional to error: tune scale factor if needed
     alpha = np.clip(err_norm * 2.0, 0.0, 1.0)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
-    axes[3].set_title("100 projections 1400 epochs + error overlay")
+    axes[3].set_title("360 projections 400 epochs + error overlay")
     axes[3].axis("off")
     fig.colorbar(im3, ax=axes[3], fraction=0.046, pad=0.04)
 
