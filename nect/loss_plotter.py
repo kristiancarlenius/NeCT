@@ -65,10 +65,12 @@ def parse_log_non(filepath):
 # === Parse and plot all runs ===
 plt.figure(figsize=(9, 6))
 for i, path in enumerate(log_files, start=1):
-    if(i!=0):
-        x, y = parse_log(path)
+    if(i==1):
+        x, y = parse_log_non(path)
+    elif(i<7):
+        x, y = parse_log_100(path)
     else:
-
+        x, y = parse_log_360(path)
     plt.plot(x, y, marker='o', linewidth=2, markersize=4, label=log_files[i-1][30:39])
 
 plt.title("Comparison of Average Loss per Epoch by Hour", fontsize=14)
