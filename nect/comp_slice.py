@@ -14,10 +14,18 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 
+# Try to import SSIM from scikit-image (optional)
+try:
+    from skimage.metrics import structural_similarity as ssim
+    _HAS_SKIMAGE = True
+except ImportError:
+    ssim = None
+    _HAS_SKIMAGE = False
+
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png"   # path to your "perfect" image
+REF_PATH = r"/home/user/Documents/img_comp/pr100_ac6/5125_0100.png"   # path to your "perfect" image
 TEST_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png" # path to your reconstruction image
 
 # Crop rectangle (in pixel coordinates)
@@ -60,35 +68,64 @@ def crop_image(img: np.ndarray,
     return img[y0_clamped:y1_clamped, x0_clamped:x1_clamped]
 
 
-def compute_error(ref: np.ndarray, test: np.ndarray):
+def compute_metrics(ref: np.ndarray, test: np.ndarray):
     """
-    Compute absolute error and MSE between two images.
+    Compute a set of error / similarity metrics between two images.
     ref, test: shape (H, W), values in [0, 1]
+    Returns dict of metrics and an error map (abs diff).
     """
     if ref.shape != test.shape:
         raise ValueError(f"Shapes do not match: {ref.shape} vs {test.shape}")
-    err = np.abs(ref - test)
-    mse = np.mean((ref - test) ** 2)
-    return err, mse
+
+    diff = ref - test
+    abs_err = np.abs(diff)
+
+    mae = float(np.mean(abs_err))
+    mse = float(np.mean(diff ** 2))
+    rmse = float(np.sqrt(mse))
+    max_abs_err = float(np.max(abs_err))
+
+    # PSNR assuming max pixel value = 1.0
+    eps = 1e-12
+    psnr = float(10.0 * np.log10(1.0**2 / (mse + eps))) if mse > 0 else float("inf")
+
+    metrics = {
+        "MAE": mae,
+        "MSE": mse,
+        "RMSE": rmse,
+        "MaxAbsErr": max_abs_err,
+        "PSNR": psnr,
+    }
+
+    ssim_val = None
+    ssim_map = None
+    if _HAS_SKIMAGE:
+        # data_range=1.0 since our data is in [0, 1]
+        ssim_val, ssim_map = ssim(ref, test, data_range=1.0, full=True)
+        metrics["SSIM"] = float(ssim_val)
+
+    return metrics, abs_err, ssim_map
 
 
 def visualize(ref_crop: np.ndarray,
               test_crop: np.ndarray,
               err_norm: np.ndarray,
-              mse: float):
+              metrics: dict):
     """
     Show reference, test, error heatmap, and overlay.
     """
+    mse = metrics["MSE"]
+
     fig, axes = plt.subplots(1, 4, figsize=(16, 4))
 
     # 1) Reference
     axes[0].imshow(ref_crop, cmap="gray")
-    axes[0].set_title("Reference (cropped)")
+    axes[0].set_title("1400 projections 350 epochs")
     axes[0].axis("off")
 
     # 2) Test
     axes[1].imshow(test_crop, cmap="gray")
-    axes[1].set_title("Test (cropped)")
+    axes[1].set_title("1400 projections 100 epochs")
     axes[1].axis("off")
 
     # 3) Error heatmap
@@ -102,7 +139,7 @@ def visualize(ref_crop: np.ndarray,
     # alpha proportional to error: tune scale factor if needed
     alpha = np.clip(err_norm * 2.0, 0.0, 1.0)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
-    axes[3].set_title("Reference + error overlay")
+    axes[3].set_title("100 epochs + error overlay")
     axes[3].axis("off")
     fig.colorbar(im3, ax=axes[3], fraction=0.046, pad=0.04)
 
@@ -124,17 +161,32 @@ def main():
 
     print(f"Cropped shape: {ref_crop.shape}")
 
-    # Compute error
-    err, mse = compute_error(ref_crop, test_crop)
-    # Normalize error for visualization
-    err_norm = err / (err.max() + 1e-8)
+    # Compute metrics
+    metrics, abs_err, ssim_map = compute_metrics(ref_crop, test_crop)
 
-    print(f"Mean Squared Error (MSE) on cropped region: {mse:.6f}")
+    # Normalize error for visualization
+    err_norm = abs_err / (abs_err.max() + 1e-8)
+
+    # Print metrics
+    print("=== Metrics ===")
+    for k, v in metrics.items():
+        print(f"{k}: {v:.6f}")
+    if not _HAS_SKIMAGE:
+        print("(SSIM not computed: scikit-image not installed)")
 
     # Visualize
-    visualize(ref_crop, test_crop, err_norm, mse)
+    visualize(ref_crop, test_crop, err_norm, metrics)
+
+    # Optional: if you want to also visualize SSIM map when available
+    if ssim_map is not None:
+        plt.figure(figsize=(5, 4))
+        plt.imshow(ssim_map, cmap="viridis")
+        plt.title("SSIM map")
+        plt.axis("off")
+        plt.colorbar(fraction=0.046, pad=0.04)
+        plt.tight_layout()
+        plt.show()
 
 
 if __name__ == "__main__":
     main()
-
