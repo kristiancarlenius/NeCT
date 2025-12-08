@@ -1,9 +1,9 @@
 import re
 
 # ==== SETTINGS ====
-input_path  = "/home/user/Documents/img_comp/pr360_ac2/epoch_losses.txt"         # original log file
-output_path = "/home/user/Documents/img_comp/pr360_ac2/epoch_losses_norm140.txt"  # where to save result
-factor = 14                          # how many losses to average into one
+input_path  = "/home/user/Documents/img_comp/pr360_ac12/epoch_losses.txt"         # original log file
+output_path = "/home/user/Documents/img_comp/pr360_ac12/epoch_losses_norm140.txt"  # where to save result
+factor = 3.89                          # how many losses to average into one
 
 # ==== STEP 1: parse log and keep first loss per epoch ====
 def parse_log_first_epoch(filepath):
