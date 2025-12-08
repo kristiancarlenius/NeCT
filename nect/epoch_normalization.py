@@ -1,9 +1,9 @@
 import re
 
 # ==== SETTINGS ====
-input_path  = "/home/user/Documents/img_comp/pr360_ac12/epoch_losses.txt"         # original log file
-output_path = "/home/user/Documents/img_comp/pr360_ac12/epoch_losses_norm140.txt"  # where to save result
-factor = 3.89                          # how many losses to average into one
+input_path  = "/home/user/Documents/img_comp/pr100_ac8/epoch_losses.txt"         # original log file
+output_path = "/home/user/Documents/img_comp/pr100_ac8/epoch_losses_norm140.txt"  # where to save result
+factor = 14                          # how many losses to average into one
 
 # ==== STEP 1: parse log and keep first loss per epoch ====
 def parse_log_first_epoch(filepath):
@@ -45,8 +45,10 @@ def downsample_by_factor(epochs, losses, factor):
         if not group_losses:
             continue
 
-        # use last epoch in each group (simple & consistent)
-        new_epochs.append(group_epochs[-1])
+        # ✅ FIX: use sequential epoch index instead of last original epoch
+        # new_epochs.append(group_epochs[-1])  # OLD
+        new_epochs.append(g + 1)              # NEW (1, 2, 3, ...)
+
         new_losses.append(sum(group_losses) / len(group_losses))
 
     return new_epochs, new_losses
