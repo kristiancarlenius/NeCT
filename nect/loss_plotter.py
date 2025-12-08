@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # === Set your log file paths here ===
 log_files = [
     "/home/user/Documents/img_comp/pr1400_ac1/epoch_losses.txt",
-    "/home/user/Documents/img_comp/pr1400_st/epoch_losses.txt",
+    "/home/user/Documents/img_comp/pr1400_steps/epoch_losses.txt",
     "/home/user/Documents/img_comp/pr100_ac2/epoch_losses_norm140.txt",
     "/home/user/Documents/img_comp/pr100_ac3/epoch_losses_norm140.txt",
     "/home/user/Documents/img_comp/pr100_ac4/epoch_losses_norm140.txt",
