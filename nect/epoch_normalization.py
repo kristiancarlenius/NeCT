@@ -1,8 +1,8 @@
 import re
 
 # ==== SETTINGS ====
-input_path  = "/home/user/Documents/img_comp/pr100_ac6/epoch_losses.txt"         # original log file
-output_path = "/home/user/Documents/img_comp/pr100_ac6/epoch_losses_norm140.txt"  # where to save result
+input_path  = "/home/user/Documents/img_comp/pr100_ac3/epoch_losses.txt"         # original log file
+output_path = "/home/user/Documents/img_comp/pr100_ac3/epoch_losses_norm140.txt"  # where to save result
 factor = 14                          # how many losses to average into one
 
 # ==== STEP 1: parse log and keep first loss per epoch ====
