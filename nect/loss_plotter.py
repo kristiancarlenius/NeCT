@@ -2,8 +2,7 @@ import re
 import matplotlib.pyplot as plt
 
 # === Set your log file paths here ===
-log_files = [
-    "/home/user/Documents/img_comp/pr1400_ac1/epoch_losses.txt",
+""" "/home/user/Documents/img_comp/pr1400_ac1/epoch_losses.txt",
     "/home/user/Documents/img_comp/pr1400_steps/epoch_losses.txt",
     "/home/user/Documents/img_comp/pr100_ac2/epoch_losses_norm140.txt",
     "/home/user/Documents/img_comp/pr100_ac3/epoch_losses_norm140.txt",
@@ -14,9 +13,12 @@ log_files = [
     "/home/user/Documents/img_comp/pr360_ac3/epoch_losses_norm140.txt",
     "/home/user/Documents/img_comp/pr360_ac4/epoch_losses_norm140.txt",
     "/home/user/Documents/img_comp/pr360_ac6/epoch_losses_norm140.txt",
-    "/home/user/Documents/img_comp/pr360_ac8/epoch_losses_norm140.txt"
+    "/home/user/Documents/img_comp/pr360_ac8/epoch_losses_norm140.txt" """
+log_files = [
+    "/home/user/Documents/img_comp/init/epoch_losses.txt",
+    "/home/user/Documents/img_comp/init/epoch_losses_non.txt"
 ]
-
+names = ["Full init 0.5 uni-damp", "Non-initialized"]
 # === Helper function to extract first loss per epoch ===
 def parse_log_360(filepath):
     with open(filepath, 'r') as f:
@@ -72,9 +74,9 @@ for i, path in enumerate(log_files, start=1):
         x, y = parse_log_100(path)
     else:
         x, y = parse_log_360(path)
-    plt.plot(x, y, marker='o', linewidth=2, markersize=4, label=log_files[i-1][30:39])
+    plt.plot(x, y, marker='o', linewidth=2, markersize=4, label=names[i-1])#log_files[i-1][30:39])
 
-plt.title("Comparison of Average Loss per Epoch normalized on 1400 Projections", fontsize=14)
+plt.title("Comparison of Average Loss per Epoch", fontsize=14) # normalized on 1400 Projections
 plt.xlabel("Epochs", fontsize=12)
 plt.ylabel("Average Loss", fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.6)

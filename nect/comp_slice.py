@@ -101,7 +101,7 @@ def compute_metrics(ref: np.ndarray, test: np.ndarray):
     ssim_map = None
     if _HAS_SKIMAGE:
         # data_range=1.0 since our data is in [0, 1]
-        ssim_val, ssim_map = ssim(ref, test, data_range=0.5, full=True)
+        ssim_val, ssim_map = ssim(ref, test, data_range=1.0, full=True)
         metrics["SSIM"] = float(ssim_val)
 
     return metrics, abs_err, ssim_map
@@ -137,7 +137,7 @@ def visualize(ref_crop: np.ndarray,
     # 4) Error overlay on reference
     axes[3].imshow(ref_crop, cmap="gray")
     # alpha proportional to error: tune scale factor if needed
-    alpha = np.clip(err_norm * 2.0, 0.0, 1.0)
+    alpha = np.clip(err_norm * 10.0, 0.0, 1)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
     axes[3].set_title("360 projections 400 epochs + error overlay")
     axes[3].axis("off")
@@ -165,7 +165,7 @@ def main():
     metrics, abs_err, ssim_map = compute_metrics(ref_crop, test_crop)
 
     # Normalize error for visualization
-    err_norm = abs_err / (abs_err.max() + 1e-8)
+    err_norm = 2*abs_err / (abs_err.max() + 1e-8)
 
     # Print metrics
     print("=== Metrics ===")
