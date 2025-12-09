@@ -101,7 +101,7 @@ def compute_metrics(ref: np.ndarray, test: np.ndarray):
     ssim_map = None
     if _HAS_SKIMAGE:
         # data_range=1.0 since our data is in [0, 1]
-        ssim_val, ssim_map = ssim(ref, test, data_range=1.0, full=True)
+        ssim_val, ssim_map = ssim(ref, test, data_range=0.5, full=True)
         metrics["SSIM"] = float(ssim_val)
 
     return metrics, abs_err, ssim_map
