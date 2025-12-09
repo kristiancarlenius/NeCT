@@ -25,8 +25,8 @@ except ImportError:
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0100_1400.png"   # path to your "perfect" image
-TEST_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png" # path to your reconstruction image
+REF_PATH =   r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png"# path to your "perfect" image
+TEST_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0100_1400.png"  # path to your reconstruction image
 
 # Crop rectangle (in pixel coordinates)
 # (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
