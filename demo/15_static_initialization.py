@@ -16,21 +16,21 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry.yaml"
+geometry_file = Path(data_path) / "geometry_100.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
+
 # run reconstruction using the new .npy projections
 reconstruction_path_static, output_path = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections.npy"),
+    projections=str(Path(data_path) / "projections_100.npy"),
     quality="high",
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "1x",
+        "epochs": "3x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
@@ -92,5 +92,5 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
 )
 #nect.export_volume(reconstruction_path_dynamic, binning=3)
 
-
+"""
 
