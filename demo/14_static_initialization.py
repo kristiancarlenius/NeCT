@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"#simulatedfluidinvasion/"#
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -16,21 +16,21 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry.yaml"
+geometry_file = Path(data_path) / "geometry_360.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
+
 # run reconstruction using the new .npy projections
 reconstruction_path_static, output_path = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections.npy"),
+    projections=str(Path(data_path) / "projections_360.npy"),
     quality="high",
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "1x",
+        "epochs": "5x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
@@ -93,5 +93,5 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
 )
 #nect.export_volume(reconstruction_path_dynamic, binning=3)
 
-
+"""
 
