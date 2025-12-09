@@ -31,7 +31,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
         "epochs": "3x",
         "checkpoint_interval": 0,
         "image_interval": 0,
-        "plot_type": "XZ",
+        "plot_type": "XY",
         "encoder": {
             "otype": "HashGrid",
             "n_levels": 21,
