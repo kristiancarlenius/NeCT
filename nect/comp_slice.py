@@ -25,7 +25,7 @@ except ImportError:
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"/home/user/Documents/img_comp/pr360_ac6/0300_0360.png"   # path to your "perfect" image
+REF_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0100_1400.png"   # path to your "perfect" image
 TEST_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png" # path to your reconstruction image
 
 # Crop rectangle (in pixel coordinates)
@@ -120,7 +120,7 @@ def visualize(ref_crop: np.ndarray,
 
     # 1) Reference
     axes[0].imshow(ref_crop, cmap="gray")
-    axes[0].set_title("360 projections 400 epochs")
+    axes[0].set_title("1400 projections 100 epochs")
     axes[0].axis("off")
 
     # 2) Test
@@ -137,9 +137,9 @@ def visualize(ref_crop: np.ndarray,
     # 4) Error overlay on reference
     axes[3].imshow(ref_crop, cmap="gray")
     # alpha proportional to error: tune scale factor if needed
-    alpha = np.clip(err_norm * 10.0, 0.0, 1)
+    alpha = np.clip(err_norm ** 0.4, 0.0, 1)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
-    axes[3].set_title("360 projections 400 epochs + error overlay")
+    axes[3].set_title("1400 projections 100 epochs + error overlay")
     axes[3].axis("off")
     fig.colorbar(im3, ax=axes[3], fraction=0.046, pad=0.04)
 
@@ -165,7 +165,7 @@ def main():
     metrics, abs_err, ssim_map = compute_metrics(ref_crop, test_crop)
 
     # Normalize error for visualization
-    err_norm = 2*abs_err / (abs_err.max() + 1e-8)
+    err_norm = abs_err / (abs_err.max() + 1e-8)
 
     # Print metrics
     print("=== Metrics ===")

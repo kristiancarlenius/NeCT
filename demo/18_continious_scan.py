@@ -60,10 +60,10 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     mode="static",
     exp_name="static_continious",
     config_override={
-        "epochs": "8x",
+        "epochs": "3x",
         "checkpoint_interval": 0,
         "image_interval": 0,
-        "plot_type": "XZ",
+        "plot_type": "XY",
         "base_lr": 0.0001,
         "warmup": {
             "steps": 1400*10,
@@ -86,7 +86,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 2,
+        "accumulation_steps": 6,
         "continous_scanning": True,
         
     },)
