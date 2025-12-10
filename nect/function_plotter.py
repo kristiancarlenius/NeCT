@@ -46,25 +46,25 @@ def square_pulse(x, period=1.0, pulse_ratio=0.15):
 
 
 # Three full repeats over x ∈ [0, 3]
-x = np.linspace(0, 6, 2000)
+x = np.linspace(0, 14.4, 2000)
 
-y_bow   = bowed_plateau(x, period=1.0, flat_ratio=0.6)
-y_square = square_pulse(x, period=0.5, pulse_ratio=0.15)  # much shorter width
+y_bow   = bowed_plateau(x, period=3.6, flat_ratio=0.6)
+y_square = square_pulse(x, period=0.26, pulse_ratio=0.1)  # much shorter width
 
 plt.figure(figsize=(7, 4))
-plt.plot(x, y_bow,    label="Bow with long flat top")
-plt.plot(x, y_square, label="Short square pulse")
+plt.plot(x, y_bow,    label="Continous scanning (100 projections)")
+plt.plot(x, y_square, label="Stepwise descrete (1400 projections)")
 
 # Only positive x and y
-plt.xlim(0, 6)
+plt.xlim(0, 14.5)
 plt.ylim(0, 1.1)
 
 plt.axhline(0, linewidth=1)
 plt.axvline(0, linewidth=1)
 
-plt.xlabel("x")
-plt.ylabel("f(x)")
-plt.title("Bow-Shaped Function and Narrow Square Function (3 repeats)")
+plt.xlabel("Angle")
+plt.ylabel("CT Information Capture")
+plt.title("CT Information Capture by Angle")
 plt.grid(True)
 plt.legend()
 plt.show()
