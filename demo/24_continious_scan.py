@@ -6,6 +6,7 @@ import torch
 from nect.config import MLPNetConfig
 
 data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
+re_create_path = "/cluster/home/kristiac/NeCT/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -92,4 +93,4 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     },)
 
 print(reconstruction_path_dynamic, _)
-print(nect.export_volume(_))
+print(nect.export_volume(re_create_path+str(_)))
