@@ -5,6 +5,12 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
+print(torch.__version__)
+print(torch.cuda.get_arch_list())
+print(torch.cuda.get_device_name(0))
+print(torch.cuda.current_device())
+print(torch.cuda.is_available())
+
 data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
 re_create_path = "/cluster/home/kristiac/NeCT/outputs/static_continious/hash_grid_21_4_21_16_2_4_128_L1/2026-01-21T12-45-09/model"
 """
@@ -53,7 +59,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
     },
 )
 """
-
+"""
 reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "projections_360.npy"),
@@ -61,7 +67,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     mode="static",
     exp_name="static_continious",
     config_override={
-        "epochs": "0.1x",
+        "epochs": "1x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -90,5 +96,5 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         "accumulation_steps": 4,
         "continous_scanning": True,
         
-    },)
+    },)"""
 print(nect.export_volume(re_create_path))
