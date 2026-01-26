@@ -53,7 +53,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
     },
 )
 """
-"""
+
 reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "projections_360.npy"),
@@ -61,7 +61,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     mode="static",
     exp_name="static_continious",
     config_override={
-        "epochs": "4x",
+        "epochs": "0.1x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -91,5 +91,4 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         "continous_scanning": True,
         
     },)
-print(reconstruction_path_dynamic, _)"""
 print(nect.export_volume(re_create_path))
