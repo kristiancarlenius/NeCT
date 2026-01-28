@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -16,7 +16,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_360.yaml"
+geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
@@ -53,12 +53,12 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
+reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections_360.npy"),
+    projections=str(Path(data_path) / "projections.npy"),
     quality="high",
-    mode="static",
-    exp_name="static_continious",
+    mode="dynamic",
+    exp_name="sizediff",
     config_override={
         "epochs": "4x",
         "checkpoint_interval": 0,
@@ -91,4 +91,3 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         
     },)
 print(reconstruction_path_dynamic, _)
-print(nect.export_volume(reconstruction_path_dynamic))
