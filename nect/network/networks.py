@@ -542,3 +542,92 @@ class KPlanes(nn.Module):
         output = self.sigma_net(features)
         return output
 
+class TriCubes(nn.Module):
+    """3 pairwise 2D encoders: (x,y), (x,z), (y,z)."""
+    def __init__(self, encoding_config, network_config):
+        super().__init__()
+        self.include_identity = network_config.include_identity
+
+        encoding = {
+            "otype": "Composite",
+            "nested": [
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # xy
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # xz
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # yz
+            ],
+        }
+        if self.include_identity:
+            # Identity over original xyz (3 dims) is usually what you want for skip-like behavior.
+            encoding["nested"].append({"n_dims_to_encode": 3, "otype": "Identity"})
+
+        n_in = 6 + (3 if self.include_identity else 0)
+
+        self.net = tcnn.NetworkWithInputEncoding(
+            n_input_dims=n_in,
+            n_output_dims=1,
+            encoding_config=encoding,
+            network_config=network_config.get_network_config(),
+        )
+
+    def forward(self, x):  # x: (N,3) with cols [x,y,z]
+        xy = x[:, [0, 1]]
+        xz = x[:, [0, 2]]
+        yz = x[:, [1, 2]]
+        inputs = torch.cat([xy, xz, yz], dim=-1)  # (N,6)
+        if self.include_identity:
+            inputs = torch.cat([inputs, x], dim=-1)  # + (N,3)
+        return self.net(inputs)
+
+
+class SexCubes(nn.Module):
+    """6 pairwise 2D encoders: (x,y),(x,z),(y,z),(x,t),(z,t),(y,t)."""
+    def __init__(self, encoding_config, network_config):
+        super().__init__()
+        self.include_identity = network_config.include_identity
+
+        encoding = {
+            "otype": "Composite",
+            "nested": [
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # xy
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # xz
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # yz
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # xt
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # zt
+                {"n_dims_to_encode": 2, **encoding_config.get_encoder_config()},  # yt
+            ],
+        }
+        if self.include_identity:
+            # Identity over xyzt (4 dims) is the usual choice for dynamic models.
+            encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
+
+        n_in = 12 + (4 if self.include_identity else 0)
+
+        self.net = tcnn.NetworkWithInputEncoding(
+            n_input_dims=n_in,
+            n_output_dims=1,
+            encoding_config=encoding,
+            network_config=network_config.get_network_config(),
+        )
+
+    def forward(self, x, t):  # x: (N,3), t: scalar float or 0-d/1-d tensor
+        # make (N,1) time column
+        if not torch.is_tensor(t):
+            tcol = torch.full((x.size(0), 1), float(t), device=x.device, dtype=x.dtype)
+        else:
+            tcol = t.reshape(-1, 1).to(device=x.device, dtype=x.dtype)
+            if tcol.size(0) == 1:
+                tcol = tcol.expand(x.size(0), 1)
+
+        xy = x[:, [0, 1]]
+        xz = x[:, [0, 2]]
+        yz = x[:, [1, 2]]
+        xt = torch.cat([x[:, [0]], tcol], dim=-1)
+        zt = torch.cat([x[:, [2]], tcol], dim=-1)
+        yt = torch.cat([x[:, [1]], tcol], dim=-1)
+
+        inputs = torch.cat([xy, xz, yz, xt, zt, yt], dim=-1)  # (N,12)
+        if self.include_identity:
+            xyzt = torch.cat([x, tcol], dim=-1)                # (N,4)
+            inputs = torch.cat([inputs, xyzt], dim=-1)
+
+        return self.net(inputs)
