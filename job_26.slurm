@@ -20,4 +20,4 @@ echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "normal non reduced"
 source nect_a100/bin/activate
-python -m demo.26_continious_scan
+python -m demo.26_normal_sizeby
