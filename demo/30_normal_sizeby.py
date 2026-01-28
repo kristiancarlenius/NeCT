@@ -60,14 +60,14 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sizediff",
     config_override={
-        "epochs": "6x",
+        "epochs": "4x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.0005,
+            "lr0": 0.0001,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -86,7 +86,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "continous_scanning": False,
+        "accumulation_steps": 4,
+        "continous_scanning": True,
         
     },)
 print(reconstruction_path_dynamic, _)
