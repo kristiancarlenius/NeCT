@@ -319,7 +319,7 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
-        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes"]:
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
@@ -350,6 +350,32 @@ class Config:
                 memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
 
                 model = QuadCubes(
+                    encoding_config=self.encoder,
+                    network_config=self.net,
+                    prior=self.use_prior,
+                    concat=self.concat if self.concat is not None else True,
+                )
+
+            elif model == "tricubes":
+                from nect.network import TriCubes
+
+                # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 3
+
+                model = TriCubes(
+                    encoding_config=self.encoder,
+                    network_config=self.net,
+                    prior=self.use_prior,
+                    concat=self.concat if self.concat is not None else True,
+                )
+            
+            elif model == "sexcubes":
+                from nect.network import SexCubes
+
+                # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 6
+
+                model = SexCubes(
                     encoding_config=self.encoder,
                     network_config=self.net,
                     prior=self.use_prior,

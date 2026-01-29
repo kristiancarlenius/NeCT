@@ -123,6 +123,7 @@ def reconstruct(
     timesteps: _list | None = None,
     verbose: bool = True,
     log: bool = False,
+    split_enc: bool = False,
     exp_name: str | None = None,
     flip_projections: bool = False,
     channel_order: str | None = None,
@@ -157,12 +158,18 @@ def reconstruct(
     logger.remove()
     logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>", level="INFO" if verbose else "WARNING",)
 
-    if mode == "static":
+    if mode == "static" and not split_enc:
         cfg = get_static_cfg(name="hash_grid")
         cfg["model"] = "hash_grid"
-    elif mode == "dynamic":
+    elif mode == "dynamic" and not split_enc:
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"
+    elif mode == "static" and split_enc:
+        cfg = get_static_cfg(name="tricubes")
+        cfg["model"] = "tricubes"
+    elif mode == "dynamic" and split_enc:
+        cfg = get_dynamic_cfg(name="sexcubes")
+        cfg["model"] = "sexcubes"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order
