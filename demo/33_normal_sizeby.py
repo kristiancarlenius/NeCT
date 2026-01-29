@@ -86,8 +86,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 4,
-        "continous_scanning": True,
+        "continous_scanning": False,
         
     },)
 print(reconstruction_path_dynamic, _)
