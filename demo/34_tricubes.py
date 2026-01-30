@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/carp-cone/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/carp-parallel/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
