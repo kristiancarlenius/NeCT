@@ -365,8 +365,6 @@ class Config:
                 model = TriCubes(
                     encoding_config=self.encoder,
                     network_config=self.net,
-                    prior=self.use_prior,
-                    concat=self.concat if self.concat is not None else True,
                 )
             
             elif model == "sexcubes":
@@ -378,8 +376,6 @@ class Config:
                 model = SexCubes(
                     encoding_config=self.encoder,
                     network_config=self.net,
-                    prior=self.use_prior,
-                    concat=self.concat if self.concat is not None else True,
                 )
 
             elif model == "hypercubes":
