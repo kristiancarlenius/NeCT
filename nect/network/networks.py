@@ -544,7 +544,11 @@ class KPlanes(nn.Module):
 
 class TriCubes(nn.Module):
     """3 pairwise 2D encoders: (x,y), (x,z), (y,z)."""
-    def __init__(self, encoding_config, network_config):
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        network_config: MLPNetConfig,
+    ):
         super().__init__()
         self.include_identity = network_config.include_identity
 
@@ -581,7 +585,11 @@ class TriCubes(nn.Module):
 
 class SexCubes(nn.Module):
     """6 pairwise 2D encoders: (x,y),(x,z),(y,z),(x,t),(z,t),(y,t)."""
-    def __init__(self, encoding_config, network_config):
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        network_config: MLPNetConfig,
+    ):
         super().__init__()
         self.include_identity = network_config.include_identity
 

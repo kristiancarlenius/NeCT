@@ -608,7 +608,7 @@ cfg_paths: dict = {
     "static": {
         "hash_grid": pathlib.Path(__file__).parent / "cfg/static/hash_grid.yaml",
         "kplanes": pathlib.Path(__file__).parent / "cfg/static/kplanes.yaml",
-        "tricubes": pathlib.Path(__file__).parent / "cfg/dynamic/tricubes.yaml",
+        "tricubes": pathlib.Path(__file__).parent / "cfg/static/tricubes.yaml",
     },
     "dynamic": {
         "kplanes_dynamic": pathlib.Path(__file__).parent / "cfg/dynamic/kplanes_dynamic.yaml",
