@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sizediff",
     config_override={
-        "epochs": "6x",
+        "epochs": "4x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",

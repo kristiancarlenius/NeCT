@@ -608,12 +608,14 @@ cfg_paths: dict = {
     "static": {
         "hash_grid": pathlib.Path(__file__).parent / "cfg/static/hash_grid.yaml",
         "kplanes": pathlib.Path(__file__).parent / "cfg/static/kplanes.yaml",
+        "tricubes": pathlib.Path(__file__).parent / "cfg/dynamic/tricubes.yaml",
     },
     "dynamic": {
         "kplanes_dynamic": pathlib.Path(__file__).parent / "cfg/dynamic/kplanes_dynamic.yaml",
         "double_hash_grid": pathlib.Path(__file__).parent / "cfg/dynamic/double_hash_grid.yaml",
         "quadcubes": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes.yaml",
         "hypercubes": pathlib.Path(__file__).parent / "cfg/dynamic/hypercubes.yaml",
+        "sexcubes": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes.yaml",
     },
 }
 
@@ -698,7 +700,7 @@ def get_cfg(path: str | pathlib.Path, model: str | None = None, static: bool | N
         if static is None:
             static_cfg = cfg_specific.get("mode")
             if static_cfg not in ["static", "dynamic"]:
-                if model in ["kplanes", "hash_grid"]:
+                if model in ["kplanes", "hash_grid", "tricubes"]:
                     static_cfg = "static"
                 else:
                     static_cfg = "dynamic"
@@ -810,6 +812,8 @@ def cfg_sanity_check(cfg: dict):
         },
         "double_hash_grid": {"encoder": hash_encoder, "net": mlp_net},
         "quadcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "tricubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "sexcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]
