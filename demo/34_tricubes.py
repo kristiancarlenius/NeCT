@@ -19,16 +19,16 @@ nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
+
 # run reconstruction using the new .npy projections
 reconstruction_path_static, output_path = nect.reconstruct(
     geometry=geometry,
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="static",
-    exp_name="static_init",
+    exp_name="tricubes",
     config_override={
-        "epochs": "1x",
+        "epochs": "4x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XZ",
@@ -50,6 +50,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
             include_adaptive_skip=False,
         ),
     },
+    split_enc=True
 )
 """
 
@@ -71,9 +72,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 8,
-            "n_features_per_level": 2,
-            "log2_hashmap_size": 16,
+            "n_levels": 21,
+            "n_features_per_level": 4,
+            "log2_hashmap_size": 21,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -90,3 +91,4 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         
     },)
 print(reconstruction_path_dynamic, _)
+"""
