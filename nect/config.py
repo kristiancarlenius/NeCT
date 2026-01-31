@@ -276,7 +276,7 @@ class Config:
 
     @property
     def mode(self) -> str:
-        if self.model in ["kplanes", "hash_grid"]:
+        if self.model in ["kplanes", "hash_grid", "tricubes"]:
             return "static"
         return "dynamic"
     
@@ -364,7 +364,7 @@ class Config:
 
                 model = TriCubes(
                     encoding_config=self.encoder,
-                    network_config=self.net,
+                    network_config=self.net
                 )
             
             elif model == "sexcubes":
