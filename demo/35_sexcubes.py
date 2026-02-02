@@ -62,7 +62,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {

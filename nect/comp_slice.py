@@ -25,16 +25,16 @@ except ImportError:
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH =   r"/home/user/Documents/img_comp/pr1400_ac1/0325_1400.png"# path to your "perfect" image
-TEST_PATH = r"/home/user/Documents/img_comp/pr1400_ac1/0100_1400.png"  # path to your reconstruction image
+REF_PATH = r"/home/user/pop-backup-user/Pictures/sizecomp/23_4_23_0395_1400.png"# path to your "perfect" image
+TEST_PATH = r"/home/user/pop-backup-user/Pictures/sizecomp/8_2_16_0260_1400.png"  # path to your reconstruction image
 
 # Crop rectangle (in pixel coordinates)
 # (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
 # Example: crop from x=100..300, y=150..350
-CROP_X0 = 4800
-CROP_Y0 = 250
-CROP_X1 = 5650
-CROP_Y1 = 1550
+CROP_X0 = 5400
+CROP_Y0 = 1800
+CROP_X1 = 6000
+CROP_Y1 = 2600
 # ================================
 
 
@@ -120,12 +120,12 @@ def visualize(ref_crop: np.ndarray,
 
     # 1) Reference
     axes[0].imshow(ref_crop, cmap="gray")
-    axes[0].set_title("1400 projections 100 epochs")
+    axes[0].set_title("23_4_23 400 epochs")
     axes[0].axis("off")
 
     # 2) Test
     axes[1].imshow(test_crop, cmap="gray")
-    axes[1].set_title("1400 projections 350 epochs")
+    axes[1].set_title("8_2_16 400 epochs")
     axes[1].axis("off")
 
     # 3) Error heatmap
@@ -139,7 +139,7 @@ def visualize(ref_crop: np.ndarray,
     # alpha proportional to error: tune scale factor if needed
     alpha = np.clip(err_norm ** 0.4, 0.0, 1)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
-    axes[3].set_title("1400 projections 100 epochs + error overlay")
+    axes[3].set_title("23_4_23 400 epochs + error overlay")
     axes[3].axis("off")
     fig.colorbar(im3, ax=axes[3], fraction=0.046, pad=0.04)
 
