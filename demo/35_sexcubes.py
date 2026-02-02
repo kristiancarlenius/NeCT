@@ -63,7 +63,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "epochs": "10x",
         "checkpoint_interval": 0,
         "image_interval": 10,
-        "plot_type": "XY",
+        "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
             "steps": 1400*10,
