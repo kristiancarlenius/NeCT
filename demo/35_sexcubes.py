@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sexcubes",
     config_override={
-        "epochs": "6x",
+        "epochs": "10x",
         "checkpoint_interval": 0,
         "image_interval": 10,
         "plot_type": "XY",
