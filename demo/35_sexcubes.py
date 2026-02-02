@@ -67,7 +67,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "base_lr": 0.0001,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.0001,
+            "lr0": 0.004,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -82,7 +82,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             activation="LeakyReLU",
             output_activation="ReLU",
             n_neurons=128,
-            n_hidden_layers=4,
+            n_hidden_layers=7,
             include_identity=False,
             include_adaptive_skip=False,
         ),},
