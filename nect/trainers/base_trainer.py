@@ -168,7 +168,7 @@ class BaseTrainer:
         if self.fabric.is_global_zero and output_directory is not None:
             self.checkpoint_directory_base, self.image_directory_base = create_sub_folders(output_directory)
             self.epoch_loss_log_path = Path(self.checkpoint_directory_base).parent / "epoch_losses.txt"
-            self.initial_state_path = Path(self.checkpoint_directory_base).parent / "initial_state.txt"
+            self.initial_state_path = None#Path(self.checkpoint_directory_base).parent / "initial_state.txt"
         else:
             self.checkpoint_directory_base = "needs_to_be_defined_but_not_used"  # must be defined
             self.image_directory_base = "needs_to_be_defined_but_not_used"
