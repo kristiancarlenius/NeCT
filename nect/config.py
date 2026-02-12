@@ -985,11 +985,3 @@ def get_config(
     return setup_cfg(cfg)
 
 
-if __name__ == "__main__":
-    print(
-        get_cfg(
-            "/cluster/work/haaknes/4D-CT/networks/inr/configs/Carp/80.yaml",
-            model="hash_grid",
-            static=True,
-        )
-    )
