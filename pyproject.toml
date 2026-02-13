@@ -7,8 +7,7 @@ name = "nect"
 version = "0.0.1"
 description = "4D-CT reconstruction using Machine Learning and AI"
 authors = [
-    {name = "Håkon Nese", email = "haakon.nese@gmail.com"},
-    {name = "Henrik Friis", email = "henrik.friis@outlook.com"}
+    {name = "Kristian", email = "kristian.carlenius@hotmail.com"},
 ]
 license = "MIT"
 readme = "README.md"
@@ -28,6 +27,7 @@ dependencies = [
     "tensorboard>=2.16.2",
     "tifffile==2024.5.22",
     "lightning~=2.5",
+    "zarr",
 ]
 
 [project.optional-dependencies]

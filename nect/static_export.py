@@ -12,6 +12,9 @@ from nect.utils import setup_logger
 from nect.sampling import Geometry
 from nect.data import NeCTDataset
 
+import zarr
+from numcodecs import Blosc
+
 def export_volume(
     base_path: str | Path,
     binning: int = 1,
@@ -142,3 +145,126 @@ def export_volume(
             total_volumes_saved += 1
             logger.info(f"{total_volumes_saved} volumes saved to {base_output_path}")
             return base_output_path
+
+
+
+def export_volume_zarr(
+    base_path: str | Path,
+    binning: int = 1,
+    ROIx: list[int] | None = None,
+    ROIy: list[int] | None = None,
+    ROIz: list[int] | None = None,
+    chunk_size: tuple[int, int, int] = (64, 256, 256),
+) -> Path:
+    """
+    Exports reconstructed volume to a compressed Zarr array.
+
+    Returns:
+        Path to the saved zarr directory.
+    """
+    setup_logger()
+    base_path = Path(base_path)
+
+    with torch.no_grad():
+        config = get_cfg(base_path / "config.yaml")
+        assert config.geometry is not None
+
+        model = config.get_model()
+        dataset = NeCTDataset(config=config, device="cpu")
+
+        geometry = Geometry.from_cfg(
+            config.geometry,
+            reconstruction_mode=config.reconstruction_mode,
+            sample_outside=config.sample_outside,
+        )
+
+        device = torch.device(0)
+        checkpoints = torch.load(base_path / "checkpoints" / "last.ckpt", map_location="cpu")
+        model.load_state_dict(checkpoints["model"])
+        model = model.to(device)
+        model.eval()
+
+        height, width = config.geometry.nVoxel[0], config.geometry.nVoxel[1]
+
+        z_h = height // binning
+        y_w = width // binning
+        x_w = width // binning
+
+        nVoxels = config.geometry.nVoxel
+        rm = config.sample_outside
+        nVoxels = [nVoxels[0], nVoxels[1] + 2 * rm, nVoxels[2] + 2 * rm]
+
+        start_x, end_x = 0, 1
+        start_y, end_y = 0, 1
+        start_z, end_z = 0, 1
+
+        if ROIx is not None:
+            start_x = (ROIx[0] - rm) / nVoxels[2]
+            end_x = (ROIx[1] - rm) / nVoxels[2]
+            x_w = (ROIx[1] - ROIx[0]) // binning
+
+        if ROIy is not None:
+            start_y = (ROIy[0] - rm) / nVoxels[1]
+            end_y = (ROIy[1] - rm) / nVoxels[1]
+            y_w = (ROIy[1] - ROIy[0]) // binning
+
+        if ROIz is not None:
+            start_z = ROIz[0] / nVoxels[0]
+            end_z = ROIz[1] / nVoxels[0]
+            z_h = (ROIz[1] - ROIz[0]) // binning
+
+        zarr_path = base_path / "volume.zarr"
+        store = zarr.DirectoryStore(str(zarr_path))
+
+        compressor = Blosc(cname="zstd", clevel=5, shuffle=Blosc.SHUFFLE)
+
+        root = zarr.group(store=store, overwrite=True)
+        zarr_array = root.create_dataset(
+            "volume",
+            shape=(z_h, y_w, x_w),
+            chunks=chunk_size,
+            dtype="float32",
+            compressor=compressor,
+        )
+
+        zarr_array.attrs["binning"] = binning
+        zarr_array.attrs["ROIx"] = ROIx
+        zarr_array.attrs["ROIy"] = ROIy
+        zarr_array.attrs["ROIz"] = ROIz
+        zarr_array.attrs["original_nVoxel"] = config.geometry.nVoxel
+
+        z_lin = torch.linspace(start_z, end_z, steps=z_h, dtype=torch.float32)
+        y_lin = torch.linspace(start_y, end_y, steps=y_w, dtype=torch.float32)
+        x_lin = torch.linspace(start_x, end_x, steps=x_w, dtype=torch.float32)
+
+        batch_size = 5_000_000
+        total_points = z_h * y_w * x_w
+        indices = torch.arange(total_points, dtype=torch.int64)
+        batches = torch.split(indices, batch_size)
+
+        logger.info("Starting reconstruction and Zarr export...")
+
+        for batch in tqdm(batches):
+            z_indices = batch // (y_w * x_w)
+            y_indices = (batch % (y_w * x_w)) // x_w
+            x_indices = batch % x_w
+
+            z = z_lin[z_indices]
+            y = y_lin[y_indices]
+            x = x_lin[x_indices]
+
+            grid = torch.stack((z, y, x), dim=1).to(device)
+
+            batch_output = model(grid).flatten().float().detach().cpu()
+
+            batch_output = batch_output / geometry.max_distance_traveled
+            batch_output = (
+                batch_output * (dataset.maximum.item() - dataset.minimum.item())
+                + dataset.minimum.item()
+            )
+
+            flat_idx = batch.numpy()
+            zarr_array.reshape(-1)[flat_idx] = batch_output.numpy()
+
+        logger.info(f"Zarr volume saved to {zarr_path}")
+        return zarr_path
