@@ -54,7 +54,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 #print(nect.export_volume_zarr(re_create_path+str(output_path)+"model/"))
-print(nect.export_volume_zarr("cluster/home/kristiac/NeCT/outputs/static_non/hash_grid_21_4_21_16_2_4_64_L1/2026-02-13T15-34-52/model/"))
+print(nect.export_volume_zarr("/cluster/home/kristiac/NeCT/outputs/static_non/hash_grid_21_4_21_16_2_4_64_L1/2026-02-13T15-34-52/model/"))
 """
 reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
