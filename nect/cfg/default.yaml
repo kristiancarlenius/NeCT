@@ -57,5 +57,5 @@ checkpoint_epoch: 25         # save every N epochs, set None/0 to disable
 damp_multi: [0.8, 0.4, 0.4] #[enc0, enc1-3, mpl] dampening factors
 w0_steps: 1400
 w0_lr_multi: 1
-"accumulation_steps": 0
+"accumulation_steps": 1
 "continous_scanning": False

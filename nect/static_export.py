@@ -1,19 +1,16 @@
 from pathlib import Path
 
 import numpy as np
-import tifffile as tif
 import torch
+import zarr
 from loguru import logger
+from numcodecs import Blosc
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 from nect.config import get_cfg
 from nect.utils import setup_logger
 from nect.sampling import Geometry
 from nect.data import NeCTDataset
-
-import zarr
-from numcodecs import Blosc
 
 def export_volume(
     base_path: str | Path,
@@ -147,7 +144,6 @@ def export_volume(
             return base_output_path
 
 
-
 def export_volume_zarr(
     base_path: str | Path,
     binning: int = 1,
@@ -156,12 +152,7 @@ def export_volume_zarr(
     ROIz: list[int] | None = None,
     chunk_size: tuple[int, int, int] = (64, 256, 256),
 ) -> Path:
-    """
-    Exports reconstructed volume to a compressed Zarr array.
 
-    Returns:
-        Path to the saved zarr directory.
-    """
     setup_logger()
     base_path = Path(base_path)
 
@@ -194,9 +185,9 @@ def export_volume_zarr(
         rm = config.sample_outside
         nVoxels = [nVoxels[0], nVoxels[1] + 2 * rm, nVoxels[2] + 2 * rm]
 
-        start_x, end_x = 0, 1
-        start_y, end_y = 0, 1
-        start_z, end_z = 0, 1
+        start_x, end_x = 0.0, 1.0
+        start_y, end_y = 0.0, 1.0
+        start_z, end_z = 0.0, 1.0
 
         if ROIx is not None:
             start_x = (ROIx[0] - rm) / nVoxels[2]
@@ -213,26 +204,36 @@ def export_volume_zarr(
             end_z = ROIz[1] / nVoxels[0]
             z_h = (ROIz[1] - ROIz[0]) // binning
 
+        # ---- Zarr output (version-robust) ----
         zarr_path = base_path / "volume.zarr"
-        store = zarr.DirectoryStore(str(zarr_path))
+        zarr_path.mkdir(parents=True, exist_ok=True)
+
+        # open a group at a filesystem path; works across zarr versions
+        root = zarr.open_group(str(zarr_path), mode="w")
 
         compressor = Blosc(cname="zstd", clevel=5, shuffle=Blosc.SHUFFLE)
 
-        root = zarr.group(store=store, overwrite=True)
         zarr_array = root.create_dataset(
             "volume",
             shape=(z_h, y_w, x_w),
             chunks=chunk_size,
-            dtype="float32",
+            dtype=np.float32,
             compressor=compressor,
+            overwrite=True,
         )
 
-        zarr_array.attrs["binning"] = binning
-        zarr_array.attrs["ROIx"] = ROIx
-        zarr_array.attrs["ROIy"] = ROIy
-        zarr_array.attrs["ROIz"] = ROIz
-        zarr_array.attrs["original_nVoxel"] = config.geometry.nVoxel
+        # metadata
+        zarr_array.attrs.update(
+            dict(
+                binning=binning,
+                ROIx=ROIx,
+                ROIy=ROIy,
+                ROIz=ROIz,
+                original_nVoxel=list(config.geometry.nVoxel),
+            )
+        )
 
+        # ---- coordinate linspaces ----
         z_lin = torch.linspace(start_z, end_z, steps=z_h, dtype=torch.float32)
         y_lin = torch.linspace(start_y, end_y, steps=y_w, dtype=torch.float32)
         x_lin = torch.linspace(start_x, end_x, steps=x_w, dtype=torch.float32)
@@ -243,6 +244,9 @@ def export_volume_zarr(
         batches = torch.split(indices, batch_size)
 
         logger.info("Starting reconstruction and Zarr export...")
+
+        # write in flat form to simplify indexing
+        zarr_flat = zarr_array.reshape(-1)
 
         for batch in tqdm(batches):
             z_indices = batch // (y_w * x_w)
@@ -255,16 +259,18 @@ def export_volume_zarr(
 
             grid = torch.stack((z, y, x), dim=1).to(device)
 
-            batch_output = model(grid).flatten().float().detach().cpu()
+            # model forward
+            batch_output = model(grid).flatten().float().detach()
 
+            # rescale like your TIFF export
             batch_output = batch_output / geometry.max_distance_traveled
             batch_output = (
                 batch_output * (dataset.maximum.item() - dataset.minimum.item())
                 + dataset.minimum.item()
             )
 
-            flat_idx = batch.numpy()
-            zarr_array.reshape(-1)[flat_idx] = batch_output.numpy()
+            # move to numpy and write
+            zarr_flat[batch.numpy()] = batch_output.cpu().numpy()
 
         logger.info(f"Zarr volume saved to {zarr_path}")
         return zarr_path
