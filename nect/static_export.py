@@ -151,8 +151,11 @@ def export_volume_zarr(
     ROIy: list[int] | None = None,
     ROIz: list[int] | None = None,
     chunk_size: tuple[int, int, int] = (64, 256, 256),
+    z_slab: int = 8,  # number of z-slices per write (tune for GPU mem)
 ) -> Path:
-
+    """
+    Exports reconstructed volume to a compressed Zarr array (Zarr v2 format for numcodecs compatibility).
+    """
     setup_logger()
     base_path = Path(base_path)
 
@@ -204,13 +207,13 @@ def export_volume_zarr(
             end_z = ROIz[1] / nVoxels[0]
             z_h = (ROIz[1] - ROIz[0]) // binning
 
+        # ---- Zarr output (force v2 so Blosc works) ----
         zarr_path = base_path / "volume.zarr"
         zarr_path.mkdir(parents=True, exist_ok=True)
 
         try:
             root = zarr.open_group(str(zarr_path), mode="w", zarr_format=2)
         except TypeError:
-            # older zarr that doesn't know zarr_format
             root = zarr.open_group(str(zarr_path), mode="w")
 
         compressor = Blosc(cname="zstd", clevel=5, shuffle=Blosc.SHUFFLE)
@@ -224,7 +227,6 @@ def export_volume_zarr(
             overwrite=True,
         )
 
-        # metadata
         zarr_array.attrs.update(
             dict(
                 binning=binning,
@@ -232,47 +234,43 @@ def export_volume_zarr(
                 ROIy=ROIy,
                 ROIz=ROIz,
                 original_nVoxel=list(config.geometry.nVoxel),
+                z_slab=z_slab,
             )
         )
 
         # ---- coordinate linspaces ----
-        z_lin = torch.linspace(start_z, end_z, steps=z_h, dtype=torch.float32)
-        y_lin = torch.linspace(start_y, end_y, steps=y_w, dtype=torch.float32)
-        x_lin = torch.linspace(start_x, end_x, steps=x_w, dtype=torch.float32)
+        z_lin = torch.linspace(start_z, end_z, steps=z_h, dtype=torch.float32, device=device)
+        y_lin = torch.linspace(start_y, end_y, steps=y_w, dtype=torch.float32, device=device)
+        x_lin = torch.linspace(start_x, end_x, steps=x_w, dtype=torch.float32, device=device)
 
-        batch_size = 5_000_000
-        total_points = z_h * y_w * x_w
-        indices = torch.arange(total_points, dtype=torch.int64)
-        batches = torch.split(indices, batch_size)
+        # Precompute Y,X mesh once (on GPU)
+        yy, xx = torch.meshgrid(y_lin, x_lin, indexing="ij")  # (Y,X)
+        yy = yy.reshape(-1)  # (Y*X,)
+        xx = xx.reshape(-1)  # (Y*X,)
 
         logger.info("Starting reconstruction and Zarr export...")
 
-        # write in flat form to simplify indexing
-        zarr_flat = zarr_array.reshape(-1)
+        # iterate slabs along z, write contiguous blocks
+        for z0 in tqdm(range(0, z_h, z_slab)):
+            z1 = min(z0 + z_slab, z_h)
 
-        for batch in tqdm(batches):
-            z_indices = batch // (y_w * x_w)
-            y_indices = (batch % (y_w * x_w)) // x_w
-            x_indices = batch % x_w
+            # Build grid for this slab: (slab*Y*X, 3)
+            zz = z_lin[z0:z1].repeat_interleave(y_w * x_w)  # (slab*Y*X,)
+            yy_rep = yy.repeat(z1 - z0)                     # (slab*Y*X,)
+            xx_rep = xx.repeat(z1 - z0)                     # (slab*Y*X,)
 
-            z = z_lin[z_indices]
-            y = y_lin[y_indices]
-            x = x_lin[x_indices]
+            grid = torch.stack((zz, yy_rep, xx_rep), dim=1)  # (N,3)
 
-            grid = torch.stack((z, y, x), dim=1).to(device)
+            # forward
+            out = model(grid).flatten().float()
 
-            # model forward
-            batch_output = model(grid).flatten().float().detach()
+            # rescale like TIFF export
+            out = out / geometry.max_distance_traveled
+            out = out * (dataset.maximum.item() - dataset.minimum.item()) + dataset.minimum.item()
 
-            # rescale like your TIFF export
-            batch_output = batch_output / geometry.max_distance_traveled
-            batch_output = (
-                batch_output * (dataset.maximum.item() - dataset.minimum.item())
-                + dataset.minimum.item()
-            )
-
-            # move to numpy and write
-            zarr_flat[batch.numpy()] = batch_output.cpu().numpy()
+            # reshape to slab volume and write
+            slab = out.reshape((z1 - z0, y_w, x_w)).detach().cpu().numpy().astype(np.float32)
+            zarr_array[z0:z1, :, :] = slab
 
         logger.info(f"Zarr volume saved to {zarr_path}")
         return zarr_path
