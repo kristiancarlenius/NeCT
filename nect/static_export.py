@@ -204,12 +204,14 @@ def export_volume_zarr(
             end_z = ROIz[1] / nVoxels[0]
             z_h = (ROIz[1] - ROIz[0]) // binning
 
-        # ---- Zarr output (version-robust) ----
         zarr_path = base_path / "volume.zarr"
         zarr_path.mkdir(parents=True, exist_ok=True)
 
-        # open a group at a filesystem path; works across zarr versions
-        root = zarr.open_group(str(zarr_path), mode="w")
+        try:
+            root = zarr.open_group(str(zarr_path), mode="w", zarr_format=2)
+        except TypeError:
+            # older zarr that doesn't know zarr_format
+            root = zarr.open_group(str(zarr_path), mode="w")
 
         compressor = Blosc(cname="zstd", clevel=5, shuffle=Blosc.SHUFFLE)
 
