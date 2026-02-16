@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sexcubes",
     config_override={
-        "epochs": "12x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -81,7 +81,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
             output_activation="ReLU",
-            n_neurons=64,
+            n_neurons=128,
             n_hidden_layers=12,
             include_identity=False,
             include_adaptive_skip=False,
