@@ -4,7 +4,7 @@
 #SBATCH --mem=12GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_05 # Set this to whatever you want
-#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_05.txt # The output file. NOTE! The output directory has to exist before you submit the job!
+#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_05.txt # The output file. 
 #SBATCH --time=5:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --ntasks-per-node=1 #CPU cores  
