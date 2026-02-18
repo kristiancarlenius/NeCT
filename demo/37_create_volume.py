@@ -54,7 +54,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 #print(nect.export_volume_zarr(re_create_path+str(output_path)+"model/"))
-print(nect.export_volume(base_path="/cluster/home/kristiac/NeCT/outputs/static_non/hash_grid_21_4_21_16_2_4_64_L1/2026-02-13T15-34-52/model/", binning=5, ROIx=[40, 60], ROIy=[40, 60], ROIz=[40, 60]))
+print(nect.export_volume(base_path="/cluster/home/kristiac/NeCT/outputs/static_non/hash_grid_21_4_21_16_2_4_64_L1/2026-02-13T15-34-52/model/", binning=5, ROIx=[200, 600], ROIy=[200, 600], ROIz=[200, 600]))
 """
 reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
