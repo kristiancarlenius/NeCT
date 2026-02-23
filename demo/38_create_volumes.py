@@ -54,7 +54,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 #print(nect.export_volume_zarr(re_create_path+str(output_path)+"model/"))
-print(nect.export_volumes(base_path="/cluster/home/kristiac/NeCT/outputs/dynamic_non/quadcubes_21_4_21_16_2_4_128_L1/2025-10-08T18-05-36/model/", binning=5, ROIx=[200, 600], ROIy=[200, 600], ROIz=[200, 600], timesteps_per_revolution=4))
+print(nect.export_volumes(base_path="/cluster/home/kristiac/NeCT/outputs/dynamic_non/quadcubes_21_4_21_16_2_4_128_L1/2025-10-08T18-05-36/model/", binning=5, ROIx=[200, 600], ROIy=[200, 600], ROIz=[200, 600], timesteps_per_revolution=4, export_revolutions=13))
 # 
 """
 reconstruction_path_dynamic, _ = nect.reconstruct(
