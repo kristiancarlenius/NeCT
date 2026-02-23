@@ -3,9 +3,9 @@
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
 #SBATCH --mem=80GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
-#SBATCH --job-name=job_37 # Set this to whatever you want
-#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_37.txt # The output file. 
-#SBATCH --time=05:00:00 # Maximum running time of your job.
+#SBATCH --job-name=job_38 # Set this to whatever you want
+#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_38.txt # The output file. 
+#SBATCH --time=10:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100" # GPU type and number of GPUs.
@@ -20,4 +20,4 @@ echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "volume creation"
 source nect_a100/bin/activate
-python -m demo.37_create_volume
+python -m demo.38_create_volumes
