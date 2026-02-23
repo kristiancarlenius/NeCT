@@ -6,6 +6,8 @@ import zarr
 from loguru import logger
 from numcodecs import Blosc
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import tifffile as tif
 
 from nect.config import get_cfg
 from nect.utils import setup_logger
