@@ -384,7 +384,7 @@ class Config:
                 # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
                 memory_per_point = 8 * byte_size * self.encoder.n_levels * 1
 
-                model = singlecube(
+                model = SingleCube(
                     encoding_config=self.encoder,
                     network_config=self.net,
                 )
