@@ -58,22 +58,22 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="sizediff",
+    exp_name="sexcubes",
     config_override={
-        "epochs": "6x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.0001,
+            "lr0": 0.004,
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 8,
-            "n_features_per_level": 2,
-            "log2_hashmap_size": 16,
+            "n_levels": 22,
+            "n_features_per_level": 4,
+            "log2_hashmap_size": 22,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -85,6 +85,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
-        ),
-    },)
+        ),},
+    enc_arc="singlecube",
+    )
 print(reconstruction_path_dynamic, _)
