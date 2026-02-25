@@ -50,7 +50,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
             include_adaptive_skip=False,
         ),
     },
-    split_enc=True
+    enc_arc="tricubes"
 )
 """
 

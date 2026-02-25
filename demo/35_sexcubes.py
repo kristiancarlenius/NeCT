@@ -86,6 +86,6 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),},
-    split_enc=True,
+    enc_arc="sexcubes",
     )
 print(reconstruction_path_dynamic, _)

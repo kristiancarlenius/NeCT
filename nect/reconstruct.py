@@ -123,7 +123,7 @@ def reconstruct(
     timesteps: _list | None = None,
     verbose: bool = True,
     log: bool = False,
-    split_enc: bool = False,
+    enc_arc: str | None = None,
     exp_name: str | None = None,
     flip_projections: bool = False,
     channel_order: str | None = None,
@@ -158,18 +158,21 @@ def reconstruct(
     logger.remove()
     logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>", level="INFO" if verbose else "WARNING",)
 
-    if mode == "static" and not split_enc:
+    if mode == "static" and enc_arc is None:
         cfg = get_static_cfg(name="hash_grid")
         cfg["model"] = "hash_grid"
-    elif mode == "dynamic" and not split_enc:
+    elif mode == "dynamic" and enc_arc is None:
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"
-    elif mode == "static" and split_enc:
+    elif enc_arc == "tricubes":
         cfg = get_static_cfg(name="tricubes")
         cfg["model"] = "tricubes"
-    elif mode == "dynamic" and split_enc:
+    elif enc_arc == "sexcubes":
         cfg = get_dynamic_cfg(name="sexcubes")
         cfg["model"] = "sexcubes"
+    elif enc_arc == "singlecube":
+        cfg = get_dynamic_cfg(name="singlecube")
+        cfg["model"] = "singlecube"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order
