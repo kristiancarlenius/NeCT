@@ -585,11 +585,7 @@ class TriCubes(nn.Module):
 
 class SexCubes(nn.Module):
     """6 pairwise 2D encoders: (x,y),(x,z),(y,z),(x,t),(z,t),(y,t)."""
-    def __init__(
-        self,
-        encoding_config: HashEncoderConfig,
-        network_config: MLPNetConfig,
-    ):
+    def __init__(self, encoding_config: HashEncoderConfig, network_config: MLPNetConfig):
         super().__init__()
         self.include_identity = network_config.include_identity
 
@@ -605,7 +601,6 @@ class SexCubes(nn.Module):
             ],
         }
         if self.include_identity:
-            # Identity over xyzt (4 dims) is the usual choice for dynamic models.
             encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
 
         n_in = 12 + (4 if self.include_identity else 0)
@@ -639,3 +634,7 @@ class SexCubes(nn.Module):
             inputs = torch.cat([inputs, xyzt], dim=-1)
 
         return self.net(inputs)
+
+class SingleCube(nn.Module):
+    def __init__(self, encoding_config: HashEncoderConfig, network_config: MLPNetConfig):
+        super().__init__()
