@@ -639,19 +639,16 @@ class SingleCube(nn.Module):
     def __init__(self, encoding_config: HashEncoderConfig, network_config: MLPNetConfig):
         super().__init__()
         self.concat = True
-        self.include_identity = False
-        if not prior:
-            encoding = {
-                "otype": "Grid",
-                "nested": [
-                    {"n_dims_to_encode": 4, **encoding_config.get_encoder_config()}
-                ]
-            }
-            if self.include_identity:
-                encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
+        
+        encoding = {
+            "otype": "Grid",
+            "nested": [
+                {"n_dims_to_encode": 4, **encoding_config.get_encoder_config()}
+            ]
+        }
 
         self.net = tcnn.NetworkWithInputEncoding(
-            n_input_dims=4 + (4 if self.include_identity else 0),
+            n_input_dims=4,
             n_output_dims=1,
             encoding_config=encoding,
             network_config=network_config.get_network_config(),
@@ -659,9 +656,6 @@ class SingleCube(nn.Module):
 
     def forward(self, zyx, t):
         zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
-        if self.include_identity:
-            inputs = torch.cat([zyxt, zyxt], dim=-1)
-        else:
-            inputs = torch.cat([zyxt], dim=-1)
+        inputs = torch.cat([zyxt], dim=-1)
         out = self.net(inputs)
         return out
