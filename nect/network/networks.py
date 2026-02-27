@@ -612,7 +612,8 @@ class SexCubes(nn.Module):
             network_config=network_config.get_network_config(),
         )
 
-    def forward(self, x, t):  # x: (N,3), t: scalar float or 0-d/1-d tensor
+    def forward(self, x, t):  
+        # x: (N,3), t: scalar float or 0-d/1-d tensor
         # make (N,1) time column
         if not torch.is_tensor(t):
             tcol = torch.full((x.size(0), 1), float(t), device=x.device, dtype=x.dtype)
@@ -638,7 +639,6 @@ class SexCubes(nn.Module):
 class SingleCube(nn.Module):
     def __init__(self, encoding_config: HashEncoderConfig, network_config: MLPNetConfig):
         super().__init__()
-        self.concat = True
         
         encoding = {
             "otype": "Grid",
@@ -657,5 +657,65 @@ class SingleCube(nn.Module):
     def forward(self, zyx, t):
         zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
         inputs = torch.cat([zyxt], dim=-1)
+        out = self.net(inputs)
+        return out
+
+class CombinedCubes(nn.Module):
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        network_config: MLPNetConfig,
+    ):
+        super().__init__()
+        encoding = {
+            "otype": "Composite",
+            "nested": [
+                {
+                    "n_dims_to_encode": 2,
+                    **encoding_config.get_encoder_config()
+                },
+                {
+                    "n_dims_to_encode": 2,
+                    **encoding_config.get_encoder_config()
+                },
+                {
+                    "n_dims_to_encode": 2,
+                    **encoding_config.get_encoder_config()
+                },
+                {
+                    "n_dims_to_encode": 2,
+                    **encoding_config.get_encoder_config()
+                },
+                {
+                    "n_dims_to_encode": 2,
+                    **encoding_config.get_encoder_config()
+                },
+                {
+                    "n_dims_to_encode": 2,
+                    **encoding_config.get_encoder_config()
+                },
+                {
+                    "n_dims_to_encode": 4,
+                    **encoding_config.get_encoder_config()
+                }
+            ]
+        }
+
+        self.net = tcnn.NetworkWithInputEncoding(
+            n_input_dims=16,
+            n_output_dims=1,
+            encoding_config=encoding,
+            network_config=network_config.get_network_config(),
+        )
+
+    def forward(self, zyx, t):
+        yxt = torch.cat([zyx[..., [1, 2]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        xzt = torch.cat([zyx[..., [2, 0]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        zyt = torch.cat([zyx[..., [0, 1]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        if self.include_identity:
+            inputs = torch.cat([zyx, yxt, xzt, zyt, zyxt, zyxt], dim=-1)
+        else:
+            inputs = torch.cat([zyx, yxt, xzt, zyt, zyxt], dim=-1)
         out = self.net(inputs)
         return out
