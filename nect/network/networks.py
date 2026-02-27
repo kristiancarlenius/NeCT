@@ -641,7 +641,7 @@ class SingleCube(nn.Module):
         super().__init__()
         
         encoding = {
-            "otype": "Grid",
+            "otype": "Composite",
             "nested": [
                 {"n_dims_to_encode": 4, **encoding_config.get_encoder_config()}
             ]
