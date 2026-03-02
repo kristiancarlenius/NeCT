@@ -5,13 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-print(torch.__version__)
-print(torch.cuda.get_arch_list())
-print(torch.cuda.get_device_name(0))
-print(torch.cuda.current_device())
-print(torch.cuda.is_available())
-
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -22,7 +16,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_optimized_100_cont.yaml"
+geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
@@ -59,14 +53,14 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path, _ = nect.reconstruct_continious_scan(
+reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "proj_100_cont.npy"),
+    projections=str(Path(data_path) / "projections.npy"),
     quality="high",
-    mode="static",
-    exp_name="static_continious",
+    mode="dynamic",
+    exp_name="singlecube",
     config_override={
-        "epochs": "4x",
+        "epochs": "16x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -77,9 +71,9 @@ reconstruction_path, _ = nect.reconstruct_continious_scan(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 21,
+            "n_levels": 23,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -91,8 +85,7 @@ reconstruction_path, _ = nect.reconstruct_continious_scan(
             n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
-        ),
-        "accumulation_steps": 4,
-        "continous_scanning": True,
-        
-    },)
+        ),},
+    enc_arc="duocubes",
+    )
+print(reconstruction_path_dynamic, _)

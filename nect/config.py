@@ -319,7 +319,7 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
-        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "singlecube"]:
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "singlecube", "duocubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
@@ -385,6 +385,17 @@ class Config:
                 memory_per_point = 8 * byte_size * self.encoder.n_levels * 1
 
                 model = SingleCube(
+                    encoding_config=self.encoder,
+                    network_config=self.net,
+                )
+            
+            elif model == "duocubes":
+                from nect.network import DuoCubes
+
+                # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 2
+
+                model = DuoCubes(
                     encoding_config=self.encoder,
                     network_config=self.net,
                 )
@@ -624,6 +635,7 @@ cfg_paths: dict = {
         "hypercubes": pathlib.Path(__file__).parent / "cfg/dynamic/hypercubes.yaml",
         "sexcubes": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes.yaml",
         "singlecube": pathlib.Path(__file__).parent / "cfg/dynamic/singlecube.yaml",
+        "duocubes": pathlib.Path(__file__).parent / "cfg/dynamic/duocubes.yaml",
     },
 }
 
@@ -823,6 +835,7 @@ def cfg_sanity_check(cfg: dict):
         "tricubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "sexcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "singlecube": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "duocubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]

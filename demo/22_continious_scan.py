@@ -5,6 +5,12 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
+print(torch.__version__)
+print(torch.cuda.get_arch_list())
+print(torch.cuda.get_device_name(0))
+print(torch.cuda.current_device())
+print(torch.cuda.is_available())
+
 data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
 """
 config_file = Path(data_path) / "config.yaml"
@@ -16,7 +22,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_100.yaml"
+geometry_file = Path(data_path) / "geometry_optimized_360_cont.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
@@ -53,9 +59,9 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
+reconstruction_path, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections_100.npy"),
+    projections=str(Path(data_path) / "proj_360_cont.npy"),
     quality="high",
     mode="static",
     exp_name="static_continious",
@@ -86,7 +92,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 12,
+        "accumulation_steps": 6,
         "continous_scanning": True,
         
     },)
