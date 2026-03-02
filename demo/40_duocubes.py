@@ -58,7 +58,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="singlecube",
+    exp_name="doucubes",
     config_override={
         "epochs": "16x",
         "checkpoint_interval": 0,
