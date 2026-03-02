@@ -639,26 +639,22 @@ class SexCubes(nn.Module):
 class SingleCube(nn.Module):
     def __init__(self, encoding_config: HashEncoderConfig, network_config: MLPNetConfig):
         super().__init__()
-        
-        encoding = {
-            "otype": "Composite",
-            "nested": [
-                {"n_dims_to_encode": 4, **encoding_config.get_encoder_config()}
-            ]
-        }
-
         self.net = tcnn.NetworkWithInputEncoding(
             n_input_dims=4,
             n_output_dims=1,
-            encoding_config=encoding,
+            encoding_config=encoding_config.get_encoder_config(),
             network_config=network_config.get_network_config(),
         )
 
     def forward(self, zyx, t):
-        zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
-        inputs = torch.cat([zyxt], dim=-1)
-        out = self.net(inputs)
-        return out
+        if not torch.is_tensor(t):
+            tcol = torch.full((zyx.size(0), 1), float(t), device=zyx.device, dtype=zyx.dtype)
+        else:
+            tcol = t.reshape(-1, 1).to(device=zyx.device, dtype=zyx.dtype)
+            if tcol.size(0) == 1:
+                tcol = tcol.expand(zyx.size(0), 1)
+        zyxt = torch.cat([zyx, tcol], dim=1)
+        return self.net(zyxt)
 
 class CombinedCubes(nn.Module):
     def __init__(
