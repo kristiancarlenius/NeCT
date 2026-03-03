@@ -71,8 +71,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 32,
-            "n_features_per_level": 6,
+            "n_levels": 38,
+            "n_features_per_level": 4,
             "log2_hashmap_size": 28,
             "base_resolution": 16,
             "max_resolution_factor": 2,
