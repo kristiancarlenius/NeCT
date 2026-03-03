@@ -149,57 +149,96 @@ class ContinousScanningTrainer(BaseTrainer):
                 for batch_num in range(min(cast(int, self.batch_per_proj), self.projector.batch_per_epoch)):
                     self.optim.zero_grad()
                     self.model.train()
-                    y_pred = None
                     end_linspace = np.linspace(float(angle_start.detach().cpu()), float(angle_stop.detach().cpu()), self.config.accumulation_steps + 1, endpoint=True, )
                     linspace = [(end_linspace[k] + end_linspace[k + 1]) / 2 for k in range(self.config.accumulation_steps)]
-                    for ang in linspace:
-                        self.projector.update_angle(ang)
-                        points, y = self.projector(batch_num=batch_num, proj=self.proj)
-                        if points is None or y is None:
-                            continue
+                    points_per_batch = 5000000  # 5 million points per batch is about the maximum that can be processed at once with tinycudann
 
-                        zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
-                        points_shape = points.size()
-                        if points_shape[1] == 0:
-                            self.logger.warning("No points in the batch")
-                            continue
-
-                        points = points.view(-1, 3)[~zero_points_mask]
-                        if points.size(0) == 0:
-                            continue
-
-                        atten_hats = []
-                        points_per_batch = 5000000  # 5 million points per batch is about the maximum that can be processed at once with tinycudann
-                        for points_num in range(0, points.size(0), points_per_batch):
-                            if self.config.mode == "dynamic":
-                                atten_hat = self.model(points[points_num : points_num + points_per_batch], float(timestep),).squeeze(0)  # .view((points.size(0), points.size(1)))
+                    # Pass 1: accumulate y_pred without computation graphs to save memory.
+                    # With all graphs alive simultaneously, memory scales with accumulation_steps.
+                    # This pass computes the same value but releases each angle's graph immediately.
+                    y_pred = None
+                    y_last = None
+                    with torch.no_grad():
+                        for ang in linspace:
+                            self.projector.update_angle(ang)
+                            points, y = self.projector(batch_num=batch_num, proj=self.proj)
+                            if points is None or y is None:
+                                continue
+                            y_last = y
+                            zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
+                            points_shape = points.size()
+                            if points_shape[1] == 0:
+                                self.logger.warning("No points in the batch")
+                                continue
+                            points_filtered = points.view(-1, 3)[~zero_points_mask]
+                            if points_filtered.size(0) == 0:
+                                continue
+                            atten_hats = []
+                            for points_num in range(0, points_filtered.size(0), points_per_batch):
+                                if self.config.mode == "dynamic":
+                                    atten_hat = self.model(points_filtered[points_num : points_num + points_per_batch], float(timestep),).squeeze(0)
+                                else:
+                                    atten_hat = self.model(points_filtered[points_num : points_num + points_per_batch]).squeeze(0)
+                                atten_hats.append(atten_hat)
+                            atten_hat = torch.cat(atten_hats)
+                            processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
+                            processed_tensor[~zero_points_mask] = atten_hat
+                            atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
+                            contrib = torch.sum(atten_hat, dim=1) * (self.projector.distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+                            if y_pred is None:
+                                y_pred = contrib
                             else:
-                                atten_hat = self.model(points[points_num : points_num + points_per_batch]).squeeze(0)  # .view((points.size(0), points.size(1)))
-                            
-                            atten_hats.append(atten_hat)
+                                y_pred += contrib
 
-                        atten_hat = torch.cat(atten_hats)
+                    if y_pred is None or y_last is None:
+                        continue
 
-                        processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
-                        processed_tensor[~zero_points_mask] = atten_hat
-                        atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
-                        if y_pred is None:
-                            y_pred = (torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled)) / self.config.accumulation_steps)  # * (self.ct_sampler.distance_between_points / self.geometry.max_distance_traveled)
-                        else:
-                            y_pred += (torch.sum(atten_hat, dim=1) * (self.projector.distances / (self.geometry.max_distance_traveled)) / self.config.accumulation_steps)
-                            
+                    # Treat y_pred as a leaf to compute dL/dy_pred without touching model params.
+                    y_pred_leaf = y_pred.requires_grad_(True)
                     if self.config.add_poisson:
-                        y_pred = (y_pred + torch.poisson(y_pred * 1e5) / 1e5) / 2
+                        y_pred_for_loss = (y_pred_leaf + torch.poisson(y_pred_leaf * 1e5) / 1e5) / 2
+                    else:
+                        y_pred_for_loss = y_pred_leaf
 
                     if self.config.s3im and self.current_projection > self.config.warmup.steps:
                         loss = 0
                         patch_size = min(math.floor(math.sqrt(self.projector.total_detector_pixels)), math.floor(math.sqrt(self.batch_size)),)  # 25x25 patch size, add a parameter later
                         self.fabric.log_dict({"patch_size": patch_size}, step=self.step)
-                        loss += self.loss_fn(y_pred, y)
-                        loss += self.s3im_loss(y_pred, y, patch_size=patch_size)
-                        
+                        loss += self.loss_fn(y_pred_for_loss, y_last)
+                        loss += self.s3im_loss(y_pred_for_loss, y_last, patch_size=patch_size)
                     else:
-                        loss = self.loss_fn(y_pred, y)
+                        loss = self.loss_fn(y_pred_for_loss, y_last)
+
+                    loss.backward()
+                    grad_y_pred = y_pred_leaf.grad.detach()
+
+                    # Pass 2: replay each angle one at a time, backpropping with the stored
+                    # upstream gradient. Only one computation graph is alive at a time.
+                    for ang in linspace:
+                        self.projector.update_angle(ang)
+                        points, y = self.projector(batch_num=batch_num, proj=self.proj)
+                        if points is None or y is None:
+                            continue
+                        zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
+                        points_shape = points.size()
+                        if points_shape[1] == 0:
+                            continue
+                        points_filtered = points.view(-1, 3)[~zero_points_mask]
+                        if points_filtered.size(0) == 0:
+                            continue
+                        atten_hats = []
+                        for points_num in range(0, points_filtered.size(0), points_per_batch):
+                            if self.config.mode == "dynamic":
+                                atten_hat = self.model(points_filtered[points_num : points_num + points_per_batch], float(timestep),).squeeze(0)
+                            else:
+                                atten_hat = self.model(points_filtered[points_num : points_num + points_per_batch]).squeeze(0)
+                            atten_hats.append(atten_hat)
+                        atten_hat = torch.cat(atten_hats)
+                        processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
+                        processed_tensor[~zero_points_mask] = atten_hat
+                        atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
+                        contrib = torch.sum(atten_hat, dim=1) * (self.projector.distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+                        (contrib * grad_y_pred).sum().backward()
 
                     self.fabric.log_dict(
                         {
@@ -220,7 +259,6 @@ class ContinousScanningTrainer(BaseTrainer):
                             {"skip_alpha_value": self.model.skip_alpha.item()},
                             step=self.step,
                         )
-                    self.fabric.backward(loss)
                     if self.config.clip_grad_value is not None:
                         torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)
                     self.optim.step()
