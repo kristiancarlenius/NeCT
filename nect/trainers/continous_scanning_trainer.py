@@ -238,7 +238,7 @@ class ContinousScanningTrainer(BaseTrainer):
                         processed_tensor[~zero_points_mask] = atten_hat
                         atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
                         contrib = torch.sum(atten_hat, dim=1) * (self.projector.distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
-                        (contrib * grad_y_pred).sum().backward()
+                        self.fabric.backward((contrib * grad_y_pred).sum())
 
                     self.fabric.log_dict(
                         {
