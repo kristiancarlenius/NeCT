@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sizediff",
     config_override={
-        "epochs": "8x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -73,7 +73,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "otype": "HashGrid",
             "n_levels": 22,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 22,
+            "log2_hashmap_size": 21,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
