@@ -74,8 +74,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "n_levels": 23,
             "n_features_per_level": 4,
             "log2_hashmap_size": 23,
-            "base_resolution": 20,
-            "max_resolution_factor": 3,
+            "base_resolution": 32,
+            "max_resolution_factor": 4,
         },
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
