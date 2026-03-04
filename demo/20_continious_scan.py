@@ -23,7 +23,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / " geometry_8fps_11000.yaml"
+geometry_file = Path(data_path) / "geometry_8fps_11000.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
