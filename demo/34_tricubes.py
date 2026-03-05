@@ -28,15 +28,15 @@ reconstruction_path_static, output_path = nect.reconstruct(
     mode="static",
     exp_name="tricubes",
     config_override={
-        "epochs": "6x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 22,
+            "n_levels": 30,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 22,
+            "log2_hashmap_size": 20,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
