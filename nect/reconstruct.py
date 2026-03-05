@@ -173,9 +173,9 @@ def reconstruct(
     elif enc_arc == "singlecube":
         cfg = get_dynamic_cfg(name="singlecube")
         cfg["model"] = "singlecube"
-    elif enc_arc == "duocubes":
-        cfg = get_dynamic_cfg(name="duocubes")
-        cfg["model"] = "duocubes"
+    elif enc_arc == "combinedcubes":
+        cfg = get_dynamic_cfg(name="combinedcubes")
+        cfg["model"] = "combinedcubes"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order

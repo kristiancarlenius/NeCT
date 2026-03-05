@@ -60,7 +60,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="doucubes",
     config_override={
-        "epochs": "16x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -86,6 +86,6 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),},
-    enc_arc="duocubes",
+    enc_arc="combinedcubes",
     )
 print(reconstruction_path_dynamic, _)
