@@ -71,11 +71,11 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 25,
+            "n_levels": 21,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 25,
-            "base_resolution": 32,
-            "max_resolution_factor": 4,
+            "log2_hashmap_size": 27,
+            "base_resolution": 16,
+            "max_resolution_factor": 2,
         },
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
