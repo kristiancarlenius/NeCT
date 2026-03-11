@@ -669,15 +669,15 @@ class CombinedCubes(nn.Module):
             "nested": [
                 {
                     "n_dims_to_encode": 2,
-                    **encoding_config.get_encoder_config() #x, t
+                    **encoding_config.get_encoder_config_2D() #x, t
                 },
                 {
                     "n_dims_to_encode": 2,
-                    **encoding_config.get_encoder_config() #y, t
+                    **encoding_config.get_encoder_config_2D() #y, t
                 },
                 {
                     "n_dims_to_encode": 2,
-                    **encoding_config.get_encoder_config() #z, t
+                    **encoding_config.get_encoder_config_2D() #z, t
                 },
                 {
                     "n_dims_to_encode": 3,

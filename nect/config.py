@@ -92,6 +92,21 @@ class HashEncoderConfig:
             "base_resolution": self.base_resolution,
             "per_level_scale": self.per_level_scale,
         }
+    
+    def get_encoder_config_2D(self) -> dict:
+        if self.log2_hashmap_size > 20:
+            hashmax_2d = 20
+        else:
+            hashmax_2d = self.log2_hashmap_size
+
+        return {
+            "otype": self.otype,
+            "n_levels": self.n_levels,
+            "n_features_per_level": self.n_features_per_level,
+            "log2_hashmap_size": hashmax_2d,
+            "base_resolution": self.base_resolution,
+            "per_level_scale": self.per_level_scale,
+        }
 
     def __str__(self):
         return f"{self.n_levels}_{self.n_features_per_level}_{self.log2_hashmap_size}_{self.base_resolution}_{self.max_resolution_factor}"
