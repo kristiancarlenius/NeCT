@@ -53,12 +53,12 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
+reconstruction_path_dynamic, _ = nect.reconstruct(#nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_8fps_5500.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_continious",
+    exp_name="dynamic_continious_non",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
