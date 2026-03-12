@@ -66,8 +66,8 @@ def nearest_step(value: float, step: int, max_val: int) -> int:
     return max(step, min(max_val, rounded))
 
 
-print(f"\n{'#':<5} {'Model':<30} {'Elapsed':>10}  {'Epochs run':>10}  {'s/epoch':>8}  {'Target epochs':>13}")
-print("─" * 85)
+print(f"\n{'#':<5} {'Model':<30} {'Elapsed':>10}  {'Epochs run':>10}  {'s/epoch':>8}  {'Target epochs':>13}  {'Projected time':>14}")
+print("─" * 100)
 
 for i, (f1, f2) in enumerate(file_pairs, start=1):
     try:
@@ -77,13 +77,13 @@ for i, (f1, f2) in enumerate(file_pairs, start=1):
         epochs_run = epoch_from_filename(f2)
         s_per_epoch = elapsed_s / epochs_run
         target_epochs = nearest_step(TARGET_SECONDS / s_per_epoch, EPOCH_STEP, MAX_EPOCHS)
+        projected = format_diff(timedelta(seconds=target_epochs * s_per_epoch))
 
-        # Extract model name from path (folder two levels up from images/)
-        model = f2.split("/")[-4]   # quadcubes_XX_4_YY_...
+        model = f2.split("/")[-4]
 
         print(
             f"{i:<5} {model:<30} {format_diff(t2 - t1):>10}  "
-            f"{epochs_run:>10}  {s_per_epoch:>8.1f}  {target_epochs:>13}"
+            f"{epochs_run:>10}  {s_per_epoch:>8.1f}  {target_epochs:>13}  {projected:>14}"
         )
     except FileNotFoundError as e:
         print(f"{i:<5} ERROR - {e}")
