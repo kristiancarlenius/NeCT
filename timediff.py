@@ -37,10 +37,13 @@ file_pairs = [
 # ────────────────────────────────────────────────────────────────────────────
 
 
+TARGET_SECONDS = 13 * 3600 + 47 * 60 + 10   # 13:47:10 → 49630 s
+MAX_EPOCHS     = 525
+EPOCH_STEP     = 25
+
+
 def get_creation_time(path: str) -> datetime:
     stat = os.stat(path)
-    # Windows: st_ctime is creation time
-    # Linux/mac: st_birthtime if available, fallback to st_mtime
     ts = getattr(stat, "st_birthtime", None) or stat.st_mtime
     return datetime.fromtimestamp(ts)
 
@@ -52,16 +55,36 @@ def format_diff(delta: timedelta) -> str:
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
-print(f"\n{'#':<5} {'File 1':<40} {'File 2':<40} {'Difference (HH:MM:SS)'}")
-print("─" * 100)
+def epoch_from_filename(path: str) -> int:
+    """Parse epoch number from filenames like 0525_1400.png."""
+    name = os.path.basename(path)
+    return int(name[:4])
+
+
+def nearest_step(value: float, step: int, max_val: int) -> int:
+    rounded = round(value / step) * step
+    return max(step, min(max_val, rounded))
+
+
+print(f"\n{'#':<5} {'Model':<30} {'Elapsed':>10}  {'Epochs run':>10}  {'s/epoch':>8}  {'Target epochs':>13}")
+print("─" * 85)
 
 for i, (f1, f2) in enumerate(file_pairs, start=1):
     try:
         t1 = get_creation_time(f1)
         t2 = get_creation_time(f2)
-        diff = format_diff(t2 - t1)
-        earlier, later = (f1, f2) if t1 <= t2 else (f2, f1)
-        print(f"{i:<5} {os.path.basename(f1):<40} {os.path.basename(f2):<40} {diff}  (earlier: {os.path.basename(earlier)})")
+        elapsed_s = abs((t2 - t1).total_seconds())
+        epochs_run = epoch_from_filename(f2)
+        s_per_epoch = elapsed_s / epochs_run
+        target_epochs = nearest_step(TARGET_SECONDS / s_per_epoch, EPOCH_STEP, MAX_EPOCHS)
+
+        # Extract model name from path (folder two levels up from images/)
+        model = f2.split("/")[-4]   # quadcubes_XX_4_YY_...
+
+        print(
+            f"{i:<5} {model:<30} {format_diff(t2 - t1):>10}  "
+            f"{epochs_run:>10}  {s_per_epoch:>8.1f}  {target_epochs:>13}"
+        )
     except FileNotFoundError as e:
         print(f"{i:<5} ERROR - {e}")
 
