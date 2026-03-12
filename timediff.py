@@ -61,9 +61,9 @@ def epoch_from_filename(path: str) -> int:
     return int(name[:4])
 
 
-def nearest_step(value: float, step: int, max_val: int) -> int:
-    rounded = round(value / step) * step
-    return max(step, min(max_val, rounded))
+def best_epoch(s_per_epoch: float, target_s: float, step: int, max_val: int) -> int:
+    candidates = range(step, max_val + 1, step)
+    return min(candidates, key=lambda e: abs(e * s_per_epoch - target_s))
 
 
 print(f"\n{'#':<5} {'Model':<30} {'Elapsed':>10}  {'Epochs run':>10}  {'s/epoch':>8}  {'Target epochs':>13}  {'Projected time':>14}")
@@ -76,7 +76,7 @@ for i, (f1, f2) in enumerate(file_pairs, start=1):
         elapsed_s = abs((t2 - t1).total_seconds())
         epochs_run = epoch_from_filename(f2)
         s_per_epoch = elapsed_s / epochs_run
-        target_epochs = nearest_step(TARGET_SECONDS / s_per_epoch, EPOCH_STEP, MAX_EPOCHS)
+        target_epochs = best_epoch(s_per_epoch, TARGET_SECONDS, EPOCH_STEP, MAX_EPOCHS)
         projected = format_diff(timedelta(seconds=target_epochs * s_per_epoch))
 
         model = f2.split("/")[-4]
