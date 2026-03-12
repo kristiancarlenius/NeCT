@@ -35,4 +35,4 @@ nect/data
 # mkdocs documentation
 /site
 /sizediff
-/results
+results/

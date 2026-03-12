@@ -177,17 +177,14 @@ def main() -> None:
         ("psnr", "PSNR (dB)  ↑ better"),
     ]
 
-    fig, axes = plt.subplots(
-        nrows=len(METRICS),
-        ncols=len(EPOCH_LABELS),
-        figsize=(14, 9),
-        squeeze=False,
-    )
+    results_dir = os.path.join(os.path.dirname(__file__), "results")
+    os.makedirs(results_dir, exist_ok=True)
 
-    for row, (metric_key, ylabel) in enumerate(METRICS):
-        for col, epoch_label in enumerate(EPOCH_LABELS):
-            ax = axes[row][col]
+    for metric_key, ylabel in METRICS:
+        for epoch_label in EPOCH_LABELS:
             key = f"{metric_key}_{epoch_label}"
+
+            fig, ax = plt.subplots(figsize=(10, 6))
 
             for n_levels in sorted_levels:
                 entries = groups[n_levels]
@@ -214,22 +211,18 @@ def main() -> None:
                         color=color,
                     )
 
-            ax.set_title(f"{metric_key.upper()} — epoch {epoch_label}", fontsize=10)
-            ax.set_xlabel("Encoder parameters (×4 encoders)", fontsize=8)
-            ax.set_ylabel(ylabel, fontsize=8)
+            ax.set_title(f"{metric_key.upper()} — epoch {epoch_label}  (XX_4_YY series)", fontsize=11)
+            ax.set_xlabel("Encoder parameters (×4 encoders)")
+            ax.set_ylabel(ylabel)
             ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1e6:.1f}M"))
             ax.grid(True, alpha=0.3)
-            ax.legend(fontsize=7, loc="best")
+            ax.legend(fontsize=8, loc="best")
+            plt.tight_layout()
 
-    fig.suptitle("Reconstruction quality vs. encoder size  (XX_4_YY series)", fontsize=12)
-    plt.tight_layout()
-
-    results_dir = os.path.join(os.path.dirname(__file__), "results")
-    os.makedirs(results_dir, exist_ok=True)
-    out_path = os.path.join(results_dir, "sizediff_combined.png")
-    plt.savefig(out_path, dpi=150)
-    print(f"\nSaved plot → {out_path}")
-    plt.show()
+            out_path = os.path.join(results_dir, f"sizediff_{metric_key}_epoch{epoch_label}.png")
+            plt.savefig(out_path, dpi=150)
+            print(f"Saved plot → {out_path}")
+            plt.close(fig)
 
 
 if __name__ == "__main__":
