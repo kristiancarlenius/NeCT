@@ -54,7 +54,7 @@ def format_td(seconds: float) -> str:
     return f"{h:02d}:{m:02d}:{s:02d}"
 
 
-def find_best_epoch(images_dir: str, t0: datetime) -> tuple[int, float] | None:
+def find_best_epoch(images_dir: str, t0: datetime):
     """
     Iterate through epoch checkpoints in steps of EPOCH_STEP.
     Stop when we overshoot TARGET_SECONDS (or run out of files).
