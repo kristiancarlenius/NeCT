@@ -26,7 +26,7 @@ except ImportError:
 # CONFIG: EDIT THESE
 # ================================
 REF_PATH = r"/home/user/Documents/NeCT/sizediff/perfect/1300_1400.png"# path to your "perfect" image pop-backup-user/Pictures/sizecomp/23_4_23_0395_1400.png
-TEST_PATH = r"/home/user/Documents/NeCT/sizediff/combinedcube/24_4_24/0150_1400.png"  # path to your reconstruction image pop-backup-user/Pictures/sizecomp/8_2_16_0260_1400.png
+TEST_PATH = r"/home/user/Documents/NeCT/sizediff/21_4_21/0150_1400.png"#combinedcube/24_4_24/0150_1400.png"  # path to your reconstruction image pop-backup-user/Pictures/sizecomp/8_2_16_0260_1400.png
 
 # Crop rectangle (in pixel coordinates)
 # (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
@@ -120,12 +120,12 @@ def visualize(ref_crop: np.ndarray,
 
     # 1) Reference
     axes[0].imshow(ref_crop, cmap="gray")
-    axes[0].set_title("23_4_23 400 epochs")
+    axes[0].set_title("21_4_21 1300 epochs")
     axes[0].axis("off")
 
     # 2) Test
     axes[1].imshow(test_crop, cmap="gray")
-    axes[1].set_title("8_2_16 400 epochs")
+    axes[1].set_title("21_4_21 150 epochs")
     axes[1].axis("off")
 
     # 3) Error heatmap
