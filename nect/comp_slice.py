@@ -139,7 +139,7 @@ def visualize(ref_crop: np.ndarray,
     # alpha proportional to error: tune scale factor if needed
     alpha = np.clip(err_norm ** 0.4, 0.0, 1)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
-    axes[3].set_title("23_4_23 400 epochs + error overlay")
+    axes[3].set_title("21_4_21 1300 epochs + error overlay")
     axes[3].axis("off")
     fig.colorbar(im3, ax=axes[3], fraction=0.046, pad=0.04)
 
