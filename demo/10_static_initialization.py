@@ -58,11 +58,11 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_init",
-    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
-    static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
+    exp_name="dynamic_non",
+    #static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
+    #static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_15/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
     config_override={
-        "epochs": "2.5x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -73,9 +73,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 21,
+            "n_levels": 23,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -88,7 +88,6 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "damp_multi": [1, 0.0, 1],
     },
 )
 #nect.export_volume(reconstruction_path_dynamic, binning=3)

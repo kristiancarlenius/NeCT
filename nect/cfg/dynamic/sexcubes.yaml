@@ -1,8 +1,8 @@
 encoder:
   otype: HashGrid
-  n_levels: 21
+  n_levels: 23
   n_features_per_level: 4
-  log2_hashmap_size: 21
+  log2_hashmap_size: 20
   base_resolution: 16
   max_resolution_factor: 2
 
@@ -11,7 +11,7 @@ net:
   activation: LeakyReLU
   output_activation: None
   n_neurons: 128
-  n_hidden_layers: 4
+  n_hidden_layers: 8
   include_identity: True
 base_lr: 0.0002
 batch_per_proj: 1     
