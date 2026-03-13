@@ -25,8 +25,8 @@ except ImportError:
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"/home/user/pop-backup-user/Pictures/sizecomp/23_4_23_0395_1400.png"# path to your "perfect" image
-TEST_PATH = r"/home/user/pop-backup-user/Pictures/sizecomp/8_2_16_0260_1400.png"  # path to your reconstruction image
+REF_PATH = r"/home/user/Documents/NeCT/sizediff/perfect/1300_1400.png"# path to your "perfect" image pop-backup-user/Pictures/sizecomp/23_4_23_0395_1400.png
+TEST_PATH = r"/home/user/Documents/NeCT/sizediff/combinedcube/24_4_24/0150_1400.png"  # path to your reconstruction image pop-backup-user/Pictures/sizecomp/8_2_16_0260_1400.png
 
 # Crop rectangle (in pixel coordinates)
 # (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
