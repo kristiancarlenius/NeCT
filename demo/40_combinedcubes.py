@@ -88,5 +88,6 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         ),},
     enc_arc="combinedcubes",
     )
+#hust å teste med 23_4_24, 24_4_23, 22_4_22, ect.
 
 print(reconstruction_path_dynamic, _)
