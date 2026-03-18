@@ -65,9 +65,10 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
+        "lr": 0.004, 
         "warmup": {
-            "steps": 1400*10,
-            "lr0": 0.0001,
+            "steps": 1400*20,
+            "lr0": 0.02,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -81,8 +82,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
             output_activation="ReLU",
-            n_neurons=64,
-            n_hidden_layers=6,
+            n_neurons=128,
+            n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
         ),},
