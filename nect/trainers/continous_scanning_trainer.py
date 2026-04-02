@@ -97,9 +97,11 @@ class ContinousScanningTrainer(BaseTrainer):
                         dynamic = (self.model(grid, torch.tensor((i + 1) / 4)).squeeze().reshape(size).squeeze().detach().cpu().numpy())
                         axes[0, i].imshow(dynamic - avg, cmap="gray", interpolation="none")
                         dynamic = dynamic / (self.geometry.max_distance_traveled * 2)
-                        dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
+                        dynamic = dynamic * self.dataset.maximum.item()
                         dynamic = dynamic + self.dataset.minimum.item()
-                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
+                        vmin = float(self.dataset.minimum.item())
+                        vmax = float(0.75)
+                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
 
                     for ax in axes.ravel():
                         ax.set_axis_off()
