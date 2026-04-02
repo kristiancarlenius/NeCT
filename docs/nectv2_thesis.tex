@@ -1,0 +1,730 @@
+%!TEX root = nectv2_thesis.tex
+\documentclass[12pt, a4paper, twoside]{report}
+
+% ─── Packages ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm, bindingoffset=1cm}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{emptypage}
+\usepackage{microtype}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ─── Page style ──────────────────────────────────────────────────────────────
+\onehalfspacing
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[LO]{\nouppercase{\rightmark}}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+
+% ─── Custom commands ─────────────────────────────────────────────────────────
+\newcommand{\muhat}{\hat{\mu}}
+\newcommand{\rvec}{\mathbf{r}}
+\newcommand{\NeCT}{\textsc{NeCT}}
+\newcommand{\NeCTv}{\textsc{NeCTv2}}
+\newcommand{\INR}{INR}
+\newcommand{\NeRF}{NeRF}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+
+% ─── Title page ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\LARGE\bfseries Improving and Optimizing \NeCT{} for \NeCTv{}\par}
+    \vspace{1.5cm}
+    {\large Master's Thesis\par}
+    \vspace{0.5cm}
+    {\large Department of Physics / Department of Computer Science\par}
+    {\large Norwegian University of Science and Technology (NTNU)\par}
+    \vspace{2cm}
+    {\large \textit{Author Name}\par}
+    \vspace{0.5cm}
+    {\large Supervisor: \textit{Supervisor Name}\par}
+    \vspace{2cm}
+    {\large \today\par}
+    \vfill
+\end{titlepage}
+
+% ─── Front matter ────────────────────────────────────────────────────────────
+\pagenumbering{roman}
+
+\begin{abstract}
+\todo{Write abstract last. Summarise motivation, methods, key results, and conclusions in roughly 250 words.}
+\end{abstract}
+
+\cleardoublepage
+\chapter*{Acknowledgements}
+\todo{Acknowledgements.}
+
+\cleardoublepage
+\tableofcontents
+\listoffigures
+\listoftables
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Introduction}
+\label{chap:introduction}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\todo{Motivate the problem: limitations of conventional 4D-CT, the promise of
+implicit neural representations, and the gap that \NeCTv{} addresses.}
+
+\section{Background and Motivation}
+\label{sec:intro_background}
+\todo{}
+
+\section{Research Objectives}
+\label{sec:intro_objectives}
+\todo{List the concrete research questions / contributions of the thesis.}
+
+\section{Thesis Structure}
+\label{sec:intro_structure}
+\todo{One paragraph guiding the reader through the chapters.}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Background}
+\label{chap:background}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\todo{This chapter builds the theoretical foundation the reader needs before
+encountering \NeCT{} and the proposed extensions.}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Neural Networks}
+\label{sec:nn}
+% ─────────────────────────────────────────────────────────────────────────────
+
+A neural network is a parameterised function whose internal parameters are adjusted iteratively until the function approximates a desired input-output relationship. The basic computational unit is the neuron, which computes a weighted sum of its inputs and passes the result through a nonlinear activation function. By stacking many neurons into layers and connecting layers sequentially, a network can represent increasingly complex relationships between its inputs and outputs.
+
+The fundamental architecture used throughout this work is the \emph{multilayer perceptron} (MLP), sometimes called a fully-connected or feedforward network. An MLP consists of an input layer, one or more hidden layers, and an output layer. Each layer $\ell$ applies a learned affine transformation followed by a nonlinear activation function:
+%
+\begin{equation}
+    \mathbf{h}^{(\ell)} = \sigma\!\left( W^{(\ell)}\, \mathbf{h}^{(\ell-1)} + \mathbf{b}^{(\ell)} \right),
+    \label{eq:mlp_layer}
+\end{equation}
+%
+where $W^{(\ell)}$ is the weight matrix, $\mathbf{b}^{(\ell)}$ is the bias vector of layer $\ell$, and $\sigma$ denotes the activation function applied element-wise. The input to the first layer is the network input $\mathbf{h}^{(0)} = \mathbf{x}$, and the output of the final layer $L$ is the prediction $\hat{y} = \mathbf{h}^{(L)}$.
+
+The composition of $L$ such layers defines a function $f_\theta : \mathbb{R}^{n} \to \mathbb{R}^{m}$, where $\theta$ collects all learnable parameters $\{W^{(\ell)}, \mathbf{b}^{(\ell)}\}_{\ell=1}^{L}$. By the universal approximation theorem, an MLP with at least one hidden layer and a nonlinear activation can approximate any continuous function on a compact domain to arbitrary precision given sufficient capacity \citep{cybenko1989approximation, hornik1989multilayer}. In practice, depth is often more parameter-efficient than width, which is why most modern MLPs use several moderately wide hidden layers rather than one very wide one.
+
+The choice of activation function has a significant effect on training dynamics. The historically popular sigmoid $\sigma(z) = (1 + e^{-z})^{-1}$ and hyperbolic tangent $\sigma(z) = \tanh(z)$ saturate for large input magnitudes, causing vanishing gradients in deep networks. The rectified linear unit (ReLU), $\sigma(z) = \max(0, z)$, largely solved this problem and became the standard choice for many years \citep{nair2010rectified}. A known failure mode of ReLU is that neurons whose pre-activation is consistently negative receive no gradient and become permanently inactive. The Leaky ReLU addresses this by allowing a small gradient for negative inputs:
+%
+\begin{equation}
+    \sigma(z) = \begin{cases} z & z > 0 \\ \alpha z & z \leq 0, \end{cases}
+    \label{eq:leaky_relu}
+\end{equation}
+%
+where $\alpha \ll 1$ is a small constant, commonly $0.01$. For applications requiring the network to represent signals with significant high-frequency content, periodic activations such as sinusoidal representation networks (SIREN, $\sigma(z) = \sin(z)$) have been proposed \citep{sitzmann2020siren}. These can represent sharp features without any additional input encoding but are sensitive to initialisation and can be difficult to train stably.
+
+Training a network means finding the parameter vector $\theta$ that minimises a scalar loss function $\mathcal{L}(\theta)$ measuring the discrepancy between predictions and observations. For regression tasks the two most common choices are the mean squared error (L2 loss) and the mean absolute error (L1 loss):
+%
+\begin{align}
+    \mathcal{L}_{\mathrm{L2}} &= \frac{1}{N}\sum_{i=1}^{N}\left(\hat{y}_i - y_i\right)^2,
+    \label{eq:l2_loss} \\
+    \mathcal{L}_{\mathrm{L1}} &= \frac{1}{N}\sum_{i=1}^{N}\left|\hat{y}_i - y_i\right|.
+    \label{eq:l1_loss}
+\end{align}
+%
+L1 loss is less sensitive to outliers than L2 and is often preferred when the measurements contain occasional corrupted samples. Parameters are updated by gradient descent: at each step $\theta$ is adjusted in the direction of steepest descent of $\mathcal{L}$. The gradient $\nabla_\theta \mathcal{L}$ is computed by backpropagation, which applies the chain rule layer by layer from the output back to the input \citep{rumelhart1986backprop}. In practice the gradient is estimated from a random mini-batch of $B$ data points at each step rather than from the full dataset. The Adam optimiser \citep{kingma2015adam}, which maintains per-parameter running estimates of the first and second gradient moments, is the standard choice for training coordinate networks.
+
+\subsection{Convolutional Neural Networks}
+\label{subsec:cnn}
+
+While the MLP treats every input element independently, images and other spatially structured signals have strong local correlations: nearby pixels tend to be similar, and the same local pattern such as an edge or a boundary can appear at any position in the image. Convolutional neural networks (CNNs) exploit this structure by replacing the dense weight matrices of an MLP with learned local filters applied uniformly across the spatial extent of the input \citep{lecun1998gradient}.
+
+A discrete 2D convolution of an input feature map $\mathbf{X} \in \mathbb{R}^{H \times W}$ with a filter $\mathbf{K} \in \mathbb{R}^{k \times k}$ produces an output feature map $\mathbf{Y}$ whose entries are
+%
+\begin{equation}
+    Y_{i,j} = \sum_{p=0}^{k-1}\sum_{q=0}^{k-1} K_{p,q}\, X_{i+p,\, j+q}.
+    \label{eq:conv2d}
+\end{equation}
+%
+The same kernel $\mathbf{K}$ is applied at every spatial position $(i,j)$, so the number of learnable parameters depends only on the kernel size $k$ rather than the image dimensions. This weight sharing gives CNNs translation equivariance: if the input is shifted spatially, the output shifts by the same amount. Each output unit depends on only a $k \times k$ neighbourhood of the input, called its receptive field. Stacking multiple convolutional layers increases the effective receptive field of deeper units geometrically, allowing the network to integrate local evidence across progressively larger regions. Pooling layers, most commonly max-pooling, spatially downsample feature maps and introduce a degree of translation invariance beyond the equivariance of the convolution itself.
+
+For CT image reconstruction, CNNs are typically applied in an image-to-image fashion: a reconstruction degraded by sparse-view artefacts, obtained for example from a fast analytical reconstruction, is passed through the network, which is trained to output a cleaner image \citep{jin2017deep}. The U-Net architecture \citep{ronneberger2015unet} has become dominant for this task. It consists of a contracting encoder path that progressively halves spatial resolution while doubling the number of feature channels, and a symmetric expanding decoder path that restores the original resolution using transposed convolutions. Skip connections concatenate feature maps from the encoder to the corresponding decoder stage, allowing the network to recover fine spatial detail that would otherwise be lost during downsampling. CNNs have also been applied directly in the sinogram domain, where a network learns to predict missing projections in a sparse-view sinogram before passing the completed sinogram to a conventional reconstruction algorithm \citep{hu2021hybrid}. Generative adversarial networks, which couple a generator network with an adversarially trained discriminator, have further improved the perceptual quality of CNN-based CT reconstructions \citep{goodfellow2014gan, guo2022physics}.
+
+Despite their strong empirical performance on static image reconstruction tasks, CNN-based approaches carry a set of structural limitations. A CNN must be trained on a dataset of paired examples before it can be deployed, so assembling training data for a new experimental configuration is expensive and time-consuming. Once trained, the network is committed to that configuration; applying it to a new one requires retraining. CNNs have no internal model of the measurement process and learn only a statistical mapping from the training distribution. When the test image differs from that distribution, as is common in novel scientific experiments, the network can confidently produce physically incorrect features \citep{patwari2023hallucination}. CNNs also operate on discrete pixel or voxel grids, so the spatial resolution is fixed at training time. Representing a continuously evolving three-dimensional object at arbitrary spatial and temporal coordinates is not a natural fit for the CNN framework, and constructing a four-dimensional reconstruction requires either treating each time step independently or processing large four-dimensional volumes, neither of which is computationally attractive at the resolutions used in micro-CT.
+
+\subsection{Implicit Neural Representations}
+\label{subsec:inr}
+
+An implicit neural representation (INR), sometimes called a coordinate network or neural field, is a neural network trained to represent a signal as a continuous function of its coordinates. Formally, an INR is a parameterised function
+%
+\begin{equation}
+    f_\theta : \mathbb{R}^n \longrightarrow \mathbb{R}^m,
+    \label{eq:inr_def}
+\end{equation}
+%
+where $\theta$ denotes the network weights, the input is a coordinate vector such as a spatial position or a position-time pair, and the output is the signal value at that coordinate. The signal is implicit in the sense that it is never stored as a discrete grid of samples. Instead, the continuous function $f_\theta$ is the representation itself, and individual values are obtained by evaluating the network at any desired coordinate.
+
+This contrasts with conventional discrete representations. A 3D volume stored as a voxel grid of resolution $N^3$ requires memory proportional to $N^3$, growing rapidly with resolution: a $1000^3$ volume at 32-bit precision consumes roughly 4 GB. An INR stores only its network weights, whose count is independent of the desired output resolution. The same network architecture can be queried at $128^3$ or $1024^3$ spatial positions without any change to its parameter count, making INRs inherently resolution-agnostic.
+
+An INR is instance-specific: it is optimised from scratch for each individual signal, using only the measurements of that signal as supervision. No external dataset of prior examples is needed. The optimisation proceeds by defining a differentiable forward model that maps the network's predicted field to the expected measurements, then minimising the discrepancy between those predictions and the actual observations. Because the physics of the measurement process is embedded directly in the optimisation loop, the reconstruction is constrained to be consistent with the known forward model. This prevents the generation of features that cannot be explained by the measurements, which is a significant failure mode of trained CNN approaches \citep{patwari2023hallucination}.
+
+A naive INR, one in which an MLP receives raw coordinate inputs, struggles to represent signals with significant high-frequency content such as sharp material boundaries. This is a consequence of the spectral bias of neural networks: gradient-based training causes MLPs to learn low-frequency components of a target function far faster than high-frequency ones \citep{rahaman2019spectral}. Analysed through the neural tangent kernel (NTK), a standard coordinate-based MLP corresponds to a kernel whose eigenvalue spectrum decays rapidly with frequency, which prevents convergence to high-frequency components within a practical number of optimisation steps \citep{tancik2020fourier}.
+
+The standard remedy is to map the raw input coordinates $\mathbf{x} \in \mathbb{R}^n$ through a fixed positional encoding $\gamma : \mathbb{R}^n \to \mathbb{R}^d$ before passing them to the MLP, where $d \gg n$:
+%
+\begin{equation}
+    f_\theta(\mathbf{x}) = \mathrm{MLP}_\theta\!\left(\gamma(\mathbf{x})\right).
+    \label{eq:inr_with_encoding}
+\end{equation}
+%
+The sinusoidal positional encoding popularised by NeRF \citep{mildenhall2021nerf} maps each coordinate to a sequence of sines and cosines at exponentially increasing frequencies:
+%
+\begin{equation}
+    \gamma(\mathbf{x}) = \left(
+        \sin(2^0 \pi \mathbf{x}),\;
+        \cos(2^0 \pi \mathbf{x}),\;
+        \ldots,\;
+        \sin(2^{L-1} \pi \mathbf{x}),\;
+        \cos(2^{L-1} \pi \mathbf{x})
+    \right),
+    \label{eq:sinusoidal_encoding}
+\end{equation}
+%
+where $L$ is the number of frequency octaves. \citet{tancik2020fourier} showed using NTK theory that this encoding transforms the effective kernel into a stationary one with a tunable bandwidth, directly addressing spectral bias. An alternative is to use random Fourier features $\gamma(\mathbf{x}) = [\sin(\mathbf{B}\mathbf{x}),\, \cos(\mathbf{B}\mathbf{x})]$, where each row of $\mathbf{B}$ is sampled from a Gaussian $\mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$ with bandwidth $\sigma$ chosen to match the signal's frequency content.
+
+Both sinusoidal encodings and random Fourier features are fixed: their parameters are set before training and not updated by gradient descent. A more capable alternative is to learn the encoding jointly with the MLP. The multiresolution hash encoding of \citet{mueller2022instant} pursues this by storing trainable feature vectors in a set of hash tables indexed by the input coordinates at multiple spatial resolutions. This shifts much of the representational work from the MLP to the encoding tables, allowing a smaller and faster MLP to achieve equal or better reconstruction quality. The hash encoding is described in detail in \cref{subsubsec:hash_encoding} following the introduction of NeRF.
+
+\subsection{Neural Radiance Fields (NeRF)}
+\label{subsec:nerf}
+
+Neural Radiance Fields (NeRF), introduced by \citet{mildenhall2021nerf}, demonstrated that a complex 3D scene could be fully represented by the weights of a small MLP trained on a set of 2D photographs taken from known camera positions, and that this representation was sufficient to synthesise photorealistic images from arbitrary new viewpoints. What made NeRF influential beyond its original application was the mathematical structure it established: a differentiable forward model connecting a continuous volumetric field to 2D observations via a ray integral, trained end-to-end by minimising the discrepancy between simulated and measured projections. This same structure, a continuous scalar field recovered through a physics-based differentiable renderer, is directly applicable to tomographic reconstruction.
+
+\subsubsection*{Scene Representation}
+
+NeRF represents a static scene as a continuous 5D function
+%
+\begin{equation}
+    F_\Theta : (\mathbf{x},\, \mathbf{d}) \longrightarrow (\mathbf{c},\, \sigma),
+    \label{eq:nerf_fn}
+\end{equation}
+%
+where $\mathbf{x} = (x, y, z) \in \mathbb{R}^3$ is a spatial location, $\mathbf{d} \in \mathbb{S}^2$ is a unit viewing direction, $\mathbf{c} = (r, g, b)$ is the emitted RGB colour at that location as seen from direction $\mathbf{d}$, and $\sigma \geq 0$ is the volume density at $\mathbf{x}$. The density $\sigma(\mathbf{x})$ represents the differential probability that a ray is absorbed at $\mathbf{x}$ and is treated as a property of the scene geometry alone, predicted from position only to enforce multi-view consistency. The colour $\mathbf{c}$ depends on both position and direction, allowing NeRF to represent view-dependent effects such as specular reflections.
+
+In practice $F_\Theta$ is implemented as an MLP. The spatial coordinate $\mathbf{x}$ is first lifted by the sinusoidal positional encoding and passed through eight fully-connected ReLU layers with 256 channels each, producing $\sigma$ and a 256-dimensional feature vector. The feature vector is then combined with the encoded viewing direction and passed through one further layer to produce $\mathbf{c}$ \citep{mildenhall2021nerf}. Geometry is processed before appearance, which stabilises training by preventing the network from compensating for geometric errors through view-dependent colour.
+
+To render the colour at a pixel, a camera ray $\mathbf{r}(t) = \mathbf{o} + t\mathbf{d}$ is cast from the camera origin $\mathbf{o}$ into the scene. The expected colour $C(\mathbf{r})$ accumulated along the ray between near and far bounds $t_n$ and $t_f$ is given by the classical volume rendering integral \citep{kajiya1984ray}:
+%
+\begin{equation}
+    C(\mathbf{r}) = \int_{t_n}^{t_f}
+        T(t)\; \sigma\!\left(\mathbf{r}(t)\right)\;
+        \mathbf{c}\!\left(\mathbf{r}(t), \mathbf{d}\right) \, \mathrm{d}t,
+    \label{eq:volume_rendering}
+\end{equation}
+%
+where the accumulated transmittance $T(t) = \exp\!\left(-\int_{t_n}^{t} \sigma(\mathbf{r}(s)) \mathrm{d}s\right)$ is the probability that the ray travels from $t_n$ to $t$ without being absorbed. The integral is approximated using stratified sampling: the interval $[t_n, t_f]$ is divided into $N$ equal bins and one sample $t_i$ is drawn uniformly from each \citep{mildenhall2021nerf}. The discrete approximation is
+%
+\begin{equation}
+    \hat{C}(\mathbf{r}) = \sum_{i=1}^{N}
+        T_i \left(1 - e^{-\sigma_i \delta_i}\right) \mathbf{c}_i,
+    \qquad
+    T_i = \exp\!\left(-\sum_{j=1}^{i-1} \sigma_j \delta_j\right),
+    \label{eq:nerf_discrete}
+\end{equation}
+%
+where $\delta_i = t_{i+1} - t_i$ is the distance between adjacent samples. This expression is fully differentiable with respect to $\sigma_i$ and $\mathbf{c}_i$, and therefore with respect to the MLP parameters $\Theta$.
+
+NeRF is trained by minimising the squared photometric error between the rendered colour $\hat{C}(\mathbf{r})$ and the observed pixel colour $C(\mathbf{r})$ over all training rays. No 3D supervision is required; the only inputs are the 2D images and the known camera poses. NeRF additionally uses a hierarchical sampling strategy in which a coarse network places samples uniformly and a fine network concentrates additional samples in regions of high density \citep{mildenhall2021nerf}.
+
+The structural parallel with CT reconstruction is close. In both settings a continuous 3D field is observed indirectly through line integrals, and the goal is to recover the field from a finite collection of such measurements. Table~\ref{tab:nerf_ct_analogy} summarises the correspondences.
+
+\begin{table}[h]
+    \centering
+    \caption{Structural analogy between NeRF and attenuation-contrast CT.}
+    \label{tab:nerf_ct_analogy}
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Concept} & \textbf{NeRF} & \textbf{CT} \\
+        \midrule
+        Recovered field    & Volume density $\sigma(\mathbf{x})$    & Attenuation coefficient $\mu(\mathbf{x})$ \\
+        Measurements       & Pixel colours $C(\mathbf{r})$           & Detector intensities $I_j$               \\
+        Forward model      & Volume rendering integral               & Beer--Lambert law                        \\
+        Ray sampling       & Stratified random sampling              & Equidistant ray marching                 \\
+        Loss function      & L2 photometric error                    & L1 intensity error                       \\
+        Input encoding     & Sinusoidal $\gamma(\mathbf{x})$         & Multiresolution hash grid                \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The key difference between the two forward models is that in NeRF the transmittance is weighted by emitted colour, whereas in monochromatic CT no colour is emitted and the measured intensity follows Beer--Lambert's law directly:
+%
+\begin{equation}
+    I_j = I_0 \exp\!\left(-\int_{\mathrm{ray}_j} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t\right).
+    \label{eq:beer_lambert_ray}
+\end{equation}
+%
+Setting $\sigma(\mathbf{x}) \equiv \mu(\mathbf{x})$ and dropping the colour output reduces the NeRF forward model to exactly this expression. The CT reconstruction problem can therefore be addressed using the same INR machinery as NeRF, substituting the Beer--Lambert integral for the volume renderer and choosing an encoding suited to the properties of tomographic data.
+
+\subsubsection{Multiresolution Hash Encoding}
+\label{subsubsec:hash_encoding}
+
+The sinusoidal positional encoding resolves the spectral bias problem but places all of the representational work on the MLP: every gradient step updates every weight in the network, and convergence is slow regardless of how well the encoding lifts the input coordinates. The multiresolution hash encoding of \citet{mueller2022instant} addresses this by distributing the work between the MLP and a set of small trainable lookup tables, allowing the MLP itself to be made much smaller. The result is a speedup of several orders of magnitude over sinusoidal-encoded NeRF at equal or better reconstruction quality \citep{mueller2022instant}.
+
+The encoding maintains $L$ independent levels, each corresponding to a different spatial resolution. At each level $\ell$ a grid of resolution $N_\ell$ is defined, where the resolutions grow as a geometric progression between a coarsest resolution $N_\mathrm{min}$ and a finest resolution $N_\mathrm{max}$:
+%
+\begin{equation}
+    N_\ell = \left\lfloor N_\mathrm{min} \cdot b^\ell \right\rfloor,
+    \qquad
+    b = \exp\!\left(\frac{\ln N_\mathrm{max} - \ln N_\mathrm{min}}{L - 1}\right).
+    \label{eq:hash_resolution}
+\end{equation}
+%
+Each level stores up to $T$ trainable feature vectors of dimension $F$,
+arranged in a flat array. The level's grid vertices are mapped into this
+array in one of two ways depending on the level's resolution. At coarse
+levels, where the grid has fewer than $T$ vertices, each vertex maps to a
+unique array entry (a 1:1 mapping, equivalent to a dense grid). At finer
+levels, where the number of grid vertices exceeds $T$, the array is treated
+as a \emph{hash table} and each vertex is mapped to an entry by a spatial
+hash function $h : \mathbb{Z}^d \to \mathbb{Z}_T$. The total number of
+trainable encoding parameters is therefore bounded by $T \cdot L \cdot F$,
+regardless of the finest resolution $N_\mathrm{max}$, making the memory
+cost a controlled hyperparameter rather than a consequence of resolution.
+Typical values used in \NeCT{} are $L = 16$ levels, $T = 2^{23}$ entries,
+$F = 2$ features per entry, $N_\mathrm{min} = 16$, and a finest resolution
+calibrated to the voxel size of the CT scan \citep{friis2025nect}.
+
+\paragraph{Feature lookup and interpolation.}
+Given an input coordinate $\mathbf{x} \in \mathbb{R}^d$, the encoding
+proceeds independently at each level $\ell$ as follows. First, $\mathbf{x}$
+is scaled by the level's grid resolution to find the enclosing voxel:
+the $2^d$ integer corner vertices of this voxel are identified. Each corner
+is mapped to an array index via either the 1:1 mapping (coarse levels) or
+the hash function (fine levels), and the corresponding $F$-dimensional
+feature vectors are retrieved. These $2^d$ feature vectors are then
+\emph{linearly interpolated} according to the fractional position of
+$\mathbf{x}$ within its enclosing voxel --- trilinear interpolation in 3D,
+or the 4D analogue in space-time. The interpolated $F$-dimensional vector
+is the output of level $\ell$. The outputs from all $L$ levels are
+\emph{concatenated} to form the full encoded representation
+$\mathbf{y} \in \mathbb{R}^{L \cdot F}$, which is then passed to the MLP:
+%
+\begin{equation}
+    \hat{\mu}(\mathbf{x}) = \mathrm{MLP}_\Phi\!\left(
+        \mathbf{y}(\mathbf{x};\, \theta)
+    \right),
+    \qquad
+    \mathbf{y} = \left[\,
+        \mathrm{interp}_0(\mathbf{x};\, \theta_0),\;
+        \mathrm{interp}_1(\mathbf{x};\, \theta_1),\;
+        \ldots,\;
+        \mathrm{interp}_{L-1}(\mathbf{x};\, \theta_{L-1})
+    \,\right].
+    \label{eq:hash_forward}
+\end{equation}
+%
+Crucially, linear interpolation is differentiable, so gradients flow back through the concatenation and interpolation to the feature vectors $\theta_\ell$ at each level, updating only the $2^d$ entries involved in each forward pass. For a 3D grid this is 8 entries per level per sample rather than every weight in the MLP. This sparse gradient update is the primary reason the encoding converges so much faster than a purely MLP-based representation \citep{mueller2022instant}.
+
+At fine resolution levels, multiple grid vertices inevitably map to the same hash table entry. Unlike classical hash tables which resolve such collisions through chaining or probing, the multiresolution hash encoding handles them implicitly. When two vertices collide, their gradients accumulate in the same feature vector during training. The gradients from the region with the highest loss dominate the update, so the shared vector is pulled toward representing the most important detail. The MLP then uses context from the other $L - 1$ levels, which encode the same location at different resolutions with different hash functions, to disambiguate colliding entries at query time. In practice collisions are most frequent at the finest levels, where they concentrate representational capacity on regions of high spatial detail. No explicit data-structure updates such as pruning or splitting are needed at any point during training \citep{mueller2022instant}, which maps well to GPU parallelism.
+
+Because hash table lookups are $\mathcal{O}(1)$ with no control-flow branching, all $L$ levels can be evaluated in parallel on a GPU. The small MLP that follows requires far fewer floating-point operations than the large MLP needed by sinusoidal encodings. Together these properties enable training to convergence in seconds rather than hours on a single GPU, a speedup of roughly two to three orders of magnitude over the original NeRF implementation \citep{mueller2022instant}.
+
+The first application of multiresolution hash encoding to CT reconstruction was Neural Attenuation Fields (NAF) by \citet{zha2022naf}. NAF parameterises the 3D attenuation coefficient field $\mu(\mathbf{x})$ as a hash-encoded MLP and trains the network by minimising the discrepancy between simulated and measured cone-beam projections using Beer--Lambert's law as the forward model, with no external training data required. NAF showed that the hash encoding's advantages in NeRF, faster convergence and better recovery of high-frequency detail, transfer directly to CT and outperform both sinusoidal-encoded INRs and iterative algorithms at a fraction of the computational cost \citep{zha2022naf}. The physical motivation is that CT attenuation fields are typically smooth within homogeneous material phases but sharp at phase boundaries. Coarse hash levels capture the smooth large-scale variation efficiently while fine levels concentrate capacity at the boundaries where the self-disambiguation mechanism is most useful.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{X-ray Computed Tomography}
+\label{sec:ct}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Physical Principles}
+\label{subsec:ct_physics}
+
+X-ray computed tomography reconstructs the three-dimensional internal structure of an object from a set of its two-dimensional projections. The physical quantity being reconstructed is the linear attenuation coefficient $\mu(\mathbf{r})$, a material-dependent scalar field defined at every point $\mathbf{r} = (x, y, z)$ in the object that describes how strongly the local material absorbs or scatters X-ray photons. Its SI unit is \si{\per\metre} and it depends on both the material density and the photon energy. In attenuation-contrast CT the contrast between different materials arises entirely from differences in $\mu$: dense materials such as rock matrix and precipitated salt have high $\mu$, air-filled pores have low $\mu$, and brine lies in between.
+
+When a monochromatic X-ray beam of initial intensity $I_0$ travels through a heterogeneous material along a straight ray path, the transmitted intensity $I$ is governed by Beer--Lambert's law:
+%
+\begin{equation}
+    I = I_0 \exp\!\left(-\int_{\mathrm{ray}} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t\right),
+    \label{eq:beer_lambert}
+\end{equation}
+%
+where the integral is taken along the parameterised ray path $\mathbf{r}(t) = \mathbf{o} + t\,\mathbf{d}$, with $\mathbf{o}$ the source position and $\mathbf{d}$ a unit direction vector. Taking the negative logarithm of the transmitted-to-incident intensity ratio gives the line integral of $\mu$ along the ray, also called the projection value $p$:
+%
+\begin{equation}
+    p = -\ln\!\left(\frac{I}{I_0}\right) = \int_{\mathrm{ray}} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t.
+    \label{eq:projection_value}
+\end{equation}
+%
+CT reconstruction is the inverse problem of recovering $\mu(\mathbf{r})$ from a finite set of such projection values, each corresponding to a different ray direction and detector pixel. Beer--Lambert's law assumes the X-ray beam is effectively monochromatic and that scattering is negligible; both are standard assumptions in laboratory micro-CT analysis \citep{kak2001principles}.
+
+In cone-beam CT (CBCT), a point X-ray source illuminates the entire sample simultaneously and the transmitted intensities are recorded on a flat 2D area detector. This is the geometry of standard laboratory micro-CT instruments. A single projection, also called a radiograph, is the 2D image $\{I_j\}$ recorded by the detector at one angular position of the rotating sample, where $j$ indexes the detector pixels. The source-to-detector distance and source-to-object distance together determine the geometric magnification and hence the effective voxel size of the reconstruction. As the sample rotates, successive projections sweep a full $360°$ arc, and the complete set of projections forms the sinogram, a 3D data volume whose dimensions are the number of angles, and the two detector pixel dimensions. Each row of a 2D sinogram slice traces a sinusoidal curve as the angular position varies, which is the origin of the name.
+
+In practice the continuous Beer--Lambert integral is approximated by a discrete sum over $K$ sample points along the ray:
+%
+\begin{equation}
+    p_j \approx \sum_{k=1}^{K} \mu\!\left(\mathbf{r}_k\right) \Delta t,
+    \label{eq:discrete_projection}
+\end{equation}
+%
+where $\Delta t$ is the sampling step size. CT reconstruction then amounts to inverting the system of equations $\{p_j = \mathcal{A}\mu\}$, where $\mathcal{A}$ is the forward projection operator that maps the attenuation field to the measured projection values. The system is highly underdetermined when the number of projections is small relative to the number of voxels, making the inverse problem ill-posed and requiring regularisation or prior information for a stable solution.
+
+\subsection{Classical Reconstruction Algorithms}
+\label{subsec:ct_algorithms}
+
+A large body of reconstruction algorithms has been developed to invert the
+forward projection operator $\mathcal{A}$ from \cref{eq:discrete_projection}.
+They fall into two broad families: \emph{analytical} methods, which derive
+a closed-form inversion formula from the properties of the Radon transform,
+and \emph{iterative} methods, which formulate reconstruction as an
+optimisation problem and solve it by successive approximation. The three
+algorithms used as baselines in \NeCT{} --- FDK, OS-SART-TV, and, implicitly,
+filtered back-projection --- span both families and are described here.
+
+\subsubsection*{Filtered Back-Projection and FDK}
+
+The analytical foundation of most classical CT reconstruction is the
+\emph{filtered back-projection} (FBP) algorithm, which follows directly from
+the \emph{Fourier slice theorem}: the 1D Fourier transform of a parallel-beam
+projection at angle $\phi$ is a slice through the 2D Fourier transform of
+$\mu(\mathbf{r})$ at the same angle. A full set of projections covering
+$180°$ therefore provides complete coverage of the 2D Fourier domain, and
+$\mu$ can be recovered by an inverse 2D Fourier transform. In the spatial
+domain this is equivalent to back-projecting each filtered projection onto
+a reconstruction grid. The ramp filter applied before back-projection
+compensates for the non-uniform polar sampling of the Fourier domain, which
+would otherwise over-represent low spatial frequencies and produce blurred
+reconstructions \citep{kak2001principles}.
+
+The Feldkamp--Davis--Kress (FDK) algorithm \citep{feldkamp1984} is the cone-beam extension of FBP. It approximates the full 3D cone-beam geometry by treating each detector row as an independent tilted fan-beam slice, applies a cosine-weighted ramp filter to each row of each projection, and back-projects the filtered data into a 3D reconstruction volume. For small cone angles this approximation is accurate, and FDK is accepted as the standard workhorse for laboratory CBCT because it is non-iterative and extremely fast \citep{kak2001principles}.
+
+FDK's critical requirement is that the number of projections $N_\phi$ must satisfy the Shannon--Nyquist criterion, which for a reconstruction of $N$ pixels across the field of view demands approximately $N_\phi \geq \pi N / 2$ projections to avoid aliasing artefacts \citep{kak2001principles}. When this condition is met, FDK reconstructions are of high quality. When it is violated, as it inevitably is in fast or sparse-view CT, the reconstructions suffer from characteristic streak artefacts that radiate from high-contrast features and obscure fine pore-level detail.
+
+Iterative methods formulate reconstruction as the minimisation of a data fidelity term measuring the discrepancy between the forward-projected estimate and the measured projections, optionally supplemented by a regularisation term. The basic algebraic reconstruction technique (ART) updates the estimate ray by ray \citep{gordon1970algebraic}. The simultaneous algebraic reconstruction technique (SART) \citep{andersen1984sart} improves convergence by updating all voxels simultaneously using rays from one projection angle at each step. Ordered subsets SART (OS-SART) further accelerates convergence by processing projections in angularly diverse subsets, so each subset update provides approximately as much new information as a full SART iteration \citep{du2017convergence}.
+
+Adding a total variation (TV) regularisation term to the OS-SART objective yields OS-SART-TV, which is one of the main baselines used for comparison in the NeCT paper. TV regularisation penalises the sum of the magnitudes of the image gradient across all voxels:
+%
+\begin{equation}
+    \mathcal{R}_\mathrm{TV}(\mu) = \sum_{\mathbf{r}}
+        \left\|\nabla \mu(\mathbf{r})\right\|_2,
+    \label{eq:tv_regularisation}
+\end{equation}
+%
+which promotes piecewise-constant solutions, images with flat homogeneous regions separated by sharp boundaries. This is physically
+motivated for porous media where the attenuation coefficient is approximately uniform within each material phase. TV regularisation can substantially suppress streak artefacts compared to FDK in sparse-view conditions, but it introduces contrast reduction: the penalty discourages gradients everywhere, so small features and fine pore structures tend to be smoothed out and the reconstructed values within homogeneous regions are pulled toward a common mean \citep{kak2001principles}.
+
+Both FDK and OS-SART-TV were designed for fully-sampled static 3D CT, and their limitations become severe in sparse-view and 4D settings. The most direct approach to 4D-CT is to acquire a sequence of independent full 3D scans, reconstructing each with FDK. The temporal resolution is then equal to the time required to complete one full rotation, typically around one hour for laboratory micro-CT, making it impossible to observe fast events that unfold on timescales of seconds to minutes. Reducing the number of projections per time step improves temporal resolution but causes severe streak artefacts in FDK and contrast loss in OS-SART-TV. Neither algorithm can make use of information from other time steps to inform a given frame because each reconstruction is treated independently. Both methods also produce a discrete sequence of independent volumetric images with no model of the object's temporal evolution, so no information is shared across frames.
+
+\subsection{4D-CT and Dynamic Imaging}
+\label{subsec:4dct}
+
+4D-CT denotes the acquisition and reconstruction of CT data from a sample that evolves over time, producing a time-resolved sequence of 3D images. The fourth dimension is time, and the full dataset can be thought of as a continuous field $\mu(\mathbf{r}, t)$ sampled at a finite set of spatial voxels and time steps. In geosciences, 4D-CT is applied to study mechanical deformation of rocks, multiphase fluid flow in porous media, CO$_2$ mineralisation under reservoir conditions, and reactive dissolution of mineral grains \citep{withers2021ct}. The central challenge in all these applications is achieving sufficient temporal resolution to capture the process of interest while maintaining the spatial resolution needed to observe pore-scale phenomena.
+
+The temporal resolution of a 4D-CT scan is ultimately limited by the time required to collect enough angular projections to reconstruct a 3D volume. In conventional sequential scanning a full $360°$ rotation is completed before moving to the next time step, giving a temporal resolution on the order of one hour for laboratory micro-CT. Reducing this requires acquiring far fewer projections per time step. The resulting trade-off is that temporal resolution improves as the number of projections per frame decreases, but reconstruction quality degrades as the inverse problem becomes increasingly underdetermined. Several approaches have been developed to mitigate this. One class of methods incorporates prior information into the reconstruction, for example using a high-quality static scan as a reference frame \citep{chen2008piccs, myers2011dynamic}. Another class uses regularisation tailored to the expected temporal evolution, such as penalising the temporal derivative of $\mu$ to enforce smooth changes over time \citep{goethals2022dynamic}. A third class represents the object as a continuous function of space and time, fitting a single model to all projections from the entire experiment.
+
+The photon flux of the X-ray source is a fundamental constraint on temporal resolution. Synchrotron radiation sources of the third and fourth generation provide a beam brilliance 10--14 orders of magnitude higher than laboratory X-ray tubes \citep{withers2021ct}, enabling sub-second exposures and hundreds of projections per second. Sub-second temporal resolution is therefore achievable at synchrotrons, where 4D micro-CT has been applied to phenomena such as drainage dynamics and insect flight mechanics. Standard laboratory micro-CT instruments are far more accessible but each radiograph requires a finite exposure time to achieve an acceptable signal-to-noise ratio, which limits acquisition speed.
+
+The choice of angular sampling scheme significantly affects how much complementary information is gathered per projection in a sparse-view acquisition. In conventional equiangular scanning, projections are collected at equally spaced angles around $360°$. When a full rotation is completed before beginning the next, this is well-suited to static reconstruction but produces temporal aliasing in dynamic experiments: consecutive projections are taken at similar angles, providing redundant information about the current state of the sample.
+
+The golden-angle sampling scheme addresses this by setting the angular increment between successive projections to $\Delta\phi \approx 137.51°$, which is the angle that most uniformly distributes projections on a circle as more are accumulated \citep{kohler2004golden}. At any point during the acquisition the projections so far are nearly optimally spread in angle, so a reconstruction from the first $N$ projections is well-conditioned regardless of the total number eventually collected. This property is useful for time-resolved imaging where the effective number of projections per time step is small.
+
+A practical limitation of the pure golden-angle scheme is that consecutive projections are separated by $137.51°$, requiring the sample stage to travel through a large angle between exposures. In laboratory instruments this large step is time-consuming and can cause vibration. The hybrid golden-section scheme used in NeCT experiments \citep{friis2025nect} addresses this: within each full $360°$ revolution a fixed number of equidistant projections are collected, but the starting angle of each revolution is offset from the previous one by the golden angle. This preserves rapid continuous rotation within each revolution while ensuring that successive revolutions are angularly offset, so that projections from different time points together cover the angular space as uniformly as possible.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{NeCT: Neural Computed Tomography}
+\label{sec:nect}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\NeCT{} (Neural Computed Tomography) \citep{friis2025nect} is, to the best of the authors' knowledge, the first fully INR-based algorithm for holistic time-resolved 4D-CT reconstruction. It unifies the physical forward model of cone-beam CT with the representational power of hash-encoded implicit neural representations, treating the entire dynamic experiment, all projections from all time steps, as a single joint optimisation problem. The output is a continuous function $\muhat(\mathbf{r}, t)$, the estimated attenuation coefficient at any spatial coordinate $\mathbf{r}$ and any time $t$ within the duration of the scan, from which volumetric images at arbitrary time points can be decoded by a forward pass through the network.
+
+\NeCT{} consists of two architecturally related but distinct models: a static
+3D model for sparse-view single-frame CT reconstruction (an improved version
+of NAF \citep{zha2022naf}), and a dynamic 4D model called \emph{NeCT
+QuadCubes} for time-resolved reconstruction. Both share the same training
+loop and loss function; they differ in the structure of the hash encoding
+and whether the time coordinate $t$ is included as an input. The static model
+serves as a benchmark for spatial reconstruction quality, while the dynamic
+model is the primary contribution relevant to the extensions developed in
+this thesis.
+
+\subsection{NeCT Pipeline Overview}
+\label{subsec:nect_pipeline}
+
+The NeCT pipeline operates as a differentiable physics simulation. It takes the measured detector images as supervision and adjusts the network weights until the network's predictions are consistent with every recorded projection. The same four-step loop repeats for every training batch.
+
+At the start of each step, a batch of $B$ rays is sampled from the full set of recorded projections. Each ray $\mathbf{r}_j(t) = \mathbf{o}_j + t\,\mathbf{d}_j$ is defined by its source position $\mathbf{o}_j$ and unit direction $\mathbf{d}_j$, determined by the cone-beam geometry of the instrument and the angular position of the projection from which the ray originates. In the dynamic model, each ray also carries a timestamp $t_j$ corresponding to the acquisition time of its projection. The measured intensity $I_j$ at the corresponding detector pixel is retrieved as the supervision target.
+
+Each ray is then marched through the object volume by sampling $K$ equidistant points $\{\mathbf{r}_k\}_{k=1}^{K}$ along the ray within the sample bounding volume. The number of sample points per ray is not fixed; NeCT uses an adaptive scheme in which $K$ increases linearly from $K_\mathrm{init} = 100$ to $K_\mathrm{max} = 1.5 \times \max(N_\mathrm{detector})$ over the first $30\%$ of training, where $\max(N_\mathrm{detector})$ is the number of pixels along the longest detector axis \citep{friis2025nect}. Starting with fewer points reduces computational cost in the early stages when the network is still poorly initialised, and progressively increasing the count ensures the final reconstruction is sampled finely enough to resolve sub-voxel features.
+
+Each sampled point $(\mathbf{r}_k, t_j)$ is passed through the neural network to obtain the predicted attenuation coefficient $\muhat(\mathbf{r}_k, t_j)$. In the static model $t_j$ is omitted. The predicted detector intensity for ray $j$ is then computed by discretising Beer--Lambert's law using the midpoint rule:
+%
+\begin{equation}
+    \hat{I}_j = I_0 \exp\!\left(-\sum_{k=1}^{K} \muhat\!\left(\mathbf{r}_k,\, t_j\right) \Delta s\right),
+    \label{eq:nect_forward}
+\end{equation}
+%
+where $\Delta s$ is the step size between adjacent sample points. The exponential is computed from the summed attenuation rather than as a product of per-step transmittances, which is numerically equivalent under the midpoint approximation and more efficient to evaluate.
+
+The predicted intensities $\hat{I}_j$ are compared to the measured intensities $I_j$ using the L1 loss over the batch:
+%
+\begin{equation}
+    \mathcal{L} = \frac{1}{B}\sum_{j=1}^{B} \left|\hat{I}_j - I_j\right|.
+    \label{eq:nect_loss}
+\end{equation}
+%
+Gradients of $\mathcal{L}$ with respect to all network parameters $(\Phi, \theta)$, the MLP weights $\Phi$ and the hash table feature vectors $\theta$, are computed by automatic differentiation and used to update the parameters via the Adam optimiser \citep{kingma2015adam}. The learning rate follows a schedule with a linear warm-up over the first 5\,000 batches, after which it decays according to a cosine schedule to $1\%$ of its peak value \citep{friis2025nect}. Base learning rates are $1 \times 10^{-3}$ for static reconstructions and $2 \times 10^{-4}$ for dynamic reconstructions. The batch size is $5 \times 10^6$ ray sample points per step.
+
+This loop repeats for all training epochs. Because the hash table entries are updated only for the small subset of grid vertices intersected by each batch of rays, just $2^3 = 8$ entries per level per ray for the 3D encoder, the effective gradient update is extremely sparse, which is what gives the hash encoding its computational efficiency.
+
+\subsection{Static 3D Reconstruction: Improved NAF}
+\label{subsec:nect_static}
+
+The static \NeCT{} model represents the attenuation coefficient as a continuous function of spatial coordinates only, $\muhat : \mathbb{R}^3 \to \mathbb{R}$, implemented as a hash-encoded MLP. It is architecturally derived from NAF \citep{zha2022naf} but with a refined encoder configuration and training protocol, and was benchmarked against FDK, OS-SART-TV, and NAF on eleven standard 3D CT datasets from the Open SciVis Datasets project \citep{klacansky2017openscivis}.
+
+The input spatial coordinate $\mathbf{r} = (x, y, z)$ is passed through a single 3D multiresolution hash encoder. The encoder uses a hashmap with $T = 2^{23}$ entries, $L = 16$ resolution levels, a base resolution of $N_\mathrm{min} = 16$, and $F = 4$ features per entry, yielding a 64-dimensional concatenated feature vector \citep{friis2025nect}. The MLP that follows has 4 hidden layers each with 128 neurons and Leaky ReLU activations, with a single linear output neuron producing the scalar $\muhat(\mathbf{r})$. The total number of trainable parameters is dominated by the hash table, roughly 537 million encoding parameters, compared to a few tens of thousands of MLP weights. In practice only the entries intersected by training rays are ever updated, so the effective active parameter count is much lower. The finest grid resolution $N_\mathrm{max}$ is calibrated to the detector resolution of the specific CT scan so that the finest hash grid voxels correspond approximately to the physical voxel size of the reconstruction.
+
+Reconstructions were produced from 49 projections for each dataset, far below the Shannon--Nyquist requirement for the object sizes involved. NeCT was evaluated against FDK, OS-SART-TV, and NAF using peak signal-to-noise ratio (PSNR) and the structural similarity index measure (SSIM) \citep{wang2004ssim}. PSNR is defined in terms of the mean squared error (MSE) between the reconstructed image $\hat{\mu}$ and the ground truth $\mu^*$, normalised by the dynamic range $R$:
+%
+\begin{equation}
+    \mathrm{PSNR} = 10 \log_{10}\!\left(\frac{R^2}{\mathrm{MSE}(\hat{\mu},\, \mu^*)}\right),
+    \label{eq:psnr}
+\end{equation}
+%
+measured in decibels. SSIM captures perceptual similarity by comparing local statistics of luminance, contrast, and structure; it ranges from 0 to 1 \citep{wang2004ssim}. Both metrics are computed volumetrically on the full 3D reconstruction.
+
+NeCT outperformed all three competing methods on both metrics across all eleven datasets \citep{friis2025nect}. On the Stagbeetle dataset, representative of a high-complexity biological specimen, NeCT achieved a PSNR of 45.6\,dB and SSIM of 0.996, compared to 44.3\,dB / 0.994 for NAF, 41.9\,dB / 0.990 for OS-SART-TV, and 28.6\,dB / 0.577 for FDK. The improvement over NAF reflects the refined encoder configuration and the extended training protocol. Visually, NeCT reconstructions are free of the streak artefacts that dominate FDK results and the contrast-reduced appearance of OS-SART-TV, showing sharp material boundaries with minimal spurious features. This clean appearance despite using a fraction of the projections required by FDK is attributed in part to the spectral regularisation effect of the hash-encoded INR, which is spectrally biased toward smooth solutions and suppresses high-frequency streak patterns while preserving sharp boundaries between material phases \citep{friis2025nect}.
+
+\subsection{Dynamic 4D Reconstruction: NeCT QuadCubes}
+\label{subsec:nect_quadcubes}
+
+The dynamic NeCT model, named QuadCubes, extends the 3D INR to four dimensions by representing the attenuation field as a continuous function of both space and time, $\muhat : \mathbb{R}^3 \times \mathbb{R} \to \mathbb{R}$. The central design challenge is how to structure the hash encoding for a 4D input space.
+
+The most straightforward extension would be a single 4D hash encoder indexing its tables with $(x, y, z, t)$ corner vertices. This has two problems. A 4D voxel has $2^4 = 16$ corner vertices rather than $2^3 = 8$, doubling the number of table lookups and gradient updates per sample. More severely, the hash collision rate increases dramatically: for a fixed table size $T$, the expected number of 4D grid vertices per table entry at the finest level grows as $N_\mathrm{max}^4 / T$, which at the resolutions required for micro-CT becomes large enough that the network's collision disambiguation mechanism is overwhelmed. At the other extreme, one could use many low-dimensional encoders, for example six 2D encoders covering all coordinate pairs, as in the K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} architectures. This avoids the collision problem but each encoder captures only pairwise dependencies, placing a heavy burden on the MLP to integrate information across all four dimensions.
+
+QuadCubes is a compromise between these extremes \citep{friis2025nect}. It uses four independent 3D multiresolution hash encoders, each covering a different triplet of the four space-time dimensions:
+%
+\begin{equation}
+    \text{Encoder 1: } (x, y, z), \quad
+    \text{Encoder 2: } (x, y, t), \quad
+    \text{Encoder 3: } (x, z, t), \quad
+    \text{Encoder 4: } (y, z, t).
+    \label{eq:quadcubes_encoders}
+\end{equation}
+%
+This set covers all four possible 3-element subsets of $\{x, y, z, t\}$, so every pair of coordinates appears together in at least two encoders. Each encoder independently produces a feature vector of dimension $L \cdot F$, and the four vectors are concatenated to form the full MLP input:
+%
+\begin{equation}
+    \muhat(\mathbf{r}, t) = \mathrm{MLP}_\Phi\!\Bigl(
+        \bigl[
+            \gamma_{xyz}(\mathbf{r};\,\theta_1),\;
+            \gamma_{xyt}(x,y,t;\,\theta_2),\;
+            \gamma_{xzt}(x,z,t;\,\theta_3),\;
+            \gamma_{yzt}(y,z,t;\,\theta_4)
+        \bigr]
+    \Bigr),
+    \label{eq:quadcubes_forward}
+\end{equation}
+%
+where $\gamma_{(\cdot)}$ denotes the trilinear-interpolated hash encoding in the indicated coordinate triplet and $\theta_i$ are the trainable feature vectors of encoder $i$. The MLP has the same architecture as the static model: 4 hidden layers of 128 neurons with Leaky ReLU activations.
+
+Each encoder operates in a well-conditioned 3D hash space where the collision rate remains manageable at micro-CT resolutions. Each encoder also jointly represents three coordinates, so cross-dimensional interactions within each triplet are captured directly in the feature space rather than delegated entirely to the MLP. The overlap between encoders, where the spatial encoder \texttt{xyz} shares each of its three dimensions with one of the mixed encoders, provides redundant representations of spatial structure that assist collision disambiguation and give the MLP multiple views of the same location at different times.
+
+A defining property of the QuadCubes model is that it is trained on all projections from the full dynamic experiment simultaneously rather than reconstructing each time step independently. All $N_\phi$ projections collected over the entire experiment contribute gradients to the same set of network parameters at every training step. The network learns to distinguish between time-invariant structural features of the rock matrix, which are supported by projections from all angles and all times, and dynamic features such as advancing fluid fronts or dissolving grains, which are supported only by projections in their temporal vicinity. Static structures therefore converge to a sharp well-defined representation, while dynamic features converge more slowly with spatial precision proportional to the rate at which they evolve relative to the projection acquisition rate. The temporal resolution of QuadCubes is consequently scene-dependent: for large, rapidly moving features a temporal resolution approaching the time between two successive projections is achievable \citep{friis2025nect}.
+
+Simulations using synthetic 4D datasets of liquid invasion in porous media generated with PoreSpy \citep{gostick2019porespy} showed that QuadCubes can resolve dynamics lasting as few as two projection intervals for large features, and approaches full resolution for events spanning ten or more projections. In the experimental Bentheimer sandstone dataset, individual pore-filling events with a characteristic filling time of approximately 10\,s and salt dissolution events lasting approximately 30\,s were directly observed and quantified \citep{friis2025nect}.
+
+\subsection{Hybrid Golden-Section Sampling}
+\label{subsec:hybrid_golden}
+
+The hybrid golden-section sampling scheme was introduced in the context of 4D-CT acquisition in \cref{subsec:4dct}. From the perspective of the reconstruction algorithm it is worth examining more closely, because the sampling strategy and the QuadCubes model are designed to work together.
+
+The scheme provides what can be called progressive angular completeness: at any point in the experiment, the projections collected so far are as uniformly distributed in angle as possible. This ensures that the spatial encoder \texttt{xyz} receives gradient updates from many different projection directions simultaneously rather than from a narrow angular range, which would leave the spatial reconstruction poorly conditioned in early training. Without angular diversity, the model would converge slowly to an accurate representation of the static rock structure and temporal features would likewise be poorly resolved.
+
+For the temporal encoders \texttt{xyt}, \texttt{xzt}, and \texttt{yzt}, the golden offset between successive revolutions means that each new revolution contributes projections at angles that are maximally distinct from those of all previous revolutions. When a gradient update is computed for a ray from revolution $k$, the temporal encoders are updated at the time $t_k$ of that revolution. Because each revolution samples an angularly offset range, successive updates to the temporal encoders carry complementary spatial information and together allow the model to distinguish the attenuation field at $t_k$ from the field at neighbouring time steps.
+
+In the Bentheimer sandstone experiment, 1\,400 projections were distributed across 14 revolutions of 100 projections each, with the golden offset applied between revolutions and alternating rotation direction to avoid tangling the inlet supply lines \citep{friis2025nect}. The entire 40-minute imbibition experiment was represented by a single QuadCubes model, decoded at arbitrary times to produce a continuous 3D movie of the brine invasion process.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Encoder Size and Performance}
+\label{chap:encoder_size}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\todo{Systematic study of how encoder capacity affects reconstruction quality
+and computational cost. All experiments use the same training protocol
+unless stated otherwise.}
+
+\section{Experimental Setup}
+\label{sec:enc_size_setup}
+\todo{Datasets used (static benchmark + dynamic PoreSpy simulations),
+hardware (Nvidia A100/H100), metrics (PSNR, SSIM, MAE), training budget.}
+
+\section{Effect of Total Parameter Count}
+\label{sec:enc_size_params}
+\todo{Sweep encoder size (hashmap entries, number of levels, features per level,
+MLP width/depth). Plot PSNR/SSIM vs.\ number of parameters.}
+
+\section{Effect on Reconstruction Time}
+\label{sec:enc_size_time}
+\todo{Plot PSNR/SSIM vs.\ wall-clock training time. Identify the
+quality-vs-speed Pareto front.}
+
+\section{Precision and Accuracy Metrics}
+\label{sec:enc_size_metrics}
+\todo{Compare PSNR, SSIM, MAE, and optionally perceptual metrics.
+Discuss which metric best reflects physical fidelity for CT.}
+
+\section{Non-Uniform Encoder Sizing}
+\label{sec:enc_size_nonuniform}
+\todo{Motivation: spatial and temporal dimensions may benefit from different
+capacity allocations. Experiment with allocating more levels/features to
+the \texttt{xyz} encoder vs.\ temporal encoders. Compare against uniform
+baseline.}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Encoder Architecture}
+\label{chap:encoder_arch}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\todo{Investigate how the number and dimensionality of hash encoders affect
+reconstruction quality, hash collision rate, and coupling between dimensions.}
+
+\section{Motivation and Design Space}
+\label{sec:arch_motivation}
+\todo{Recall the original QuadCubes design rationale: balance between hash
+collisions (few high-dim encoders) and weak coupling (many low-dim encoders).
+Formalise the design space.}
+
+\section{QuadCubes (Baseline)}
+\label{sec:arch_quad}
+\todo{Recap of the four 3D encoders (\texttt{xyz}, \texttt{xyt}, \texttt{xzt},
+\texttt{yzt}) from \NeCT{}. Serves as the baseline for this chapter.}
+
+\section{TriCubes}
+\label{sec:arch_tri}
+\todo{Three 3D encoders. Which triplet of dimension combinations? Ablation
+results versus QuadCubes.}
+
+\section{SexCubes (Six Encoders)}
+\label{sec:arch_sex}
+\todo{Six encoders covering all $\binom{4}{3}=4$ triples plus additional
+combinations. Assess whether more encoders improve quality or just add cost.}
+
+\section{Single Encoder}
+\label{sec:arch_single}
+\todo{A single 4D hash encoder. Discuss hash collision severity in 4D and
+quality penalty compared to the split designs.}
+
+\section{Combined Cubes Method}
+\label{sec:arch_combined}
+\todo{One 3D spatial encoder (\texttt{xyz}) combined with three 2D temporal
+slice encoders (\texttt{xt}, \texttt{yt}, \texttt{zt}). Motivation: preserve
+full spatial resolution while capturing temporal dynamics via lightweight
+2D planes. Compare to QuadCubes in quality, speed, and parameter count.}
+
+\section{Comparative Analysis}
+\label{sec:arch_comparison}
+\todo{Summary table and plots. Discuss trade-offs: reconstruction quality,
+training time, memory footprint, and implementation complexity.}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Continuous Scanning}
+\label{chap:continuous}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\todo{Extend \NeCT{} to handle data acquired during continuous (fly-scan) rotation,
+where projection blur due to constant angular velocity must be accounted for.}
+
+\section{Motivation}
+\label{sec:cont_motivation}
+\todo{Explain motion smearing in continuous scanning and why ignoring it
+degrades reconstruction. Potential gain in temporal resolution.}
+
+\section{Forward Model for Continuous Scanning}
+\label{sec:cont_model}
+\todo{Derive the modified Beer–Lambert integral that averages attenuation
+over the angular interval $[\phi, \phi + \Delta\phi]$ swept during one exposure.
+Present the discrete approximation used in practice.}
+
+\begin{algorithm}
+\caption{Continuous-Scan Forward Pass in \NeCTv{}}
+\label{alg:continuous}
+\begin{algorithmic}[1]
+\Require Angular interval $[\phi_s, \phi_e]$, $K$ sub-steps, ray $\mathbf{r}_j$
+\State $\Delta\phi \gets (\phi_e - \phi_s) / K$
+\State $\hat{I}_j \gets 0$
+\For{$k = 0, \ldots, K-1$}
+    \State $\phi_k \gets \phi_s + (k + 0.5)\,\Delta\phi$ \Comment{Mid-point angle}
+    \State Sample points along ray $\mathbf{r}_j$ at angle $\phi_k$
+    \State $\hat{I}_j \gets \hat{I}_j + \frac{1}{K}\,\exp\!\left(-\sum_p \muhat(\rvec_p, t)\,\Delta s\right)$
+\EndFor
+\State \Return $\hat{I}_j$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Static Dataset Experiments}
+\label{sec:cont_static}
+\todo{Apply continuous-scan forward model to a static benchmark.
+Compare step-wise (non-continuous) reconstruction against continuous
+reconstruction with varying numbers of accumulation sub-steps $K$.
+Plot PSNR/SSIM vs.\ $K$.}
+
+\section{Dynamic Dataset Experiments}
+\label{sec:cont_dynamic}
+\todo{Repeat the accumulation-step study on a dynamic PoreSpy simulation
+and/or the Bentheimer sandstone dataset. Assess whether the continuous
+model better captures fast pore-filling events.}
+
+\section{Discussion}
+\label{sec:cont_discussion}
+\todo{When does continuous scanning provide a meaningful benefit?
+Computational overhead vs.\ quality gain. Limitations.}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Conclusion}
+\label{chap:conclusion}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\section{Summary of Contributions}
+\label{sec:conclusion_summary}
+\todo{Bullet-point recap of what was achieved in each chapter.}
+
+\section{Limitations and Future Work}
+\label{sec:conclusion_future}
+\todo{Remaining open questions: spatiotemporal resolution quantification,
+hyperparameter sensitivity, training time, extension to polychromatic sources,
+parallel-beam synchrotron settings, energy-resolved CT.}
+
+% ─── Bibliography ────────────────────────────────────────────────────────────
+\cleardoublepage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+% ─── Appendices ──────────────────────────────────────────────────────────────
+\appendix
+
+\chapter{Supplementary Experimental Details}
+\label{app:experimental}
+\todo{Detailed hyperparameter tables, full benchmark results, extra figures.}
+
+\chapter{NeCTv2 Hyperparameter Reference}
+\label{app:hyperparams}
+\todo{Complete listing of all hyperparameters used in each experiment.}
+
+\end{document}
