@@ -824,7 +824,13 @@ class QuadCubesTransformer(nn.Module):
         tokens = self.token_proj(tokens) + self.pos_embed.unsqueeze(0)
 
         # Self-attention over 4 tokens → [B, 4, d_model]
-        tokens = self.transformer(tokens)
+        # Flash attention's CUDA kernel fails when batch*n_heads exceeds the
+        # hardware grid limit (5 M points × 4 heads = 20 M).  Force the
+        # memory-efficient or math backend which has no such restriction.
+        with torch.backends.cuda.sdp_kernel(
+            enable_flash=False, enable_math=True, enable_mem_efficient=True
+        ):
+            tokens = self.transformer(tokens)
 
         # Mean pool → [B, d_model] → [B, 1]
         return self.out_head(tokens.mean(dim=1))
