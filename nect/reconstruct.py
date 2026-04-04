@@ -176,6 +176,12 @@ def reconstruct(
     elif enc_arc == "combinedcubes":
         cfg = get_dynamic_cfg(name="combinedcubes")
         cfg["model"] = "combinedcubes"
+    elif enc_arc == "quadcubes_transformer":
+        cfg = get_dynamic_cfg(name="quadcubes_transformer")
+        cfg["model"] = "quadcubes_transformer"
+    elif enc_arc == "quadcubes_unet":
+        cfg = get_dynamic_cfg(name="quadcubes_unet")
+        cfg["model"] = "quadcubes_unet"
 
     if channel_order is not None:
         cfg["channel_order"] = channel_order

@@ -926,7 +926,9 @@ def cfg_sanity_check(cfg: dict):
         "sexcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "singlecube": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "combinedcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
-        "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },}
+        "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },
+        "quadcubes_transformer": {"encoder": hash_encoder},
+        "quadcubes_unet": {"encoder": hash_encoder},}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]
     sanity_all = {
