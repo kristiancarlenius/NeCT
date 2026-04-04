@@ -761,20 +761,79 @@ class _QuadEncoder(nn.Module):
         )
 
 
+class _SelfAttnBlock(nn.Module):
+    """Pre-LN multi-head self-attention block implemented with torch.matmul.
+
+    Deliberately avoids torch.nn.MultiheadAttention (and its use of
+    scaled_dot_product_attention) because those dispatch to flash-attention
+    CUDA kernels that have a hard grid-size limit on batch*n_heads.  With up
+    to 5 M coordinate points and 4 attention heads that limit is exceeded.
+    Plain torch.matmul on [B, H, 4, 4] matrices works at any batch size.
+    """
+
+    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.0):
+        super().__init__()
+        assert d_model % n_heads == 0, "d_model must be divisible by n_heads"
+        self.n_heads = n_heads
+        self.d_head = d_model // n_heads
+        self.scale = self.d_head ** -0.5
+
+        self.qkv = nn.Linear(d_model, 3 * d_model, bias=False)
+        self.out_proj = nn.Linear(d_model, d_model)
+        self.attn_drop = nn.Dropout(dropout)
+
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.ff = nn.Sequential(
+            nn.Linear(d_model, d_model * 4),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(d_model * 4, d_model),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x):
+        # x: [B, S, d_model]   S = 4 tokens
+        B, S, D = x.shape
+        H, Dh = self.n_heads, self.d_head
+
+        # ── Self-attention (pre-LN) ──────────────────────────────────────────
+        h = self.norm1(x)
+        qkv = self.qkv(h).reshape(B, S, 3, H, Dh).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv.unbind(0)          # each [B, H, S, Dh]
+
+        # [B, H, S, S]  — S=4, so this is always a tiny 4×4 matrix
+        attn = torch.matmul(q, k.transpose(-2, -1)) * self.scale
+        attn = torch.softmax(attn, dim=-1)
+        attn = self.attn_drop(attn)
+
+        out = torch.matmul(attn, v)      # [B, H, S, Dh]
+        out = out.permute(0, 2, 1, 3).reshape(B, S, D)
+        x = x + self.out_proj(out)
+
+        # ── Feed-forward (pre-LN) ────────────────────────────────────────────
+        x = x + self.ff(self.norm2(x))
+        return x
+
+
 class QuadCubesTransformer(nn.Module):
     """QuadCubes encoder + Transformer decoder.
 
     The four encoder feature vectors are treated as a sequence of 4 tokens.
-    A small Transformer (self-attention) lets each token attend to the others,
-    then the tokens are mean-pooled and projected to a scalar output.
+    Self-attention lets each token attend to the others, then the tokens are
+    mean-pooled and projected to a scalar output.
+
+    Uses a manual attention implementation (_SelfAttnBlock) to avoid
+    PyTorch's scaled_dot_product_attention CUDA kernels, which fail when
+    batch_size * n_heads exceeds the hardware grid-size limit.
 
     Config:
         encoding_config : HashEncoderConfig  (same as QuadCubes)
         decoder_config  : TransformerDecoderConfig
             d_model  – token projection dimension
             n_heads  – number of attention heads (must divide d_model)
-            n_layers – number of TransformerEncoderLayer blocks
-            dropout  – dropout applied inside the transformer
+            n_layers – number of _SelfAttnBlock layers
+            dropout  – dropout probability
     """
 
     def __init__(
@@ -791,25 +850,15 @@ class QuadCubesTransformer(nn.Module):
         n_layers = decoder_config.n_layers
         dropout = decoder_config.dropout
 
-        # Linear projection: raw hash features → d_model
         self.token_proj = nn.Linear(feat_dim, d_model)
 
-        # Learnable positional embeddings — one per encoder (4 total)
         self.pos_embed = nn.Parameter(torch.zeros(4, d_model))
         nn.init.trunc_normal_(self.pos_embed, std=0.02)
 
-        # Transformer (PyTorch uses "EncoderLayer" even for plain self-attention)
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=d_model,
-            nhead=n_heads,
-            dim_feedforward=d_model * 4,
-            dropout=dropout,
-            batch_first=True,   # [B, seq, d_model]
-            norm_first=True,    # pre-LN for training stability
+        self.blocks = nn.ModuleList(
+            [_SelfAttnBlock(d_model, n_heads, dropout) for _ in range(n_layers)]
         )
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
 
-        # Output head
         self.out_head = nn.Sequential(
             nn.Linear(d_model, d_model // 2),
             nn.ReLU(),
@@ -819,18 +868,12 @@ class QuadCubesTransformer(nn.Module):
     def forward(self, zyx, t):
         f_zyx, f_yxt, f_xzt, f_zyt = self.encoder(zyx, t)
 
-        # Stack → [B, 4, feat_dim], project → [B, 4, d_model]
+        # [B, 4, feat_dim] → [B, 4, d_model]
         tokens = torch.stack([f_zyx, f_yxt, f_xzt, f_zyt], dim=1)
         tokens = self.token_proj(tokens) + self.pos_embed.unsqueeze(0)
 
-        # Self-attention over 4 tokens → [B, 4, d_model]
-        # Flash attention's CUDA kernel fails when batch*n_heads exceeds the
-        # hardware grid limit (5 M points × 4 heads = 20 M).  Force the
-        # memory-efficient or math backend which has no such restriction.
-        with torch.backends.cuda.sdp_kernel(
-            enable_flash=False, enable_math=True, enable_mem_efficient=True
-        ):
-            tokens = self.transformer(tokens)
+        for block in self.blocks:
+            tokens = block(tokens)
 
         # Mean pool → [B, d_model] → [B, 1]
         return self.out_head(tokens.mean(dim=1))
