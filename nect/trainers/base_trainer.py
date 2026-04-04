@@ -137,7 +137,7 @@ class BaseTrainer:
         )
 
         self.model, self.optim = self.fabric.setup(self.model, self.optim)
-        if hasattr(self.model, "encoder"):
+        if hasattr(self.model, "encoder") and hasattr(self.model.encoder, "B"):
             self.model.encoder.B = self.fabric.to_device(self.model.encoder.B)
 
         self.dataloader = cast(torch.utils.data.DataLoader, self.fabric.setup_dataloaders(self.dataloader))
