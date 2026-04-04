@@ -509,7 +509,7 @@ class Config:
         if isinstance(self.net, MLPNetConfig):
             memory_per_point += self.net.n_hidden_layers * self.net.n_neurons * 2 * 1.5  # 1.5 for buffer
 
-        elif isinstance(self.encoder, HashEncoderConfig):
+        elif isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, PirateNetConfig):
             memory_per_point += (
                 self.net.n_modules
                 * self.encoder.n_features_per_level
