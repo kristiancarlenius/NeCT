@@ -1,0 +1,33 @@
+# Default configuration for QuadCubesTransformer.
+#
+# The encoder is identical to QuadCubes (4× 3D hash grids).
+# The decoder is a small Transformer: each encoder's feature vector
+# becomes one of 4 tokens, self-attention is applied, then mean-pooled
+# and projected to a scalar.
+#
+# Experiment ideas:
+#   - Reduce n_levels / log2_hashmap_size and see if the transformer
+#     compensates vs the plain MLP.
+#   - Increase d_model / n_layers for a larger decoder budget.
+#   - n_heads must divide d_model evenly.
+
+encoder:
+  otype: HashGrid
+  n_levels: 23
+  n_features_per_level: 4
+  log2_hashmap_size: 23
+  base_resolution: 16
+  max_resolution_factor: 2
+
+net:
+  d_model: 64
+  n_heads: 4
+  n_layers: 2
+  dropout: 0.0
+
+model: quadcubes_transformer
+base_lr: 0.0001
+batch_per_proj: 1
+warmup:
+  steps: 2000
+  lr0: 0.0002

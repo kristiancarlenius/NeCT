@@ -22,6 +22,8 @@ if TYPE_CHECKING:
         KPlanesEncoderConfig,
         MLPNetConfig,
         PirateNetConfig,
+        TransformerDecoderConfig,
+        UNetDecoderConfig,
     )
 
 
@@ -701,3 +703,227 @@ class CombinedCubes(nn.Module):
         inputs = torch.cat([xt, yt, zt, zyx], dim=-1)
         out = self.net(inputs)
         return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PyTorch-native decoder variants for the QuadCubes encoder.
+#
+# Motivation: swap TCNN's fixed MLP for a richer decoder so that smaller
+# encoders (fewer levels / lower hash budget) can still produce sharp
+# reconstructions.  The encoder itself is still TCNN for speed; only the
+# decoder is pure PyTorch, making it trivial to replace later.
+#
+# Both classes expose the same forward(zyx, t) → [B, 1] interface as the
+# existing TCNN models, so they drop straight into the existing trainer.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class _QuadEncoder(nn.Module):
+    """Four independent TCNN 3D hash-encoders for the QuadCubes decomposition.
+
+    Encodes all six 3D projections of (z,y,x,t):
+        enc_zyx : (z, y, x)
+        enc_yxt : (y, x, t)
+        enc_xzt : (x, z, t)
+        enc_zyt : (z, y, t)
+
+    Returns four float32 feature tensors so the downstream PyTorch decoder
+    can operate in full precision (TCNN encoding outputs are float16).
+    """
+
+    def __init__(self, encoding_config: HashEncoderConfig):
+        super().__init__()
+        enc_cfg = encoding_config.get_encoder_config()
+        self.enc_zyx = tcnn.Encoding(3, enc_cfg)
+        self.enc_yxt = tcnn.Encoding(3, enc_cfg)
+        self.enc_xzt = tcnn.Encoding(3, enc_cfg)
+        self.enc_zyt = tcnn.Encoding(3, enc_cfg)
+        self.n_output_dims = self.enc_zyx.n_output_dims  # same for all four
+
+    def forward(self, zyx, t):
+        """
+        Args:
+            zyx: [B, 3] coordinate tensor, columns are (z, y, x) in [0, 1].
+            t:   scalar float timestep in [0, 1].
+
+        Returns:
+            Tuple of four [B, D] float32 feature tensors.
+        """
+        tcol = torch.full((zyx.size(0), 1), float(t), device=zyx.device, dtype=zyx.dtype)
+        yxt = torch.cat([zyx[:, [1, 2]], tcol], dim=1)
+        xzt = torch.cat([zyx[:, [2, 0]], tcol], dim=1)
+        zyt = torch.cat([zyx[:, [0, 1]], tcol], dim=1)
+        return (
+            self.enc_zyx(zyx).float(),
+            self.enc_yxt(yxt).float(),
+            self.enc_xzt(xzt).float(),
+            self.enc_zyt(zyt).float(),
+        )
+
+
+class QuadCubesTransformer(nn.Module):
+    """QuadCubes encoder + Transformer decoder.
+
+    The four encoder feature vectors are treated as a sequence of 4 tokens.
+    A small Transformer (self-attention) lets each token attend to the others,
+    then the tokens are mean-pooled and projected to a scalar output.
+
+    Config:
+        encoding_config : HashEncoderConfig  (same as QuadCubes)
+        decoder_config  : TransformerDecoderConfig
+            d_model  – token projection dimension
+            n_heads  – number of attention heads (must divide d_model)
+            n_layers – number of TransformerEncoderLayer blocks
+            dropout  – dropout applied inside the transformer
+    """
+
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        decoder_config: TransformerDecoderConfig,
+    ):
+        super().__init__()
+        self.encoder = _QuadEncoder(encoding_config)
+
+        feat_dim = self.encoder.n_output_dims
+        d_model = decoder_config.d_model
+        n_heads = decoder_config.n_heads
+        n_layers = decoder_config.n_layers
+        dropout = decoder_config.dropout
+
+        # Linear projection: raw hash features → d_model
+        self.token_proj = nn.Linear(feat_dim, d_model)
+
+        # Learnable positional embeddings — one per encoder (4 total)
+        self.pos_embed = nn.Parameter(torch.zeros(4, d_model))
+        nn.init.trunc_normal_(self.pos_embed, std=0.02)
+
+        # Transformer (PyTorch uses "EncoderLayer" even for plain self-attention)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=n_heads,
+            dim_feedforward=d_model * 4,
+            dropout=dropout,
+            batch_first=True,   # [B, seq, d_model]
+            norm_first=True,    # pre-LN for training stability
+        )
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+
+        # Output head
+        self.out_head = nn.Sequential(
+            nn.Linear(d_model, d_model // 2),
+            nn.ReLU(),
+            nn.Linear(d_model // 2, 1),
+        )
+
+    def forward(self, zyx, t):
+        f_zyx, f_yxt, f_xzt, f_zyt = self.encoder(zyx, t)
+
+        # Stack → [B, 4, feat_dim], project → [B, 4, d_model]
+        tokens = torch.stack([f_zyx, f_yxt, f_xzt, f_zyt], dim=1)
+        tokens = self.token_proj(tokens) + self.pos_embed.unsqueeze(0)
+
+        # Self-attention over 4 tokens → [B, 4, d_model]
+        tokens = self.transformer(tokens)
+
+        # Mean pool → [B, d_model] → [B, 1]
+        return self.out_head(tokens.mean(dim=1))
+
+
+class QuadCubesUNet(nn.Module):
+    """QuadCubes encoder + U-Net style decoder.
+
+    The multi-resolution hash grid naturally produces features at different
+    scales (coarse levels → low-frequency, fine levels → high-frequency).
+    This decoder exploits that structure:
+
+        Down-path  (coarse → medium → fine, each group fused with previous scale)
+        Up-path    (fine → medium → coarse, with skip connections from the down-path)
+
+    This mirrors U-Net's encoder/decoder skip connections, but for a 1D
+    feature vector rather than a spatial feature map.
+
+    Config:
+        encoding_config : HashEncoderConfig  (same as QuadCubes)
+        decoder_config  : UNetDecoderConfig
+            hidden_dims   – list of 3 integers [d1, d2, d3]
+                            d1 = coarse scale width
+                            d2 = medium scale width
+                            d3 = bottleneck (fine) width
+            levels_coarse – how many hash levels go into the coarse group
+            levels_medium – how many hash levels go into the medium group
+                            remaining levels form the fine group
+            dropout       – (reserved, currently unused in skip-MLP path)
+    """
+
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        decoder_config: UNetDecoderConfig,
+    ):
+        super().__init__()
+        self.encoder = _QuadEncoder(encoding_config)
+
+        nfpl = encoding_config.n_features_per_level  # features per level
+        n_levels = encoding_config.n_levels
+        lc = decoder_config.levels_coarse
+        lm = decoder_config.levels_medium
+        lf = n_levels - lc - lm
+        if lf <= 0:
+            raise ValueError(
+                f"levels_coarse ({lc}) + levels_medium ({lm}) must be < n_levels ({n_levels})"
+            )
+        self._lc = lc
+        self._lm = lm
+        self._nfpl = nfpl
+
+        # Dimensions of each scale group across all 4 encoders
+        coarse_dim = 4 * lc * nfpl
+        medium_dim = 4 * lm * nfpl
+        fine_dim   = 4 * lf * nfpl
+
+        d1, d2, d3 = decoder_config.hidden_dims
+
+        # ── Down-path ────────────────────────────────────────────────────────
+        # Each step ingests the current-scale features and the previous scale's
+        # output (skip from above).
+        self.down1 = nn.Sequential(nn.Linear(coarse_dim, d1), nn.ReLU())
+        self.down2 = nn.Sequential(nn.Linear(medium_dim + d1, d2), nn.ReLU())
+        self.bottleneck = nn.Sequential(nn.Linear(fine_dim + d2, d3), nn.ReLU())
+
+        # ── Up-path (with skip connections from down-path) ────────────────────
+        self.up2 = nn.Sequential(nn.Linear(d3 + d2, d2), nn.ReLU())
+        self.up1 = nn.Sequential(nn.Linear(d2 + d1, d1), nn.ReLU())
+
+        self.out_head = nn.Linear(d1, 1)
+
+    def _split_levels(self, feat):
+        """Split a single encoder's output into (coarse, medium, fine) groups."""
+        c = self._lc * self._nfpl
+        m = self._lm * self._nfpl
+        return feat[:, :c], feat[:, c : c + m], feat[:, c + m :]
+
+    def forward(self, zyx, t):
+        f_zyx, f_yxt, f_xzt, f_zyt = self.encoder(zyx, t)
+
+        # Split each encoder's features by resolution scale
+        c0, m0, f0 = self._split_levels(f_zyx)
+        c1, m1, f1 = self._split_levels(f_yxt)
+        c2, m2, f2 = self._split_levels(f_xzt)
+        c3, m3, f3 = self._split_levels(f_zyt)
+
+        # Concatenate across encoders at each scale
+        coarse = torch.cat([c0, c1, c2, c3], dim=-1)
+        medium = torch.cat([m0, m1, m2, m3], dim=-1)
+        fine   = torch.cat([f0, f1, f2, f3], dim=-1)
+
+        # Down-path
+        e1 = self.down1(coarse)
+        e2 = self.down2(torch.cat([medium, e1], dim=-1))
+        e3 = self.bottleneck(torch.cat([fine, e2], dim=-1))
+
+        # Up-path with skip connections
+        d2 = self.up2(torch.cat([e3, e2], dim=-1))
+        d1 = self.up1(torch.cat([d2, e1], dim=-1))
+
+        return self.out_head(d1)

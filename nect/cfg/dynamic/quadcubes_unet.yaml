@@ -1,0 +1,43 @@
+# Default configuration for QuadCubesUNet.
+#
+# The encoder is identical to QuadCubes (4× 3D hash grids).
+# The decoder splits each encoder's level-features into three scale groups
+# (coarse / medium / fine) and processes them with a U-Net-style
+# down-path + up-path with skip connections.
+#
+# Level split with n_levels=23, levels_coarse=8, levels_medium=8:
+#   coarse : levels  0-7   →  8 * 4 * 4 encoders = 128 input dims
+#   medium : levels  8-15  →  8 * 4 * 4 encoders = 128 input dims
+#   fine   : levels 16-22  →  7 * 4 * 4 encoders = 112 input dims
+#
+# hidden_dims = [d1, d2, d3] where:
+#   d1 = coarse-scale width (down1 output / up1 input)
+#   d2 = medium-scale width (down2 output / up2 input)
+#   d3 = bottleneck (fine-scale) width
+#
+# Experiment ideas:
+#   - Use fewer levels (n_levels=16) and see if the UNet skip
+#     connections preserve detail.
+#   - Widen hidden_dims for a higher-capacity decoder.
+#   - Adjust levels_coarse / levels_medium to shift the scale budget.
+
+encoder:
+  otype: HashGrid
+  n_levels: 23
+  n_features_per_level: 4
+  log2_hashmap_size: 23
+  base_resolution: 16
+  max_resolution_factor: 2
+
+net:
+  hidden_dims: [128, 64, 32]
+  levels_coarse: 8
+  levels_medium: 8
+  dropout: 0.0
+
+model: quadcubes_unet
+base_lr: 0.0001
+batch_per_proj: 1
+warmup:
+  steps: 2000
+  lr0: 0.0002

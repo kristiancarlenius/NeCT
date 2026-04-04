@@ -188,6 +188,55 @@ class PirateNetConfig:
 
 
 @dataclass
+class TransformerDecoderConfig:
+    """Config for QuadCubesTransformer's pure-PyTorch decoder.
+
+    Fields:
+        d_model  – projection dimension for each token (must be divisible by n_heads).
+        n_heads  – number of self-attention heads.
+        n_layers – number of TransformerEncoderLayer blocks.
+        dropout  – dropout probability inside the transformer (default 0.0).
+    """
+
+    d_model: int
+    n_heads: int
+    n_layers: int
+    dropout: float = 0.0
+
+    def __str__(self):
+        return f"transformer_{self.d_model}_{self.n_heads}_{self.n_layers}"
+
+
+@dataclass
+class UNetDecoderConfig:
+    """Config for QuadCubesUNet's pure-PyTorch decoder.
+
+    The multi-resolution hash grid is split into three scale groups
+    (coarse / medium / fine), processed with a U-Net-style down+up path
+    and skip connections.
+
+    Fields:
+        hidden_dims   – list of exactly 3 ints [d1, d2, d3]:
+                        d1 = coarse-scale hidden width
+                        d2 = medium-scale hidden width
+                        d3 = bottleneck (fine-scale) width
+        levels_coarse – number of hash grid levels assigned to the coarse group.
+        levels_medium – number of hash grid levels assigned to the medium group.
+                        The remainder (n_levels - levels_coarse - levels_medium)
+                        forms the fine group.
+        dropout       – reserved for future use (currently unused).
+    """
+
+    hidden_dims: list
+    levels_coarse: int = 8
+    levels_medium: int = 8
+    dropout: float = 0.0
+
+    def __str__(self):
+        return f"unet_{'x'.join(map(str, self.hidden_dims))}"
+
+
+@dataclass
 class DownsamplingDetector:
     start: int
     end: int
@@ -270,7 +319,7 @@ class Config:
     s3im: bool
     model: str
     encoder: HashEncoderConfig | KPlanesEncoderConfig
-    net: MLPNetConfig | PirateNetConfig
+    net: MLPNetConfig | PirateNetConfig | TransformerDecoderConfig | UNetDecoderConfig
     concat: Optional[bool]
     reconstruction_mode: str
     save_volume: bool = False
@@ -334,6 +383,30 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
+        elif model in ["quadcubes_transformer", "quadcubes_unet"]:
+            if not isinstance(self.encoder, HashEncoderConfig):
+                raise ValueError(f"Encoder configuration for model type {model} must be HashEncoderConfig")
+
+            if model == "quadcubes_transformer":
+                if not isinstance(self.net, TransformerDecoderConfig):
+                    raise ValueError(f"net must be TransformerDecoderConfig for {model}")
+                from nect.network import QuadCubesTransformer
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
+                model = QuadCubesTransformer(
+                    encoding_config=self.encoder,
+                    decoder_config=self.net,
+                )
+
+            elif model == "quadcubes_unet":
+                if not isinstance(self.net, UNetDecoderConfig):
+                    raise ValueError(f"net must be UNetDecoderConfig for {model}")
+                from nect.network import QuadCubesUNet
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
+                model = QuadCubesUNet(
+                    encoding_config=self.encoder,
+                    decoder_config=self.net,
+                )
+
         elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "singlecube", "combinedcubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
@@ -651,6 +724,8 @@ cfg_paths: dict = {
         "sexcubes": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes.yaml",
         "singlecube": pathlib.Path(__file__).parent / "cfg/dynamic/singlecube.yaml",
         "combinedcubes": pathlib.Path(__file__).parent / "cfg/dynamic/combinedcubes.yaml",
+        "quadcubes_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_transformer.yaml",
+        "quadcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_unet.yaml",
     },
 }
 
