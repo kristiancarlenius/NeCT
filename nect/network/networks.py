@@ -799,7 +799,9 @@ class _SelfAttnBlock(nn.Module):
 
         # ── Self-attention (pre-LN) ──────────────────────────────────────────
         h = self.norm1(x)
-        qkv = self.qkv(h).reshape(B, S, 3, H, Dh).permute(2, 0, 3, 1, 4)
+        # Reshape to 2D [B*S, D] before every nn.Linear call — under AMP,
+        # cublasLtMatmul is not supported for 3D inputs regardless of alignment.
+        qkv = self.qkv(h.reshape(B * S, D)).reshape(B, S, 3, H, Dh).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)          # each [B, H, S, Dh]
 
         # [B, H, S, S]  — S=4, so this is always a tiny 4×4 matrix
@@ -809,10 +811,11 @@ class _SelfAttnBlock(nn.Module):
 
         out = torch.matmul(attn, v)      # [B, H, S, Dh]
         out = out.permute(0, 2, 1, 3).reshape(B, S, D)
-        x = x + self.out_proj(out)
+        x = x + self.out_proj(out.reshape(B * S, D)).reshape(B, S, D)
 
         # ── Feed-forward (pre-LN) ────────────────────────────────────────────
-        x = x + self.ff(self.norm2(x))
+        # LayerNorm handles 3D fine; reshape to 2D only around the Linear layers
+        x = x + self.ff(self.norm2(x).reshape(B * S, D)).reshape(B, S, D)
         return x
 
 
@@ -872,6 +875,7 @@ class QuadCubesTransformer(nn.Module):
         )
 
     def forward(self, zyx, t):
+        B = zyx.size(0)
         f_zyx, f_yxt, f_xzt, f_zyt = self.encoder(zyx, t)
 
         # [B, 4, feat_dim_raw] — pad K to multiple of 8 if needed
@@ -879,8 +883,9 @@ class QuadCubesTransformer(nn.Module):
         if self._feat_dim > self._feat_dim_raw:
             tokens = F.pad(tokens, (0, self._feat_dim - self._feat_dim_raw))
 
-        # → [B, 4, d_model]
-        tokens = self.token_proj(tokens) + self.pos_embed.unsqueeze(0)
+        # Reshape to 2D before token_proj to avoid cublasLtMatmul on 3D input
+        tokens = self.token_proj(tokens.reshape(B * 4, -1)).reshape(B, 4, -1)
+        tokens = tokens + self.pos_embed.unsqueeze(0)  # [B, 4, d_model]
 
         for block in self.blocks:
             tokens = block(tokens)
