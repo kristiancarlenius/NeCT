@@ -844,13 +844,19 @@ class QuadCubesTransformer(nn.Module):
         super().__init__()
         self.encoder = _QuadEncoder(encoding_config)
 
-        feat_dim = self.encoder.n_output_dims
+        feat_dim_raw = self.encoder.n_output_dims
         d_model = decoder_config.d_model
         n_heads = decoder_config.n_heads
         n_layers = decoder_config.n_layers
         dropout = decoder_config.dropout
 
-        self.token_proj = nn.Linear(feat_dim, d_model)
+        # cuBLASLt on A100 requires the K dimension of any matmul to be a
+        # multiple of 8 for Tensor Core operations.  feat_dim = n_levels *
+        # n_features_per_level may not satisfy this (e.g. 21*4=84).  Pad to
+        # the next multiple of 8 so token_proj never triggers NOT_SUPPORTED.
+        self._feat_dim_raw = feat_dim_raw
+        self._feat_dim = math.ceil(feat_dim_raw / 8) * 8
+        self.token_proj = nn.Linear(self._feat_dim, d_model)
 
         self.pos_embed = nn.Parameter(torch.zeros(4, d_model))
         nn.init.trunc_normal_(self.pos_embed, std=0.02)
@@ -868,8 +874,12 @@ class QuadCubesTransformer(nn.Module):
     def forward(self, zyx, t):
         f_zyx, f_yxt, f_xzt, f_zyt = self.encoder(zyx, t)
 
-        # [B, 4, feat_dim] → [B, 4, d_model]
+        # [B, 4, feat_dim_raw] — pad K to multiple of 8 if needed
         tokens = torch.stack([f_zyx, f_yxt, f_xzt, f_zyt], dim=1)
+        if self._feat_dim > self._feat_dim_raw:
+            tokens = F.pad(tokens, (0, self._feat_dim - self._feat_dim_raw))
+
+        # → [B, 4, d_model]
         tokens = self.token_proj(tokens) + self.pos_embed.unsqueeze(0)
 
         for block in self.blocks:
