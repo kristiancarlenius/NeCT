@@ -1,0 +1,268 @@
+\begin{thebibliography}{35}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Andersen and Kak(1984)]{andersen1984sart}
+A.~H. Andersen and A.~C. Kak.
+\newblock Simultaneous algebraic reconstruction technique ({SART}): A superior
+  implementation of the {ART} algorithm.
+\newblock \emph{Ultrasonic Imaging}, 6\penalty0 (1):\penalty0 81--94, 1984.
+\newblock \doi{10.1177/016173468400600107}.
+
+\bibitem[Cao and Johnson(2023)]{cao2023hexplane}
+Ang Cao and Justin Johnson.
+\newblock {HexPlane}: A fast representation for dynamic scenes.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 130--141, 2023.
+
+\bibitem[Chen et~al.(2008)Chen, Tang, and Leng]{chen2008piccs}
+Guang-Hong Chen, Jie Tang, and Shuai Leng.
+\newblock Prior image constrained compressed sensing ({PICCS}): a method to
+  accurately reconstruct dynamic {CT} images from highly undersampled
+  projection data sets.
+\newblock \emph{Medical Physics}, 35\penalty0 (2):\penalty0 660--663, 2008.
+\newblock \doi{10.1118/1.2836423}.
+
+\bibitem[Cybenko(1989)]{cybenko1989approximation}
+George Cybenko.
+\newblock Approximation by superpositions of a sigmoidal function.
+\newblock \emph{Mathematics of Control, Signals and Systems}, 2\penalty0
+  (4):\penalty0 303--314, 1989.
+\newblock \doi{10.1007/BF02551274}.
+
+\bibitem[Du et~al.(2017)Du, Yu, Xiang, Wang, and Deene]{du2017convergence}
+Yang Du, Gao Yu, Xia Xiang, Xiaoming Wang, and Yves~De Deene.
+\newblock Convergence of {SART + OS + TV} iterative reconstruction algorithm
+  for optical {CT} imaging of gel dosimeters.
+\newblock \emph{Journal of Physics: Conference Series}, 847:\penalty0 012025,
+  2017.
+\newblock \doi{10.1088/1742-6596/847/1/012025}.
+
+\bibitem[Feldkamp et~al.(1984)Feldkamp, Davis, and Kress]{feldkamp1984}
+L.~A. Feldkamp, L.~C. Davis, and J.~W. Kress.
+\newblock Practical cone-beam algorithm.
+\newblock \emph{Journal of the Optical Society of America A}, 1\penalty0
+  (6):\penalty0 612--619, 1984.
+\newblock \doi{10.1364/JOSAA.1.000612}.
+
+\bibitem[Fridovich-Keil et~al.(2023)Fridovich-Keil, Meanti, Warburg, Recht, and
+  Kanazawa]{fridovichkeil2023kplanes}
+Sara Fridovich-Keil, Giacomo Meanti, Frederik Warburg, Benjamin Recht, and
+  Angjoo Kanazawa.
+\newblock {K-Planes}: Explicit radiance fields in space, time, and appearance.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 12479--12488, 2023.
+
+\bibitem[Friis et~al.(2025)Friis, Nese, Luani, Pryme, Rennan, Chattopadhyay,
+  Kristoffersen, Mengshoel, and Breiby]{friis2025nect}
+Henrik Friis, H{\aa}kon Nese, Giacomo Luani, Colin Pryme, Lars Rennan, Basab
+  Chattopadhyay, Anders Kristoffersen, Ole~Jakob Mengshoel, and Dag~Werner
+  Breiby.
+\newblock Implicit neural representation for fast {4D} computed tomography of
+  multiphase flow in porous media.
+\newblock \emph{Communications Physics}, 8:\penalty0 339, 2025.
+\newblock \doi{10.1038/s42005-025-02249-0}.
+
+\bibitem[Goethals et~al.(2022)]{goethals2022dynamic}
+Wout Goethals et~al.
+\newblock Dynamic {CT} reconstruction with improved temporal resolution for
+  scanning of fluid flow in porous media.
+\newblock \emph{Water Resources Research}, 58:\penalty0 e2021WR031365, 2022.
+\newblock \doi{10.1029/2021WR031365}.
+
+\bibitem[Goodfellow et~al.(2014)]{goodfellow2014gan}
+Ian Goodfellow et~al.
+\newblock Generative adversarial nets.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~27, pages 2672--2680, 2014.
+
+\bibitem[Gordon et~al.(1970)Gordon, Bender, and Herman]{gordon1970algebraic}
+Richard Gordon, Robert Bender, and Gabor~T. Herman.
+\newblock Algebraic reconstruction techniques ({ART}) for three-dimensional
+  electron microscopy and {X}-ray photography.
+\newblock \emph{Journal of Theoretical Biology}, 29\penalty0 (3):\penalty0
+  471--481, 1970.
+\newblock \doi{10.1016/0022-5193(70)90109-8}.
+
+\bibitem[Gostick et~al.(2019)]{gostick2019porespy}
+Jeff Gostick et~al.
+\newblock {PoreSpy}: A {Python} toolkit for quantitative analysis of porous
+  media images.
+\newblock \emph{Journal of Open Source Software}, 4\penalty0 (37):\penalty0
+  1296, 2019.
+\newblock \doi{10.21105/joss.01296}.
+
+\bibitem[Guo et~al.(2022)]{guo2022physics}
+Ziyu Guo et~al.
+\newblock Physics-assisted generative adversarial network for {X}-ray
+  tomography.
+\newblock \emph{Optics Express}, 30\penalty0 (13):\penalty0 23238--23259, 2022.
+\newblock \doi{10.1364/OE.459948}.
+
+\bibitem[Hornik et~al.(1989)Hornik, Stinchcombe, and
+  White]{hornik1989multilayer}
+Kurt Hornik, Maxwell Stinchcombe, and Halbert White.
+\newblock Multilayer feedforward networks are universal approximators.
+\newblock \emph{Neural Networks}, 2\penalty0 (5):\penalty0 359--366, 1989.
+\newblock \doi{10.1016/0893-6080(89)90020-8}.
+
+\bibitem[Hu et~al.(2021)]{hu2021hybrid}
+Dianlin Hu et~al.
+\newblock Hybrid-domain neural network processing for sparse-view {CT}
+  reconstruction.
+\newblock \emph{IEEE Transactions on Radiation and Plasma Medical Sciences},
+  5\penalty0 (1):\penalty0 88--98, 2021.
+\newblock \doi{10.1109/TRPMS.2020.3011413}.
+
+\bibitem[Jin et~al.(2017)Jin, McCann, Froustey, and Unser]{jin2017deep}
+Kyong~Hwan Jin, Michael~T. McCann, Emmanuel Froustey, and Michael Unser.
+\newblock Deep convolutional neural network for inverse problems in imaging.
+\newblock \emph{IEEE Transactions on Image Processing}, 26\penalty0
+  (9):\penalty0 4509--4522, 2017.
+\newblock \doi{10.1109/TIP.2017.2713099}.
+
+\bibitem[Kajiya and Von~Herzen(1984)]{kajiya1984ray}
+James~T. Kajiya and Brian~P. Von~Herzen.
+\newblock Ray tracing volume densities.
+\newblock In \emph{Proceedings of the 11th Annual Conference on Computer
+  Graphics and Interactive Techniques (SIGGRAPH)}, pages 165--174, 1984.
+\newblock \doi{10.1145/800031.808594}.
+
+\bibitem[Kak and Slaney(2001)]{kak2001principles}
+Avinash~C. Kak and Malcolm Slaney.
+\newblock \emph{Principles of Computerized Tomographic Imaging}.
+\newblock Society for Industrial and Applied Mathematics, Philadelphia, 2001.
+
+\bibitem[Kingma and Ba(2015)]{kingma2015adam}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: {A} method for stochastic optimization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2015.
+
+\bibitem[Klacansky(2017)]{klacansky2017openscivis}
+Pavol Klacansky.
+\newblock Open {SciVis} datasets.
+\newblock \url{https://klacansky.com/open-scivis-datasets/}, 2017.
+
+\bibitem[Kohler(2004)]{kohler2004golden}
+Thomas Kohler.
+\newblock A projection access scheme for iterative reconstruction based on the
+  golden section.
+\newblock In \emph{IEEE Symposium Conference Record Nuclear Science 2004},
+  volume~6, pages 3961--3965, 2004.
+\newblock \doi{10.1109/NSSMIC.2004.1462462}.
+
+\bibitem[LeCun et~al.(1998)LeCun, Bottou, Bengio, and
+  Haffner]{lecun1998gradient}
+Yann LeCun, L{\'e}on Bottou, Yoshua Bengio, and Patrick Haffner.
+\newblock Gradient-based learning applied to document recognition.
+\newblock \emph{Proceedings of the IEEE}, 86\penalty0 (11):\penalty0
+  2278--2324, 1998.
+\newblock \doi{10.1109/5.726791}.
+
+\bibitem[Mildenhall et~al.(2021)Mildenhall, Srinivasan, Tancik, Barron,
+  Ramamoorthi, and Ng]{mildenhall2021nerf}
+Ben Mildenhall, Pratul~P. Srinivasan, Matthew Tancik, Jonathan~T. Barron, Ravi
+  Ramamoorthi, and Ren Ng.
+\newblock {NeRF}: Representing scenes as neural radiance fields for view
+  synthesis.
+\newblock \emph{Communications of the ACM}, 65\penalty0 (1):\penalty0 99--106,
+  2021.
+\newblock \doi{10.1145/3503250}.
+
+\bibitem[M{\"u}ller et~al.(2022)M{\"u}ller, Evans, Schied, and
+  Keller]{mueller2022instant}
+Thomas M{\"u}ller, Alex Evans, Christoph Schied, and Alexander Keller.
+\newblock Instant neural graphics primitives with a multiresolution hash
+  encoding.
+\newblock \emph{ACM Transactions on Graphics}, 41\penalty0 (4):\penalty0
+  102:1--102:15, 2022.
+\newblock \doi{10.1145/3528223.3530127}.
+
+\bibitem[Myers et~al.(2011)Myers, Kingston, Varslot, Turner, and
+  Sheppard]{myers2011dynamic}
+Glenn~R. Myers, Andrew~M. Kingston, Trond~K. Varslot, Matthew~L. Turner, and
+  Adrian~P. Sheppard.
+\newblock Dynamic tomography with a priori information.
+\newblock \emph{Applied Optics}, 50\penalty0 (20):\penalty0 3685--3690, 2011.
+\newblock \doi{10.1364/AO.50.003685}.
+
+\bibitem[Nair and Hinton(2010)]{nair2010rectified}
+Vinod Nair and Geoffrey~E. Hinton.
+\newblock Rectified linear units improve restricted {Boltzmann} machines.
+\newblock In \emph{Proceedings of the 27th International Conference on Machine
+  Learning (ICML)}, pages 807--814, 2010.
+
+\bibitem[Patwari et~al.(2023)]{patwari2023hallucination}
+Mayank Patwari et~al.
+\newblock Reducing the risk of hallucinations with interpretable deep learning
+  models for low-dose {CT} denoising: comparative performance analysis.
+\newblock \emph{Physics in Medicine \& Biology}, 68\penalty0 (19):\penalty0
+  19LT01, 2023.
+\newblock \doi{10.1088/1361-6560/acf5d0}.
+
+\bibitem[Rahaman et~al.(2019)Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht,
+  Bengio, and Courville]{rahaman2019spectral}
+Nasim Rahaman, Aristide Baratin, Devansh Arpit, Felix Draxler, Min Lin, Fred~A.
+  Hamprecht, Yoshua Bengio, and Aaron Courville.
+\newblock On the spectral bias of neural networks.
+\newblock In \emph{Proceedings of the 36th International Conference on Machine
+  Learning (ICML)}, pages 5301--5310, 2019.
+
+\bibitem[Ronneberger et~al.(2015)Ronneberger, Fischer, and
+  Brox]{ronneberger2015unet}
+Olaf Ronneberger, Philipp Fischer, and Thomas Brox.
+\newblock {U-Net}: Convolutional networks for biomedical image segmentation.
+\newblock In \emph{Medical Image Computing and Computer-Assisted Intervention
+  (MICCAI)}, pages 234--241. Springer, 2015.
+
+\bibitem[Rumelhart et~al.(1986)Rumelhart, Hinton, and
+  Williams]{rumelhart1986backprop}
+David~E. Rumelhart, Geoffrey~E. Hinton, and Ronald~J. Williams.
+\newblock Learning representations by back-propagating errors.
+\newblock \emph{Nature}, 323:\penalty0 533--536, 1986.
+\newblock \doi{10.1038/323533a0}.
+
+\bibitem[Sitzmann et~al.(2020)Sitzmann, Martel, Bergman, Lindell, and
+  Wetzstein]{sitzmann2020siren}
+Vincent Sitzmann, Julien~N.P. Martel, Alexander~W. Bergman, David~B. Lindell,
+  and Gordon Wetzstein.
+\newblock Implicit neural representations with periodic activation functions.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~33, pages 7462--7473, 2020.
+
+\bibitem[Tancik et~al.(2020)Tancik, Srinivasan, Mildenhall, Fridovich-Keil,
+  Raghavan, Singhal, Ramamoorthi, Barron, and Ng]{tancik2020fourier}
+Matthew Tancik, Pratul~P. Srinivasan, Ben Mildenhall, Sara Fridovich-Keil,
+  Nithin Raghavan, Utkarsh Singhal, Ravi Ramamoorthi, Jonathan~T. Barron, and
+  Ren Ng.
+\newblock Fourier features let networks learn high frequency functions in low
+  dimensional domains.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~33, pages 7537--7547, 2020.
+
+\bibitem[Wang et~al.(2004)Wang, Bovik, Sheikh, and Simoncelli]{wang2004ssim}
+Zhou Wang, Alan~C. Bovik, Hamid~R. Sheikh, and Eero~P. Simoncelli.
+\newblock Image quality assessment: From error visibility to structural
+  similarity.
+\newblock \emph{IEEE Transactions on Image Processing}, 13\penalty0
+  (4):\penalty0 600--612, 2004.
+\newblock \doi{10.1109/TIP.2003.819861}.
+
+\bibitem[Withers et~al.(2021)]{withers2021ct}
+Philip~J. Withers et~al.
+\newblock X-ray computed tomography.
+\newblock \emph{Nature Reviews Methods Primers}, 1:\penalty0 1--17, 2021.
+\newblock \doi{10.1038/s43586-021-00015-4}.
+
+\bibitem[Zha et~al.(2022)Zha, Zhang, and Li]{zha2022naf}
+Ruyi Zha, Yanhao Zhang, and Hua Li.
+\newblock {NAF}: Neural attenuation fields for sparse-view {CBCT}
+  reconstruction.
+\newblock In \emph{International Conference on Medical Image Computing and
+  Computer-Assisted Intervention (MICCAI)}, pages 442--452. Springer, 2022.
+
+\end{thebibliography}

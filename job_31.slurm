@@ -18,6 +18,6 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "reduced:(16, 2, 18)"
+echo "23_4_23"
 source nect_a100/bin/activate
 python -m demo.31_normal_sizeby

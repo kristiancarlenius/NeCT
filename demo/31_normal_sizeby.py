@@ -58,9 +58,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="sizediff",
+    exp_name="dynamic_non",
     config_override={
-        "epochs": "10x",
+        "epochs": "9x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
