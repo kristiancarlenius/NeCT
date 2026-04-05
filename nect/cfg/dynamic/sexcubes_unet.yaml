@@ -1,0 +1,43 @@
+# Default configuration for SexCubesUNet.
+#
+# The encoder is SexCubes: 6 independent 2D hash-grids covering all pairwise
+# projections of (z,y,x,t): (z,y), (z,x), (y,x), (z,t), (y,t), (x,t).
+# log2_hashmap_size is capped at 20 internally by get_encoder_config_2D()
+# regardless of the value set here.
+#
+# The decoder splits each encoder's level-features into three scale groups
+# (coarse / medium / fine) and fuses all 6 encoders per scale with U-Net
+# skip connections.  This merges coarse structure first, then medium, then
+# fine detail — addressing the disconnection between pairwise 2D features
+# without requiring a very large MLP.
+#
+# Level split with n_levels=23, levels_coarse=8, levels_medium=8:
+#   coarse : levels  0-7   →  8 * 4 * 6 encoders = 192 input dims
+#   medium : levels  8-15  →  8 * 4 * 6 encoders = 192 input dims
+#   fine   : levels 16-22  →  7 * 4 * 6 encoders = 168 input dims
+#
+# hidden_dims = [d1, d2, d3]:
+#   d1 = coarse-scale width
+#   d2 = medium-scale width
+#   d3 = bottleneck width
+
+encoder:
+  otype: HashGrid
+  n_levels: 23
+  n_features_per_level: 4
+  log2_hashmap_size: 20
+  base_resolution: 16
+  max_resolution_factor: 2
+
+net:
+  hidden_dims: [192, 96, 48]
+  levels_coarse: 8
+  levels_medium: 8
+  dropout: 0.0
+
+model: sexcubes_unet
+base_lr: 0.0001
+batch_per_proj: 1
+warmup:
+  steps: 2000
+  lr0: 0.0002

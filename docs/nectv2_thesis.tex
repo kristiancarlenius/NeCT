@@ -91,16 +91,16 @@
 \label{chap:introduction}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Understanding processes that unfold inside opaque three-dimensional materials is one of the persistent challenges in both natural sciences and engineering. In geosciences, questions about how fluids move through rock pores, how minerals dissolve and precipitate under changing chemical conditions, and how rock deforms under mechanical stress all require direct observation of three-dimensional internal structure as it changes over time. X-ray computed tomography has, over the past two decades, become the principal tool for this kind of observation, enabling non-destructive imaging of internal structure at resolutions down to the micrometre scale. What remains difficult is the fourth dimension: time.
+Understanding processes that unfold inside opaque three-dimensional materials is one of the persistent challenges in both natural sciences and engineering. In geosciences, questions about how fluids move through rock pores, how minerals dissolve and precipitate under changing chemical conditions, and how rock deforms under mechanical stress all require direct observation of three-dimensional internal structure as it changes over time. X-ray computed tomography has, over the past two decades, become the principal tool for this kind of observation, enabling non-destructive imaging of internal structure at resolutions down to the micrometre scale. What remains difficult is time.
 
-A conventional micro-CT scan of a rock sample takes on the order of one hour to acquire a single three-dimensional image. For a process such as brine displacing oil in a pore network, or a salt grain dissolving as a fluid front advances, the relevant events may unfold on timescales of seconds. The gap between what is physically happening and what the instrument can resolve in time is many orders of magnitude. Bridging this gap requires either faster instruments, smarter acquisition schemes, or reconstruction algorithms that extract more information from fewer measurements, or some combination of all three.
+A conventional micro-CT scan of a rock sample takes on the order of one hour to acquire a single three-dimensional image. For a process such as brine displacing oil in a pore network, or a salt grain dissolving as a fluid front advances, the relevant events may unfold on timescales of seconds. The gap between what is physically happening and what the instrument can resolve in time is many orders of magnitude. Bridging this gap requires faster instruments, smarter acquisition schemes, or reconstruction algorithms that extract more information from fewer measurements, or some combination of all three.
 
 \section{Background and Motivation}
 \label{sec:intro_background}
 
 The standard approach to four-dimensional CT, denoted 4D-CT to indicate three spatial dimensions plus time, is to acquire a sequence of independent full three-dimensional scans and reconstruct each independently. The temporal resolution of this approach is bounded below by the time required to complete one full $360°$ rotation of the sample, which for laboratory instruments is governed by the photon flux of the X-ray source, the required signal-to-noise ratio per projection, and the number of angular positions needed for an artefact-free reconstruction. None of these constraints are easily relaxed without compromising spatial resolution or introducing reconstruction artefacts.
 
-Reducing the number of projections per time step allows more time steps to be packed into a fixed total acquisition time, but the fewer projections there are, the more ill-posed the reconstruction problem becomes. Classical reconstruction algorithms such as the Feldkamp--Davis--Kress (FDK) algorithm and iterative methods with total variation regularisation handle sparse-view data poorly: FDK produces severe streak artefacts when the Shannon--Nyquist sampling criterion is not met, while total variation regularisation suppresses streaks at the cost of contrast reduction and loss of fine features. Neither algorithm uses information from other time steps to improve a given frame, so the temporal and spatial resolution trade-off is handled entirely within each independent reconstruction.
+Reducing the number of projections per time step allows more time steps to be packed into a fixed total acquisition time, but the fewer projections there are, the more ill-posed the reconstruction problem becomes. Classical reconstruction algorithms such as the Feldkamp--Davis--Kress (FDK) algorithm and iterative methods with total variation regularisation handle sparse-view data poorly. FDK produces severe streak artefacts when the Shannon--Nyquist sampling criterion is not met, while total variation regularisation suppresses streaks at the cost of contrast reduction and loss of fine features. Neither algorithm uses information from other time steps to improve a given frame, so the temporal and spatial resolution trade-off is handled entirely within each independent reconstruction.
 
 Machine learning approaches have been applied to sparse-view CT with considerable success on static images. Convolutional networks trained to map degraded FDK reconstructions to cleaner images can suppress artefacts effectively, but require large paired training datasets assembled in advance. More fundamentally, they have no internal model of the measurement physics, which means they are prone to generating plausible-looking but physically incorrect features when the test sample differs from the training distribution. For scientific imaging, where the correctness of individual pore-level features may carry direct physical consequences, this is a significant liability.
 
@@ -117,20 +117,20 @@ This thesis builds directly on NeCT with the aim of making the approach more pra
 
 The work presented in this thesis is organised around three concrete research objectives, each corresponding to one experimental chapter.
 
-The first objective is to characterise the relationship between encoder capacity and reconstruction quality in the NeCT QuadCubes architecture. The NeCT paper used the largest feasible configuration and trained for as long as possible, treating quality as the only optimisation target. This thesis instead asks whether there is a meaningful quality-versus-cost Pareto frontier: configurations that are substantially cheaper in memory and training time while achieving competitive reconstruction quality. Understanding this frontier is a prerequisite for using NeCT on hardware that is more widely accessible than an A100 or H100 GPU, and for workflows where reconstructions must be produced quickly enough to guide ongoing experiments.
+The first objective is to characterise the relationship between encoder capacity and reconstruction quality in the NeCT QuadCubes architecture. The NeCT paper used the largest feasible configuration and trained for as long as possible, treating quality as the only optimisation target. This thesis instead asks whether there is a meaningful quality-versus-cost Pareto frontier, configurations that are substantially cheaper in memory and training time while achieving competitive reconstruction quality. Understanding this frontier is a prerequisite for using NeCT on hardware that is more widely accessible than an A100 or H100 GPU, and for workflows where reconstructions must be produced quickly enough to guide ongoing experiments.
 
-The second objective is to evaluate alternative encoder architectures for the 4D hash encoding problem. The QuadCubes design uses four 3D hash encoders covering all four possible 3-element subsets of the space-time coordinates. This is one point in a larger design space bounded by a single 4D encoder on one side, which suffers from a severe hash collision problem, and six 2D encoders covering all coordinate pairs on the other, which decouple the coordinates too strongly and require the MLP to perform a heavier integration task. This thesis evaluates a SingleCube (one 4D encoder), a TriCubes (three 3D encoders), a SexCubes (six 2D encoders), and a CombinedCubes design (one 3D spatial encoder combined with three 2D space-time encoders), comparing all of them to QuadCubes on the same dataset.
+The second objective is to evaluate alternative encoder architectures for the 4D hash encoding problem. The QuadCubes design uses four 3D hash encoders covering all four possible 3-element subsets of the space-time coordinates. This is one point in a larger design space bounded by a single 4D encoder on one side, which suffers from a severe hash collision problem, and six 2D encoders covering all coordinate pairs on the other, which decouple the coordinates too strongly and require the MLP to perform a heavier integration task. This thesis evaluates a SingleCube (one 4D encoder), a SexCubes (six 2D encoders), and a CombinedCubes design (one 3D spatial encoder combined with three 2D space-time encoders), comparing all of them to QuadCubes on the same dataset. Additionally, a TriCubes architecture using three 2D spatial encoders covering the $(x,y)$, $(x,z)$, and $(y,z)$ planes is evaluated as an alternative to the single 3D encoder used in the static model.
 
 The third objective is to extend the NeCT forward model to continuous rotation scanning, in which the detector shutter remains open throughout the acquisition and each recorded projection integrates the sample over an angular interval rather than capturing it at a single angle. This mode of operation can increase the information collected per unit time relative to step-and-shoot scanning, at the cost of producing geometrically blurred projections. The thesis derives the modified Beer--Lambert forward model that accounts for this integration and evaluates whether it correctly compensates for the blurring and whether it enables the reconstruction of processes that occur within a single inter-projection interval.
 
 \section{Thesis Structure}
 \label{sec:intro_structure}
 
-Chapter~\ref{chap:background} develops the theoretical background needed to understand the methods. It covers the fundamentals of neural networks and the multilayer perceptron, convolutional approaches to CT reconstruction and their limitations, the theory of implicit neural representations and positional encodings, Neural Radiance Fields as the conceptual origin of the INR-based CT approach, and the multiresolution hash encoding that enables fast training. The second half of the background chapter covers X-ray CT from first principles: Beer--Lambert's law, cone-beam geometry, classical reconstruction algorithms including FDK and OS-SART-TV, and the challenges of 4D-CT and sparse-view acquisition. The chapter concludes with a detailed description of the NeCT algorithm itself, including both the static 3D model and the dynamic QuadCubes model, the training pipeline, and the hybrid golden-section sampling scheme.
+Chapter~\ref{chap:background} develops the theoretical background needed to understand the methods. It covers the fundamentals of neural networks and the multilayer perceptron, convolutional approaches to CT reconstruction and their limitations, the theory of implicit neural representations and positional encodings, Neural Radiance Fields as the conceptual origin of the INR-based CT approach, and the multiresolution hash encoding that enables fast training. The second half of the background chapter covers X-ray CT from first principles, including Beer--Lambert's law, cone-beam geometry, classical reconstruction algorithms including FDK and OS-SART-TV, and the challenges of 4D-CT and sparse-view acquisition. The chapter concludes with a detailed description of the NeCT algorithm itself, including both the static 3D model and the dynamic QuadCubes model, the training pipeline, and the hybrid golden-section sampling scheme.
 
 Chapter~\ref{chap:encoder_size} addresses the first research objective. It derives the memory cost of the baseline NeCT configuration, identifies the GPU hardware constraints that follow from it, and presents a systematic sweep of encoder size parameters including the hashmap capacity, number of levels, and features per level. Reconstruction quality and training time are measured jointly across all configurations, and the effect of allocating encoder capacity non-uniformly across the four encoders is also examined.
 
-Chapter~\ref{chap:encoder_arch} addresses the second research objective. It formalises the design space of encoder architectures in terms of the collision rate and dimensional coupling trade-off, then presents experimental results for the SingleCube, TriCubes, QuadCubes, SexCubes, and CombinedCubes architectures on a common dataset.
+Chapter~\ref{chap:encoder_arch} addresses the second research objective. It formalises the design space of encoder architectures in terms of the collision rate and dimensional coupling trade-off, then presents experimental results for the SingleCube, QuadCubes, SexCubes, CombinedCubes, and TriCubes architectures.
 
 Chapter~\ref{chap:continuous} addresses the third research objective. It explains the physical difference between step-and-shoot and continuous rotation scanning, derives the $K$-step averaged forward model, and presents experimental results on both a static validation dataset and a dynamic dataset.
 
@@ -185,7 +185,7 @@ L1 loss is less sensitive to outliers than L2 and is often preferred when the me
 \subsection{Convolutional Neural Networks}
 \label{subsec:cnn}
 
-While the MLP treats every input element independently, images and other spatially structured signals have strong local correlations: nearby pixels tend to be similar, and the same local pattern such as an edge or a boundary can appear at any position in the image. Convolutional neural networks (CNNs) exploit this structure by replacing the dense weight matrices of an MLP with learned local filters applied uniformly across the spatial extent of the input \citep{lecun1998gradient}.
+While the MLP treats every input element independently, images and other spatially structured signals have strong local correlations. Nearby pixels tend to be similar, and the same local pattern such as an edge or a boundary can appear at any position in the image. Convolutional neural networks (CNNs) exploit this structure by replacing the dense weight matrices of an MLP with learned local filters applied uniformly across the spatial extent of the input \citep{lecun1998gradient}.
 
 A discrete 2D convolution of an input feature map $\mathbf{X} \in \mathbb{R}^{H \times W}$ with a filter $\mathbf{K} \in \mathbb{R}^{k \times k}$ produces an output feature map $\mathbf{Y}$ whose entries are
 %
@@ -315,7 +315,7 @@ Setting $\sigma(\mathbf{x}) \equiv \mu(\mathbf{x})$ and dropping the colour outp
 \subsubsection{Multiresolution Hash Encoding}
 \label{subsubsec:hash_encoding}
 
-The sinusoidal positional encoding resolves the spectral bias problem but places all of the representational work on the MLP: every gradient step updates every weight in the network, and convergence is slow regardless of how well the encoding lifts the input coordinates. The multiresolution hash encoding of \citet{mueller2022instant} addresses this by distributing the work between the MLP and a set of small trainable lookup tables, allowing the MLP itself to be made much smaller. The result is a speedup of several orders of magnitude over sinusoidal-encoded NeRF at equal or better reconstruction quality \citep{mueller2022instant}.
+The sinusoidal positional encoding resolves the spectral bias problem but places all of the representational work on the MLP. Every gradient step updates every weight in the network, and convergence is slow regardless of how well the encoding lifts the input coordinates. The multiresolution hash encoding of \citet{mueller2022instant} addresses this by distributing the work between the MLP and a set of small trainable lookup tables, allowing the MLP itself to be made much smaller. The result is a speedup of several orders of magnitude over sinusoidal-encoded NeRF at equal or better reconstruction quality \citep{mueller2022instant}.
 
 The encoding maintains $L$ independent levels, each corresponding to a different spatial resolution. At each level $\ell$ a grid of resolution $N_\ell$ is defined, where the resolutions grow as a geometric progression between a coarsest resolution $N_\mathrm{min}$ and a finest resolution $N_\mathrm{max}$:
 %
@@ -341,20 +341,7 @@ Typical values used in \NeCT{} are $L = 16$ levels, $T = 2^{23}$ entries,
 $F = 2$ features per entry, $N_\mathrm{min} = 16$, and a finest resolution
 calibrated to the voxel size of the CT scan \citep{friis2025nect}.
 
-\paragraph{Feature lookup and interpolation.}
-Given an input coordinate $\mathbf{x} \in \mathbb{R}^d$, the encoding
-proceeds independently at each level $\ell$ as follows. First, $\mathbf{x}$
-is scaled by the level's grid resolution to find the enclosing voxel:
-the $2^d$ integer corner vertices of this voxel are identified. Each corner
-is mapped to an array index via either the 1:1 mapping (coarse levels) or
-the hash function (fine levels), and the corresponding $F$-dimensional
-feature vectors are retrieved. These $2^d$ feature vectors are then
-\emph{linearly interpolated} according to the fractional position of
-$\mathbf{x}$ within its enclosing voxel --- trilinear interpolation in 3D,
-or the 4D analogue in space-time. The interpolated $F$-dimensional vector
-is the output of level $\ell$. The outputs from all $L$ levels are
-\emph{concatenated} to form the full encoded representation
-$\mathbf{y} \in \mathbb{R}^{L \cdot F}$, which is then passed to the MLP:
+Given an input coordinate $\mathbf{x} \in \mathbb{R}^d$, the encoding proceeds independently at each level $\ell$. The coordinate is scaled by that level's grid resolution to identify the enclosing voxel, and the $2^d$ integer corner vertices of that voxel are determined. Each corner is mapped to an array index via either the 1:1 mapping at coarse levels or the hash function at fine levels, and the corresponding $F$-dimensional feature vectors are retrieved. These $2^d$ feature vectors are then linearly interpolated according to the fractional position of $\mathbf{x}$ within its enclosing voxel, using trilinear interpolation in 3D or the 4D analogue in space-time. The interpolated $F$-dimensional vector is the output of level $\ell$. The outputs from all $L$ levels are concatenated to form the full encoded representation $\mathbf{y} \in \mathbb{R}^{L \cdot F}$, which is then passed to the MLP:
 %
 \begin{equation}
     \hat{\mu}(\mathbf{x}) = \mathrm{MLP}_\Phi\!\left(
@@ -418,29 +405,11 @@ where $\Delta t$ is the sampling step size. CT reconstruction then amounts to in
 \subsection{Classical Reconstruction Algorithms}
 \label{subsec:ct_algorithms}
 
-A large body of reconstruction algorithms has been developed to invert the
-forward projection operator $\mathcal{A}$ from \cref{eq:discrete_projection}.
-They fall into two broad families: \emph{analytical} methods, which derive
-a closed-form inversion formula from the properties of the Radon transform,
-and \emph{iterative} methods, which formulate reconstruction as an
-optimisation problem and solve it by successive approximation. The three
-algorithms used as baselines in \NeCT{} --- FDK, OS-SART-TV, and, implicitly,
-filtered back-projection --- span both families and are described here.
+A large body of reconstruction algorithms has been developed to invert the forward projection operator $\mathcal{A}$ from \cref{eq:discrete_projection}. They fall into two broad families. Analytical methods derive a closed-form inversion formula from the properties of the Radon transform, and iterative methods formulate reconstruction as an optimisation problem and solve it by successive approximation. The three algorithms used as baselines in \NeCT{}, FDK, OS-SART-TV, and filtered back-projection, span both families and are described here.
 
 \subsubsection*{Filtered Back-Projection and FDK}
 
-The analytical foundation of most classical CT reconstruction is the
-\emph{filtered back-projection} (FBP) algorithm, which follows directly from
-the \emph{Fourier slice theorem}: the 1D Fourier transform of a parallel-beam
-projection at angle $\phi$ is a slice through the 2D Fourier transform of
-$\mu(\mathbf{r})$ at the same angle. A full set of projections covering
-$180°$ therefore provides complete coverage of the 2D Fourier domain, and
-$\mu$ can be recovered by an inverse 2D Fourier transform. In the spatial
-domain this is equivalent to back-projecting each filtered projection onto
-a reconstruction grid. The ramp filter applied before back-projection
-compensates for the non-uniform polar sampling of the Fourier domain, which
-would otherwise over-represent low spatial frequencies and produce blurred
-reconstructions \citep{kak2001principles}.
+The analytical foundation of most classical CT reconstruction is the filtered back-projection (FBP) algorithm, which follows directly from the Fourier slice theorem. The 1D Fourier transform of a parallel-beam projection at angle $\phi$ is a slice through the 2D Fourier transform of $\mu(\mathbf{r})$ at the same angle. A full set of projections covering $180°$ therefore provides complete coverage of the 2D Fourier domain, and $\mu$ can be recovered by an inverse 2D Fourier transform. In the spatial domain this is equivalent to back-projecting each filtered projection onto a reconstruction grid. The ramp filter applied before back-projection compensates for the non-uniform polar sampling of the Fourier domain, which would otherwise over-represent low spatial frequencies and produce blurred reconstructions \citep{kak2001principles}.
 
 The Feldkamp--Davis--Kress (FDK) algorithm \citep{feldkamp1984} is the cone-beam extension of FBP. It approximates the full 3D cone-beam geometry by treating each detector row as an independent tilted fan-beam slice, applies a cosine-weighted ramp filter to each row of each projection, and back-projects the filtered data into a 3D reconstruction volume. For small cone angles this approximation is accurate, and FDK is accepted as the standard workhorse for laboratory CBCT because it is non-iterative and extremely fast \citep{kak2001principles}.
 
@@ -762,21 +731,20 @@ For a representative finest resolution of $N_\mathrm{max} = 2^{10} = 1024$ voxel
 %
 At float16 precision with $L = 16$ levels and $F = 4$ features per level, the memory required for a single collision-free encoder grows from approximately 128\,MB for $d = 2$, to roughly 64\,GB for $d = 3$, and to approximately 64\,TB for $d = 4$. The $d = 4$ case is therefore entirely infeasible with any current hardware, and even the $d = 3$ collision-free encoder would consume more memory than is available on any single GPU. In practice, all configurations operate in the collision regime and rely on the MLP and the multi-level structure to disambiguate collisions, as described in \cref{subsubsec:hash_encoding}. The question is how severely collisions degrade reconstruction quality as the input dimension increases, and whether low-dimensional split encoders provide a practical alternative.
 
-The design space explored in this chapter is summarised in Table~\ref{tab:arch_design_space}. Each architecture is characterised by its number of encoders, the input dimension of each encoder, which coordinate subsets are covered, and the practical consequence for memory and collision rate.
+The design space explored in this chapter for the dynamic 4D problem is summarised in Table~\ref{tab:arch_design_space}. Each architecture is characterised by its number of encoders, the input dimension of each encoder, which coordinate subsets are covered, and the practical consequence for memory and collision rate. TriCubes is treated separately in \cref{sec:arch_tri} as it addresses the static 3D reconstruction problem rather than the dynamic 4D one.
 
 \begin{table}[h]
     \centering
-    \caption{Encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder. Memory estimates assume $L = 16$, $F = 4$, float16, with the hashmap size matched to fit within a fixed total memory budget.}
+    \caption{Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder. Memory estimates assume $L = 16$, $F = 4$, float16, with the hashmap size matched to fit within a fixed total memory budget.}
     \label{tab:arch_design_space}
     \begin{tabular}{lllll}
         \toprule
         Architecture & Encoders & Dim & Coordinate subsets & Collision regime \\
         \midrule
-        SingleCube   & 1 & 4 & $xyzt$                                    & Extreme \\
-        TriCubes     & 3 & 3 & 3 of 4 possible 3-subsets                & Moderate \\
-        QuadCubes    & 4 & 3 & All 4 possible 3-subsets                  & Moderate \\
-        SexCubes     & 6 & 2 & All 6 possible 2-subsets                  & Low \\
-        CombinedCubes & 4 & 3+2+2+2 & $xyz$, $xt$, $yt$, $zt$           & Low--Moderate \\
+        SingleCube    & 1 & 4 & $xyzt$                          & Extreme \\
+        QuadCubes     & 4 & 3 & All 4 possible 3-subsets        & Moderate \\
+        SexCubes      & 6 & 2 & All 6 possible 2-subsets        & Low \\
+        CombinedCubes & 4 & 3+2+2+2 & $xyz$, $xt$, $yt$, $zt$ & Low--Moderate \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -793,13 +761,28 @@ With the baseline configuration from Chapter~\ref{chap:encoder_size} ($L = 23$, 
 \section{TriCubes}
 \label{sec:arch_tri}
 
-The TriCubes architecture reduces the number of 3D encoders from four to three by dropping one of the four 3-element subsets. With only three encoders, one pair of coordinates no longer appears in any encoder. The choice of which subset to drop is not symmetric in the 4D space-time problem: dropping a purely spatial pair such as one of the $xy$, $xz$, or $yz$ pairs reduces spatial coupling, while dropping a space-time pair such as $xt$, $yt$, or $zt$ reduces temporal coupling.
+The architectures evaluated in \cref{sec:arch_quad,sec:arch_sex,sec:arch_single,sec:arch_combined} all address the dynamic 4D reconstruction problem and include the time coordinate as an input. TriCubes is different in kind: it is an alternative architecture for the static 3D reconstruction problem, in which no temporal encoder is needed and the question is how best to encode the three spatial coordinates $(x, y, z)$.
 
-\todo{Specify which 3-subset combination was chosen for TriCubes and why. For example: drop the \texttt{yzt} encoder, keeping \texttt{xyz}, \texttt{xyt}, \texttt{xzt}. Or evaluate multiple combinations and report results for each.}
+The static NeCT model, described in \cref{subsec:nect_static}, uses a single 3D multiresolution hash encoder taking the full spatial coordinate as input. The TriCubes architecture replaces this single 3D encoder with three 2D encoders, each covering one of the three possible 2-element subsets of the spatial coordinates: \texttt{xy}, \texttt{xz}, and \texttt{yz}. Their outputs are concatenated and passed to the MLP:
+%
+\begin{equation}
+    \muhat(\mathbf{r}) = \mathrm{MLP}_\Phi\!\Bigl(
+        \bigl[
+            \gamma_{xy}(x,y;\,\theta_1),\;
+            \gamma_{xz}(x,z;\,\theta_2),\;
+            \gamma_{yz}(y,z;\,\theta_3)
+        \bigr]
+    \Bigr).
+    \label{eq:tricubes_forward}
+\end{equation}
+%
+The motivation is the same as for the 2D encoders in the 4D problem: a 2D encoder with $\log_2 T = 20$ is collision-free at all spatial resolutions up to $1024 \times 1024$, whereas a 3D encoder requires $\log_2 T = 30$ to be collision-free at the same per-dimension resolution. The three 2D encoders at $\log_2 T = 20$ together occupy approximately 384\,MB, compared to approximately 1.5\,GB for a single 3D encoder at $\log_2 T = 23$. The trade-off is the same as in SexCubes relative to QuadCubes: each encoder captures only pairwise spatial dependencies, so the MLP must integrate across all three dimensions from three partially coupled representations rather than from one jointly encoded one.
 
-The primary motivation for TriCubes is a reduction in memory and training time: three encoders rather than four reduces the hash table memory by 25\% and the number of MLP input features from $4LF$ to $3LF$, which reduces the MLP's first-layer parameter count proportionally. Figure~\ref{fig:tricubes_quality} compares reconstruction quality between TriCubes and QuadCubes. \todo{Insert figure.}
+Figure~\ref{fig:tricubes_reconstruction} shows representative reconstruction slices from TriCubes alongside the static NeCT baseline. \todo{Insert figure.}
 
-\todo{Describe the observed quality difference between TriCubes and QuadCubes. Does omitting one encoder measurably degrade reconstruction? Is the effect more pronounced for spatial or temporal features depending on which encoder was dropped?}
+Figure~\ref{fig:tricubes_quality} shows quantitative metrics for TriCubes compared to the static NeCT model. \todo{Insert PSNR/SSIM/MAE comparison figure.}
+
+\todo{Describe the observed quality difference between TriCubes and the single-encoder static model. Is spatial reconstruction degraded relative to the single 3D encoder, and if so, is the degradation concentrated at features that require coupling across all three spatial dimensions?}
 
 \section{SexCubes}
 \label{sec:arch_sex}
@@ -879,22 +862,21 @@ Table~\ref{tab:arch_summary} summarises the five architectures across reconstruc
     \label{tab:arch_summary}
     \begin{tabular}{llllll}
         \toprule
-        Architecture & PSNR (dB) & SSIM & MAE & Memory (GB) & Time (h) \\
+        Architecture  & PSNR (dB) & SSIM & MAE & Memory (GB) & Time (h) \\
         \midrule
-        SingleCube   & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
-        TriCubes     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
-        QuadCubes    & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
-        SexCubes     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
-        CombinedCubes& \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        SingleCube    & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        QuadCubes     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        SexCubes      & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        CombinedCubes & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Figure~\ref{fig:arch_pareto} plots all five architectures on a quality-versus-memory plane and a quality-versus-time plane. \todo{Insert figures. Mark the QuadCubes baseline prominently.}
+Figure~\ref{fig:arch_pareto} plots all four dynamic architectures on a quality-versus-memory plane and a quality-versus-time plane. \todo{Insert figures. Mark the QuadCubes baseline prominently.}
 
-The design space explored in this chapter can be understood as a trade-off along two axes: collision rate and dimensional coupling. Moving from SingleCube toward SexCubes reduces the collision rate but also reduces the coupling between coordinates in each encoder, forcing the MLP to perform more of the integration work. The QuadCubes and CombinedCubes architectures occupy intermediate positions in this space, but with different compromises: QuadCubes uses four equally capable 3D encoders and accepts moderate collisions across all of them, while CombinedCubes uses one capable 3D encoder for spatial structure and three lightweight but collision-free 2D encoders for temporal dynamics.
+The design space explored in this chapter can be understood as a trade-off along two axes: collision rate and dimensional coupling. Moving from SingleCube toward SexCubes reduces the collision rate but also reduces the coupling between coordinates in each encoder, forcing the MLP to perform more of the integration work. QuadCubes and CombinedCubes occupy intermediate positions in this space, but with different compromises: QuadCubes uses four equally capable 3D encoders and accepts moderate collisions across all of them, while CombinedCubes uses one capable 3D encoder for spatial structure and three lightweight but collision-free 2D encoders for temporal dynamics.
 
-\todo{Describe the overall pattern in the results: which architectures are on the Pareto front of quality versus memory, which are dominated, and whether the CombinedCubes and QuadCubes architectures are distinguishable in practice or effectively equivalent. Do not draw conclusions about which architecture is best; describe what the data shows.}
+\todo{Describe the overall pattern in the results: which architectures are on the Pareto front of quality versus memory, which are dominated, and whether the CombinedCubes and QuadCubes architectures are distinguishable in practice or effectively equivalent. Do not draw conclusions; describe what the data shows.}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Continuous Scanning}
@@ -906,9 +888,9 @@ The acquisition protocols described in Chapters~\ref{chap:background} and~\ref{c
 \section{Motivation}
 \label{sec:cont_motivation}
 
-In step-and-shoot mode the sample is stationary during each exposure, so every photon reaching the detector during that exposure passed through the sample at the same angular orientation. The resulting projection is geometrically clean: each detector pixel records the line integral of $\mu$ along a single well-defined ray at a single known angle. The cost of this geometric cleanliness is time: between each exposure the sample must decelerate to a stop, the controller waits for mechanical vibration to damp out, the shutter opens, the exposure runs, the shutter closes, and the motor accelerates again to the next position. For instruments where each exposure is short relative to the motor settling time, a significant fraction of the total acquisition time is spent stationary but not imaging. This dead time represents information that could in principle have been collected.
+In step-and-shoot mode the sample is stationary during each exposure, so every photon reaching the detector during that exposure passed through the sample at the same angular orientation. Each detector pixel records the line integral of $\mu$ along a single well-defined ray at a single known angle. The cost of this geometric cleanliness is time. Between each exposure the sample must decelerate to a stop, the controller waits for mechanical vibration to damp out, the shutter opens, the exposure runs, the shutter closes, and the motor accelerates again to the next position. For instruments where each exposure is short relative to the motor settling time, a significant fraction of the total acquisition time is spent stationary but not imaging. This dead time represents information that could in principle have been collected.
 
-In continuous rotation mode the shutter remains open throughout. The sample rotates steadily and the detector integrates photons over the full angular range swept during the exposure time. If the exposure time is $\tau$ and the angular velocity is $\omega$, then each projection integrates the sample over an angular interval of $\Delta\phi = \omega \tau$ radians. The detector pixel at position $j$ no longer records a single line integral: it records the superposition of line integrals along all rays through the sample at all angles within $[\phi_s,\, \phi_s + \Delta\phi]$, weighted by the time spent at each angle. The resulting projection is geometrically blurred in the angular direction, and the severity of the blur is proportional to $\Delta\phi$.
+In continuous rotation mode the shutter remains open throughout. The sample rotates steadily and the detector integrates photons over the full angular range swept during the exposure time. If the exposure time is $\tau$ and the angular velocity is $\omega$, then each projection integrates the sample over an angular interval of $\Delta\phi = \omega \tau$ radians. The detector pixel at position $j$ no longer records a single line integral. It records the superposition of line integrals along all rays through the sample at all angles within $[\phi_s,\, \phi_s + \Delta\phi]$, weighted by the time spent at each angle. The resulting projection is geometrically blurred in the angular direction, and the severity of the blur is proportional to $\Delta\phi$.
 
 For a step-and-shoot scan with the same total acquisition time, the number of angular positions visited is fixed by the motor speed and settling time. Continuous rotation removes the settling overhead and can therefore visit more angular positions in the same wall-clock time, or equivalently sample a finer angular grid with no increase in total acquisition time. For dynamic experiments this has a direct consequence: processes that occur faster than the step-and-shoot inter-frame interval may be partially or fully unresolvable in step-and-shoot mode, but if continuous rotation reduces the effective time between adjacent projections those same processes become accessible. The trade-off is that the projections acquired in continuous mode are individually less geometrically precise, and a reconstruction algorithm that treats them as if they were step-and-shoot projections will see systematic errors in the forward model.
 

@@ -95,7 +95,7 @@ class HashEncoderConfig:
     
     def get_encoder_config_2D(self) -> dict:
         if self.log2_hashmap_size > 20:
-            hashmax_2d = 20
+            hashmax_2d = 18
         else:
             hashmax_2d = self.log2_hashmap_size
 
@@ -383,7 +383,7 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
-        elif model in ["quadcubes_transformer", "quadcubes_unet"]:
+        elif model in ["quadcubes_transformer", "quadcubes_unet", "sexcubes_transformer", "sexcubes_unet"]:
             if not isinstance(self.encoder, HashEncoderConfig):
                 raise ValueError(f"Encoder configuration for model type {model} must be HashEncoderConfig")
 
@@ -403,6 +403,26 @@ class Config:
                 from nect.network import QuadCubesUNet
                 memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
                 model = QuadCubesUNet(
+                    encoding_config=self.encoder,
+                    decoder_config=self.net,
+                )
+
+            elif model == "sexcubes_transformer":
+                if not isinstance(self.net, TransformerDecoderConfig):
+                    raise ValueError(f"net must be TransformerDecoderConfig for {model}")
+                from nect.network import SexCubesTransformer
+                memory_per_point = 4 * byte_size * self.encoder.n_levels * 6  # 2D grids: 4 nodes
+                model = SexCubesTransformer(
+                    encoding_config=self.encoder,
+                    decoder_config=self.net,
+                )
+
+            elif model == "sexcubes_unet":
+                if not isinstance(self.net, UNetDecoderConfig):
+                    raise ValueError(f"net must be UNetDecoderConfig for {model}")
+                from nect.network import SexCubesUNet
+                memory_per_point = 4 * byte_size * self.encoder.n_levels * 6
+                model = SexCubesUNet(
                     encoding_config=self.encoder,
                     decoder_config=self.net,
                 )
@@ -726,6 +746,8 @@ cfg_paths: dict = {
         "combinedcubes": pathlib.Path(__file__).parent / "cfg/dynamic/combinedcubes.yaml",
         "quadcubes_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_transformer.yaml",
         "quadcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_unet.yaml",
+        "sexcubes_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_transformer.yaml",
+        "sexcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_unet.yaml",
     },
 }
 
@@ -928,7 +950,9 @@ def cfg_sanity_check(cfg: dict):
         "combinedcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },
         "quadcubes_transformer": {"encoder": hash_encoder},
-        "quadcubes_unet": {"encoder": hash_encoder},}
+        "quadcubes_unet": {"encoder": hash_encoder},
+        "sexcubes_transformer": {"encoder": hash_encoder},
+        "sexcubes_unet": {"encoder": hash_encoder},}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]
     sanity_all = {

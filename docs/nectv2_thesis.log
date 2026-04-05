@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  5 APR 2026 18:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  5 APR 2026 20:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1251,8 +1251,17 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [4]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[5]
 Chapter 2.
-[5
+[6
 
 ]
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1266,19 +1275,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[6]
+[7]
 Underfull \vbox (badness 1406) has occurred while \output is active []
 
 
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[7]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1297,6 +1297,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [9]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[10]
 Underfull \vbox (badness 1874) has occurred while \output is active []
 
 
@@ -1308,7 +1317,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[10]
+[11]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1317,7 +1326,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[11]
+[12]
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/lmr/m/sc/12'.
 (microtype)             Ignoring protrusion settings for this character.
@@ -1330,8 +1339,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[12]
-Overfull \hbox (36.69798pt too wide) detected at line 371
+[13]
+Overfull \hbox (36.69798pt too wide) detected at line 358
 [][][]\OT1/lmr/m/n/12 (\OT1/lmr/bx/n/12 x\OT1/lmr/m/n/12 ) = [][]  [] \OML/lmm/
 m/it/12 ;  \OT1/lmr/bx/n/12 y \OT1/lmr/m/n/12 = [] \OML/lmm/m/it/12 :
  []
@@ -1348,27 +1357,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[13]
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 407.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 407.
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
 [14]
 
-LaTeX Warning: Command \textdegree invalid in math mode on input line 437.
+LaTeX Warning: Command \textdegree invalid in math mode on input line 394.
 
 
-LaTeX Warning: Command \textdegree invalid in math mode on input line 437.
+LaTeX Warning: Command \textdegree invalid in math mode on input line 394.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1379,6 +1373,21 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [15]
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 412.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 412.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[16]
 Underfull \vbox (badness 1527) has occurred while \output is active []
 
 
@@ -1390,49 +1399,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[16]
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 469.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 469.
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
 [17]
 
-LaTeX Warning: Command \textdegree invalid in math mode on input line 473.
+LaTeX Warning: Command \textdegree invalid in math mode on input line 438.
 
 
-LaTeX Warning: Command \textdegree invalid in math mode on input line 473.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 475.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 475.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 477.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 477.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 477.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 477.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+LaTeX Warning: Command \textdegree invalid in math mode on input line 438.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1443,6 +1415,34 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [18]
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 442.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 442.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 444.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 444.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 446.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 446.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 446.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 446.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1461,6 +1461,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [20]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[21]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -1472,8 +1481,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[21]
-Overfull \hbox (17.56839pt too wide) detected at line 558
+[22]
+Overfull \hbox (17.56839pt too wide) detected at line 527
 [][][]\OT1/lmr/m/n/12 (\OML/lmm/m/it/12 x; y; z\OT1/lmr/m/n/12 )\OML/lmm/m/it/1
 2 ;  []\OT1/lmr/m/n/12 (\OML/lmm/m/it/12 x; y; t\OT1/lmr/m/n/12 )\OML/lmm/m/it/
 12 ;  []\OT1/lmr/m/n/12 (\OML/lmm/m/it/12 x; z; t\OT1/lmr/m/n/12 )\OML/lmm/m/it
@@ -1482,7 +1491,7 @@ t/12 :
  []
 
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 5
-76.
+45.
 (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -1491,15 +1500,6 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[22]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1518,11 +1518,20 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [24]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[25]
 Chapter 3.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[25
+[26
 
 ]
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1536,32 +1545,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[26]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
 [27]
-
-LaTeX Warning: Reference `fig:psnr_vs_params_hashmap' on page 28 undefined on i
-nput line 657.
-
-
-LaTeX Warning: Reference `fig:psnr_vs_params_levels' on page 28 undefined on in
-put line 665.
-
-
-LaTeX Warning: Reference `fig:psnr_vs_params_features' on page 28 undefined on 
-input line 671.
-
-
-LaTeX Warning: Reference `fig:psnr_vs_params_joint' on page 28 undefined on inp
-ut line 675.
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1572,16 +1556,41 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [28]
 
-LaTeX Warning: Reference `fig:quality_vs_time' on page 29 undefined on input li
-ne 682.
+LaTeX Warning: Reference `fig:psnr_vs_params_hashmap' on page 29 undefined on i
+nput line 626.
 
 
-LaTeX Warning: Reference `fig:quality_vs_vram' on page 29 undefined on input li
-ne 686.
+LaTeX Warning: Reference `fig:psnr_vs_params_levels' on page 29 undefined on in
+put line 634.
 
 
-LaTeX Warning: Reference `fig:training_curves' on page 29 undefined on input li
-ne 692.
+LaTeX Warning: Reference `fig:psnr_vs_params_features' on page 29 undefined on 
+input line 640.
+
+
+LaTeX Warning: Reference `fig:psnr_vs_params_joint' on page 29 undefined on inp
+ut line 644.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[29]
+
+LaTeX Warning: Reference `fig:quality_vs_time' on page 30 undefined on input li
+ne 651.
+
+
+LaTeX Warning: Reference `fig:quality_vs_vram' on page 30 undefined on input li
+ne 655.
+
+
+LaTeX Warning: Reference `fig:training_curves' on page 30 undefined on input li
+ne 661.
 
 
 Underfull \vbox (badness 1571) has occurred while \output is active []
@@ -1595,27 +1604,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[29]
-
-LaTeX Warning: Reference `fig:metric_comparison' on page 30 undefined on input 
-line 701.
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
 [30]
-Overfull \hbox (20.3061pt too wide) in paragraph at lines 722--733
- [][] 
- []
 
-
-LaTeX Warning: Reference `fig:nonuniform_quality' on page 31 undefined on input
- line 735.
+LaTeX Warning: Reference `fig:metric_comparison' on page 31 undefined on input 
+line 670.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1626,13 +1618,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [31]
-Chapter 4.
-[32
-
-]
-Overfull \hbox (20.66373pt too wide) in paragraph at lines 771--782
+Overfull \hbox (20.3061pt too wide) in paragraph at lines 691--702
  [][] 
  []
+
+
+LaTeX Warning: Reference `fig:nonuniform_quality' on page 32 undefined on input
+ line 704.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1642,13 +1634,14 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[33]
-LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 798.
+[32]
+Chapter 4.
+[33
 
-
-LaTeX Warning: Reference `fig:tricubes_quality' on page 34 undefined on input l
-ine 800.
+]
+Overfull \hbox (16.74289pt too wide) in paragraph at lines 740--750
+ [][] 
+ []
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1660,12 +1653,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [34]
 
-LaTeX Warning: Reference `fig:sexcubes_reconstruction' on page 35 undefined on 
-input line 813.
+LaTeX Warning: Reference `fig:tricubes_reconstruction' on page 35 undefined on 
+input line 781.
 
 
-LaTeX Warning: Reference `fig:sexcubes_quality' on page 35 undefined on input l
-ine 815.
+LaTeX Warning: Reference `fig:tricubes_quality' on page 35 undefined on input l
+ine 783.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1677,16 +1670,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [35]
 
-LaTeX Warning: Reference `fig:singlecube_reconstruction' on page 36 undefined o
-n input line 828.
+LaTeX Warning: Reference `fig:sexcubes_reconstruction' on page 36 undefined on 
+input line 796.
 
 
-LaTeX Warning: Reference `fig:singlecube_quality' on page 36 undefined on input
- line 832.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+LaTeX Warning: Reference `fig:sexcubes_quality' on page 36 undefined on input l
+ine 798.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1698,16 +1687,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [36]
 
-LaTeX Warning: Reference `fig:combinedcubes_reconstruction' on page 37 undefine
-d on input line 859.
+LaTeX Warning: Reference `fig:singlecube_reconstruction' on page 37 undefined o
+n input line 811.
 
 
-LaTeX Warning: Reference `fig:combinedcubes_quality' on page 37 undefined on in
-put line 861.
-
-
-LaTeX Warning: Reference `fig:combinedcubes_time' on page 37 undefined on input
- line 865.
+LaTeX Warning: Reference `fig:singlecube_quality' on page 37 undefined on input
+ line 815.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1718,13 +1703,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [37]
-Overfull \hbox (29.02614pt too wide) in paragraph at lines 880--891
- [][] 
- []
 
-
-LaTeX Warning: Reference `fig:arch_pareto' on page 38 undefined on input line 8
-93.
+LaTeX Warning: Reference `fig:combinedcubes_reconstruction' on page 38 undefine
+d on input line 842.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1736,6 +1717,26 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [38]
 
+LaTeX Warning: Reference `fig:combinedcubes_quality' on page 39 undefined on in
+put line 844.
+
+
+LaTeX Warning: Reference `fig:combinedcubes_time' on page 39 undefined on input
+ line 848.
+
+
+Overfull \hbox (29.02614pt too wide) in paragraph at lines 863--873
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `fig:arch_pareto' on page 39 undefined on input line 8
+75.
+
+
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
 (fancyhdr)                \setlength{\headheight}{14.49998pt}.
@@ -1744,8 +1745,17 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [39]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[40]
 Chapter 5.
-[40
+[41
 
 ]
 
@@ -1756,38 +1766,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[41]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 951.
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
 [42]
-
-LaTeX Warning: Reference `fig:static_cont_reconstruction' on page 43 undefined 
-on input line 976.
-
-
-LaTeX Warning: Reference `fig:static_cont_psnr' on page 43 undefined on input l
-ine 978.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 980.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 980.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 980.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 980.
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 933.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1799,8 +1780,24 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [43]
 
-LaTeX Warning: Reference `fig:dynamic_cont_reconstruction' on page 44 undefined
- on input line 991.
+LaTeX Warning: Reference `fig:static_cont_reconstruction' on page 44 undefined 
+on input line 958.
+
+
+LaTeX Warning: Reference `fig:static_cont_psnr' on page 44 undefined on input l
+ine 960.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 962.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 962.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 962.
+
+
+LaTeX Warning: Command \textdegree invalid in math mode on input line 962.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1812,6 +1809,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [44]
 
+LaTeX Warning: Reference `fig:dynamic_cont_reconstruction' on page 45 undefined
+ on input line 973.
+
+
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
 (fancyhdr)                \setlength{\headheight}{14.49998pt}.
@@ -1820,11 +1821,21 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [45]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[46]
 Chapter 6.
-[46
+[47
 
-] (./nectv2_thesis.bbl [47
+] [48
 
+] (./nectv2_thesis.bbl [49
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 146--149
@@ -1840,31 +1851,31 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[48]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[49])
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
 [50]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[51])
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[52]
 Appendix A.
-[51
+[53
 
 ]
 Appendix B.
-[52
+[54
 
 ] (./nectv2_thesis.aux)
 
@@ -1877,11 +1888,11 @@ Package rerunfilecheck Info: File `nectv2_thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 879C2925BCF5B6238CF033C5A067DE39;7626.
  ) 
 Here is how much of TeX's memory you used:
- 43553 strings out of 480247
- 996137 string characters out of 5896152
+ 43552 strings out of 480247
+ 996150 string characters out of 5896152
  1388507 words of memory out of 5000000
  60287 multiletter control sequences out of 15000+600000
- 566659 words of font info for 254 fonts, out of 8000000 for 9000
+ 566189 words of font info for 252 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,12n,80p,1365b,951s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
@@ -1896,13 +1907,12 @@ ts/type1/public/lm/lmmi12.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi6.pfb
 hare/texmf/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf/fonts/type1/public/
 lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy
-8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/font
-s/type1/public/lm/lmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
-amsfonts/symbols/msbm10.pfb>
-Output written on nectv2_thesis.pdf (61 pages, 474176 bytes).
+8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on nectv2_thesis.pdf (63 pages, 454160 bytes).
 PDF statistics:
- 916 PDF objects out of 1000 (max. 8388607)
- 805 compressed objects within 9 object streams
- 193 named destinations out of 1000 (max. 500000)
- 54629 words of extra memory for PDF output out of 61914 (max. 10000000)
+ 924 PDF objects out of 1000 (max. 8388607)
+ 813 compressed objects within 9 object streams
+ 195 named destinations out of 1000 (max. 500000)
+ 54117 words of extra memory for PDF output out of 61914 (max. 10000000)
 

@@ -1000,3 +1000,245 @@ class QuadCubesUNet(nn.Module):
         d1 = self.up1(torch.cat([d2, e1], dim=-1))
 
         return self.out_head(d1)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SexCubes variants with richer decoders.
+#
+# SexCubes decomposes (z,y,x,t) into all 6 pairwise 2D projections.  Each
+# 2D encoder captures less information than a 3D encoder (QuadCubes), so the
+# features are more "disconnected" and a plain MLP struggles unless it is made
+# very large.  A richer decoder (Transformer or UNet) that explicitly models
+# interactions between the 6 features can compensate without bloating the MLP.
+#
+# _SexEncoder wraps the 6 TCNN 2D encoders and exposes pure PyTorch tensors,
+# exactly like _QuadEncoder does for QuadCubes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class _SexEncoder(nn.Module):
+    """Six independent TCNN 2D hash-encoders for all pairwise projections of (z,y,x,t).
+
+    Pairs (in zyx input convention):
+        enc_zy : (z, y)
+        enc_zx : (z, x)
+        enc_yx : (y, x)
+        enc_zt : (z, t)
+        enc_yt : (y, t)
+        enc_xt : (x, t)
+
+    Returns six float32 feature tensors so the downstream PyTorch decoder
+    can operate in full precision (TCNN encoding outputs are float16).
+    """
+
+    def __init__(self, encoding_config: HashEncoderConfig):
+        super().__init__()
+        enc_cfg = encoding_config.get_encoder_config_2D()
+        self.enc_zy = tcnn.Encoding(2, enc_cfg)
+        self.enc_zx = tcnn.Encoding(2, enc_cfg)
+        self.enc_yx = tcnn.Encoding(2, enc_cfg)
+        self.enc_zt = tcnn.Encoding(2, enc_cfg)
+        self.enc_yt = tcnn.Encoding(2, enc_cfg)
+        self.enc_xt = tcnn.Encoding(2, enc_cfg)
+        self.n_output_dims = self.enc_zy.n_output_dims  # same for all six
+
+    def forward(self, zyx, t):
+        """
+        Args:
+            zyx: [B, 3] coordinate tensor, columns are (z, y, x) in [0, 1].
+            t:   scalar float timestep in [0, 1].
+
+        Returns:
+            Tuple of six [B, D] float32 feature tensors.
+        """
+        tcol = torch.full((zyx.size(0), 1), float(t), device=zyx.device, dtype=zyx.dtype)
+        zy = zyx[:, [0, 1]]
+        zx = zyx[:, [0, 2]]
+        yx = zyx[:, [1, 2]]
+        zt = torch.cat([zyx[:, [0]], tcol], dim=1)
+        yt = torch.cat([zyx[:, [1]], tcol], dim=1)
+        xt = torch.cat([zyx[:, [2]], tcol], dim=1)
+        return (
+            self.enc_zy(zy).float(),
+            self.enc_zx(zx).float(),
+            self.enc_yx(yx).float(),
+            self.enc_zt(zt).float(),
+            self.enc_yt(yt).float(),
+            self.enc_xt(xt).float(),
+        )
+
+
+class SexCubesTransformer(nn.Module):
+    """SexCubes encoder + Transformer decoder.
+
+    The six 2D encoder feature vectors are treated as a sequence of 6 tokens.
+    Self-attention lets each token attend to all others (capturing cross-pair
+    interactions that a plain MLP must learn implicitly), then tokens are
+    mean-pooled and projected to a scalar.
+
+    Inherits all the cuBLASLt workarounds from QuadCubesTransformer:
+      - feat_dim padded to multiple of 8 (K alignment)
+      - batch dimension padded to multiple of 8 before token_proj (N alignment)
+      - manual matmul in _SelfAttnBlock to avoid flash-attn grid-size limits
+
+    Config:
+        encoding_config : HashEncoderConfig  (same as SexCubes)
+        decoder_config  : TransformerDecoderConfig
+            d_model  – token projection dimension
+            n_heads  – number of attention heads (must divide d_model)
+            n_layers – number of _SelfAttnBlock layers
+            dropout  – dropout probability
+    """
+
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        decoder_config: TransformerDecoderConfig,
+    ):
+        super().__init__()
+        self.encoder = _SexEncoder(encoding_config)
+
+        feat_dim_raw = self.encoder.n_output_dims
+        d_model = decoder_config.d_model
+        n_heads = decoder_config.n_heads
+        n_layers = decoder_config.n_layers
+        dropout = decoder_config.dropout
+
+        self._feat_dim_raw = feat_dim_raw
+        self._feat_dim = math.ceil(feat_dim_raw / 8) * 8
+        self.token_proj = nn.Linear(self._feat_dim, d_model)
+
+        # 6 learnable positional embeddings, one per pair
+        self.pos_embed = nn.Parameter(torch.zeros(6, d_model))
+        nn.init.trunc_normal_(self.pos_embed, std=0.02)
+
+        self.blocks = nn.ModuleList(
+            [_SelfAttnBlock(d_model, n_heads, dropout) for _ in range(n_layers)]
+        )
+
+        self.out_head = nn.Sequential(
+            nn.Linear(d_model, d_model // 2),
+            nn.ReLU(),
+            nn.Linear(d_model // 2, 1),
+        )
+
+    def forward(self, zyx, t):
+        B = zyx.size(0)
+        feats = self.encoder(zyx, t)  # tuple of 6 × [B, D]
+
+        # [B, 6, feat_dim_raw] — pad K to multiple of 8 if needed
+        tokens = torch.stack(list(feats), dim=1)
+        if self._feat_dim > self._feat_dim_raw:
+            tokens = F.pad(tokens, (0, self._feat_dim - self._feat_dim_raw))
+
+        # Reshape to 2D; pad batch dim to multiple of 8 for cuBLASLt FP16
+        tokens_2d = tokens.contiguous().reshape(B * 6, -1)
+        N = tokens_2d.size(0)
+        pad = (-N) % 8
+        if pad:
+            tokens_2d = F.pad(tokens_2d, (0, 0, 0, pad))
+        tokens_2d = self.token_proj(tokens_2d)
+        if pad:
+            tokens_2d = tokens_2d[:N]
+        tokens = tokens_2d.reshape(B, 6, -1)
+        tokens = tokens + self.pos_embed.unsqueeze(0)  # [B, 6, d_model]
+
+        for block in self.blocks:
+            tokens = block(tokens)
+
+        # Mean pool → [B, d_model] → [B, 1]
+        return self.out_head(tokens.mean(dim=1))
+
+
+class SexCubesUNet(nn.Module):
+    """SexCubes encoder + U-Net style decoder.
+
+    Each of the 6 pairwise 2D encoders produces multi-resolution features.
+    The UNet splits each encoder's output into coarse/medium/fine scale groups
+    and processes them with skip connections, so coarse-scale structure from
+    all 6 pairs is merged first, then medium, then fine detail.
+
+    This directly addresses the disconnection problem: instead of expecting
+    a single MLP to bridge all 6 feature streams, the down-path gradually
+    fuses them scale by scale.
+
+    Config:
+        encoding_config : HashEncoderConfig  (same as SexCubes)
+        decoder_config  : UNetDecoderConfig
+            hidden_dims   – list of 3 integers [d1, d2, d3]
+            levels_coarse – how many hash levels go into the coarse group
+            levels_medium – how many hash levels go into the medium group
+                            remaining levels form the fine group
+    """
+
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        decoder_config: UNetDecoderConfig,
+    ):
+        super().__init__()
+        self.encoder = _SexEncoder(encoding_config)
+
+        nfpl = encoding_config.n_features_per_level
+        n_levels = encoding_config.n_levels
+        lc = decoder_config.levels_coarse
+        lm = decoder_config.levels_medium
+        lf = n_levels - lc - lm
+        if lf <= 0:
+            raise ValueError(
+                f"levels_coarse ({lc}) + levels_medium ({lm}) must be < n_levels ({n_levels})"
+            )
+        self._lc = lc
+        self._lm = lm
+        self._nfpl = nfpl
+
+        # 6 encoders × levels × features per level
+        coarse_dim = 6 * lc * nfpl
+        medium_dim = 6 * lm * nfpl
+        fine_dim   = 6 * lf * nfpl
+
+        d1, d2, d3 = decoder_config.hidden_dims
+
+        # ── Down-path ────────────────────────────────────────────────────────
+        self.down1 = nn.Sequential(nn.Linear(coarse_dim, d1), nn.ReLU())
+        self.down2 = nn.Sequential(nn.Linear(medium_dim + d1, d2), nn.ReLU())
+        self.bottleneck = nn.Sequential(nn.Linear(fine_dim + d2, d3), nn.ReLU())
+
+        # ── Up-path (with skip connections from down-path) ────────────────────
+        self.up2 = nn.Sequential(nn.Linear(d3 + d2, d2), nn.ReLU())
+        self.up1 = nn.Sequential(nn.Linear(d2 + d1, d1), nn.ReLU())
+
+        self.out_head = nn.Linear(d1, 1)
+
+    def _split_levels(self, feat):
+        """Split a single encoder's output into (coarse, medium, fine) groups."""
+        c = self._lc * self._nfpl
+        m = self._lm * self._nfpl
+        return feat[:, :c], feat[:, c : c + m], feat[:, c + m :]
+
+    def forward(self, zyx, t):
+        f_zy, f_zx, f_yx, f_zt, f_yt, f_xt = self.encoder(zyx, t)
+
+        # Split each encoder's features by resolution scale
+        c0, m0, f0 = self._split_levels(f_zy)
+        c1, m1, f1 = self._split_levels(f_zx)
+        c2, m2, f2 = self._split_levels(f_yx)
+        c3, m3, f3 = self._split_levels(f_zt)
+        c4, m4, f4 = self._split_levels(f_yt)
+        c5, m5, f5 = self._split_levels(f_xt)
+
+        # Concatenate across all 6 encoders at each scale
+        coarse = torch.cat([c0, c1, c2, c3, c4, c5], dim=-1)
+        medium = torch.cat([m0, m1, m2, m3, m4, m5], dim=-1)
+        fine   = torch.cat([f0, f1, f2, f3, f4, f5], dim=-1)
+
+        # Down-path
+        e1 = self.down1(coarse)
+        e2 = self.down2(torch.cat([medium, e1], dim=-1))
+        e3 = self.bottleneck(torch.cat([fine, e2], dim=-1))
+
+        # Up-path with skip connections
+        d2 = self.up2(torch.cat([e3, e2], dim=-1))
+        d1 = self.up1(torch.cat([d2, e1], dim=-1))
+
+        return self.out_head(d1)

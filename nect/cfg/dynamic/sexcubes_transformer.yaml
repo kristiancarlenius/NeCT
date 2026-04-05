@@ -1,0 +1,35 @@
+# Default configuration for SexCubesTransformer.
+#
+# The encoder is SexCubes: 6 independent 2D hash-grids covering all pairwise
+# projections of (z,y,x,t): (z,y), (z,x), (y,x), (z,t), (y,t), (x,t).
+# log2_hashmap_size is capped at 20 internally by get_encoder_config_2D()
+# regardless of the value set here.
+#
+# The decoder treats the 6 feature vectors as 6 tokens and applies
+# self-attention, allowing each 2D projection to attend to all others.
+# This models the cross-pair interactions that a plain MLP must learn
+# implicitly with a very large width.
+#
+# 6 tokens vs QuadCubes' 4, so d_model and n_layers are increased slightly.
+# n_heads must divide d_model evenly.
+
+encoder:
+  otype: HashGrid
+  n_levels: 23
+  n_features_per_level: 4
+  log2_hashmap_size: 20
+  base_resolution: 16
+  max_resolution_factor: 2
+
+net:
+  d_model: 96
+  n_heads: 4
+  n_layers: 3
+  dropout: 0.0
+
+model: sexcubes_transformer
+base_lr: 0.0001
+batch_per_proj: 1
+warmup:
+  steps: 2000
+  lr0: 0.0002
