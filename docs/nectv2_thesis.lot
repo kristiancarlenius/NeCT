@@ -1,9 +1,13 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{8}{table.caption.6}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{11}{table.caption.6}%
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }}{26}{table.caption.11}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations evaluated in \cref {sec:enc_size_nonuniform}. All configurations use $L = $ \leavevmode {\color {red}\textbf {[TODO: value]}} levels and $F = $ \leavevmode {\color {red}\textbf {[TODO: value]}} features per level unless otherwise noted.\relax }}{31}{table.caption.21}%
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder. Memory estimates assume $L = 16$, $F = 4$, float16, with the hashmap size matched to fit within a fixed total memory budget.\relax }}{33}{table.caption.23}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color {red}\textbf {[TODO: dataset name]}}. Memory figures are peak GPU allocation during training. Training time is wall-clock time to convergence. Quality metrics are computed at \leavevmode {\color {red}\textbf {[TODO: specify time point or averaged]}}.\relax }}{38}{table.caption.24}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
