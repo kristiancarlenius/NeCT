@@ -884,7 +884,7 @@ class QuadCubesTransformer(nn.Module):
             tokens = F.pad(tokens, (0, self._feat_dim - self._feat_dim_raw))
 
         # Reshape to 2D before token_proj to avoid cublasLtMatmul on 3D input
-        tokens = self.token_proj(tokens.reshape(B * 4, -1)).reshape(B, 4, -1)
+        tokens = self.token_proj(tokens.contiguous().reshape(B * 4, -1)).reshape(B, 4, -1)
         tokens = tokens + self.pos_embed.unsqueeze(0)  # [B, 4, d_model]
 
         for block in self.blocks:

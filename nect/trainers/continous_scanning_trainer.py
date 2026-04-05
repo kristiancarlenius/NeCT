@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from nect.config import Config
 from nect.trainers.base_trainer import BaseTrainer
 
-torch.autograd.set_detect_anomaly(True)
+# torch.autograd.set_detect_anomaly(True)  # debug only — disabled for performance
 
 
 class ContinousScanningTrainer(BaseTrainer):
@@ -157,24 +157,30 @@ class ContinousScanningTrainer(BaseTrainer):
 
                     # Pass 1: accumulate y_pred without computation graphs to save memory.
                     # With all graphs alive simultaneously, memory scales with accumulation_steps.
-                    # This pass computes the same value but releases each angle's graph immediately.
+                    # Cache projector outputs so Pass 2 doesn't recompute them.
                     y_pred = None
                     y_last = None
+                    cached_angles = []  # list of (points_filtered, zero_points_mask, points_shape, distances)
                     with torch.no_grad():
                         for ang in linspace:
                             self.projector.update_angle(ang)
                             points, y = self.projector(batch_num=batch_num, proj=self.proj)
                             if points is None or y is None:
+                                cached_angles.append(None)
                                 continue
                             y_last = y
                             zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
                             points_shape = points.size()
                             if points_shape[1] == 0:
                                 self.logger.warning("No points in the batch")
+                                cached_angles.append(None)
                                 continue
                             points_filtered = points.view(-1, 3)[~zero_points_mask]
                             if points_filtered.size(0) == 0:
+                                cached_angles.append(None)
                                 continue
+                            distances = self.projector.distances
+                            cached_angles.append((points_filtered, zero_points_mask, points_shape, distances))
                             atten_hats = []
                             for points_num in range(0, points_filtered.size(0), points_per_batch):
                                 if self.config.mode == "dynamic":
@@ -186,7 +192,7 @@ class ContinousScanningTrainer(BaseTrainer):
                             processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
                             processed_tensor[~zero_points_mask] = atten_hat
                             atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
-                            contrib = torch.sum(atten_hat, dim=1) * (self.projector.distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+                            contrib = torch.sum(atten_hat, dim=1) * (distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
                             if y_pred is None:
                                 y_pred = contrib
                             else:
@@ -214,20 +220,12 @@ class ContinousScanningTrainer(BaseTrainer):
                     loss.backward()
                     grad_y_pred = y_pred_leaf.grad.detach()
 
-                    # Pass 2: replay each angle one at a time, backpropping with the stored
-                    # upstream gradient. Only one computation graph is alive at a time.
-                    for ang in linspace:
-                        self.projector.update_angle(ang)
-                        points, y = self.projector(batch_num=batch_num, proj=self.proj)
-                        if points is None or y is None:
+                    # Pass 2: replay each angle using cached projector outputs.
+                    # Only one computation graph is alive at a time.
+                    for cached in cached_angles:
+                        if cached is None:
                             continue
-                        zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
-                        points_shape = points.size()
-                        if points_shape[1] == 0:
-                            continue
-                        points_filtered = points.view(-1, 3)[~zero_points_mask]
-                        if points_filtered.size(0) == 0:
-                            continue
+                        points_filtered, zero_points_mask, points_shape, distances = cached
                         atten_hats = []
                         for points_num in range(0, points_filtered.size(0), points_per_batch):
                             if self.config.mode == "dynamic":
@@ -239,7 +237,7 @@ class ContinousScanningTrainer(BaseTrainer):
                         processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device,).view(-1, 1)
                         processed_tensor[~zero_points_mask] = atten_hat
                         atten_hat = processed_tensor.view(points_shape[0], points_shape[1])
-                        contrib = torch.sum(atten_hat, dim=1) * (self.projector.distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+                        contrib = torch.sum(atten_hat, dim=1) * (distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
                         self.fabric.backward((contrib * grad_y_pred).sum())
 
                     self.fabric.log_dict(

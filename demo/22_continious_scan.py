@@ -16,7 +16,7 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_4fps_5500.yaml"
+geometry_file = Path(data_path) / "geometry_8fps_5500.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
 """
@@ -71,9 +71,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 23,
+            "n_levels": 22,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 23,
+            "log2_hashmap_size": 22,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
