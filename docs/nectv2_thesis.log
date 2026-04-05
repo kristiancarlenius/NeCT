@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  4 APR 2026 16:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  5 APR 2026 14:00
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1584,11 +1584,11 @@ Package rerunfilecheck Info: File `nectv2_thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 74EBEBEE3D5B9015A4CBBC4059AD09F9;7713.
  ) 
 Here is how much of TeX's memory you used:
- 43411 strings out of 480247
- 994015 string characters out of 5896152
+ 43407 strings out of 480247
+ 993969 string characters out of 5896152
  1384507 words of memory out of 5000000
  60246 multiletter control sequences out of 15000+600000
- 563440 words of font info for 222 fonts, out of 8000000 for 9000
+ 563261 words of font info for 220 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,12n,80p,1365b,951s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
@@ -1605,7 +1605,7 @@ lm/lmri12.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/te
 xmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmt
 k10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/
 texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on nectv2_thesis.pdf (43 pages, 385702 bytes).
+Output written on nectv2_thesis.pdf (43 pages, 385670 bytes).
 PDF statistics:
  753 PDF objects out of 1000 (max. 8388607)
  667 compressed objects within 7 object streams

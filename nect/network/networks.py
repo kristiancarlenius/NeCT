@@ -883,8 +883,17 @@ class QuadCubesTransformer(nn.Module):
         if self._feat_dim > self._feat_dim_raw:
             tokens = F.pad(tokens, (0, self._feat_dim - self._feat_dim_raw))
 
-        # Reshape to 2D before token_proj to avoid cublasLtMatmul on 3D input
-        tokens = self.token_proj(tokens.contiguous().reshape(B * 4, -1)).reshape(B, 4, -1)
+        # Reshape to 2D before token_proj.  cuBLASLt FP16 on A100 requires all
+        # of m/n/k to be multiples of 8; B*4 is often not, so pad then trim.
+        tokens_2d = tokens.contiguous().reshape(B * 4, -1)
+        N = tokens_2d.size(0)
+        pad = (-N) % 8  # == (8 - N%8) % 8
+        if pad:
+            tokens_2d = F.pad(tokens_2d, (0, 0, 0, pad))
+        tokens_2d = self.token_proj(tokens_2d)
+        if pad:
+            tokens_2d = tokens_2d[:N]
+        tokens = tokens_2d.reshape(B, 4, -1)
         tokens = tokens + self.pos_embed.unsqueeze(0)  # [B, 4, d_model]
 
         for block in self.blocks:

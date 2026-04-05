@@ -120,7 +120,7 @@ encountering \NeCT{} and the proposed extensions.}
 \label{sec:nn}
 % ─────────────────────────────────────────────────────────────────────────────
 
-A neural network is a parameterised function whose internal parameters are adjusted iteratively until the function approximates a desired input-output relationship. The basic computational unit is the neuron, which computes a weighted sum of its inputs and passes the result through a nonlinear activation function. By stacking many neurons into layers and connecting layers sequentially, a network can represent increasingly complex relationships between its inputs and outputs.
+A neural network is a parameterised function whose internal parameters are adjusted iteratively until the function approximates a desired input-output relationship. The basic computational unit is the perceptron, which computes a weighted sum of its inputs and passes the result through a nonlinear activation function. By stacking many perceptrons into layers and connecting layers sequentially, a network can represent increasingly complex relationships between its inputs and outputs.
 
 The fundamental architecture used throughout this work is the \emph{multilayer perceptron} (MLP), sometimes called a fully-connected or feedforward network. An MLP consists of an input layer, one or more hidden layers, and an output layer. Each layer $\ell$ applies a learned affine transformation followed by a nonlinear activation function:
 %
@@ -133,7 +133,7 @@ where $W^{(\ell)}$ is the weight matrix, $\mathbf{b}^{(\ell)}$ is the bias vecto
 
 The composition of $L$ such layers defines a function $f_\theta : \mathbb{R}^{n} \to \mathbb{R}^{m}$, where $\theta$ collects all learnable parameters $\{W^{(\ell)}, \mathbf{b}^{(\ell)}\}_{\ell=1}^{L}$. By the universal approximation theorem, an MLP with at least one hidden layer and a nonlinear activation can approximate any continuous function on a compact domain to arbitrary precision given sufficient capacity \citep{cybenko1989approximation, hornik1989multilayer}. In practice, depth is often more parameter-efficient than width, which is why most modern MLPs use several moderately wide hidden layers rather than one very wide one.
 
-The choice of activation function has a significant effect on training dynamics. The historically popular sigmoid $\sigma(z) = (1 + e^{-z})^{-1}$ and hyperbolic tangent $\sigma(z) = \tanh(z)$ saturate for large input magnitudes, causing vanishing gradients in deep networks. The rectified linear unit (ReLU), $\sigma(z) = \max(0, z)$, largely solved this problem and became the standard choice for many years \citep{nair2010rectified}. A known failure mode of ReLU is that neurons whose pre-activation is consistently negative receive no gradient and become permanently inactive. The Leaky ReLU addresses this by allowing a small gradient for negative inputs:
+The choice of activation function has a significant effect on training dynamics. The historically popular sigmoid $\sigma(z) = (1 + e^{-z})^{-1}$ and hyperbolic tangent $\sigma(z) = \tanh(z)$ saturate for large input magnitudes, causing vanishing gradients in deep networks. The rectified linear unit (ReLU), $\sigma(z) = \max(0, z)$, largely solved this problem and became the standard choice for many years \citep{nair2010rectified}. A known failure mode of ReLU is that perceptrons whose pre-activation is consistently negative receive no gradient and become permanently inactive. The Leaky ReLU addresses this by allowing a small gradient for negative inputs:
 %
 \begin{equation}
     \sigma(z) = \begin{cases} z & z > 0 \\ \alpha z & z \leq 0, \end{cases}
@@ -312,7 +312,7 @@ Typical values used in \NeCT{} are $L = 16$ levels, $T = 2^{23}$ entries,
 $F = 2$ features per entry, $N_\mathrm{min} = 16$, and a finest resolution
 calibrated to the voxel size of the CT scan \citep{friis2025nect}.
 
-\paragraph{Feature lookup and interpolation.}
+\paragraph{Feature lookup and interpolation}
 Given an input coordinate $\mathbf{x} \in \mathbb{R}^d$, the encoding
 proceeds independently at each level $\ell$ as follows. First, $\mathbf{x}$
 is scaled by the level's grid resolution to find the enclosing voxel:
@@ -498,7 +498,7 @@ This loop repeats for all training epochs. Because the hash table entries are up
 
 The static \NeCT{} model represents the attenuation coefficient as a continuous function of spatial coordinates only, $\muhat : \mathbb{R}^3 \to \mathbb{R}$, implemented as a hash-encoded MLP. It is architecturally derived from NAF \citep{zha2022naf} but with a refined encoder configuration and training protocol, and was benchmarked against FDK, OS-SART-TV, and NAF on eleven standard 3D CT datasets from the Open SciVis Datasets project \citep{klacansky2017openscivis}.
 
-The input spatial coordinate $\mathbf{r} = (x, y, z)$ is passed through a single 3D multiresolution hash encoder. The encoder uses a hashmap with $T = 2^{23}$ entries, $L = 16$ resolution levels, a base resolution of $N_\mathrm{min} = 16$, and $F = 4$ features per entry, yielding a 64-dimensional concatenated feature vector \citep{friis2025nect}. The MLP that follows has 4 hidden layers each with 128 neurons and Leaky ReLU activations, with a single linear output neuron producing the scalar $\muhat(\mathbf{r})$. The total number of trainable parameters is dominated by the hash table, roughly 537 million encoding parameters, compared to a few tens of thousands of MLP weights. In practice only the entries intersected by training rays are ever updated, so the effective active parameter count is much lower. The finest grid resolution $N_\mathrm{max}$ is calibrated to the detector resolution of the specific CT scan so that the finest hash grid voxels correspond approximately to the physical voxel size of the reconstruction.
+The input spatial coordinate $\mathbf{r} = (x, y, z)$ is passed through a single 3D multiresolution hash encoder. The encoder uses a hashmap with $T = 2^{23}$ entries, $L = 16$ resolution levels, a base resolution of $N_\mathrm{min} = 16$, and $F = 4$ features per entry, yielding a 64-dimensional concatenated feature vector \citep{friis2025nect}. The MLP that follows has 4 hidden layers each with 128 perceptrons and Leaky ReLU activations, with a single linear output perceptron producing the scalar $\muhat(\mathbf{r})$. The total number of trainable parameters is dominated by the hash table, roughly 537 million encoding parameters, compared to a few tens of thousands of MLP weights. In practice only the entries intersected by training rays are ever updated, so the effective active parameter count is much lower. The finest grid resolution $N_\mathrm{max}$ is calibrated to the detector resolution of the specific CT scan so that the finest hash grid voxels correspond approximately to the physical voxel size of the reconstruction.
 
 Reconstructions were produced from 49 projections for each dataset, far below the Shannon--Nyquist requirement for the object sizes involved. NeCT was evaluated against FDK, OS-SART-TV, and NAF using peak signal-to-noise ratio (PSNR) and the structural similarity index measure (SSIM) \citep{wang2004ssim}. PSNR is defined in terms of the mean squared error (MSE) between the reconstructed image $\hat{\mu}$ and the ground truth $\mu^*$, normalised by the dynamic range $R$:
 %
@@ -542,7 +542,7 @@ This set covers all four possible 3-element subsets of $\{x, y, z, t\}$, so ever
     \label{eq:quadcubes_forward}
 \end{equation}
 %
-where $\gamma_{(\cdot)}$ denotes the trilinear-interpolated hash encoding in the indicated coordinate triplet and $\theta_i$ are the trainable feature vectors of encoder $i$. The MLP has the same architecture as the static model: 4 hidden layers of 128 neurons with Leaky ReLU activations.
+where $\gamma_{(\cdot)}$ denotes the trilinear-interpolated hash encoding in the indicated coordinate triplet and $\theta_i$ are the trainable feature vectors of encoder $i$. The MLP has the same architecture as the static model: 4 hidden layers of 128 perceptrons with Leaky ReLU activations.
 
 Each encoder operates in a well-conditioned 3D hash space where the collision rate remains manageable at micro-CT resolutions. Each encoder also jointly represents three coordinates, so cross-dimensional interactions within each triplet are captured directly in the feature space rather than delegated entirely to the MLP. The overlap between encoders, where the spatial encoder \texttt{xyz} shares each of its three dimensions with one of the mixed encoders, provides redundant representations of spatial structure that assist collision disambiguation and give the MLP multiple views of the same location at different times.
 
