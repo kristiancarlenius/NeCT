@@ -26,14 +26,14 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 20,
+            "n_levels": 19,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 20,
+            "log2_hashmap_size": 19,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
         "net": TransformerDecoderConfig(
-            d_model=44,
+            d_model=40,
             n_heads=4,
             n_layers=2,
             dropout=0.0,
