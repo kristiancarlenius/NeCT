@@ -796,12 +796,23 @@ class _SelfAttnBlock(nn.Module):
         # x: [B, S, d_model]   S = 4 tokens
         B, S, D = x.shape
         H, Dh = self.n_heads, self.d_head
+        N = B * S
+        # cuBLASLt on A100 in FP16 requires M (batch rows) to be a multiple of 8.
+        # S=4, so N=B*4 is a multiple of 8 only when B is even.  Pad to be safe.
+        pad = (-N) % 8
+
+        def _linear_padded(linear, t2d):
+            """Apply linear to [N, *] tensor with row-count padded to multiple of 8."""
+            if pad:
+                t2d = F.pad(t2d, (0, 0, 0, pad))
+            out = linear(t2d)
+            if pad:
+                out = out[:N]
+            return out
 
         # ── Self-attention (pre-LN) ──────────────────────────────────────────
         h = self.norm1(x)
-        # Reshape to 2D [B*S, D] before every nn.Linear call — under AMP,
-        # cublasLtMatmul is not supported for 3D inputs regardless of alignment.
-        qkv = self.qkv(h.reshape(B * S, D)).reshape(B, S, 3, H, Dh).permute(2, 0, 3, 1, 4)
+        qkv = _linear_padded(self.qkv, h.reshape(N, D)).reshape(B, S, 3, H, Dh).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)          # each [B, H, S, Dh]
 
         # [B, H, S, S]  — S=4, so this is always a tiny 4×4 matrix
@@ -810,12 +821,11 @@ class _SelfAttnBlock(nn.Module):
         attn = self.attn_drop(attn)
 
         out = torch.matmul(attn, v)      # [B, H, S, Dh]
-        out = out.permute(0, 2, 1, 3).reshape(B, S, D)
-        x = x + self.out_proj(out.reshape(B * S, D)).reshape(B, S, D)
+        out = out.permute(0, 2, 1, 3)
+        x = x + _linear_padded(self.out_proj, out.reshape(N, D)).reshape(B, S, D)
 
         # ── Feed-forward (pre-LN) ────────────────────────────────────────────
-        # LayerNorm handles 3D fine; reshape to 2D only around the Linear layers
-        x = x + self.ff(self.norm2(x).reshape(B * S, D)).reshape(B, S, D)
+        x = x + _linear_padded(self.ff, self.norm2(x).reshape(N, D)).reshape(B, S, D)
         return x
 
 
