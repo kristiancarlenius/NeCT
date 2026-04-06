@@ -95,7 +95,7 @@ class HashEncoderConfig:
     
     def get_encoder_config_2D(self) -> dict:
         if self.log2_hashmap_size > 20:
-            hashmax_2d = 18
+            hashmax_2d = 20
         else:
             hashmax_2d = self.log2_hashmap_size
 
