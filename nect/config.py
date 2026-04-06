@@ -128,6 +128,40 @@ class HashEncoderConfig:
 
 
 @dataclass
+class DenseGridEncoderConfig:
+    """2D multiresolution dense grid encoder (no hashing, no collisions).
+
+    Generates a TCNN ``Grid`` encoding with ``type: Dense``.  For 2D inputs
+    the grid is small enough that a dense layout is feasible; this eliminates
+    the hash collisions that degrade ``HashGrid`` for pairwise encoders.
+
+    ``per_level_scale`` is specified directly (not derived from geometry) since
+    the 2D dense grid size is controlled by ``base_resolution * per_level_scale^(level-1)``.
+    """
+
+    n_levels: int
+    n_features_per_level: int
+    base_resolution: int
+    per_level_scale: float
+
+    def get_encoder_config(self) -> dict:
+        return {
+            "otype": "Grid",
+            "type": "Dense",
+            "n_levels": self.n_levels,
+            "n_features_per_level": self.n_features_per_level,
+            "base_resolution": self.base_resolution,
+            "per_level_scale": self.per_level_scale,
+        }
+
+    def get_encoder_config_2D(self) -> dict:
+        return self.get_encoder_config()
+
+    def __str__(self):
+        return f"{self.n_levels}_{self.n_features_per_level}_{self.base_resolution}_{self.per_level_scale}"
+
+
+@dataclass
 class MLPNetConfig:
     otype: str
     n_hidden_layers: int
@@ -318,7 +352,7 @@ class Config:
     points_per_ray: PointsPerRay
     s3im: bool
     model: str
-    encoder: HashEncoderConfig | KPlanesEncoderConfig
+    encoder: HashEncoderConfig | KPlanesEncoderConfig | DenseGridEncoderConfig
     net: MLPNetConfig | PirateNetConfig | TransformerDecoderConfig | UNetDecoderConfig
     concat: Optional[bool]
     reconstruction_mode: str
@@ -383,6 +417,18 @@ class Config:
             else:
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
+        elif model == "sexcubes_densegrid_transformer":
+            if not isinstance(self.encoder, DenseGridEncoderConfig):
+                raise ValueError(f"Encoder configuration for model type {model} must be DenseGridEncoderConfig")
+            if not isinstance(self.net, TransformerDecoderConfig):
+                raise ValueError(f"net must be TransformerDecoderConfig for {model}")
+            from nect.network import SexCubesTransformer
+            memory_per_point = 4 * 4 * self.encoder.n_levels * 6  # 4 nodes (bilinear), 4 bytes, 6 encoders
+            model = SexCubesTransformer(
+                encoding_config=self.encoder,
+                decoder_config=self.net,
+            )
+
         elif model in ["quadcubes_transformer", "quadcubes_unet", "sexcubes_transformer", "sexcubes_unet"]:
             if not isinstance(self.encoder, HashEncoderConfig):
                 raise ValueError(f"Encoder configuration for model type {model} must be HashEncoderConfig")
@@ -748,6 +794,7 @@ cfg_paths: dict = {
         "quadcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_unet.yaml",
         "sexcubes_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_transformer.yaml",
         "sexcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_unet.yaml",
+        "sexcubes_densegrid_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_densegrid_transformer.yaml",
     },
 }
 
@@ -952,7 +999,13 @@ def cfg_sanity_check(cfg: dict):
         "quadcubes_transformer": {"encoder": hash_encoder},
         "quadcubes_unet": {"encoder": hash_encoder},
         "sexcubes_transformer": {"encoder": hash_encoder},
-        "sexcubes_unet": {"encoder": hash_encoder},}
+        "sexcubes_unet": {"encoder": hash_encoder},
+        "sexcubes_densegrid_transformer": {"encoder": {
+            "n_levels": (int, [(int.__ge__, 1, gt_eq)]),
+            "n_features_per_level": (int, [(int.__ge__, 1, gt_eq)]),
+            "base_resolution": (int, [(int.__ge__, 1, gt_eq)]),
+            "per_level_scale": (float, [(float.__gt__, 1.0, gt)]),
+        }},}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]
     sanity_all = {

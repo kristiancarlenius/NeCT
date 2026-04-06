@@ -188,6 +188,9 @@ def reconstruct(
     elif enc_arc == "sexcubes_unet":
         cfg = get_dynamic_cfg(name="sexcubes_unet")
         cfg["model"] = "sexcubes_unet"
+    elif enc_arc == "sexcubes_densegrid_transformer":
+        cfg = get_dynamic_cfg(name="sexcubes_densegrid_transformer")
+        cfg["model"] = "sexcubes_densegrid_transformer"
     else:
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"
@@ -201,9 +204,11 @@ def reconstruct(
     else:
         cfg["img_path"] = "RECONSTRUCTING_FROM_ARRAY"
 
+    _has_hash = "log2_hashmap_size" in cfg.get("encoder", {})
     if quality in ["poor", "low"]:
         cfg["loss"] = "L2"
-        cfg["encoder"]["log2_hashmap_size"] = 19
+        if _has_hash:
+            cfg["encoder"]["log2_hashmap_size"] = 19
         if quality == "poor":
             cfg["epochs"] = "0.02x"
             cfg["base_lr"] *= 10
@@ -235,7 +240,8 @@ def reconstruct(
             cfg["warmup"]["steps"] = 5000
             cfg["lr_scheduler"]["lrf"] = 0.01
             cfg["points_per_ray"]["end"] = "1.5x"
-            cfg["encoder"]["log2_hashmap_size"] = 23
+            if _has_hash:
+                cfg["encoder"]["log2_hashmap_size"] = 23
 
     if niter is not None:
         cfg["epochs"] = niter
@@ -352,9 +358,11 @@ def reconstruct_continious_scan(
     else:
         cfg["img_path"] = "RECONSTRUCTING_FROM_ARRAY"
 
+    _has_hash = "log2_hashmap_size" in cfg.get("encoder", {})
     if quality in ["poor", "low"]:
         cfg["loss"] = "L2"
-        cfg["encoder"]["log2_hashmap_size"] = 19
+        if _has_hash:
+            cfg["encoder"]["log2_hashmap_size"] = 19
         if quality == "poor":
             cfg["epochs"] = "0.02x"
             cfg["base_lr"] *= 10
@@ -386,7 +394,8 @@ def reconstruct_continious_scan(
             cfg["warmup"]["steps"] = 5000
             cfg["lr_scheduler"]["lrf"] = 0.01
             cfg["points_per_ray"]["end"] = "1.5x"
-            cfg["encoder"]["log2_hashmap_size"] = 23
+            if _has_hash:
+                cfg["encoder"]["log2_hashmap_size"] = 23
 
     if niter is not None:
         cfg["epochs"] = niter
@@ -399,7 +408,7 @@ def reconstruct_continious_scan(
 
     elif geometry.angles is None:
         raise ValueError("angles must be provided, either as an argument or in the `Geometry` object.")
-    
+
     if timesteps is not None:
         geometry.set_timesteps(timesteps)
 
@@ -408,18 +417,18 @@ def reconstruct_continious_scan(
 
     cfg["geometry"] = geometry.to_dict()
     config = setup_cfg(cfg)
-    
+
     if exp_name is None:
         log_path = Path("outputs")
     else:
         log_path = Path("outputs") / exp_name
-    
+
     (log_path).mkdir(parents=True, exist_ok=True)
     config.save(log_path)
 
     #if mode == "dynamic":
     log = True
-    
+
     trainer = ContinousScanningTrainer
     trainer = trainer(
         config=config,

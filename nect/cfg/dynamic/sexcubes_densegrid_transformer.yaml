@@ -1,0 +1,34 @@
+# Default configuration for SexCubesDenseGridTransformer.
+#
+# Identical topology to SexCubesTransformer but each of the 6 pairwise 2D
+# encoders uses a dense (collision-free) multiresolution grid instead of a
+# hash grid.  For 2D inputs the full grid fits in memory, so hashing is
+# unnecessary and only adds noise from collisions.
+#
+# per_level_scale is specified directly (not derived from geometry) since
+# 2D dense grids are small enough to configure independently.
+#
+# Memory per encoder: sum_l (base_resolution * per_level_scale^l)^2 * n_features
+# With the defaults below: ~490K params per encoder x 6 = ~2.9M params total.
+#
+# n_levels=10, n_features_per_level=4 → 40 output dims per encoder → 240 total.
+# d_model=48 (multiple of n_heads=4), 3 transformer layers.
+
+encoder:
+  n_levels: 10
+  n_features_per_level: 4
+  base_resolution: 16
+  per_level_scale: 1.5
+
+net:
+  d_model: 48
+  n_heads: 4
+  n_layers: 3
+  dropout: 0.0
+
+model: sexcubes_densegrid_transformer
+base_lr: 0.0001
+batch_per_proj: 1
+warmup:
+  steps: 2000
+  lr0: 0.0002
