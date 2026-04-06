@@ -100,7 +100,7 @@ class ContinousScanningTrainer(BaseTrainer):
                         dynamic = dynamic * self.dataset.maximum.item()
                         dynamic = dynamic + self.dataset.minimum.item()
                         vmin = float(self.dataset.minimum.item())
-                        vmax = float(0.2)
+                        vmax = float(0.0)
                         axes[1, i].imshow(dynamic, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
 
                     for ax in axes.ravel():

@@ -27,7 +27,7 @@ from PIL import Image
 # ── Paths ─────────────────────────────────────────────────────────────────────
 _HERE          = os.path.dirname(__file__)
 COMBINEDCUBE_DIR = os.path.join(_HERE, "sizediff", "combinedcube")
-PERFECT_PATH   = os.path.join(_HERE, "sizediff", "perfect", "0500_1400.png")
+PERFECT_PATH   = os.path.join(_HERE, "sizediff", "perfect", "0550_1400.png")
 RESULTS_DIR    = os.path.join(_HERE, "results")
 EPOCH_FILE     = "0150_1400.png"
 
