@@ -19,10 +19,18 @@ from PIL import Image
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SIZEDIFF_DIR = os.path.join(os.path.dirname(__file__), "sizediff")
-PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "1300_1400.png")
+PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "0500_1400.png")
 RESULTS_DIR  = os.path.join(os.path.dirname(__file__), "results")
 
-# ── Crop region ───────────────────────────────────────────────────────────────
+# ── Crop regions ──────────────────────────────────────────────────────────────
+import json as _json
+_CROPS_FILE = os.path.join(os.path.dirname(__file__), "crops.json")
+if os.path.exists(_CROPS_FILE):
+    with open(_CROPS_FILE) as _f:
+        PANEL_CROPS: list[dict] | None = _json.load(_f)["crops"]
+else:
+    PANEL_CROPS = None
+
 CROP_X0, CROP_Y0 = 5400, 1800
 CROP_X1, CROP_Y1 = 6000, 2600
 
@@ -48,6 +56,16 @@ def crop(img):
     x0, x1 = max(0, CROP_X0), min(w, CROP_X1)
     y0, y1 = max(0, CROP_Y0), min(h, CROP_Y1)
     return img[y0:y1, x0:x1]
+
+
+def get_roi(img: np.ndarray) -> np.ndarray:
+    if PANEL_CROPS is not None:
+        return np.concatenate([
+            img[max(0, c["y0"]):min(img.shape[0], c["y1"]),
+                max(0, c["x0"]):min(img.shape[1], c["x1"])].ravel()
+            for c in PANEL_CROPS
+        ])
+    return crop(img).ravel()
 
 
 def mse(ref, test):
@@ -88,7 +106,7 @@ def find_equalized_image(folder_path):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main():
-    ref = crop(load_gray(PERFECT_PATH))
+    ref = get_roi(load_gray(PERFECT_PATH))
     groups = {}   # n_levels -> list of dicts
 
     for folder in sorted(os.listdir(SIZEDIFF_DIR)):
@@ -111,7 +129,7 @@ def main():
             continue
 
         n_params = encoder_param_count(n_levels, n_features, log2_hash) * 4
-        test = crop(load_gray(img_path))
+        test = get_roi(load_gray(img_path))
 
         entry = {
             "name":     folder,
@@ -158,7 +176,7 @@ def main():
                 ax.annotate(lbl, xy=(x, y), xytext=(5, 3),
                             textcoords="offset points", fontsize=6.5, color=color)
 
-        ax.set_title(f"{metric_key.upper()} at equalized wall-clock time  (XX_4_YY)", fontsize=11)
+        ax.set_title(f"{metric_key.upper()} at equalized ~14 hours", fontsize=11)
         ax.set_xlabel("Encoder parameters (×4 encoders)")
         ax.set_ylabel(ylabel)
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1e6:.1f}M"))

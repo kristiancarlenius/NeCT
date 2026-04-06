@@ -28,13 +28,16 @@ from PIL import Image
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 SIZEDIFF_DIR = os.path.join(os.path.dirname(__file__), "sizediff")
-PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "1300_1400.png")
+PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "0500_1400.png")
 
-# ── Crop region (same as nect/comp_slice.py) ─────────────────────────────────
-CROP_X0 = 5400
-CROP_Y0 = 1800
-CROP_X1 = 6000
-CROP_Y1 = 2600
+# ── Crop regions (from crop_tool.py) ─────────────────────────────────────────
+import json as _json
+_CROPS_FILE = os.path.join(os.path.dirname(__file__), "crops.json")
+if not os.path.exists(_CROPS_FILE):
+    raise FileNotFoundError(f"crops.json not found — run: python crop_tool.py <image.png>")
+with open(_CROPS_FILE) as _f:
+    PANEL_CROPS: list[dict] = _json.load(_f)["crops"]
+print(f"Loaded {len(PANEL_CROPS)} panel crops from crops.json")
 
 # ── Encoder defaults shared across all sizediff runs ─────────────────────────
 BASE_RESOLUTION = 16
@@ -66,6 +69,14 @@ def crop(img: np.ndarray, x0, y0, x1, y1) -> np.ndarray:
     if x1 <= x0 or y1 <= y0:
         raise ValueError(f"Invalid crop: ({x0},{y0}) → ({x1},{y1}) on ({w},{h})")
     return img[y0:y1, x0:x1]
+
+
+def get_roi(img: np.ndarray) -> np.ndarray:
+    """Concatenate all panel crops into a flat array for metric computation."""
+    return np.concatenate([
+        crop(img, c["x0"], c["y0"], c["x1"], c["y1"]).ravel()
+        for c in PANEL_CROPS
+    ])
 
 
 def mse(ref: np.ndarray, test: np.ndarray) -> float:
@@ -108,7 +119,7 @@ def encoder_param_count(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    ref_crop = crop(load_grayscale(PERFECT_PATH), CROP_X0, CROP_Y0, CROP_X1, CROP_Y1)
+    ref_crop = get_roi(load_grayscale(PERFECT_PATH))
 
     # Collect results, keyed by (n_levels, log2_hash)
     # groups[n_levels] = list of dicts
@@ -146,7 +157,7 @@ def main() -> None:
             if not os.path.exists(img_path):
                 print(f"[warn] missing {img_path}")
                 continue
-            test_crop = crop(load_grayscale(img_path), CROP_X0, CROP_Y0, CROP_X1, CROP_Y1)
+            test_crop = get_roi(load_grayscale(img_path))
             entry[f"mse_{epoch_label}"] = mse(ref_crop, test_crop)
             entry[f"psnr_{epoch_label}"] = psnr(ref_crop, test_crop)
 
@@ -211,7 +222,7 @@ def main() -> None:
                         color=color,
                     )
 
-            ax.set_title(f"{metric_key.upper()} — epoch {epoch_label}  (XX_4_YY series)", fontsize=11)
+            ax.set_title(f"{metric_key.upper()} — epoch {epoch_label}", fontsize=11)
             ax.set_xlabel("Encoder parameters (×4 encoders)")
             ax.set_ylabel(ylabel)
             ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1e6:.1f}M"))
