@@ -18,6 +18,7 @@ from nect.network.kplanes import init_grid_param, interpolate_ms_features
 
 if TYPE_CHECKING:
     from nect.config import (
+        DenseGridEncoderConfig,
         HashEncoderConfig,
         KPlanesEncoderConfig,
         MLPNetConfig,
@@ -703,6 +704,51 @@ class CombinedCubes(nn.Module):
         inputs = torch.cat([xt, yt, zt, zyx], dim=-1)
         out = self.net(inputs)
         return out
+
+
+class MixedCubes(nn.Module):
+    """CombinedCubes with collision-free dense 2D grids for the temporal pairs.
+
+    Replaces the three 2D hash-grid encoders in CombinedCubes with dense
+    2D grids (no hashing, no collisions).  The 3D spatial encoder (z,y,x)
+    keeps the hash grid since a dense 3D grid would be too large.
+
+    Input layout fed to the composite encoder (9 dims total):
+        [zt(2), yt(2), xt(2), zyx(3)]
+    which matches CombinedCubes exactly — only the encoder type differs.
+    """
+
+    def __init__(
+        self,
+        encoding_config: HashEncoderConfig,
+        encoding_config_2d: DenseGridEncoderConfig,
+        network_config: MLPNetConfig,
+    ):
+        super().__init__()
+        dense_cfg = encoding_config_2d.get_encoder_config()
+        encoding = {
+            "otype": "Composite",
+            "nested": [
+                {"n_dims_to_encode": 2, **dense_cfg},           # zt
+                {"n_dims_to_encode": 2, **dense_cfg},           # yt
+                {"n_dims_to_encode": 2, **dense_cfg},           # xt
+                {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},  # zyx
+            ],
+        }
+        self.net = tcnn.NetworkWithInputEncoding(
+            n_input_dims=9,
+            n_output_dims=1,
+            encoding_config=encoding,
+            network_config=network_config.get_network_config(),
+        )
+
+    def forward(self, zyx, t):
+        tcol = torch.full((zyx.size(0), 1), t, device=zyx.device)
+        zt = torch.cat([zyx[:, [0]], tcol], dim=-1)
+        yt = torch.cat([zyx[:, [1]], tcol], dim=-1)
+        xt = torch.cat([zyx[:, [2]], tcol], dim=-1)
+        inputs = torch.cat([zt, yt, xt, zyx], dim=-1)
+        return self.net(inputs)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

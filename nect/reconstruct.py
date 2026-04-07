@@ -191,6 +191,9 @@ def reconstruct(
     elif enc_arc == "sexcubes_densegrid_transformer":
         cfg = get_dynamic_cfg(name="sexcubes_densegrid_transformer")
         cfg["model"] = "sexcubes_densegrid_transformer"
+    elif enc_arc == "mixedcubes":
+        cfg = get_dynamic_cfg(name="mixedcubes")
+        cfg["model"] = "mixedcubes"
     else:
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"

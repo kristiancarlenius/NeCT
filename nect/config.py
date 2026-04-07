@@ -355,6 +355,7 @@ class Config:
     encoder: HashEncoderConfig | KPlanesEncoderConfig | DenseGridEncoderConfig
     net: MLPNetConfig | PirateNetConfig | TransformerDecoderConfig | UNetDecoderConfig
     concat: Optional[bool]
+    encoder_2d: Optional[DenseGridEncoderConfig] = None
     reconstruction_mode: str
     save_volume: bool = False
     downsampling_detector: DownsamplingDetector = DownsamplingDetector(1, 1, 1)
@@ -472,6 +473,21 @@ class Config:
                     encoding_config=self.encoder,
                     decoder_config=self.net,
                 )
+
+        elif model == "mixedcubes":
+            if not isinstance(self.encoder, HashEncoderConfig):
+                raise ValueError("mixedcubes: encoder must be HashEncoderConfig (3D spatial)")
+            if not isinstance(self.encoder_2d, DenseGridEncoderConfig):
+                raise ValueError("mixedcubes: encoder_2d must be DenseGridEncoderConfig (2D temporal)")
+            if not isinstance(self.net, MLPNetConfig):
+                raise ValueError("mixedcubes: net must be MLPNetConfig")
+            from nect.network import MixedCubes
+            memory_per_point = 4 * 4 * self.encoder_2d.n_levels * 3 + 8 * 4 * self.encoder.n_levels
+            model = MixedCubes(
+                encoding_config=self.encoder,
+                encoding_config_2d=self.encoder_2d,
+                network_config=self.net,
+            )
 
         elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "singlecube", "combinedcubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
@@ -795,6 +811,7 @@ cfg_paths: dict = {
         "sexcubes_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_transformer.yaml",
         "sexcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_unet.yaml",
         "sexcubes_densegrid_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_densegrid_transformer.yaml",
+        "mixedcubes": pathlib.Path(__file__).parent / "cfg/dynamic/mixedcubes.yaml",
     },
 }
 
@@ -1005,7 +1022,8 @@ def cfg_sanity_check(cfg: dict):
             "n_features_per_level": (int, [(int.__ge__, 1, gt_eq)]),
             "base_resolution": (int, [(int.__ge__, 1, gt_eq)]),
             "per_level_scale": (float, [(float.__gt__, 1.0, gt)]),
-        }},}
+        }},
+        "mixedcubes": {"encoder": hash_encoder},}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]
     sanity_all = {
