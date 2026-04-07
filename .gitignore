@@ -33,6 +33,7 @@ docs/_build/
 
 data
 nect/data
+dataset/
 # mkdocs documentation
 /site
 /sizediff
