@@ -1,5 +1,4 @@
 import numpy as np
-import tigre
 import torch
 from leaptorch import Projector
 
@@ -35,6 +34,7 @@ class TigreGeometry:
             "rotDetector",
             "default",
         ]
+        import tigre
         self.geo = tigre.geometry()
         if default:
             self.set_default_geometry()
