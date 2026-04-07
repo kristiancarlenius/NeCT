@@ -319,43 +319,40 @@ class SciVisDataset:
     ):
         import pickle
 
-        import tigre
-
         from nect.src.simulator.configuration.config import LeapGeometry
 
         angles = np.linspace(0, 360, num=nangles, endpoint=False)
         self.angles = angles
-        geo = tigre.geometry()
         circle_radius = (
             self.gt.shape[2] ** 2 + self.gt.shape[1] ** 2
-        ) ** 0.5 / 2  # circle radius, to make sure the object is inside the detector
+        ) ** 0.5 / 2
         print(self.gt.shape)
-        geo.DSO = max(999, circle_radius) + 1
-        geo.DSD = geo.DSO + max(499, circle_radius) + 1
-        # tangent_length = (geo.DSO**2 + circle_radius**2)**0.5
-        wsDetector = np.tan(np.arcsin(circle_radius / geo.DSO)) * geo.DSD * 2
+        DSO = max(999, circle_radius) + 1
+        DSD = DSO + max(499, circle_radius) + 1
+        wsDetector = np.tan(np.arcsin(circle_radius / DSO)) * DSD * 2
         print(circle_radius, wsDetector)
-        geo.nDetector = (
-            np.array([self.gt.shape[0], np.max(self.gt.shape[1:])]) * detector_mag
-        )  # multiply by detector_mag to increase size
-        dDetector = wsDetector / geo.nDetector[1]
-        geo.nDetector = geo.nDetector.astype(np.int32)
+        nDetector = (np.array([self.gt.shape[0], np.max(self.gt.shape[1:])]) * detector_mag).astype(np.int32)
+        dDetector = wsDetector / nDetector[1]
 
-        geo.dDetector = np.array([dDetector, dDetector])
-        geo.sDetector = geo.nDetector * geo.dDetector
-        geo.nVoxel = np.array(self.gt.shape)
-        geo.dVoxel = np.array([1.0, 1.0, 1.0])
-        geo.sVoxel = geo.nVoxel * geo.dVoxel
-        geo.offOrigin = np.array([0, 0, 0])
-        geo.offDetector = np.array([0, 0])
-        geo.rotDetector = np.array([0.0, 0.0, 0.0])
-        geo.accuracy = 0.01
-        geo.COR = 0
-        geo.mode = "cone"
-        geo.filter = None
-        self.geo = geo
-        proj = LeapGeometry()
-        proj.from_tigre_geometry(geo)
+        proj = LeapGeometry(default=False)
+        proj.numX = int(self.gt.shape[1])
+        proj.numY = int(self.gt.shape[2])
+        proj.numZ = int(self.gt.shape[0])
+        proj.voxelWidth = 1.0
+        proj.voxelHeight = 1.0
+        proj.offsetX = 0.0
+        proj.offsetY = 0.0
+        proj.offsetZ = 0.0
+        proj.numRows = int(nDetector[0])
+        proj.numCols = int(nDetector[1])
+        proj.pixelHeight = float(dDetector)
+        proj.pixelWidth = float(dDetector)
+        proj.centerRow = 0.5 * float(nDetector[0] - 1)
+        proj.centerCol = 0.5 * float(nDetector[1] - 1)
+        proj.sod = DSO
+        proj.sdd = DSD
+        proj.update_projector()
+        self.geo = proj
         proj.update_phi(torch.from_numpy(angles).float())
         angles = angles * (np.pi / 180)
         self.angles = angles
@@ -374,11 +371,13 @@ class SciVisDataset:
             folder_path.mkdir(exist_ok=True, parents=True)
             np.save(folder_path / f"sinogram_nangles_{nangles}.npy", sinogram)
             with open(folder_path / "geometry.pkl", "wb") as handle:
-                pickle.dump(geo, handle, protocol=pickle.HIGHEST_PROTOCOL)
-            info = str(geo) + "\n" + "Angles: " + str(angles)
-            with open(folder_path / "geometry_info.txt", "w") as text_file:
-                text_file.write(info)
-            geo_to_yaml(geo=geo, angles=angles, path=folder_path / "geometry.yaml", radians=True)
+                pickle.dump(proj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            geo_dict = proj.to_dict()
+            geo_dict["angles"] = angles.tolist()
+            geo_dict["radians"] = True
+            import yaml as _yaml
+            with open(folder_path / "geometry.yaml", "w") as f:
+                _yaml.dump(geo_dict, f)
             print(f"The files were saved to {folder_path}")
         return sinogram
 
