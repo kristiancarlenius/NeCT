@@ -370,8 +370,6 @@ class SciVisDataset:
             folder_path = self.base_path / self.dataset_name / f"sinogram_nangles_{nangles}_LEAP2"
             folder_path.mkdir(exist_ok=True, parents=True)
             np.save(folder_path / f"sinogram_nangles_{nangles}.npy", sinogram)
-            with open(folder_path / "geometry.pkl", "wb") as handle:
-                pickle.dump(proj, handle, protocol=pickle.HIGHEST_PROTOCOL)
             geo_dict = proj.to_dict()
             geo_dict["angles"] = angles.tolist()
             geo_dict["radians"] = True
