@@ -112,15 +112,19 @@ def yaml_to_geo(path: Path) -> tigre.geometry.Geometry:
 
 class SciVisDataset:
     PROJECTION_BASE_PATH = os.environ.get("PROJECTION_BASE_PATH")
-    assert PROJECTION_BASE_PATH is not None
-    PROJECTION_BASE_PATH_STATIC = PROJECTION_BASE_PATH + "/Static"
+    PROJECTION_BASE_PATH_STATIC = PROJECTION_BASE_PATH + "/Static" if PROJECTION_BASE_PATH is not None else None
 
     def __init__(
         self,
-        base_path: Path = Path(PROJECTION_BASE_PATH_STATIC),
+        base_path: Path | None = None,
         dataset: str = "Teapot",
         scale: bool = False,
     ):
+        if base_path is None:
+            assert self.PROJECTION_BASE_PATH_STATIC is not None, (
+                "PROJECTION_BASE_PATH environment variable is not set. Pass base_path explicitly."
+            )
+            base_path = Path(self.PROJECTION_BASE_PATH_STATIC)
         r"""We read the data from https://klacansky.com/open-scivis-datasets/category-ct.html. Their format is (depth, height, width).
         We reshape it to (width, height, depth), then transpose it to (height, width, depth). Sometimes the data from open scivis is flipped
         upside down. Then we flip it the right way.
