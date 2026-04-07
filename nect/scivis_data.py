@@ -334,7 +334,7 @@ class SciVisDataset:
         nDetector = (np.array([self.gt.shape[0], np.max(self.gt.shape[1:])]) * detector_mag).astype(np.int32)
         dDetector = wsDetector / nDetector[1]
 
-        proj = LeapGeometry(default=False)
+        proj = LeapGeometry(default=True)
         proj.numX = int(self.gt.shape[1])
         proj.numY = int(self.gt.shape[2])
         proj.numZ = int(self.gt.shape[0])
