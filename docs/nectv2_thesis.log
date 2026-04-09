@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  9 APR 2026 13:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  9 APR 2026 16:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1387,7 +1387,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [16]
-Underfull \vbox (badness 1527) has occurred while \output is active []
+Underfull \vbox (badness 3612) has occurred while \output is active []
 
 
 
@@ -1529,9 +1529,6 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [26
 
 ]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1542,6 +1539,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [27]
 
+LaTeX Warning: Reference `fig:psnr_vs_params_hashmap' on page 28 undefined on i
+nput line 621.
+
+
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
 (fancyhdr)                \setlength{\headheight}{14.49998pt}.
@@ -1550,10 +1551,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [28]
-
-LaTeX Warning: Reference `fig:psnr_vs_params_hashmap' on page 29 undefined on i
-nput line 621.
-
 
 LaTeX Warning: Reference `fig:psnr_vs_params_levels' on page 29 undefined on in
 put line 629.
@@ -1567,6 +1564,10 @@ LaTeX Warning: Reference `fig:psnr_vs_params_joint' on page 29 undefined on inp
 ut line 639.
 
 
+LaTeX Warning: Reference `fig:quality_vs_time' on page 29 undefined on input li
+ne 646.
+
+
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
 (fancyhdr)                \setlength{\headheight}{14.49998pt}.
@@ -1576,10 +1577,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [29]
 
-LaTeX Warning: Reference `fig:quality_vs_time' on page 30 undefined on input li
-ne 646.
-
-
 LaTeX Warning: Reference `fig:quality_vs_vram' on page 30 undefined on input li
 ne 650.
 
@@ -1588,20 +1585,7 @@ LaTeX Warning: Reference `fig:training_curves' on page 30 undefined on input li
 ne 656.
 
 
-Underfull \vbox (badness 1571) has occurred while \output is active []
-
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[30]
-
-LaTeX Warning: Reference `fig:metric_comparison' on page 31 undefined on input 
+LaTeX Warning: Reference `fig:metric_comparison' on page 30 undefined on input 
 line 665.
 
 
@@ -1612,15 +1596,27 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[31]
+[30]
 Overfull \hbox (20.3061pt too wide) in paragraph at lines 686--697
  [][] 
  []
 
 
-LaTeX Warning: Reference `fig:nonuniform_quality' on page 32 undefined on input
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `fig:nonuniform_quality' on page 31 undefined on input
  line 699.
 
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[31]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1883,11 +1879,11 @@ Package rerunfilecheck Info: File `nectv2_thesis.out' has not changed.
 (rerunfilecheck)             Checksum: B82397A9E57A851BDCBE07AAB78253D7;7818.
  ) 
 Here is how much of TeX's memory you used:
- 43545 strings out of 480247
- 996044 string characters out of 5896152
+ 43537 strings out of 480247
+ 995950 string characters out of 5896152
  1388507 words of memory out of 5000000
  60286 multiletter control sequences out of 15000+600000
- 562936 words of font info for 248 fonts, out of 8000000 for 9000
+ 562544 words of font info for 244 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,12n,80p,1365b,951s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
@@ -1904,7 +1900,7 @@ lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy
 8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on nectv2_thesis.pdf (63 pages, 454332 bytes).
+Output written on nectv2_thesis.pdf (63 pages, 453442 bytes).
 PDF statistics:
  928 PDF objects out of 1000 (max. 8388607)
  817 compressed objects within 9 object streams

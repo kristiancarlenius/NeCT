@@ -21,8 +21,8 @@
 \contentsline {chapter}{\numberline {3}Encoder Size and Performance}{26}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Experimental Setup}{26}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Effect of Total Parameter Count}{28}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Effect on Reconstruction Time}{30}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Precision and Accuracy Metrics}{31}{section.3.4}%
+\contentsline {section}{\numberline {3.3}Effect on Reconstruction Time}{29}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Precision and Accuracy Metrics}{30}{section.3.4}%
 \contentsline {section}{\numberline {3.5}Non-Uniform Encoder Sizing}{31}{section.3.5}%
 \contentsline {chapter}{\numberline {4}Encoder Architecture}{33}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Motivation and Design Space}{33}{section.4.1}%
