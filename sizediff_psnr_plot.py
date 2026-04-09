@@ -95,23 +95,15 @@ def encoder_param_count(
     n_features_per_level: int,
     log2_hashmap_size: int,
     base_resolution: int = BASE_RESOLUTION,
-    max_resolution_factor: float = MAX_RESOLUTION_FACTOR,
-    n_detector: list = N_DETECTOR,
+    b: float = 2.0,
 ) -> int:
-    size = max(n_detector)
-    if n_levels == 1:
-        per_level_scale = 1.0
-    else:
-        per_level_scale = (max_resolution_factor * size / base_resolution) ** (
-            1.0 / (n_levels - 1)
-        )
+    """Parameter count per encoder using the thesis formula N_l = floor(N_min * b^l)."""
     T = 2 ** log2_hashmap_size
     F = n_features_per_level
-    total = 0
-    for level in range(n_levels):
-        N_l = math.floor(base_resolution * (per_level_scale ** level))
-        total += min(N_l ** 3, T) * F
-    return total
+    return sum(
+        min(math.floor(base_resolution * (b ** level)) ** 3, T) * F
+        for level in range(n_levels)
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

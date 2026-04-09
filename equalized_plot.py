@@ -77,14 +77,13 @@ def psnr(ref, test):
     return float("inf") if m == 0 else 10.0 * math.log10(1.0 / m)
 
 
-def encoder_param_count(n_levels, n_features, log2_hash):
-    size = max(N_DETECTOR)
-    per_level_scale = (MAX_RESOLUTION_FACTOR * size / BASE_RESOLUTION) ** (
-        1.0 / (n_levels - 1)
-    ) if n_levels > 1 else 1.0
+def encoder_param_count(n_levels, n_features, log2_hash, b=2.0):
+    """Parameter count per encoder using the thesis formula N_l = floor(N_min * b^l)."""
     T, F = 2 ** log2_hash, n_features
-    return sum(min(math.floor(BASE_RESOLUTION * per_level_scale ** l) ** 3, T) * F
-               for l in range(n_levels))
+    return sum(
+        min(math.floor(BASE_RESOLUTION * (b ** l)) ** 3, T) * F
+        for l in range(n_levels)
+    )
 
 
 def find_equalized_image(folder_path):
