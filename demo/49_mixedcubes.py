@@ -20,7 +20,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "base_lr": 0.0002,
         "warmup": {
             "steps": 2000,
-            "lr0": 0.0001,
+            "lr0": 0.001,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -31,7 +31,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "max_resolution_factor": 2,
         },
         "encoder_2d": {
-            "n_levels": 10,
+            "n_levels": 12,
             "n_features_per_level": 4,
             "base_resolution": 16,
             "per_level_scale": 1.5,
@@ -39,7 +39,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "net": {
             "otype": "FullyFusedMLP",
             "activation": "LeakyReLU",
-            "output_activation": "None",
+            "output_activation": "ReLU",
             "n_neurons": 128,
             "n_hidden_layers": 4,
             "include_identity": False,

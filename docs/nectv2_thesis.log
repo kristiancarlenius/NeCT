@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  7 APR 2026 15:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  9 APR 2026 13:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1299,7 +1299,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [10]
-Underfull \vbox (badness 7151) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
@@ -1880,14 +1880,14 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `nectv2_thesis.out' has not changed.
-(rerunfilecheck)             Checksum: F2D4C3404F5678A4CEFB63D1E87BBB6C;7612.
+(rerunfilecheck)             Checksum: B82397A9E57A851BDCBE07AAB78253D7;7818.
  ) 
 Here is how much of TeX's memory you used:
- 43546 strings out of 480247
- 996051 string characters out of 5896152
+ 43545 strings out of 480247
+ 996044 string characters out of 5896152
  1388507 words of memory out of 5000000
- 60285 multiletter control sequences out of 15000+600000
- 563017 words of font info for 249 fonts, out of 8000000 for 9000
+ 60286 multiletter control sequences out of 15000+600000
+ 562936 words of font info for 248 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,12n,80p,1365b,951s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
@@ -1904,10 +1904,10 @@ lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy
 8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on nectv2_thesis.pdf (63 pages, 454302 bytes).
+Output written on nectv2_thesis.pdf (63 pages, 454332 bytes).
 PDF statistics:
- 924 PDF objects out of 1000 (max. 8388607)
- 813 compressed objects within 9 object streams
+ 928 PDF objects out of 1000 (max. 8388607)
+ 817 compressed objects within 9 object streams
  195 named destinations out of 1000 (max. 500000)
- 52069 words of extra memory for PDF output out of 61914 (max. 10000000)
+ 52077 words of extra memory for PDF output out of 61914 (max. 10000000)
 
