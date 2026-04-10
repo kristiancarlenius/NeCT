@@ -7,8 +7,8 @@
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_07.txt # The output file. 
 #SBATCH --time=60:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --gres=gpu:1
-#SBATCH --constraint="a100" # GPU type and number of GPUs.
+#SBATCH --gres=gpu:a100:1
+#SBATCH --constraint="a100|gpu80g"
 #SBATCH --ntasks-per-node=4 #CPU cores
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
