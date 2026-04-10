@@ -21,5 +21,5 @@ echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "static trainer"
 cd NeCT
 source nect_a100/bin/activate
-git pull origin master
+
 python -m demo.08_static_trainer

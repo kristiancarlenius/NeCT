@@ -21,5 +21,5 @@ echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "continuous scan 8fps 2750 non"
 cd NeCT
 source nect_a100/bin/activate
-git pull origin master
+
 python -m demo.19_continious_scan

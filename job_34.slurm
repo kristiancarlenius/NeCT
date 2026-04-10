@@ -21,5 +21,5 @@ echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "normal sizeby n_levels=23 n_neurons=256"
 cd NeCT
 source nect_a100/bin/activate
-git pull origin master
+
 python -m demo.34_normal_sizeby

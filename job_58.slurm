@@ -21,5 +21,5 @@ echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "mixedcubes n_levels=20 lr=0.0001"
 cd NeCT
 source nect_a100/bin/activate
-git pull origin master
+
 python -m demo.58_mixedcubes
