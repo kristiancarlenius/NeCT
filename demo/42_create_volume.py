@@ -44,7 +44,7 @@ reconstruction_path_static, output_path = nect.reconstruct(
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
-            output_activation="ReLU",
+            output_activation="None",
             n_neurons=64,
             n_hidden_layers=4,
             include_identity=False,
@@ -84,7 +84,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
-            output_activation="ReLU",
+            output_activation="None",
             n_neurons=64,
             n_hidden_layers=12,
             include_identity=False,

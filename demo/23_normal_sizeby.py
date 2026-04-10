@@ -15,7 +15,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sizediff",
     config_override={
-        "epochs": "6x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -26,7 +26,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 22,
+            "n_levels": 19,
             "n_features_per_level": 4,
             "log2_hashmap_size": 23,
             "base_resolution": 16,
@@ -35,7 +35,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
-            output_activation="ReLU",
+            output_activation="None",
             n_neurons=128,
             n_hidden_layers=4,
             include_identity=False,

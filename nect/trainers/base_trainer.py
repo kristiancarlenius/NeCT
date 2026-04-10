@@ -391,7 +391,10 @@ class BaseTrainer:
                         dynamic = dynamic / (self.geometry.max_distance_traveled * 2)
                         dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
                         dynamic = dynamic + self.dataset.minimum.item()
-                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
+                        #axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
+                        vmin = float(self.dataset.minimum.item())
+                        vmax = float(np.percentile(dynamic, 96))
+                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
 
                     for ax in axes.ravel():
                         ax.set_axis_off()
@@ -420,7 +423,7 @@ class BaseTrainer:
                     #axes[0].hist(output.flatten(), bins=100)
                     #axes[1].imshow(output, cmap="gray", interpolation="none")
                     vmin = float(self.dataset.minimum.item())
-                    vmax = float(0.75)
+                    vmax = float(np.percentile(output, 99))
                     axes[0].hist(output.flatten(), bins=100, range=(vmin, vmax))
                     axes[1].imshow(output, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
                 save_path = f"{self.image_directory_base}/{self.current_epoch:04}_{self.current_angle:04}.png"

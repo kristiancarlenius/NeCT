@@ -30,7 +30,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "max_resolution_factor": 2,
         },
         "encoder_2d": {
-            "n_levels": 6,
+            "n_levels": 10,
             "n_features_per_level": 4,
             "base_resolution": 16,
             "per_level_scale": 2,
@@ -38,7 +38,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "net": {
             "otype": "FullyFusedMLP",
             "activation": "LeakyReLU",
-            "output_activation": "ReLU",
+            "output_activation": "None",
             "n_neurons": 128,
             "n_hidden_layers": 4,
             "include_identity": False,

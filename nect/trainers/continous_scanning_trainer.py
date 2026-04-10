@@ -97,10 +97,10 @@ class ContinousScanningTrainer(BaseTrainer):
                         dynamic = (self.model(grid, torch.tensor((i + 1) / 4)).squeeze().reshape(size).squeeze().detach().cpu().numpy())
                         axes[0, i].imshow(dynamic - avg, cmap="gray", interpolation="none")
                         dynamic = dynamic / (self.geometry.max_distance_traveled * 2)
-                        dynamic = dynamic * self.dataset.maximum.item()
+                        dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
                         dynamic = dynamic + self.dataset.minimum.item()
                         vmin = float(self.dataset.minimum.item())
-                        vmax = float(0.1)
+                        vmax = float(np.percentile(dynamic, 96))
                         axes[1, i].imshow(dynamic, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
 
                     for ax in axes.ravel():
@@ -120,7 +120,7 @@ class ContinousScanningTrainer(BaseTrainer):
                     output = output + self.dataset.minimum.item()
                     fig, axes = plt.subplots(1, 2, figsize=(24, 6))
                     vmin = float(self.dataset.minimum.item())
-                    vmax = float(0.75)
+                    vmax = float(np.percentile(output, 99))
                     axes[0].hist(output.flatten(), bins=100, range=(vmin, vmax))
                     axes[1].imshow(output, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
                 save_path = f"{self.image_directory_base}/{self.current_epoch:04}_{self.current_angle:04}.png"
