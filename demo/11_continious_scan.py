@@ -5,7 +5,14 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#simulatedfluidinvasion/"#
+print(torch.__version__)
+print(torch.cuda.get_arch_list())
+print(torch.cuda.get_device_name(0))
+print(torch.cuda.current_device())
+print(torch.cuda.is_available())
+
+
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -16,21 +23,21 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_100.yaml"
+geometry_file = Path(data_path) / "geometry_4fps_5500.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-
+"""
 # run reconstruction using the new .npy projections
 reconstruction_path_static, output_path = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections_100.npy"),
+    projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="static",
     exp_name="static_init",
     config_override={
-        "epochs": "3x",
+        "epochs": "1x",
         "checkpoint_interval": 0,
-        "image_interval": 0,
+        "image_interval": 10,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
@@ -53,29 +60,27 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path_dynamic, _ = nect.reconstruct(
+reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections.npy"),
+    projections=str(Path(data_path) / "proj_4fps_5500.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_non",
-    #static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_10/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
-    #static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_10/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
+    exp_name="dynamic_continious",
     config_override={
-        "epochs": "10x",
+        "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
-            "steps": 1400*20,
+            "steps": 1400*10,
             "lr0": 0.0001,
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 21,
+            "n_levels": 22,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
+            "log2_hashmap_size": 22,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -88,9 +93,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-    },
-)
-#nect.export_volume(reconstruction_path_dynamic, binning=3)
+        "accumulation_steps": 4,
+        "continous_scanning": True,
+        
+    },)
 
-"""
-
+print(reconstruction_path_dynamic, _)

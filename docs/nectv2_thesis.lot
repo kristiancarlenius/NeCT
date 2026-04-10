@@ -7,7 +7,7 @@
 \contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations evaluated in \cref {sec:enc_size_nonuniform}. All configurations use $L = $ \leavevmode {\color {red}\textbf {[TODO: value]}} levels and $F = $ \leavevmode {\color {red}\textbf {[TODO: value]}} features per level unless otherwise noted.\relax }}{26}{table.caption.20}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{33}{table.caption.22}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color {red}\textbf {[TODO: dataset name]}}.\relax }}{34}{table.caption.23}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color {red}\textbf {[TODO: dataset name]}}.\relax }}{33}{table.caption.23}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

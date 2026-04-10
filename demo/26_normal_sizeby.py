@@ -58,7 +58,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="sizediff",
+    exp_name="dynamic_non",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
@@ -71,7 +71,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 19,
+            "n_levels": 21,
             "n_features_per_level": 4,
             "log2_hashmap_size": 23,
             "base_resolution": 16,

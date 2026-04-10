@@ -1,11 +1,11 @@
 #!/bin/sh
 #SBATCH --partition=GPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
-#SBATCH --mem=64GB # Total memory you need. Most DL jobs should do fine with 64GB.
+#SBATCH --mem=80GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_21 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_21.txt # The output file. 
-#SBATCH --time=60:00:00 # Maximum running time of your job.
+#SBATCH --time=50:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100" # GPU type and number of GPUs.
@@ -18,6 +18,8 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "continious scan 8x"
+echo "normal sizeby n_levels=19 log2=23"
+cd NeCT
 source nect_a100/bin/activate
-python -m demo.21_continious_scan
+git pull origin master
+python -m demo.21_normal_sizeby

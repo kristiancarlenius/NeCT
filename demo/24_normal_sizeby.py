@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"#simulatedfluidinvasion/"#
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -58,9 +58,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_init",
-    static_init = "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_10/model/checkpoints/last.ckpt", #str(Path(output_path) / "/model/checkpoints/last.ckpt"),
-    static_init_config= "/cluster/home/kristiac/NeCT/outputs/static_init/hash_grid_21_4_21_16_2_4_128_L1/bentheimer_10/model/config.yaml", #str(Path(output_path) / "/model/config.yaml"),
+    exp_name="sizediff",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
@@ -69,29 +67,26 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "base_lr": 0.0001,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.0001,
+            "lr0": 0.0005,
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 21,
+            "n_levels": 23,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
-            output_activation="ReLU",
+            output_activation="None",
             n_neurons=128,
             n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "damp_multi": [0.5, 0.5, 0.5],
-    },
-)
-#nect.export_volume(reconstruction_path_dynamic, binning=3)
-
-
-
+        
+        
+    },)
+print(reconstruction_path_dynamic, _)

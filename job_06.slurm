@@ -20,5 +20,5 @@ echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "sexcubes"
 source nect_a100/bin/activate
-python -m demo.35_sexcubes
+python -m demo.40_sexcubes
 

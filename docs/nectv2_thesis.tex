@@ -798,30 +798,6 @@ The CombinedCubes architecture uses 2D hash encoders for the temporal dimensions
 
 \todo{Compare against NeCT QuadCubes and other baselines (e.g.\ FDK, OS-SART-TV) on the benchmark datasets to contextualise the results.}
 
-\section{TriCubes (Static)}
-\label{sec:arch_tri}
-
-The architectures above all address the dynamic 4D problem. TriCubes is an alternative for the static 3D case, replacing the single 3D encoder with three 2D encoders covering \texttt{xy}, \texttt{xz}, and \texttt{yz}:
-%
-\begin{equation}
-    \muhat(\mathbf{r}) = \mathrm{MLP}_\Phi\!\Bigl(
-        \bigl[
-            \gamma_{xy}(x,y;\,\theta_1),\;
-            \gamma_{xz}(x,z;\,\theta_2),\;
-            \gamma_{yz}(y,z;\,\theta_3)
-        \bigr]
-    \Bigr).
-    \label{eq:tricubes_forward}
-\end{equation}
-%
-Three 2D encoders at $\log_2 T = 20$ together occupy approximately 384\,MB, compared to approximately 1.3\,GB for a single 3D encoder at $\log_2 T = 23$. The trade-off is the same as in SexCubes relative to QuadCubes: each encoder captures only pairwise spatial dependencies, so the MLP must integrate across all three dimensions from three partially coupled representations.
-
-Figure~\ref{fig:tricubes_reconstruction} shows representative reconstruction slices from TriCubes alongside the static NeCT baseline. \todo{Insert figure.}
-
-Figure~\ref{fig:tricubes_quality} shows quantitative metrics. \todo{Insert PSNR/SSIM/MAE comparison figure.}
-
-\todo{Describe the observed quality difference between TriCubes and the single-encoder static model.}
-
 \section{Comparative Analysis}
 \label{sec:arch_comparison}
 
@@ -919,16 +895,22 @@ Algorithm~\ref{alg:continuous} gives the pseudocode for the continuous-scan forw
 \caption{Continuous-Scan Forward Pass in \NeCTv{}}
 \label{alg:continuous}
 \begin{algorithmic}[1]
-\Require Angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, ray index $j$, timestamp $t_j$
-\State $\Delta\phi \gets (\phi_e - \phi_s) / K$
-\State $\hat{I}_j \gets 0$
+\Require Angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, projection timestamp $t$, max traversal length $d_{\max}$
+\State Compute $K{+}1$ boundary angles $\{\psi_0, \psi_1, \ldots, \psi_K\} \gets \mathrm{linspace}(\phi_s,\, \phi_e,\, K{+}1)$
+\State $\hat{y}_j \gets 0$ \quad \textbf{for all} detector pixels $j$
 \For{$k = 0, \ldots, K-1$}
-    \State $\phi_k \gets \phi_s + (k + 0.5)\,\Delta\phi$ \Comment{Mid-point of sub-interval $k$}
-    \State Compute ray geometry $\mathbf{r}_j^{\phi_k}$ from source and detector positions at angle $\phi_k$
-    \State Sample $P$ equidistant points $\{\mathbf{r}_p^{\phi_k}\}$ along the ray within the sample volume
-    \State $\hat{I}_j \gets \hat{I}_j + \frac{1}{K} \cdot I_0 \exp\!\left(-\sum_{p=1}^{P} \muhat\!\left(\mathbf{r}_p^{\phi_k},\, t_j\right) \Delta s\right)$
+    \State $\phi_k \gets (\psi_k + \psi_{k+1})\,/\,2$ \Comment{Mid-point of sub-interval $k$}
+    \State Update source/detector geometry to angle $\phi_k$
+    \State Cast rays; sample $P$ equidistant points $\{\mathbf{r}_p^{\phi_k}\}$ along each ray $j$ within the volume
+    \State Query network: $\muhat_p \gets f_\theta\!\left(\mathbf{r}_p^{\phi_k},\, t\right)$ for $p = 1,\ldots,P$ \Comment{Same $t$ for all rays and sub-angles}
+    \State $\hat{y}_j \gets \hat{y}_j + \dfrac{1}{K} \cdot \dfrac{d_j}{d_{\max}} \sum_{p=1}^{P} \muhat_p$ \Comment{$d_j$: physical traversal length of ray $j$}
 \EndFor
-\State \Return $\hat{I}_j$
+\State \Return $\hat{y}_j$ \quad \textbf{for all} $j$ \Comment{Predicted line integral; compare directly to log-domain sinogram}
+\Statex
+\Statex \textbf{Gradient computation (two-pass, memory-efficient):}
+\State \textbf{Pass 1} (no gradients): execute lines 3--9 for all $k$, cache projector outputs $\{\mathbf{r}_p^{\phi_k}, d_j\}$; obtain $\hat{y}_j$
+\State Treat $\hat{y}_j$ as a leaf variable; compute loss $\mathcal{L}$ and back-propagate to obtain $\partial\mathcal{L}/\partial\hat{y}_j$
+\State \textbf{Pass 2} (with gradients): replay each $k$ using cached outputs; back-propagate $\sum_j (\partial\mathcal{L}/\partial\hat{y}_j)\cdot\text{contrib}_{k,j}$ through $f_\theta$
 \end{algorithmic}
 \end{algorithm}
 

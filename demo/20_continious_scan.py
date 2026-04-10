@@ -2,70 +2,19 @@ from pathlib import Path
 import yaml
 import numpy as np
 import nect
-import torch 
+import torch
 from nect.config import MLPNetConfig
 
-print(torch.__version__)
-print(torch.cuda.get_arch_list())
-print(torch.cuda.get_device_name(0))
-print(torch.cuda.current_device())
-print(torch.cuda.is_available())
-
-
 data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
-"""
-config_file = Path(data_path) / "config.yaml"
-with open(config_file, "r") as f:
-    config = yaml.safe_load(f)
-config["img_path"] = str(Path(data_path) / "projections")
-tmp_config_file = Path(data_path) / "config_tmp.yaml"
-with open(tmp_config_file, "w") as f:
-    yaml.safe_dump(config, f)
-nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
-"""
-geometry_file = Path(data_path) / "geometry_8fps_11000.yaml"
+geometry_file = Path(data_path) / "geometry_8fps_5500.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
-# run reconstruction using the new .npy projections
-reconstruction_path_static, output_path = nect.reconstruct(
+reconstruction_path, _ = nect.reconstruct(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections.npy"),
-    quality="high",
-    mode="static",
-    exp_name="static_init",
-    config_override={
-        "epochs": "1x",
-        "checkpoint_interval": 0,
-        "image_interval": 10,
-        "plot_type": "XZ",
-        "encoder": {
-            "otype": "HashGrid",
-            "n_levels": 21,
-            "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
-            "base_resolution": 16,
-            "max_resolution_factor": 2,
-        },
-        "net": MLPNetConfig(
-            otype="FullyFusedMLP",
-            activation="LeakyReLU",
-            output_activation="ReLU",
-            n_neurons=128,
-            n_hidden_layers=4,
-            include_identity=False,
-            include_adaptive_skip=False,
-        ),
-    },
-)
-"""
-
-reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
-    geometry=geometry,
-    projections=str(Path(data_path) / "proj_8fps_11000.npy"),
+    projections=str(Path(data_path) / "proj_8fps_5500.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_continious",
+    exp_name="dynamic_continious_non",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
@@ -93,9 +42,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 4,
-        "continous_scanning": True,
-        
+
     },)
 
-print(reconstruction_path_dynamic, _)
+print(reconstruction_path, _)

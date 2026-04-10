@@ -18,6 +18,8 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "tricubes"
+echo "normal sizeby n_levels=23 n_neurons=256"
+cd NeCT
 source nect_a100/bin/activate
-python -m demo.34_tricubes
+git pull origin master
+python -m demo.34_normal_sizeby

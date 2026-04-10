@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  9 APR 2026 18:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  10 APR 2026 18:30
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1639,23 +1639,18 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [32]
-
-LaTeX Warning: Reference `fig:tricubes_reconstruction' on page 33 undefined on 
-input line 819.
-
-
-LaTeX Warning: Reference `fig:tricubes_quality' on page 33 undefined on input l
-ine 821.
-
-
-Overfull \hbox (16.74289pt too wide) in paragraph at lines 834--844
+Overfull \hbox (16.74289pt too wide) in paragraph at lines 810--820
  [][] 
  []
 
 
-Overfull \hbox (120.15364pt too wide) in paragraph at lines 852--863
+Overfull \hbox (120.15364pt too wide) in paragraph at lines 828--839
  [][] 
  []
+
+
+LaTeX Warning: Reference `fig:arch_pareto' on page 33 undefined on input line 8
+41.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1666,25 +1661,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [33]
-
-LaTeX Warning: Reference `fig:arch_pareto' on page 34 undefined on input line 8
-65.
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[34]
 Chapter 5.
-[35
+[34
 
 ]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 919.
+put line 895.
 
 Underfull \vbox (badness 5388) has occurred while \output is active []
 
@@ -1697,14 +1679,31 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
+[35]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
 [36]
 
 LaTeX Warning: Reference `fig:static_cont_reconstruction' on page 37 undefined 
-on input line 944.
+on input line 926.
 
 
 LaTeX Warning: Reference `fig:static_cont_psnr' on page 37 undefined on input l
-ine 946.
+ine 928.
+
+
+LaTeX Warning: Reference `fig:dynamic_cont_reconstruction' on page 37 undefined
+ on input line 941.
+
+
+Underfull \vbox (badness 1584) has occurred while \output is active []
+
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1715,10 +1714,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [37]
-
-LaTeX Warning: Reference `fig:dynamic_cont_reconstruction' on page 38 undefined
- on input line 959.
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1783,14 +1778,14 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `nectv2_thesis.out' has not changed.
-(rerunfilecheck)             Checksum: FF0C3C2B3047AC7AFC69775F0056E4C3;8798.
+(rerunfilecheck)             Checksum: 3CD1BAF29EC7D382F9DFC6BBC157E6B3;8648.
  ) 
 Here is how much of TeX's memory you used:
- 43507 strings out of 480247
- 995633 string characters out of 5896152
- 1387507 words of memory out of 5000000
- 60290 multiletter control sequences out of 15000+600000
- 560900 words of font info for 229 fonts, out of 8000000 for 9000
+ 43500 strings out of 480247
+ 995482 string characters out of 5896152
+ 1390507 words of memory out of 5000000
+ 60283 multiletter control sequences out of 15000+600000
+ 560987 words of font info for 230 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,12n,80p,1088b,949s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
@@ -1807,10 +1802,10 @@ lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy
 8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on nectv2_thesis.pdf (55 pages, 421910 bytes).
+Output written on nectv2_thesis.pdf (55 pages, 422438 bytes).
 PDF statistics:
- 877 PDF objects out of 1000 (max. 8388607)
- 775 compressed objects within 8 object streams
- 190 named destinations out of 1000 (max. 500000)
- 50069 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 871 PDF objects out of 1000 (max. 8388607)
+ 769 compressed objects within 8 object streams
+ 188 named destinations out of 1000 (max. 500000)
+ 50061 words of extra memory for PDF output out of 51595 (max. 10000000)
 
