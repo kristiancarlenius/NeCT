@@ -19,7 +19,5 @@ echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "continuous scan 4fps 5500 non"
-cd NeCT
 source nect_a100/bin/activate
-
 python -m demo.17_continious_scan

@@ -19,7 +19,5 @@ echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 echo "normal sizeby n_levels=20 log2=20"
-cd NeCT
 source nect_a100/bin/activate
-
 python -m demo.29_normal_sizeby
