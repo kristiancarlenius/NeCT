@@ -32,9 +32,9 @@ from matplotlib.widgets import RectangleSelector
 import numpy as np
 from PIL import Image
 
-CROPS_FILE = Path(__file__).parent / "crops.json"
-N_PANELS = 6
-COLORS = ["#e41a1c", "#377eb8", "#4daf4a", "#ff7f00", "#984ea3", "#a65628"]
+CROPS_FILE = Path(__file__).parent / "crop_static.json"
+N_PANELS = 1
+COLORS = ["#e41a1c"]
 
 
 def load_image(path: str) -> np.ndarray:

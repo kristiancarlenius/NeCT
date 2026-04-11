@@ -82,7 +82,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             activation="LeakyReLU",
             output_activation="None",
             n_neurons=128,
-            n_hidden_layers=16,
+            n_hidden_layers=24,
             include_identity=False,
             include_adaptive_skip=False,
         ),},

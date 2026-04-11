@@ -1,0 +1,11 @@
+{
+  "source_image": "/home/user/Documents/NeCT/sizediff/static_continous/ac1_0250_1400.png",
+  "crops": [
+    {
+      "x0": 4879,
+      "y0": 294,
+      "x1": 5504,
+      "y1": 1489
+    }
+  ]
+}
