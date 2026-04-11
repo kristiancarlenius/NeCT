@@ -21,7 +21,7 @@ from skimage.metrics import structural_similarity
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SIZEDIFF_DIR = os.path.join(os.path.dirname(__file__), "sizediff")
-PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "0500_1400.png")
+PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "0650_1400.png")
 RESULTS_DIR  = os.path.join(os.path.dirname(__file__), "results")
 EPOCH_FILE   = "0250_1400.png"
 

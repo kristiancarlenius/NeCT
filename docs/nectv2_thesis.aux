@@ -66,245 +66,266 @@
 \citation{patwari2023hallucination}
 \newlabel{eq:conv2d}{{2.5}{7}{Convolutional Neural Networks and Image-to-Image Architectures}{equation.2.2.5}{}}
 \newlabel{eq:conv2d@cref}{{[equation][5][2]2.5}{[1][6][]7}}
-\citation{patwari2023hallucination}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces The U-Net architecture. The contracting path (left) progressively halves spatial resolution while doubling feature channels; the expanding path (right) restores resolution via transposed convolutions. Skip connections (horizontal arrows) carry fine-grained spatial features from encoder to decoder stages.\relax }}{8}{figure.caption.6}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:unet_architecture}{{2.1}{8}{The U-Net architecture. The contracting path (left) progressively halves spatial resolution while doubling feature channels; the expanding path (right) restores resolution via transposed convolutions. Skip connections (horizontal arrows) carry fine-grained spatial features from encoder to decoder stages.\relax }{figure.caption.6}{}}
+\newlabel{fig:unet_architecture@cref}{{[figure][1][2]2.1}{[1][7][]8}}
 \@writefile{toc}{\contentsline {section}{\numberline {2.3}Implicit Neural Representations}{8}{section.2.3}\protected@file@percent }
 \newlabel{subsec:inr}{{2.3}{8}{Implicit Neural Representations}{section.2.3}{}}
 \newlabel{subsec:inr@cref}{{[section][3][2]2.3}{[1][8][]8}}
 \newlabel{eq:inr_def}{{2.6}{8}{Implicit Neural Representations}{equation.2.3.6}{}}
 \newlabel{eq:inr_def@cref}{{[equation][6][2]2.6}{[1][8][]8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces The Transformer architecture with encoder and decoder stacks. Each layer applies multi-head self-attention followed by a position-wise feed-forward network, with residual connections and layer normalisation at each sub-layer.\relax }}{9}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:transformer_architecture}{{2.2}{9}{The Transformer architecture with encoder and decoder stacks. Each layer applies multi-head self-attention followed by a position-wise feed-forward network, with residual connections and layer normalisation at each sub-layer.\relax }{figure.caption.8}{}}
+\newlabel{fig:transformer_architecture@cref}{{[figure][2][2]2.2}{[1][7][]9}}
+\citation{patwari2023hallucination}
 \citation{rahaman2019spectral}
 \citation{tancik2020fourier}
 \citation{mildenhall2021nerf}
 \citation{tancik2020fourier}
+\newlabel{eq:inr_with_encoding}{{2.7}{10}{Implicit Neural Representations}{equation.2.3.7}{}}
+\newlabel{eq:inr_with_encoding@cref}{{[equation][7][2]2.7}{[1][10][]10}}
+\newlabel{eq:sinusoidal_encoding}{{2.8}{10}{Implicit Neural Representations}{equation.2.3.8}{}}
+\newlabel{eq:sinusoidal_encoding@cref}{{[equation][8][2]2.8}{[1][10][]10}}
 \citation{mueller2022instant}
 \citation{mildenhall2021nerf}
-\newlabel{eq:inr_with_encoding}{{2.7}{9}{Implicit Neural Representations}{equation.2.3.7}{}}
-\newlabel{eq:inr_with_encoding@cref}{{[equation][7][2]2.7}{[1][9][]9}}
-\newlabel{eq:sinusoidal_encoding}{{2.8}{9}{Implicit Neural Representations}{equation.2.3.8}{}}
-\newlabel{eq:sinusoidal_encoding@cref}{{[equation][8][2]2.8}{[1][9][]9}}
 \citation{kajiya1984ray}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Neural Radiance Fields (NeRF)}{11}{subsection.2.3.1}\protected@file@percent }
+\newlabel{subsec:nerf}{{2.3.1}{11}{Neural Radiance Fields (NeRF)}{subsection.2.3.1}{}}
+\newlabel{subsec:nerf@cref}{{[subsection][1][2,3]2.3.1}{[1][11][]11}}
+\newlabel{eq:nerf_fn}{{2.9}{11}{Neural Radiance Fields (NeRF)}{equation.2.3.9}{}}
+\newlabel{eq:nerf_fn@cref}{{[equation][9][2]2.9}{[1][11][]11}}
 \citation{mildenhall2021nerf}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Neural Radiance Fields (NeRF)}{10}{subsection.2.3.1}\protected@file@percent }
-\newlabel{subsec:nerf}{{2.3.1}{10}{Neural Radiance Fields (NeRF)}{subsection.2.3.1}{}}
-\newlabel{subsec:nerf@cref}{{[subsection][1][2,3]2.3.1}{[1][9][]10}}
-\newlabel{eq:nerf_fn}{{2.9}{10}{Neural Radiance Fields (NeRF)}{equation.2.3.9}{}}
-\newlabel{eq:nerf_fn@cref}{{[equation][9][2]2.9}{[1][10][]10}}
-\newlabel{eq:volume_rendering}{{2.10}{10}{Neural Radiance Fields (NeRF)}{equation.2.3.10}{}}
-\newlabel{eq:volume_rendering@cref}{{[equation][10][2]2.10}{[1][10][]10}}
-\newlabel{eq:nerf_discrete}{{2.11}{10}{Neural Radiance Fields (NeRF)}{equation.2.3.11}{}}
-\newlabel{eq:nerf_discrete@cref}{{[equation][11][2]2.11}{[1][10][]10}}
 \citation{mueller2022instant}
 \citation{mueller2022instant}
+\newlabel{eq:volume_rendering}{{2.10}{12}{Neural Radiance Fields (NeRF)}{equation.2.3.10}{}}
+\newlabel{eq:volume_rendering@cref}{{[equation][10][2]2.10}{[1][11][]12}}
+\newlabel{eq:nerf_discrete}{{2.11}{12}{Neural Radiance Fields (NeRF)}{equation.2.3.11}{}}
+\newlabel{eq:nerf_discrete@cref}{{[equation][11][2]2.11}{[1][12][]12}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }}{12}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:nerf_pipeline}{{2.3}{12}{The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }{figure.caption.10}{}}
+\newlabel{fig:nerf_pipeline@cref}{{[figure][3][2]2.3}{[1][12][]12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Multiresolution Hash Encoding}{12}{subsection.2.3.2}\protected@file@percent }
+\newlabel{subsubsec:hash_encoding}{{2.3.2}{12}{Multiresolution Hash Encoding}{subsection.2.3.2}{}}
+\newlabel{subsubsec:hash_encoding@cref}{{[subsection][2][2,3]2.3.2}{[1][12][]12}}
 \citation{friis2025nect}
-\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{11}{table.caption.8}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:nerf_ct_analogy}{{2.1}{11}{Structural analogy between NeRF and attenuation-contrast CT.\relax }{table.caption.8}{}}
-\newlabel{tab:nerf_ct_analogy@cref}{{[table][1][2]2.1}{[1][11][]11}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Multiresolution Hash Encoding}{11}{subsection.2.3.2}\protected@file@percent }
-\newlabel{subsubsec:hash_encoding}{{2.3.2}{11}{Multiresolution Hash Encoding}{subsection.2.3.2}{}}
-\newlabel{subsubsec:hash_encoding@cref}{{[subsection][2][2,3]2.3.2}{[1][11][]11}}
-\newlabel{eq:hash_resolution}{{2.12}{11}{Multiresolution Hash Encoding}{equation.2.3.12}{}}
-\newlabel{eq:hash_resolution@cref}{{[equation][12][2]2.12}{[1][11][]11}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{13}{table.caption.11}\protected@file@percent }
+\newlabel{tab:nerf_ct_analogy}{{2.1}{13}{Structural analogy between NeRF and attenuation-contrast CT.\relax }{table.caption.11}{}}
+\newlabel{tab:nerf_ct_analogy@cref}{{[table][1][2]2.1}{[1][12][]13}}
+\newlabel{eq:hash_resolution}{{2.12}{13}{Multiresolution Hash Encoding}{equation.2.3.12}{}}
+\newlabel{eq:hash_resolution@cref}{{[equation][12][2]2.12}{[1][13][]13}}
 \citation{mueller2022instant}
 \citation{mueller2022instant}
 \citation{mueller2022instant}
-\newlabel{eq:hash_forward}{{2.13}{12}{Multiresolution Hash Encoding}{equation.2.3.13}{}}
-\newlabel{eq:hash_forward@cref}{{[equation][13][2]2.13}{[1][12][]12}}
 \citation{zha2022naf}
 \citation{zha2022naf}
+\newlabel{eq:hash_forward}{{2.13}{14}{Multiresolution Hash Encoding}{equation.2.3.13}{}}
+\newlabel{eq:hash_forward@cref}{{[equation][13][2]2.13}{[1][13][]14}}
 \citation{kak2001principles}
-\@writefile{toc}{\contentsline {section}{\numberline {2.4}X-ray Computed Tomography}{13}{section.2.4}\protected@file@percent }
-\newlabel{sec:ct}{{2.4}{13}{X-ray Computed Tomography}{section.2.4}{}}
-\newlabel{sec:ct@cref}{{[section][4][2]2.4}{[1][13][]13}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Physical Principles}{13}{subsection.2.4.1}\protected@file@percent }
-\newlabel{subsec:ct_physics}{{2.4.1}{13}{Physical Principles}{subsection.2.4.1}{}}
-\newlabel{subsec:ct_physics@cref}{{[subsection][1][2,4]2.4.1}{[1][13][]13}}
-\newlabel{eq:beer_lambert}{{2.14}{13}{Physical Principles}{equation.2.4.14}{}}
-\newlabel{eq:beer_lambert@cref}{{[equation][14][2]2.14}{[1][13][]13}}
-\newlabel{eq:projection_value}{{2.15}{13}{Physical Principles}{equation.2.4.15}{}}
-\newlabel{eq:projection_value@cref}{{[equation][15][2]2.15}{[1][13][]13}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}X-ray Computed Tomography}{15}{section.2.4}\protected@file@percent }
+\newlabel{sec:ct}{{2.4}{15}{X-ray Computed Tomography}{section.2.4}{}}
+\newlabel{sec:ct@cref}{{[section][4][2]2.4}{[1][14][]15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Physical Principles}{15}{subsection.2.4.1}\protected@file@percent }
+\newlabel{subsec:ct_physics}{{2.4.1}{15}{Physical Principles}{subsection.2.4.1}{}}
+\newlabel{subsec:ct_physics@cref}{{[subsection][1][2,4]2.4.1}{[1][14][]15}}
+\newlabel{eq:beer_lambert}{{2.14}{15}{Physical Principles}{equation.2.4.14}{}}
+\newlabel{eq:beer_lambert@cref}{{[equation][14][2]2.14}{[1][15][]15}}
+\newlabel{eq:projection_value}{{2.15}{15}{Physical Principles}{equation.2.4.15}{}}
+\newlabel{eq:projection_value@cref}{{[equation][15][2]2.15}{[1][15][]15}}
+\newlabel{eq:discrete_projection}{{2.16}{15}{Physical Principles}{equation.2.4.16}{}}
+\newlabel{eq:discrete_projection@cref}{{[equation][16][2]2.16}{[1][15][]15}}
 \citation{feldkamp1984}
 \citation{kak2001principles}
 \citation{andersen1984sart}
 \citation{du2017convergence}
 \citation{kak2001principles}
-\newlabel{eq:discrete_projection}{{2.16}{14}{Physical Principles}{equation.2.4.16}{}}
-\newlabel{eq:discrete_projection@cref}{{[equation][16][2]2.16}{[1][14][]14}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Classical Reconstruction Algorithms}{14}{subsection.2.4.2}\protected@file@percent }
-\newlabel{subsec:ct_algorithms}{{2.4.2}{14}{Classical Reconstruction Algorithms}{subsection.2.4.2}{}}
-\newlabel{subsec:ct_algorithms@cref}{{[subsection][2][2,4]2.4.2}{[1][14][]14}}
-\newlabel{eq:tv_regularisation}{{2.17}{14}{Classical Reconstruction Algorithms}{equation.2.4.17}{}}
-\newlabel{eq:tv_regularisation@cref}{{[equation][17][2]2.17}{[1][14][]14}}
 \citation{withers2021ct}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Classical Reconstruction Algorithms}{16}{subsection.2.4.2}\protected@file@percent }
+\newlabel{subsec:ct_algorithms}{{2.4.2}{16}{Classical Reconstruction Algorithms}{subsection.2.4.2}{}}
+\newlabel{subsec:ct_algorithms@cref}{{[subsection][2][2,4]2.4.2}{[1][16][]16}}
+\newlabel{eq:tv_regularisation}{{2.17}{16}{Classical Reconstruction Algorithms}{equation.2.4.17}{}}
+\newlabel{eq:tv_regularisation@cref}{{[equation][17][2]2.17}{[1][16][]16}}
 \citation{chen2008piccs,myers2011dynamic}
 \citation{goethals2022dynamic}
 \citation{withers2021ct}
 \citation{kohler2004golden}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.3}4D-CT and Dynamic Imaging}{15}{subsection.2.4.3}\protected@file@percent }
-\newlabel{subsec:4dct}{{2.4.3}{15}{4D-CT and Dynamic Imaging}{subsection.2.4.3}{}}
-\newlabel{subsec:4dct@cref}{{[subsection][3][2,4]2.4.3}{[1][15][]15}}
 \citation{friis2025nect}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.3}4D-CT and Dynamic Imaging}{17}{subsection.2.4.3}\protected@file@percent }
+\newlabel{subsec:4dct}{{2.4.3}{17}{4D-CT and Dynamic Imaging}{subsection.2.4.3}{}}
+\newlabel{subsec:4dct@cref}{{[subsection][3][2,4]2.4.3}{[1][16][]17}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{17}{section.2.5}\protected@file@percent }
+\newlabel{sec:nect}{{2.5}{17}{NeCT: Neural Computed Tomography}{section.2.5}{}}
+\newlabel{sec:nect@cref}{{[section][5][2]2.5}{[1][17][]17}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{16}{section.2.5}\protected@file@percent }
-\newlabel{sec:nect}{{2.5}{16}{NeCT: Neural Computed Tomography}{section.2.5}{}}
-\newlabel{sec:nect@cref}{{[section][5][2]2.5}{[1][16][]16}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{16}{subsection.2.5.1}\protected@file@percent }
-\newlabel{subsec:nect_pipeline}{{2.5.1}{16}{NeCT Pipeline Overview}{subsection.2.5.1}{}}
-\newlabel{subsec:nect_pipeline@cref}{{[subsection][1][2,5]2.5.1}{[1][16][]16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{18}{subsection.2.5.1}\protected@file@percent }
+\newlabel{subsec:nect_pipeline}{{2.5.1}{18}{NeCT Pipeline Overview}{subsection.2.5.1}{}}
+\newlabel{subsec:nect_pipeline@cref}{{[subsection][1][2,5]2.5.1}{[1][18][]18}}
+\newlabel{eq:nect_forward}{{2.18}{18}{NeCT Pipeline Overview}{equation.2.5.18}{}}
+\newlabel{eq:nect_forward@cref}{{[equation][18][2]2.18}{[1][18][]18}}
 \citation{kingma2015adam}
 \citation{friis2025nect}
 \citation{zha2022naf}
 \citation{friis2025nect}
-\newlabel{eq:nect_forward}{{2.18}{17}{NeCT Pipeline Overview}{equation.2.5.18}{}}
-\newlabel{eq:nect_forward@cref}{{[equation][18][2]2.18}{[1][17][]17}}
-\newlabel{eq:nect_loss}{{2.19}{17}{NeCT Pipeline Overview}{equation.2.5.19}{}}
-\newlabel{eq:nect_loss@cref}{{[equation][19][2]2.19}{[1][17][]17}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{17}{subsection.2.5.2}\protected@file@percent }
-\newlabel{subsec:nect_static}{{2.5.2}{17}{Static 3D Reconstruction}{subsection.2.5.2}{}}
-\newlabel{subsec:nect_static@cref}{{[subsection][2][2,5]2.5.2}{[1][17][]17}}
 \citation{wang2004ssim}
 \citation{klacansky2017openscivis}
 \citation{wang2004ssim}
+\newlabel{eq:nect_loss}{{2.19}{19}{NeCT Pipeline Overview}{equation.2.5.19}{}}
+\newlabel{eq:nect_loss@cref}{{[equation][19][2]2.19}{[1][19][]19}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{19}{subsection.2.5.2}\protected@file@percent }
+\newlabel{subsec:nect_static}{{2.5.2}{19}{Static 3D Reconstruction}{subsection.2.5.2}{}}
+\newlabel{subsec:nect_static@cref}{{[subsection][2][2,5]2.5.2}{[1][19][]19}}
+\newlabel{eq:psnr}{{2.20}{19}{Static 3D Reconstruction}{equation.2.5.20}{}}
+\newlabel{eq:psnr@cref}{{[equation][20][2]2.20}{[1][19][]19}}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\newlabel{eq:psnr}{{2.20}{18}{Static 3D Reconstruction}{equation.2.5.20}{}}
-\newlabel{eq:psnr@cref}{{[equation][20][2]2.20}{[1][18][]18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{18}{subsection.2.5.3}\protected@file@percent }
-\newlabel{subsec:nect_quadcubes}{{2.5.3}{18}{Dynamic 4D Reconstruction: NeCT QuadCubes}{subsection.2.5.3}{}}
-\newlabel{subsec:nect_quadcubes@cref}{{[subsection][3][2,5]2.5.3}{[1][18][]18}}
-\newlabel{eq:quadcubes_encoders}{{2.21}{18}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.21}{}}
-\newlabel{eq:quadcubes_encoders@cref}{{[equation][21][2]2.21}{[1][18][]18}}
-\newlabel{eq:quadcubes_forward}{{2.22}{18}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.22}{}}
-\newlabel{eq:quadcubes_forward@cref}{{[equation][22][2]2.22}{[1][18][]18}}
 \citation{friis2025nect}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{20}{subsection.2.5.3}\protected@file@percent }
+\newlabel{subsec:nect_quadcubes}{{2.5.3}{20}{Dynamic 4D Reconstruction: NeCT QuadCubes}{subsection.2.5.3}{}}
+\newlabel{subsec:nect_quadcubes@cref}{{[subsection][3][2,5]2.5.3}{[1][20][]20}}
+\newlabel{eq:quadcubes_encoders}{{2.21}{20}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.21}{}}
+\newlabel{eq:quadcubes_encoders@cref}{{[equation][21][2]2.21}{[1][20][]20}}
+\newlabel{eq:quadcubes_forward}{{2.22}{20}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.22}{}}
+\newlabel{eq:quadcubes_forward@cref}{{[equation][22][2]2.22}{[1][20][]20}}
 \citation{gostick2019porespy}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{19}{subsection.2.5.4}\protected@file@percent }
-\newlabel{subsec:hybrid_golden}{{2.5.4}{19}{Hybrid Golden-Section Sampling}{subsection.2.5.4}{}}
-\newlabel{subsec:hybrid_golden@cref}{{[subsection][4][2,5]2.5.4}{[1][19][]19}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders cover all four 3-element subsets of the space-time coordinates $\{x,y,z,t\}$. Their concatenated feature vectors are decoded by a shared MLP to produce the attenuation coefficient $\hat  {\mu }(\mathbf  {r},t)$.\relax }}{21}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:quadcubes_architecture}{{2.4}{21}{The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders cover all four 3-element subsets of the space-time coordinates $\{x,y,z,t\}$. Their concatenated feature vectors are decoded by a shared MLP to produce the attenuation coefficient $\hat {\mu }(\mathbf {r},t)$.\relax }{figure.caption.12}{}}
+\newlabel{fig:quadcubes_architecture@cref}{{[figure][4][2]2.4}{[1][20][]21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{21}{subsection.2.5.4}\protected@file@percent }
+\newlabel{subsec:hybrid_golden}{{2.5.4}{21}{Hybrid Golden-Section Sampling}{subsection.2.5.4}{}}
+\newlabel{subsec:hybrid_golden@cref}{{[subsection][4][2,5]2.5.4}{[1][21][]21}}
 \citation{friis2025nect}
 \citation{friis2025nect}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}Encoder Size and Performance}{21}{chapter.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Encoder Size and Performance}{23}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:encoder_size}{{3}{21}{Encoder Size and Performance}{chapter.3}{}}
-\newlabel{chap:encoder_size@cref}{{[chapter][3][]3}{[1][21][]21}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.1}Experimental Setup}{21}{section.3.1}\protected@file@percent }
-\newlabel{sec:enc_size_setup}{{3.1}{21}{Experimental Setup}{section.3.1}{}}
-\newlabel{sec:enc_size_setup@cref}{{[section][1][3]3.1}{[1][21][]21}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet  {friis2025nect}.\relax }}{22}{table.caption.10}\protected@file@percent }
-\newlabel{tab:baseline_config}{{3.1}{22}{Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }{table.caption.10}{}}
-\newlabel{tab:baseline_config@cref}{{[table][1][3]3.1}{[1][21][]22}}
-\newlabel{eq:params_per_encoder}{{3.1}{22}{The Baseline Configuration and Its Cost}{equation.3.1.1}{}}
-\newlabel{eq:params_per_encoder@cref}{{[equation][1][3]3.1}{[1][21][]22}}
-\newlabel{eq:mae}{{3.2}{23}{Metrics}{equation.3.1.2}{}}
-\newlabel{eq:mae@cref}{{[equation][2][3]3.2}{[1][22][]23}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Effect of Total Parameter Count}{23}{section.3.2}\protected@file@percent }
-\newlabel{sec:enc_size_params}{{3.2}{23}{Effect of Total Parameter Count}{section.3.2}{}}
-\newlabel{sec:enc_size_params@cref}{{[section][2][3]3.2}{[1][23][]23}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Effect on Reconstruction Time}{24}{section.3.3}\protected@file@percent }
-\newlabel{sec:enc_size_time}{{3.3}{24}{Effect on Reconstruction Time}{section.3.3}{}}
-\newlabel{sec:enc_size_time@cref}{{[section][3][3]3.3}{[1][24][]24}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.4}Precision and Accuracy Metrics}{25}{section.3.4}\protected@file@percent }
-\newlabel{sec:enc_size_metrics}{{3.4}{25}{Precision and Accuracy Metrics}{section.3.4}{}}
-\newlabel{sec:enc_size_metrics@cref}{{[section][4][3]3.4}{[1][25][]25}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.5}Non-Uniform Encoder Sizing}{26}{section.3.5}\protected@file@percent }
-\newlabel{sec:enc_size_nonuniform}{{3.5}{26}{Non-Uniform Encoder Sizing}{section.3.5}{}}
-\newlabel{sec:enc_size_nonuniform@cref}{{[section][5][3]3.5}{[1][25][]26}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations evaluated in \cref  {sec:enc_size_nonuniform}. All configurations use $L = $ \leavevmode {\color  {red}\textbf  {[TODO: value]}} levels and $F = $ \leavevmode {\color  {red}\textbf  {[TODO: value]}} features per level unless otherwise noted.\relax }}{26}{table.caption.20}\protected@file@percent }
-\newlabel{tab:nonuniform_configs}{{3.2}{26}{Non-uniform encoder configurations evaluated in \cref {sec:enc_size_nonuniform}. All configurations use $L = $ \todo {value} levels and $F = $ \todo {value} features per level unless otherwise noted.\relax }{table.caption.20}{}}
-\newlabel{tab:nonuniform_configs@cref}{{[table][2][3]3.2}{[1][26][]26}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Encoder Architecture}{28}{chapter.4}\protected@file@percent }
+\newlabel{chap:encoder_size}{{3}{23}{Encoder Size and Performance}{chapter.3}{}}
+\newlabel{chap:encoder_size@cref}{{[chapter][3][]3}{[1][23][]23}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Experimental Setup}{23}{section.3.1}\protected@file@percent }
+\newlabel{sec:enc_size_setup}{{3.1}{23}{Experimental Setup}{section.3.1}{}}
+\newlabel{sec:enc_size_setup@cref}{{[section][1][3]3.1}{[1][23][]23}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet  {friis2025nect}.\relax }}{24}{table.caption.14}\protected@file@percent }
+\newlabel{tab:baseline_config}{{3.1}{24}{Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }{table.caption.14}{}}
+\newlabel{tab:baseline_config@cref}{{[table][1][3]3.1}{[1][23][]24}}
+\newlabel{eq:params_per_encoder}{{3.1}{24}{The Baseline Configuration and Its Cost}{equation.3.1.1}{}}
+\newlabel{eq:params_per_encoder@cref}{{[equation][1][3]3.1}{[1][23][]24}}
+\newlabel{eq:mae}{{3.2}{25}{Metrics}{equation.3.1.2}{}}
+\newlabel{eq:mae@cref}{{[equation][2][3]3.2}{[1][24][]25}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Effect of Total Parameter Count}{25}{section.3.2}\protected@file@percent }
+\newlabel{sec:enc_size_params}{{3.2}{25}{Effect of Total Parameter Count}{section.3.2}{}}
+\newlabel{sec:enc_size_params@cref}{{[section][2][3]3.2}{[1][25][]25}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces PSNR at epoch 250 as a function of log$_2$ hashmap size, with $F=4$ fixed, shown separately for each number of levels $L$. Each panel sweeps log$_2 T \in \{17,\ldots  ,23\}$ with all other parameters held constant.\relax }}{26}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:psnr_vs_params_hashmap}{{3.1}{26}{PSNR at epoch 250 as a function of log$_2$ hashmap size, with $F=4$ fixed, shown separately for each number of levels $L$. Each panel sweeps log$_2 T \in \{17,\ldots ,23\}$ with all other parameters held constant.\relax }{figure.caption.19}{}}
+\newlabel{fig:psnr_vs_params_hashmap@cref}{{[figure][1][3]3.1}{[1][25][]26}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces PSNR at epoch 250 as a function of number of levels $L$, with $F=4$ fixed, shown separately for each log$_2$ hashmap size. Each panel sweeps $L \in \{17,\ldots  ,23\}$ with all other parameters held constant.\relax }}{27}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:psnr_vs_params_levels}{{3.2}{27}{PSNR at epoch 250 as a function of number of levels $L$, with $F=4$ fixed, shown separately for each log$_2$ hashmap size. Each panel sweeps $L \in \{17,\ldots ,23\}$ with all other parameters held constant.\relax }{figure.caption.21}{}}
+\newlabel{fig:psnr_vs_params_levels@cref}{{[figure][2][3]3.2}{[1][27][]27}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Effect on Reconstruction Time}{28}{section.3.3}\protected@file@percent }
+\newlabel{sec:enc_size_time}{{3.3}{28}{Effect on Reconstruction Time}{section.3.3}{}}
+\newlabel{sec:enc_size_time@cref}{{[section][3][3]3.3}{[1][28][]28}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at an equalized training time of approximately 14 hours for all $(L, \qopname  \relax o{log}_2 T)$ configurations with $F=4$. Each curve groups configurations with the same number of levels $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders.\relax }}{29}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:quality_vs_time}{{3.3}{29}{PSNR at an equalized training time of approximately 14 hours for all $(L, \log _2 T)$ configurations with $F=4$. Each curve groups configurations with the same number of levels $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders.\relax }{figure.caption.24}{}}
+\newlabel{fig:quality_vs_time@cref}{{[figure][3][3]3.3}{[1][28][]29}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Precision and Accuracy Metrics}{29}{section.3.4}\protected@file@percent }
+\newlabel{sec:enc_size_metrics}{{3.4}{29}{Precision and Accuracy Metrics}{section.3.4}{}}
+\newlabel{sec:enc_size_metrics@cref}{{[section][4][3]3.4}{[1][29][]29}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Non-Uniform Encoder Sizing}{30}{section.3.5}\protected@file@percent }
+\newlabel{sec:enc_size_nonuniform}{{3.5}{30}{Non-Uniform Encoder Sizing}{section.3.5}{}}
+\newlabel{sec:enc_size_nonuniform@cref}{{[section][5][3]3.5}{[1][30][]30}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations evaluated in \cref  {sec:enc_size_nonuniform}. All configurations use $L = $ \leavevmode {\color  {red}\textbf  {[TODO: value]}} levels and $F = $ \leavevmode {\color  {red}\textbf  {[TODO: value]}} features per level unless otherwise noted.\relax }}{30}{table.caption.27}\protected@file@percent }
+\newlabel{tab:nonuniform_configs}{{3.2}{30}{Non-uniform encoder configurations evaluated in \cref {sec:enc_size_nonuniform}. All configurations use $L = $ \todo {value} levels and $F = $ \todo {value} features per level unless otherwise noted.\relax }{table.caption.27}{}}
+\newlabel{tab:nonuniform_configs@cref}{{[table][2][3]3.2}{[1][30][]30}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Encoder Architecture}{32}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:encoder_arch}{{4}{28}{Encoder Architecture}{chapter.4}{}}
-\newlabel{chap:encoder_arch@cref}{{[chapter][4][]4}{[1][28][]28}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Collision Rate and the Design Space}{28}{section.4.1}\protected@file@percent }
-\newlabel{sec:arch_motivation}{{4.1}{28}{Collision Rate and the Design Space}{section.4.1}{}}
-\newlabel{sec:arch_motivation@cref}{{[section][1][4]4.1}{[1][28][]28}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}QuadCubes (Baseline)}{29}{section.4.2}\protected@file@percent }
-\newlabel{sec:arch_quad}{{4.2}{29}{QuadCubes (Baseline)}{section.4.2}{}}
-\newlabel{sec:arch_quad@cref}{{[section][2][4]4.2}{[1][29][]29}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}SingleCube}{29}{section.4.3}\protected@file@percent }
-\newlabel{sec:arch_single}{{4.3}{29}{SingleCube}{section.4.3}{}}
-\newlabel{sec:arch_single@cref}{{[section][3][4]4.3}{[1][29][]29}}
+\newlabel{chap:encoder_arch}{{4}{32}{Encoder Architecture}{chapter.4}{}}
+\newlabel{chap:encoder_arch@cref}{{[chapter][4][]4}{[1][32][]32}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Collision Rate and the Design Space}{32}{section.4.1}\protected@file@percent }
+\newlabel{sec:arch_motivation}{{4.1}{32}{Collision Rate and the Design Space}{section.4.1}{}}
+\newlabel{sec:arch_motivation@cref}{{[section][1][4]4.1}{[1][32][]32}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}QuadCubes (Baseline)}{33}{section.4.2}\protected@file@percent }
+\newlabel{sec:arch_quad}{{4.2}{33}{QuadCubes (Baseline)}{section.4.2}{}}
+\newlabel{sec:arch_quad@cref}{{[section][2][4]4.2}{[1][33][]33}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}SingleCube}{33}{section.4.3}\protected@file@percent }
+\newlabel{sec:arch_single}{{4.3}{33}{SingleCube}{section.4.3}{}}
+\newlabel{sec:arch_single@cref}{{[section][3][4]4.3}{[1][33][]33}}
 \citation{fridovichkeil2023kplanes}
 \citation{cao2023hexplane}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}SexCubes}{30}{section.4.4}\protected@file@percent }
-\newlabel{sec:arch_sex}{{4.4}{30}{SexCubes}{section.4.4}{}}
-\newlabel{sec:arch_sex@cref}{{[section][4][4]4.4}{[1][30][]30}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Alternative Decoders}{31}{section.4.5}\protected@file@percent }
-\newlabel{sec:arch_decoders}{{4.5}{31}{Alternative Decoders}{section.4.5}{}}
-\newlabel{sec:arch_decoders@cref}{{[section][5][4]4.5}{[1][30][]31}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Transformer Decoder}{31}{subsection.4.5.1}\protected@file@percent }
-\newlabel{subsec:arch_transformer}{{4.5.1}{31}{Transformer Decoder}{subsection.4.5.1}{}}
-\newlabel{subsec:arch_transformer@cref}{{[subsection][1][4,5]4.5.1}{[1][31][]31}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}U-Net Decoder}{31}{subsection.4.5.2}\protected@file@percent }
-\newlabel{subsec:arch_unet}{{4.5.2}{31}{U-Net Decoder}{subsection.4.5.2}{}}
-\newlabel{subsec:arch_unet@cref}{{[subsection][2][4,5]4.5.2}{[1][31][]31}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Dense Encoders}{31}{section.4.6}\protected@file@percent }
-\newlabel{sec:arch_dense}{{4.6}{31}{Dense Encoders}{section.4.6}{}}
-\newlabel{sec:arch_dense@cref}{{[section][6][4]4.6}{[1][31][]31}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.7}CombinedCubes}{32}{section.4.7}\protected@file@percent }
-\newlabel{sec:arch_combined}{{4.7}{32}{CombinedCubes}{section.4.7}{}}
-\newlabel{sec:arch_combined@cref}{{[section][7][4]4.7}{[1][31][]32}}
-\newlabel{eq:combinedcubes_forward}{{4.1}{32}{CombinedCubes}{equation.4.7.1}{}}
-\newlabel{eq:combinedcubes_forward@cref}{{[equation][1][4]4.1}{[1][32][]32}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.8}Dense Temporal Encoders in CombinedCubes}{32}{section.4.8}\protected@file@percent }
-\newlabel{sec:arch_combined_dense}{{4.8}{32}{Dense Temporal Encoders in CombinedCubes}{section.4.8}{}}
-\newlabel{sec:arch_combined_dense@cref}{{[section][8][4]4.8}{[1][32][]32}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.9}Comparative Analysis}{33}{section.4.9}\protected@file@percent }
-\newlabel{sec:arch_comparison}{{4.9}{33}{Comparative Analysis}{section.4.9}{}}
-\newlabel{sec:arch_comparison@cref}{{[section][9][4]4.9}{[1][33][]33}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{33}{table.caption.22}\protected@file@percent }
-\newlabel{tab:arch_design_space}{{4.1}{33}{Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }{table.caption.22}{}}
-\newlabel{tab:arch_design_space@cref}{{[table][1][4]4.1}{[1][33][]33}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color  {red}\textbf  {[TODO: dataset name]}}.\relax }}{33}{table.caption.23}\protected@file@percent }
-\newlabel{tab:arch_summary}{{4.2}{33}{Summary comparison of all encoder architectures on \todo {dataset name}.\relax }{table.caption.23}{}}
-\newlabel{tab:arch_summary@cref}{{[table][2][4]4.2}{[1][33][]33}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{34}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}SexCubes}{34}{section.4.4}\protected@file@percent }
+\newlabel{sec:arch_sex}{{4.4}{34}{SexCubes}{section.4.4}{}}
+\newlabel{sec:arch_sex@cref}{{[section][4][4]4.4}{[1][34][]34}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Alternative Decoders}{35}{section.4.5}\protected@file@percent }
+\newlabel{sec:arch_decoders}{{4.5}{35}{Alternative Decoders}{section.4.5}{}}
+\newlabel{sec:arch_decoders@cref}{{[section][5][4]4.5}{[1][34][]35}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Transformer Decoder}{35}{subsection.4.5.1}\protected@file@percent }
+\newlabel{subsec:arch_transformer}{{4.5.1}{35}{Transformer Decoder}{subsection.4.5.1}{}}
+\newlabel{subsec:arch_transformer@cref}{{[subsection][1][4,5]4.5.1}{[1][35][]35}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}U-Net Decoder}{35}{subsection.4.5.2}\protected@file@percent }
+\newlabel{subsec:arch_unet}{{4.5.2}{35}{U-Net Decoder}{subsection.4.5.2}{}}
+\newlabel{subsec:arch_unet@cref}{{[subsection][2][4,5]4.5.2}{[1][35][]35}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Dense Encoders}{35}{section.4.6}\protected@file@percent }
+\newlabel{sec:arch_dense}{{4.6}{35}{Dense Encoders}{section.4.6}{}}
+\newlabel{sec:arch_dense@cref}{{[section][6][4]4.6}{[1][35][]35}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.7}CombinedCubes}{36}{section.4.7}\protected@file@percent }
+\newlabel{sec:arch_combined}{{4.7}{36}{CombinedCubes}{section.4.7}{}}
+\newlabel{sec:arch_combined@cref}{{[section][7][4]4.7}{[1][35][]36}}
+\newlabel{eq:combinedcubes_forward}{{4.1}{36}{CombinedCubes}{equation.4.7.1}{}}
+\newlabel{eq:combinedcubes_forward@cref}{{[equation][1][4]4.1}{[1][36][]36}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.8}Dense Temporal Encoders in CombinedCubes}{36}{section.4.8}\protected@file@percent }
+\newlabel{sec:arch_combined_dense}{{4.8}{36}{Dense Temporal Encoders in CombinedCubes}{section.4.8}{}}
+\newlabel{sec:arch_combined_dense@cref}{{[section][8][4]4.8}{[1][36][]36}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.9}Comparative Analysis}{37}{section.4.9}\protected@file@percent }
+\newlabel{sec:arch_comparison}{{4.9}{37}{Comparative Analysis}{section.4.9}{}}
+\newlabel{sec:arch_comparison@cref}{{[section][9][4]4.9}{[1][37][]37}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{37}{table.caption.29}\protected@file@percent }
+\newlabel{tab:arch_design_space}{{4.1}{37}{Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }{table.caption.29}{}}
+\newlabel{tab:arch_design_space@cref}{{[table][1][4]4.1}{[1][37][]37}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color  {red}\textbf  {[TODO: dataset name]}}.\relax }}{37}{table.caption.30}\protected@file@percent }
+\newlabel{tab:arch_summary}{{4.2}{37}{Summary comparison of all encoder architectures on \todo {dataset name}.\relax }{table.caption.30}{}}
+\newlabel{tab:arch_summary@cref}{{[table][2][4]4.2}{[1][37][]37}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{38}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:continuous}{{5}{34}{Continuous Scanning}{chapter.5}{}}
-\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][34][]34}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Motivation}{34}{section.5.1}\protected@file@percent }
-\newlabel{sec:cont_motivation}{{5.1}{34}{Motivation}{section.5.1}{}}
-\newlabel{sec:cont_motivation@cref}{{[section][1][5]5.1}{[1][34][]34}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{35}{section.5.2}\protected@file@percent }
-\newlabel{sec:cont_model}{{5.2}{35}{Forward Model for Continuous Scanning}{section.5.2}{}}
-\newlabel{sec:cont_model@cref}{{[section][2][5]5.2}{[1][35][]35}}
-\newlabel{eq:step_shoot_forward}{{5.1}{35}{Forward Model for Continuous Scanning}{equation.5.2.1}{}}
-\newlabel{eq:step_shoot_forward@cref}{{[equation][1][5]5.1}{[1][35][]35}}
-\newlabel{eq:continuous_forward_exact}{{5.2}{35}{Forward Model for Continuous Scanning}{equation.5.2.2}{}}
-\newlabel{eq:continuous_forward_exact@cref}{{[equation][2][5]5.2}{[1][35][]35}}
-\newlabel{eq:continuous_forward_discrete}{{5.3}{35}{Forward Model for Continuous Scanning}{equation.5.2.3}{}}
-\newlabel{eq:continuous_forward_discrete@cref}{{[equation][3][5]5.3}{[1][35][]35}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{36}{algorithm.1}\protected@file@percent }
-\newlabel{alg:continuous}{{1}{36}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.1}{}}
-\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][35][]36}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{37}{section.5.3}\protected@file@percent }
-\newlabel{sec:cont_static}{{5.3}{37}{Static Dataset Experiments}{section.5.3}{}}
-\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][35][]37}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{37}{section.5.4}\protected@file@percent }
-\newlabel{sec:cont_dynamic}{{5.4}{37}{Dynamic Dataset Experiments}{section.5.4}{}}
-\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][37][]37}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{38}{section.5.5}\protected@file@percent }
-\newlabel{sec:cont_discussion}{{5.5}{38}{Discussion}{section.5.5}{}}
-\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][37][]38}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{39}{chapter.6}\protected@file@percent }
+\newlabel{chap:continuous}{{5}{38}{Continuous Scanning}{chapter.5}{}}
+\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][38][]38}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Motivation}{38}{section.5.1}\protected@file@percent }
+\newlabel{sec:cont_motivation}{{5.1}{38}{Motivation}{section.5.1}{}}
+\newlabel{sec:cont_motivation@cref}{{[section][1][5]5.1}{[1][38][]38}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{39}{section.5.2}\protected@file@percent }
+\newlabel{sec:cont_model}{{5.2}{39}{Forward Model for Continuous Scanning}{section.5.2}{}}
+\newlabel{sec:cont_model@cref}{{[section][2][5]5.2}{[1][39][]39}}
+\newlabel{eq:step_shoot_forward}{{5.1}{39}{Forward Model for Continuous Scanning}{equation.5.2.1}{}}
+\newlabel{eq:step_shoot_forward@cref}{{[equation][1][5]5.1}{[1][39][]39}}
+\newlabel{eq:continuous_forward_exact}{{5.2}{39}{Forward Model for Continuous Scanning}{equation.5.2.2}{}}
+\newlabel{eq:continuous_forward_exact@cref}{{[equation][2][5]5.2}{[1][39][]39}}
+\newlabel{eq:continuous_forward_discrete}{{5.3}{39}{Forward Model for Continuous Scanning}{equation.5.2.3}{}}
+\newlabel{eq:continuous_forward_discrete@cref}{{[equation][3][5]5.3}{[1][39][]39}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{40}{algorithm.1}\protected@file@percent }
+\newlabel{alg:continuous}{{1}{40}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.1}{}}
+\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][39][]40}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{41}{section.5.3}\protected@file@percent }
+\newlabel{sec:cont_static}{{5.3}{41}{Static Dataset Experiments}{section.5.3}{}}
+\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][39][]41}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{41}{section.5.4}\protected@file@percent }
+\newlabel{sec:cont_dynamic}{{5.4}{41}{Dynamic Dataset Experiments}{section.5.4}{}}
+\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][41][]41}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{42}{section.5.5}\protected@file@percent }
+\newlabel{sec:cont_discussion}{{5.5}{42}{Discussion}{section.5.5}{}}
+\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][41][]42}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{43}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{6}{39}{Conclusion}{chapter.6}{}}
-\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][39][]39}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{39}{section.6.1}\protected@file@percent }
-\newlabel{sec:conclusion_summary}{{6.1}{39}{Summary of Contributions}{section.6.1}{}}
-\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][39][]39}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{39}{section.6.2}\protected@file@percent }
-\newlabel{sec:conclusion_future}{{6.2}{39}{Limitations and Future Work}{section.6.2}{}}
-\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][39][]39}}
+\newlabel{chap:conclusion}{{6}{43}{Conclusion}{chapter.6}{}}
+\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][43][]43}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{43}{section.6.1}\protected@file@percent }
+\newlabel{sec:conclusion_summary}{{6.1}{43}{Summary of Contributions}{section.6.1}{}}
+\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][43][]43}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{43}{section.6.2}\protected@file@percent }
+\newlabel{sec:conclusion_future}{{6.2}{43}{Limitations and Future Work}{section.6.2}{}}
+\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][43][]43}}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{andersen1984sart}{{1}{1984}{{Andersen and Kak}}{{}}}
@@ -339,14 +360,14 @@
 \bibcite{wang2004ssim}{{30}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
 \bibcite{withers2021ct}{{31}{2021}{{Withers et~al.}}{{}}}
 \bibcite{zha2022naf}{{32}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{45}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{49}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experimental}{{A}{45}{Supplementary Experimental Details}{appendix.A}{}}
-\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][45][]45}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{46}{appendix.B}\protected@file@percent }
+\newlabel{app:experimental}{{A}{49}{Supplementary Experimental Details}{appendix.A}{}}
+\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][49][]49}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{50}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{B}{46}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
-\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][46][]46}}
-\gdef \@abspage@last{55}
+\newlabel{app:hyperparams}{{B}{50}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
+\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][50][]50}}
+\gdef \@abspage@last{59}

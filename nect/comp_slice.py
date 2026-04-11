@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Compare two grayscale images (CT slices) using a cropped region.
-- Paths are defined as strings in the code (no CLI args).
-- Both images are cropped with the same (x, y) coordinates.
-- Displays:
-    - Reference (cropped)
-    - Test (cropped)
-    - Absolute error heatmap
-    - Error overlay on reference
+Compare two grayscale images (CT slices) using cropped regions from crops.json.
+- REF_PATH defaults to the source_image recorded in crops.json.
+- TEST_PATH is the reconstruction to evaluate.
+- All crop regions in crops.json are evaluated; metrics are printed for each.
+- CROP_INDEX can be set to a specific integer to visualise only that crop,
+  or None to visualise all crops.
 """
 
+import json
+import os
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -25,16 +25,13 @@ except ImportError:
 # ================================
 # CONFIG: EDIT THESE
 # ================================
-REF_PATH = r"/home/user/Documents/NeCT/sizediff/perfect/1300_1400.png"# path to your "perfect" image pop-backup-user/Pictures/sizecomp/23_4_23_0395_1400.png
-TEST_PATH = r"/home/user/Documents/NeCT/sizediff/21_4_21/0150_1400.png"#combinedcube/24_4_24/0150_1400.png"  # path to your reconstruction image pop-backup-user/Pictures/sizecomp/8_2_16_0260_1400.png
+CROPS_JSON = r"/home/user/Documents/NeCT/crops.json"
+# REF_PATH: leave as None to use source_image from crops.json
+REF_PATH = None
+TEST_PATH = r"/home/user/Documents/NeCT/sizediff/perfect/0500_1400.png"
 
-# Crop rectangle (in pixel coordinates)
-# (x0, y0) is top-left; (x1, y1) is bottom-right (exclusive)
-# Example: crop from x=100..300, y=150..350
-CROP_X0 = 5400
-CROP_Y0 = 1800
-CROP_X1 = 6000
-CROP_Y1 = 2600
+# Set to an integer index to visualise only that crop, or None for all crops.
+CROP_INDEX = None
 # ================================
 
 
@@ -110,22 +107,24 @@ def compute_metrics(ref: np.ndarray, test: np.ndarray):
 def visualize(ref_crop: np.ndarray,
               test_crop: np.ndarray,
               err_norm: np.ndarray,
-              metrics: dict):
+              metrics: dict,
+              crop_index: int = 0):
     """
     Show reference, test, error heatmap, and overlay.
     """
     mse = metrics["MSE"]
 
     fig, axes = plt.subplots(1, 4, figsize=(16, 4))
+    fig.suptitle(f"Crop {crop_index}", fontsize=10)
 
     # 1) Reference
     axes[0].imshow(ref_crop, cmap="gray")
-    axes[0].set_title("21_4_21 1300 epochs")
+    axes[0].set_title("Reference")
     axes[0].axis("off")
 
     # 2) Test
     axes[1].imshow(test_crop, cmap="gray")
-    axes[1].set_title("21_4_21 150 epochs")
+    axes[1].set_title("Test")
     axes[1].axis("off")
 
     # 3) Error heatmap
@@ -139,7 +138,7 @@ def visualize(ref_crop: np.ndarray,
     # alpha proportional to error: tune scale factor if needed
     alpha = np.clip(err_norm ** 0.4, 0.0, 1)
     im3 = axes[3].imshow(err_norm, cmap="hot", alpha=alpha)
-    axes[3].set_title("21_4_21 1300 epochs + error overlay")
+    axes[3].set_title("Reference + error overlay")
     axes[3].axis("off")
     fig.colorbar(im3, ax=axes[3], fraction=0.046, pad=0.04)
 
@@ -147,45 +146,75 @@ def visualize(ref_crop: np.ndarray,
     plt.show()
 
 
+def load_crops_json(path: str):
+    """Load crops.json and return (ref_path, list of crop dicts)."""
+    with open(path) as f:
+        data = json.load(f)
+    source_image = data.get("source_image")
+    if source_image and not os.path.isabs(source_image):
+        # Resolve relative to the JSON file's directory
+        source_image = os.path.join(os.path.dirname(path), source_image)
+    crops = data.get("crops", [])
+    return source_image, crops
+
+
 def main():
-    # Load full images
-    ref_full = load_grayscale(REF_PATH)
+    # Load crop definitions
+    source_image_from_json, crops = load_crops_json(CROPS_JSON)
+
+    ref_path = REF_PATH if REF_PATH is not None else source_image_from_json
+    if ref_path is None:
+        raise ValueError("No REF_PATH set and crops.json has no source_image.")
+
+    ref_full = load_grayscale(ref_path)
     test_full = load_grayscale(TEST_PATH)
 
-    print(f"Loaded ref:  {REF_PATH}, shape={ref_full.shape}")
+    print(f"Loaded ref:  {ref_path}, shape={ref_full.shape}")
     print(f"Loaded test: {TEST_PATH}, shape={test_full.shape}")
+    print(f"Crops loaded from: {CROPS_JSON} ({len(crops)} regions)")
 
-    # Crop both images with the same coordinates
-    ref_crop = crop_image(ref_full, CROP_X0, CROP_Y0, CROP_X1, CROP_Y1)
-    test_crop = crop_image(test_full, CROP_X0, CROP_Y0, CROP_X1, CROP_Y1)
+    # Determine which crops to evaluate
+    if CROP_INDEX is not None:
+        indices = [CROP_INDEX]
+    else:
+        indices = list(range(len(crops)))
 
-    print(f"Cropped shape: {ref_crop.shape}")
+    all_metrics = []
+    for i in indices:
+        c = crops[i]
+        x0, y0, x1, y1 = c["x0"], c["y0"], c["x1"], c["y1"]
 
-    # Compute metrics
-    metrics, abs_err, ssim_map = compute_metrics(ref_crop, test_crop)
+        ref_crop = crop_image(ref_full, x0, y0, x1, y1)
+        test_crop = crop_image(test_full, x0, y0, x1, y1)
 
-    # Normalize error for visualization
-    err_norm = abs_err / (abs_err.max() + 1e-8)
+        metrics, abs_err, ssim_map = compute_metrics(ref_crop, test_crop)
+        all_metrics.append(metrics)
+        err_norm = abs_err / (abs_err.max() + 1e-8)
 
-    # Print metrics
-    print("=== Metrics ===")
-    for k, v in metrics.items():
-        print(f"{k}: {v:.6f}")
-    if not _HAS_SKIMAGE:
-        print("(SSIM not computed: scikit-image not installed)")
+        print(f"\n=== Crop {i} ({x0},{y0})→({x1},{y1})  shape={ref_crop.shape} ===")
+        for k, v in metrics.items():
+            print(f"  {k}: {v:.6f}")
+        if not _HAS_SKIMAGE:
+            print("  (SSIM not computed: scikit-image not installed)")
 
-    # Visualize
-    visualize(ref_crop, test_crop, err_norm, metrics)
+        visualize(ref_crop, test_crop, err_norm, metrics, crop_index=i)
 
-    # Optional: if you want to also visualize SSIM map when available
-    if ssim_map is not None:
-        plt.figure(figsize=(5, 4))
-        plt.imshow(ssim_map, cmap="viridis")
-        plt.title("SSIM map")
-        plt.axis("off")
-        plt.colorbar(fraction=0.046, pad=0.04)
-        plt.tight_layout()
-        plt.show()
+        if ssim_map is not None:
+            plt.figure(figsize=(5, 4))
+            plt.imshow(ssim_map, cmap="viridis")
+            plt.title(f"SSIM map – crop {i}")
+            plt.axis("off")
+            plt.colorbar(fraction=0.046, pad=0.04)
+            plt.tight_layout()
+            plt.show()
+
+    # Print aggregate summary across all evaluated crops
+    if len(all_metrics) > 1:
+        print("\n=== Aggregate (mean across crops) ===")
+        keys = list(all_metrics[0].keys())
+        for k in keys:
+            mean_val = float(np.mean([m[k] for m in all_metrics]))
+            print(f"  {k}: {mean_val:.6f}")
 
 
 if __name__ == "__main__":

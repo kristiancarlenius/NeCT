@@ -1,7 +1,14 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces The U-Net architecture. The contracting path (left) progressively halves spatial resolution while doubling feature channels; the expanding path (right) restores resolution via transposed convolutions. Skip connections (horizontal arrows) carry fine-grained spatial features from encoder to decoder stages.\relax }}{8}{figure.caption.6}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces The Transformer architecture with encoder and decoder stacks. Each layer applies multi-head self-attention followed by a position-wise feed-forward network, with residual connections and layer normalisation at each sub-layer.\relax }}{9}{figure.caption.8}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }}{12}{figure.caption.10}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders cover all four 3-element subsets of the space-time coordinates $\{x,y,z,t\}$. Their concatenated feature vectors are decoded by a shared MLP to produce the attenuation coefficient $\hat {\mu }(\mathbf {r},t)$.\relax }}{21}{figure.caption.12}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces PSNR at epoch 250 as a function of log$_2$ hashmap size, with $F=4$ fixed, shown separately for each number of levels $L$. Each panel sweeps log$_2 T \in \{17,\ldots ,23\}$ with all other parameters held constant.\relax }}{26}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces PSNR at epoch 250 as a function of number of levels $L$, with $F=4$ fixed, shown separately for each log$_2$ hashmap size. Each panel sweeps $L \in \{17,\ldots ,23\}$ with all other parameters held constant.\relax }}{27}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at an equalized training time of approximately 14 hours for all $(L, \qopname \relax o{log}_2 T)$ configurations with $F=4$. Each curve groups configurations with the same number of levels $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders.\relax }}{29}{figure.caption.24}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

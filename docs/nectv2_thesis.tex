@@ -10,6 +10,7 @@
 
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{graphicx}
+\graphicspath{{images/}}
 \usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage{hyperref}
@@ -195,9 +196,23 @@ The same kernel $\mathbf{K}$ is applied at every spatial position, so the number
 
 The U-Net architecture \citep{ronneberger2015unet} is a widely used CNN for image-to-image tasks. It consists of a contracting encoder path that progressively halves spatial resolution while doubling the number of feature channels, and a symmetric expanding decoder path that restores the original resolution using transposed convolutions. Skip connections concatenate feature maps from the encoder to the corresponding decoder stage, allowing the network to recover fine spatial detail that would otherwise be lost during downsampling. In CT reconstruction, U-Nets are typically used to map a degraded FDK reconstruction to a cleaner image \citep{jin2017deep}. They have also been applied in the sinogram domain, where a network learns to predict missing projections from a sparse-view sinogram before passing the completed data to a conventional reconstruction algorithm \citep{hu2021hybrid}.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{u-net-architecture.png}
+    \caption{The U-Net architecture. The contracting path (left) progressively halves spatial resolution while doubling feature channels; the expanding path (right) restores resolution via transposed convolutions. Skip connections (horizontal arrows) carry fine-grained spatial features from encoder to decoder stages.}
+    \label{fig:unet_architecture}
+\end{figure}
+
 \subsubsection*{Transformers}
 
 Transformers, originally developed for natural language processing, use a self-attention mechanism that allows every element in a sequence to attend to every other element. Applied to images, a vision transformer divides the input into fixed-size patches and treats them as a sequence of tokens. Self-attention captures long-range dependencies directly, unlike convolutions which build up spatial context gradually through stacking. This global receptive field makes transformers attractive for problems where features at distant spatial locations carry relevant information about each other. However, the quadratic memory cost of self-attention with respect to the number of tokens limits the resolution at which transformers can be applied to volumetric data.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{transformer.jpg}
+    \caption{The Transformer architecture with encoder and decoder stacks. Each layer applies multi-head self-attention followed by a position-wise feed-forward network, with residual connections and layer normalisation at each sub-layer.}
+    \label{fig:transformer_architecture}
+\end{figure}
 
 \subsubsection*{Limitations for CT Reconstruction}
 
@@ -281,6 +296,13 @@ where the accumulated transmittance $T(t) = \exp\!\left(-\int_{t_n}^{t} \sigma(\
 where $\delta_i = t_{i+1} - t_i$ is the distance between adjacent samples. This expression is fully differentiable with respect to the MLP parameters $\Theta$.
 
 NeRF is trained by minimising the squared photometric error between the rendered colour and the observed pixel colour over all training rays, with no 3D supervision required. The structural parallel with CT reconstruction is close, as summarised in Table~\ref{tab:nerf_ct_analogy}. Setting $\sigma(\mathbf{x}) \equiv \mu(\mathbf{x})$ and dropping the colour output reduces the NeRF forward model to Beer--Lambert's law. The CT reconstruction problem can therefore be addressed using the same INR machinery as NeRF, substituting the Beer--Lambert integral for the volume renderer and choosing an encoding suited to the properties of tomographic data.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{nerf.png}
+    \caption{The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.}
+    \label{fig:nerf_pipeline}
+\end{figure}
 
 \begin{table}[h]
     \centering
@@ -493,6 +515,13 @@ where $\gamma_{(\cdot)}$ denotes the trilinear-interpolated hash encoding in the
 
 Each encoder operates in a well-conditioned 3D hash space where the collision rate remains manageable at micro-CT resolutions. The overlap between encoders, where the spatial encoder \texttt{xyz} shares each of its three dimensions with one of the temporal encoders, provides redundant representations of spatial structure that assist collision disambiguation and give the MLP multiple views of the same location at different times. The rationale behind this particular factorisation, and how it compares to alternative designs, is the subject of Chapter~\ref{chap:encoder_arch}.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.82\textwidth]{quadcubes.png}
+    \caption{The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders cover all four 3-element subsets of the space-time coordinates $\{x,y,z,t\}$. Their concatenated feature vectors are decoded by a shared MLP to produce the attenuation coefficient $\hat{\mu}(\mathbf{r},t)$.}
+    \label{fig:quadcubes_architecture}
+\end{figure}
+
 A defining property of the QuadCubes model is that it is trained on all projections from the full dynamic experiment simultaneously. The network learns to distinguish between time-invariant structural features, which are supported by projections from all angles and all times, and dynamic features such as advancing fluid fronts, which are supported only by projections in their temporal vicinity. Static structures therefore converge to a sharp representation, while dynamic features converge with precision proportional to the rate at which they evolve relative to the projection acquisition rate. The temporal resolution is consequently scene-dependent, and for large, rapidly changing features a temporal resolution approaching the time between two successive projections is achievable \citep{friis2025nect}.
 
 Simulations using synthetic 4D datasets generated with PoreSpy \citep{gostick2019porespy} showed that QuadCubes can resolve dynamics lasting as few as two projection intervals for large features, and approaches full resolution for events spanning ten or more projections. In the experimental Bentheimer sandstone dataset, individual pore-filling events with a characteristic time of approximately 10\,s and salt dissolution events lasting approximately 30\,s were directly observed \citep{friis2025nect}.
@@ -581,7 +610,51 @@ The encoder size is controlled by three hyperparameters that dominate the parame
 
 The log$_2$ hashmap size is the single parameter with the largest effect on both memory and parameter count, since the total number of encoding parameters scales linearly with $T = 2^{\log_2 T}$. Values of 17, 18, 19, 20, 21, 22, 23 were evaluated, with $L$ and $F$ held at their baseline values of 23 and 4.
 
-Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR and SSIM as a function of total parameter count for this sweep. \todo{Insert figure: x-axis = log-scale parameter count or log2\_hashmap\_size, y-axis = PSNR / SSIM, one curve each.}
+Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR as a function of log$_2$ hashmap size for each fixed $L$ value, revealing how hashmap capacity trades off against reconstruction quality at every level count.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N17.png}
+        \caption{$L=17$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N18.png}
+        \caption{$L=18$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N19.png}
+        \caption{$L=19$}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N20.png}
+        \caption{$L=20$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N21.png}
+        \caption{$L=21$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N22.png}
+        \caption{$L=22$}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{hash_psnr_N23.png}
+        \caption{$L=23$}
+    \end{subfigure}
+    \caption{PSNR at epoch 250 as a function of log$_2$ hashmap size, with $F=4$ fixed, shown separately for each number of levels $L$. Each panel sweeps log$_2 T \in \{17,\ldots,23\}$ with all other parameters held constant.}
+    \label{fig:psnr_vs_params_hashmap}
+\end{figure}
 
 \todo{Describe the trend observed in the figure without drawing conclusions.}
 
@@ -589,7 +662,51 @@ Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR and SSIM as a function of tot
 
 The number of levels $L$ affects both the total parameter count and the range of spatial frequencies that the encoder can represent simultaneously. With $b = 2$ and $N_\mathrm{min} = 16$, increasing $L$ extends the encoder's coverage to finer spatial scales, but also adds $T \times F$ new parameters per additional level. Values of 17, 18, 19, 20, 21, 22, 23 were evaluated, with the hashmap size and features per level held at their baseline values.
 
-Figure~\ref{fig:psnr_vs_params_levels} shows reconstruction quality as a function of $L$. \todo{Insert figure and describe observed trend.}
+Figure~\ref{fig:psnr_vs_params_levels} shows PSNR as a function of $L$ for each fixed log$_2$ hashmap size, isolating the effect of level count on reconstruction quality.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H17.png}
+        \caption{$\log_2 T=17$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H18.png}
+        \caption{$\log_2 T=18$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H19.png}
+        \caption{$\log_2 T=19$}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H20.png}
+        \caption{$\log_2 T=20$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H21.png}
+        \caption{$\log_2 T=21$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H22.png}
+        \caption{$\log_2 T=22$}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{nlev_psnr_H23.png}
+        \caption{$\log_2 T=23$}
+    \end{subfigure}
+    \caption{PSNR at epoch 250 as a function of number of levels $L$, with $F=4$ fixed, shown separately for each log$_2$ hashmap size. Each panel sweeps $L \in \{17,\ldots,23\}$ with all other parameters held constant.}
+    \label{fig:psnr_vs_params_levels}
+\end{figure}
 
 \subsection*{Varying Features Per Level}
 
@@ -606,7 +723,14 @@ To understand whether total parameter count is a reliable predictor of reconstru
 
 The relationship between encoder size and reconstruction quality is only one dimension of the trade-off. A configuration with slightly lower PSNR but substantially faster training may be preferable for many applications, particularly when the bottleneck is GPU availability or when iterative experimental workflows require multiple reconstructions. Here we examine the joint relationship between training time and quality, asking which configurations lie on the Pareto front of quality versus time.
 
-Figure~\ref{fig:quality_vs_time} shows PSNR and SSIM as a function of training time for all configurations evaluated in \cref{sec:enc_size_params}, with each point representing one configuration at convergence. \todo{Insert figure. The plot should resemble a quality-vs-time scatter, ideally with the Pareto front highlighted.}
+Figure~\ref{fig:quality_vs_time} shows PSNR for all configurations evaluated in \cref{sec:enc_size_params} at an equalized wall-clock budget of approximately 14 hours, with curves grouped by number of levels and the x-axis showing total encoder parameter count.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.88\textwidth]{equalized_psnr.png}
+    \caption{PSNR at an equalized training time of approximately 14 hours for all $(L, \log_2 T)$ configurations with $F=4$. Each curve groups configurations with the same number of levels $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders.}
+    \label{fig:quality_vs_time}
+\end{figure}
 
 \todo{Describe what the figure shows.}
 
