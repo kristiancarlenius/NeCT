@@ -35,15 +35,15 @@
 \contentsline {section}{\numberline {4.6}Dense Encoders}{37}{section.4.6}%
 \contentsline {section}{\numberline {4.7}CombinedCubes}{38}{section.4.7}%
 \contentsline {section}{\numberline {4.8}Dense Temporal Encoders in CombinedCubes}{39}{section.4.8}%
-\contentsline {section}{\numberline {4.9}Comparative Analysis}{39}{section.4.9}%
+\contentsline {section}{\numberline {4.9}Comparative Analysis}{40}{section.4.9}%
 \contentsline {chapter}{\numberline {5}Continuous Scanning}{41}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Motivation}{41}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{42}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{44}{section.5.3}%
+\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{43}{section.5.3}%
 \contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{44}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Discussion}{45}{section.5.5}%
-\contentsline {chapter}{\numberline {6}Conclusion}{46}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{46}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{46}{section.6.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{44}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Conclusion}{45}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{45}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{45}{section.6.2}%
 \contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{51}{appendix.A}%
 \contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{52}{appendix.B}%

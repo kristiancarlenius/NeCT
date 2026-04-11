@@ -826,19 +826,19 @@ The most straightforward extension of the static 3D model to 4D is a single 4D m
 
 As established in \cref{sec:arch_motivation}, a collision-free 4D encoder at a finest resolution of 1024 would require a hashmap of $2^{40} \approx 10^{12}$ entries. Any practical 4D encoder must therefore operate with a hashmap many orders of magnitude smaller, resulting in a severe collision load. With $\log_2 T = 23$, the expected collision rate at the finest level is $N_\mathrm{max}^4 / T = 2^{40} / 2^{23} = 2^{17} \approx 131\,000$ vertices per hash table entry. Each stored feature vector must represent an average over more than 100\,000 distinct spatial locations, and the disambiguation mechanism has only the levels of the same encoder to draw on, all of which share the same severe collision regime.
 
-Figure~\ref{fig:singlecube_reconstruction} shows representative reconstruction slices from the SingleCube model alongside the QuadCubes reference.
-
 \begin{figure}[H]
+    \begin{adjustwidth}{-2cm}{-2cm}
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.6\textwidth}
         \includegraphics[width=\textwidth]{compairson.png}
         \caption{QuadCubes (reference)}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.6\textwidth}
         \includegraphics[width=\textwidth]{singlecube.png}
         \caption{SingleCube}
     \end{subfigure}
+    \end{adjustwidth}
     \caption{Reconstruction comparison between QuadCubes and SingleCube. The SingleCube output exhibits severe noise from the extreme hash collision load in the 4D encoder, while the QuadCubes decomposition into 3D subproblems produces a clean reconstruction.}
     \label{fig:singlecube_reconstruction}
 \end{figure}
@@ -860,27 +860,25 @@ The central advantage of 2D encoders is a substantially lower collision rate. A 
 
 The limitation is that each encoder captures interactions between exactly two coordinates and is entirely blind to higher-order interactions. Reconstructing a voxel at $(x, y, z, t)$ from six plane projections is analogous to recovering a 4D function from its six 2D marginals, which is underdetermined without additional coupling. The MLP must therefore perform a substantially harder integration task than in the 3D encoder architectures.
 
-Figure~\ref{fig:sexcubes_reconstruction} shows representative reconstruction slices from SexCubes variants alongside the QuadCubes reference.
-
 \begin{figure}[H]
     \begin{adjustwidth}{-2cm}{-2cm}
     \centering
-    \begin{subfigure}[b]{0.35\textwidth}
+    \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{compairson.png}
         \caption{QuadCubes (ref.)}
     \end{subfigure}
     \hspace{0.1cm} 
-    \begin{subfigure}[b]{0.35\textwidth}
+    \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{sexcubes_128_4.png}
         \caption{SexCubes 128×4}
     \end{subfigure}
     \hspace{0.1cm} 
-    \begin{subfigure}[b]{0.35\textwidth}
+    \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{sexcubes_128_7.png}
         \caption{SexCubes 128×7}
     \end{subfigure}
     \hspace{0.1cm} 
-    \begin{subfigure}[b]{0.35\textwidth}
+    \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{sexcubes_128_16.png}
         \caption{SexCubes 128×16}
     \end{subfigure}
@@ -958,18 +956,18 @@ Figure~\ref{fig:combinedcubes_time} shows training time and peak GPU memory cons
 \label{sec:arch_combined_dense}
 
 \begin{figure}[H]
-    \begin{adjustwidth}{-4cm}{-4cm}
+    \begin{adjustwidth}{-2cm}{-2cm}
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \includegraphics[width=\textwidth]{compairson.png}
         \caption{QuadCubes (reference)}
     \end{subfigure}
-    \hfill
+    \hspace{20cm}
     \begin{subfigure}[b]{0.45\textwidth}
         \includegraphics[width=\textwidth]{highcontrast_nect_12h.png}
         \caption{\NeCT{} at 12\,h}
     \end{subfigure}
-    \hfill
+    \hspace{-0.2cm}
     \begin{subfigure}[b]{0.45\textwidth}
         \includegraphics[width=\textwidth]{highcontrast_mixedcubes_12h.png}
         \caption{MixedCubes at 12\,h}
@@ -1084,22 +1082,16 @@ Algorithm~\ref{alg:continuous} gives the pseudocode for the continuous-scan forw
 \caption{Continuous-Scan Forward Pass in \NeCTv{}}
 \label{alg:continuous}
 \begin{algorithmic}[1]
-\Require Angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, projection timestamp $t$, max traversal length $d_{\max}$
-\State Compute $K{+}1$ boundary angles $\{\psi_0, \psi_1, \ldots, \psi_K\} \gets \mathrm{linspace}(\phi_s,\, \phi_e,\, K{+}1)$
-\State $\hat{y}_j \gets 0$ \quad \textbf{for all} detector pixels $j$
+\Require Swept angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, projection timestamp $t$
+\Ensure Predicted line integrals $\hat{y}_j$ for all detector pixels $j$
+\State Compute $K$ midpoint angles: $\phi_k \gets \phi_s + (k + \tfrac{1}{2})\,\Delta\phi$, \quad $\Delta\phi = (\phi_e - \phi_s)/K$
 \For{$k = 0, \ldots, K-1$}
-    \State $\phi_k \gets (\psi_k + \psi_{k+1})\,/\,2$ \Comment{Mid-point of sub-interval $k$}
-    \State Update source/detector geometry to angle $\phi_k$
-    \State Cast rays; sample $P$ equidistant points $\{\mathbf{r}_p^{\phi_k}\}$ along each ray $j$ within the volume
-    \State Query network: $\muhat_p \gets f_\theta\!\left(\mathbf{r}_p^{\phi_k},\, t\right)$ for $p = 1,\ldots,P$ \Comment{Same $t$ for all rays and sub-angles}
-    \State $\hat{y}_j \gets \hat{y}_j + \dfrac{1}{K} \cdot \dfrac{d_j}{d_{\max}} \sum_{p=1}^{P} \muhat_p$ \Comment{$d_j$: physical traversal length of ray $j$}
+    \State Set source and detector positions to angle $\phi_k$
+    \State For each ray $j$, sample $P$ equidistant points $\{\mathbf{r}_p\}$ within the object volume
+    \State Query the network: $\muhat_p \gets f_\theta(\mathbf{r}_p,\, t)$ for all sample points
+    \State Accumulate: $\hat{y}_j \gets \hat{y}_j + \dfrac{1}{K}\, d_j \sum_{p=1}^{P} \muhat_p \,/\, P$
 \EndFor
-\State \Return $\hat{y}_j$ \quad \textbf{for all} $j$ \Comment{Predicted line integral; compare directly to log-domain sinogram}
-\Statex
-\Statex \textbf{Gradient computation (two-pass, memory-efficient):}
-\State \textbf{Pass 1} (no gradients): execute lines 3--9 for all $k$, cache projector outputs $\{\mathbf{r}_p^{\phi_k}, d_j\}$; obtain $\hat{y}_j$
-\State Treat $\hat{y}_j$ as a leaf variable; compute loss $\mathcal{L}$ and back-propagate to obtain $\partial\mathcal{L}/\partial\hat{y}_j$
-\State \textbf{Pass 2} (with gradients): replay each $k$ using cached outputs; back-propagate $\sum_j (\partial\mathcal{L}/\partial\hat{y}_j)\cdot\text{contrib}_{k,j}$ through $f_\theta$
+\State \Return $\hat{y}_j$ for all $j$
 \end{algorithmic}
 \end{algorithm}
 
