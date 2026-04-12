@@ -679,7 +679,7 @@ Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR as a function of log$_2$ hash
     \label{fig:psnr_vs_params_hashmap}
 \end{figure}
 
-Expectidly each of the graphs show the same overall trend with higher precision correlating higher hashmap sizes although there are some clear exceptions like $L=22$ losing precision from $\log_2 T = 22$ to $\log_2 T = 23$, at $L=19$ reaching its highest precision at $\log_2 T = 20$ and several experiencing lower precision at $\log_2 T = 22$ than $\log_2 T = 21$.
+The overall trend across panels is as expected, with higher hashmap sizes generally yielding higher PSNR. However, several panels show non-monotonic behaviour that complicates a straightforward reading. At $L = 22$, PSNR decreases from $\log_2 T = 22$ to $\log_2 T = 23$, at $L = 19$ the highest PSNR is reached at $\log_2 T = 20$ rather than at the largest table size, and several configurations show lower PSNR at $\log_2 T = 22$ than at $\log_2 T = 21$. These inversions are consistent with run-to-run variance from stochastic training on a single dataset, and averaging over multiple runs or datasets would be needed to determine whether any of them reflect a genuine effect.
 \todo{cant say anything conclusive, need avg of multiple runs or datasets or both to reduce randomness in results. missing 21\_4\_23 and 19\_4\_23}
 
 \subsection*{Varying the Number of Levels}
@@ -739,7 +739,7 @@ To understand whether total parameter count is a reliable predictor of reconstru
 
 The relationship between encoder size and reconstruction quality is only one dimension of the trade-off. A configuration with slightly lower PSNR but substantially faster training may be preferable for many applications, particularly when the bottleneck is GPU availability or when iterative experimental workflows require multiple reconstructions. Here we examine the joint relationship between training time and quality, asking which configurations lie on the Pareto front of quality versus time.
 
-Figure~\ref{fig:quality_vs_time} shows PSNR for all configurations evaluated in \cref{sec:enc_size_params} at an equalized wall-clock budget of approximately 14 hours, with curves grouped by number of levels and the x-axis showing total encoder parameter count.
+Figure~\ref{fig:quality_vs_time} shows PSNR for all configurations evaluated in \cref{sec:enc_size_params} at an equalized time budget of approximately 14 hours, with curves grouped by number of levels and the x-axis showing total encoder parameter count.
 
 \begin{figure}[H]
     \begin{adjustwidth}{-2.5cm}{0cm}
@@ -750,8 +750,9 @@ Figure~\ref{fig:quality_vs_time} shows PSNR for all configurations evaluated in 
     \label{fig:quality_vs_time}
 \end{figure}
 
-At 14 hours of training we acheive the highest precision with $L=18, \log_2 T=21$ which has compleated 350 epochs by the time $L=23, \log_2 T=23$ has only finished 150 epochs. Many of the models have outcompeated the $L=23, \log_2 T=23$ base model, markably higher precision found with $(L=19, 22, 23 \log_2 T=20)$, $(L=17, 18, 20, 22, 23  \log_2 T=21)$, $(L=17, 18, 21, 22 \log_2 T=22)$, $(L=17, 18, 20, 22 \log_2 T=23)$. There seem to be alot of variance in the results so nothing conclusive can be said before more testing is done but it point in the direction that time optimal reconstructions could be reached by downsized encoders. There also seem to be a somewhat clear break point where the model becomes to small, failing to capture the complexity such that they are unable to able fully converge. 
+When training time rather than epoch count is held fixed, smaller configurations gain a substantial advantage because they complete more training iterations within the same time budget. The highest PSNR at 14 hours is achieved by the $(L=18,\, \log_2 T=21)$ configuration, which has completed approximately 350 epochs by the time the baseline $(L=23,\, \log_2 T=23)$ has finished only 150. A large number of reduced-size configurations outperform the baseline at this time budget, spanning a wide range of level counts and hashmap sizes. The margin of improvement is not marginal but substantial across many of these configurations, indicating that the baseline is far from time-optimal at a 14-hour budget.
 
+There also appears to be a capacity threshold below which the encoder becomes too small to fully represent the dataset, causing these configurations to plateau at a lower PSNR regardless of additional epoch amount. The results establish clearly that time-optimal reconstructions are achievable with encoders much smaller than the baseline. What cannot yet be determined from single runs on one dataset is which specific combination of $L$ and $\log_2 T$ is best in general, since the variance between individual runs is large enough to shuffle the ranking of configurations that perform similarly.
 Figure~\ref{fig:quality_vs_vram} shows the same configurations plotted against peak GPU memory consumption. \todo{Insert figure. horizontal lines at the memory limits: 24 GB for RTX 3090, 40 GB for A100 40GB, 80 GB for A100/H100 80GB.}
 
 
@@ -893,7 +894,7 @@ The limitation is that each encoder captures interactions between exactly two co
     \label{fig:sexcubes_reconstruction}
 \end{figure}
  
-Figure~\ref{fig:sexcubes_reconstruction} illustrates how dependent the SexCubes architecture is on decoder capacity. With only 4 hidden layers the reconstruction is essentially unrecognisable as a rock sample, while at 7 hidden layers clear structural patterns emerge. The improvement from 7 to 16 hidden layers is more modest, showing diminishing returns from deeper decoders. Even at 16 layers the reconstruction exhibits persistent streak artefacts and falls short of the QuadCubes reference in overall fidelity. The progressive improvement with depth confirms that the MLP bears a heavy integration burden when the encoders provide only pairwise coordinate information, and that this burden cannot be fully overcome by making the decoder larger alone.
+Figure~\ref{fig:sexcubes_reconstruction} illustrates how dependent the SexCubes architecture is on decoder capacity. With only 4 hidden layers the reconstruction is essentially unrecognisable as a rock sample, while at 7 hidden layers clear structural patterns emerge. The improvement from 7 to 16 hidden layers is more modest, showing diminishing returns from deeper decoders. Even at 16 layers the reconstruction exhibits persistent streak artefacts and falls short of the QuadCubes reference in overall fidelity. The progressive improvement with depth confirms that the MLP bears a heavy integration burden when the encoders provide only pairwise coordinate information, and that this burden seemingly cannot be fully overcome by making the decoder larger alone.
  
 \subsection{Alternative Decoders}
 \label{sec:arch_decoders}
@@ -961,16 +962,39 @@ The experiments so far reveal a consistent pattern. The SingleCube architecture 
 The motivation is to decouple the representation of static spatial structure from temporal dynamics in a way that matches the physical structure of the problem. The spatial encoder alone handles the time-invariant elements in a given dataset, while the three 2D temporal encoders each capture how one spatial coordinate co-varies with time.
  
 The key practical consequence is the hashmap size required for the temporal encoders. A 2D encoder is collision-free at $\log_2 T = 20$ for resolutions up to $1024 \times 1024$. At float16 with $L = 16$ levels and $F = 4$ features, each 2D encoder at $\log_2 T = 20$ occupies approximately 128\,MB. Three such encoders total approximately 384\,MB. The \texttt{xyz} encoder at $\log_2 T = 23$ adds a further approximately 1.3\,GB. The total hash table memory for CombinedCubes is therefore approximately 1.7\,GB, compared to approximately 5.2\,GB for the baseline QuadCubes, a reduction of roughly 67\%.
- 
-Figure~\ref{fig:combinedcubes_reconstruction} shows representative reconstruction slices from CombinedCubes alongside QuadCubes. \todo{Insert figure.}
- 
-Figure~\ref{fig:combinedcubes_quality} shows quantitative metrics. \todo{Insert PSNR/SSIM/MAE figure.}
- 
-\todo{Describe the observed quality difference or equivalence between CombinedCubes and QuadCubes.}
- 
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2cm}{-2cm}
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{combinedcube_150epoch.png}
+        \caption{CombinedCubes}
+    \end{subfigure}
+    \hspace{0.2cm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{quadcube_150epoch.png}
+        \caption{QuadCubes}
+    \end{subfigure}
+    \end{adjustwidth}
+    \caption{CombinedCubes and QuadCubes both trained for 150 epochs using the same baseline encoder and MLP configuration, except that the three temporal encoders in CombinedCubes use $\log_2 T = 20$ (collision-free 2D grids) rather than $\log_2 T = 23$.}
+    \label{fig:combinedcubes_reconstruction}
+\end{figure}
+
+Figure~\ref{fig:combinedcubes_reconstruction} shows a representative reconstruction slice from CombinedCubes alongside QuadCubes at the same epoch count. The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, after the brine front has reached the top of the sample, providing a direct test of how well CombinedCubes handles the temporal component of the reconstruction. No hyperparameters were tuned for the CombinedCubes architecture beyond replacing the three temporal 3D hash encoders with 2D encoders at $\log_2 T = 20$. All other settings, including learning rate, batch size, MLP dimensions, and training schedule, remain identical to the QuadCubes baseline. Despite this, CombinedCubes reached 150 epochs in approximately 10 hours compared to 14 hours for QuadCubes, a 30\% reduction in time due to the smaller temporal encoders.
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2.5cm}{0cm}
+    \centering
+    \includegraphics[width=1.3\textwidth]{cc_qc_comp.png}
+    \end{adjustwidth}
+    \caption{PSNR, SSIM, and MAE comparison between QuadCubes and CombinedCubes at 150 epochs.}
+    \label{fig:combinedcubes_quality}
+\end{figure}
+
+Figure~\ref{fig:combinedcubes_quality} shows quantitative metrics for both architectures at 150 epochs. CombinedCubes achieves higher PSNR and lower MAE than QuadCubes, indicating better overall fidelity and more accurate absolute attenuation values. QuadCubes retains a slight advantage in SSIM, suggesting marginally sharper local structure at some boundaries. That CombinedCubes matches or exceeds QuadCubes on two of three metrics while training 30\% faster and using roughly one third of the encoder memory is notable, particularly given that the configuration has not been optimised for this architecture. The results suggest that the QuadCubes temporal encoders are over-provisioned relative to what the temporal component of the reconstruction requires, and that reallocating that capacity to the spatial encoder or simply removing it yields a net improvement in reconstruction efficiency.
+
 Figure~\ref{fig:combinedcubes_time} shows training time and peak GPU memory consumption for CombinedCubes compared to QuadCubes. \todo{Insert figure.}
  
-\todo{Describe the training time comparison. Quantify the speedup if possible.}
  
 \section{Dense Temporal Encoders in CombinedCubes}
 \label{sec:arch_combined_dense}
@@ -1001,53 +1025,40 @@ The CombinedCubes architecture already uses 2D hash encoders for the temporal di
  
 \todo{Describe the dense variant of CombinedCubes in detail. State the grid resolution and memory cost of the dense temporal encoders.}
  
-\todo{Present results comparing CombinedCubes with hashed versus dense temporal encoders. This should be evaluated on multiple datasets to confirm the finding is robust.}
+\todo{Present results comparing CombinedCubes with hashed versus dense encoders. evaluate on multiple datasets.}
  
 \todo{Compare against NeCT QuadCubes and other baselines (e.g.\ FDK, OS-SART-TV) on the benchmark datasets to contextualise the results.}
  
 \section{Comparative Analysis}
 \label{sec:arch_comparison}
  
-Table~\ref{tab:arch_design_space} summarises the encoder architectures and their properties.
+ 
+\hspace{1em} Table~\ref{tab:arch_summary} summarises all architectures across reconstruction quality and memory at set training times. \todo{Fill table, at 19, 24, 36 hours.}
  
 \begin{table}[h]
+    \begin{adjustwidth}{-2cm}{0cm}
     \centering
-    \caption{Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.}
-    \label{tab:arch_design_space}
-    \begin{tabular}{lllll}
-        \toprule
-        Architecture & Encoders & Dim & Coordinate subsets & Collision regime \\
-        \midrule
-        SingleCube    & 1 & 4 & $xyzt$                          & Extreme \\
-        QuadCubes     & 4 & 3 & All 4 possible 3-subsets        & Moderate \\
-        SexCubes      & 6 & 2 & All 6 possible 2-subsets        & Low \\
-        CombinedCubes & 4 & 3+2+2+2 & $xyz$, $xt$, $yt$, $zt$ & Low--Moderate \\
-        \bottomrule
-    \end{tabular}
-\end{table}
- 
-Table~\ref{tab:arch_summary} summarises all architectures across reconstruction quality, memory, and training time. \todo{Fill in the table with measured values.}
- 
-\begin{table}[h]
-    \centering
-    \caption{Summary comparison of all encoder architectures on \todo{dataset name}.}
+    \caption{Summary comparison of all encoder architectures on Bentheimer \todo{should use more than 1}.}
     \label{tab:arch_summary}
     \begin{tabular}{llllll}
         \toprule
         Architecture  & PSNR (dB) & SSIM & MAE & Memory (GB) & Time (h) \\
         \midrule
         SingleCube    & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
-        QuadCubes     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
-        SexCubes      & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        QuadCubes (baseline)    & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        QuadCubes (optimal finding)    & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        SexCubes (biggest mlp)     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        SexCubes (u-net)     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+        SexCubes (transformer)     & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
         CombinedCubes & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
         CombinedCubes (dense temporal) & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
         \bottomrule
     \end{tabular}
+    \end{adjustwidth}
 \end{table}
  
-Figure~\ref{fig:arch_pareto} plots all dynamic architectures on a quality-versus-memory plane and a quality-versus-time plane. \todo{Insert figures. Mark the QuadCubes baseline prominently.}
+Figure~\ref{fig:arch_pareto} plots all dynamic architectures on a quality-versus-memory plane and a quality-versus-time plane. \todo{Insert figures. Mark the QuadCubes baseline.}
  
-\todo{Describe the overall pattern in the results. Which architectures are on the Pareto front? Is CombinedCubes with dense temporal encoders the best overall?}
  
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Continuous Scanning}
@@ -1155,9 +1166,7 @@ Table~\ref{tab:static_cont_configs} reveals useful equivalences across configura
 Figure~\ref{fig:static_cont_reconstruction} shows representative reconstruction slices for a range of $K$ values. \todo{Insert figure.}
  
 Figure~\ref{fig:static_cont_psnr} shows PSNR and SSIM as a function of $K$ for each projection count. \todo{Insert figure.}
- 
-\todo{Describe the results. At $K = 1$ for the 100-projection scan, angular smearing should be visible. As $K$ increases, quality should improve and plateau. State whether the matched-pair equivalences hold, e.g.\ whether 360 projections at $K = 4$ reaches the same quality as 1400 projections at $K = 1$.}
- 
+  
 \section{Dynamic Dataset Experiments}
 \label{sec:cont_dynamic}
  
@@ -1185,7 +1194,7 @@ Six datasets were acquired, all using 800 projections in continuous rotation mod
  
 \begin{table}[h]                                                              
   \centering                                                                    
-  \begin{adjustwidth}{-3cm}{-3cm}
+  \begin{adjustwidth}{0cm}{0cm}
   \begin{tabular}{ccccccc}
   \toprule                                                                      
   \textbf{\#} & \textbf{FPS} & \textbf{Projections} & \textbf{Angle range} & 
@@ -1206,7 +1215,7 @@ Six datasets were acquired, all using 800 projections in continuous rotation mod
  
 The angular step $\Delta\phi$ ranges from $3.44\degree$ (datasets 1 and 4) to $13.75\degree$ (datasets 3 and 6). At the largest angular step, angular blurring from the standard $K = 1$ forward model is expected to be severe, and the accumulation-step correction should produce a measurable improvement. Conversely, at $3.44\degree$ the blurring may already be modest and fewer accumulation steps should suffice.
  
-Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$, giving five reconstructions per dataset and thirty reconstructions in total. Table~\ref{tab:dynamic_cont_configs} shows the effective angular sub-step $\Delta\phi / K$ for each combination.
+Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$, giving five reconstructions per dataset and thirty reconstructions in total. 
  
 \begin{table}[h]
     \centering
@@ -1247,17 +1256,15 @@ The bold entries in Table~\ref{tab:dynamic_cont_configs} highlight matched sub-s
         \caption{Last timestep}
     \end{subfigure}
     \end{adjustwidth}
-    \caption{Dynamic reconstruction of the hourglass from dataset 1 (2750\degree rotation, 4 fps) at 150 epochs, shown at three time points. The sand level in the upper chamber visibly decreases over time as material flows to the lower chamber.}
+    \caption{Dynamic reconstruction of the hourglass from dataset 1 (2750\degree rotation, 4 fps) at 150 epochs, shown at three time points.}
     \label{fig:dynamic_cont_reconstruction}
 \end{figure}
  
 Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass at three time points from dataset 1, demonstrating that the continuous-scan forward model successfully captures the dynamic process of sand redistribution between the two chambers.
  
-\todo{For each of the six datasets, present PSNR/SSIM as a function of $K$. Describe how the improvement from increasing $K$ depends on $\Delta\phi$. For the datasets with $\Delta\phi = 13.75\degree$ the jump from $K = 1$ to $K = 2$ should be large, while for $\Delta\phi = 3.44\degree$ the improvement may be modest.}
+\todo{For each of the six datasets, present PSNR/SSIM as a function of $K$. Describe improvement from increasing $K$ depends on $\Delta\phi$.}
  
-\todo{State whether the 2 fps and 4 fps variants at the same $\Delta\phi$ give similar quality at the same $K$, to isolate the effect of angular blurring from temporal sampling density.}
- 
-\todo{Show reconstruction slices at matched $K$ values for different $\Delta\phi$ to illustrate the visual effect of the accumulation correction. For example, compare dataset 1 at $K = 1$ (sub-step $3.44\degree$) with dataset 2 at $K = 2$ (sub-step $3.44\degree$) and dataset 3 at $K = 4$ (sub-step $3.44\degree$) to test whether the same effective sub-step gives comparable quality regardless of how it was achieved.}
+\todo{Show reconstruction slices at matched $K$ values and for normal reconstruction, for different $\Delta\phi$ to illustrate the visual effect of the accumulation correction.}
  
 \section{Discussion}
 \label{sec:cont_discussion}
@@ -1266,7 +1273,7 @@ The continuous-scan forward model extends NeCTv2 to a broader class of CT acquis
  
 The benefit of continuous scanning is most significant for dynamic experiments where the process being imaged has a characteristic timescale comparable to or shorter than the inter-frame interval of a step-and-shoot acquisition. In that regime, step-and-shoot imaging misses events that occur between frames, while continuous scanning integrates over those events and records their signature in the blurred projection data. Recovering sharp reconstructions from these blurred projections requires the $K > 1$ forward model, and the results show that even modest values of $K$ can substantially reduce angular smearing artefacts.
  
-The practical cost is that individual projections are geometrically less precise. Whether this additional ambiguity is outweighed by the increased angular sampling rate depends on the specific sample and process being imaged. \todo{Describe any observations from the experimental results that speak to this trade-off.}
+The practical cost is that individual projections are geometrically less precise. Whether this additional ambiguity is outweighed by the increased angular sampling rate depends on the specific sample and process being imaged. 
  
 The value of $K$ required for convergence is a practical consideration. \todo{Restate the $K$ saturation finding from the static and dynamic experiments.} Since training time scales linearly with $K$, choosing the smallest adequate $K$ is important for keeping reconstruction times manageable.
  
@@ -1279,13 +1286,11 @@ The current implementation assumes a fixed angular velocity throughout the scan 
  
 \section{Summary of Contributions}
 \label{sec:conclusion_summary}
-\todo{Bullet-point recap of what was achieved in each chapter.}
+\todo{Recap.}
  
 \section{Limitations and Future Work}
 \label{sec:conclusion_future}
-\todo{Remaining open questions: spatiotemporal resolution quantification,
-hyperparameter sensitivity, training time, extension to polychromatic sources,
-parallel-beam synchrotron settings, energy-resolved CT.}
+\todo{}
  
 % ─── Bibliography ────────────────────────────────────────────────────────────
 \cleardoublepage

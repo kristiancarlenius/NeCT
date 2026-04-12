@@ -34,16 +34,16 @@
 \contentsline {subsubsection}{U-Net Decoder}{39}{section*.34}%
 \contentsline {subsection}{\numberline {4.4.2}Dense Encoders for SexCubes}{40}{subsection.4.4.2}%
 \contentsline {section}{\numberline {4.5}CombinedCubes}{41}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Dense Temporal Encoders in CombinedCubes}{41}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Comparative Analysis}{43}{section.4.7}%
-\contentsline {chapter}{\numberline {5}Continuous Scanning}{44}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Motivation}{44}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{45}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{47}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{48}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Discussion}{52}{section.5.5}%
-\contentsline {chapter}{\numberline {6}Conclusion}{53}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{53}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{53}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{59}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{60}{appendix.B}%
+\contentsline {section}{\numberline {4.6}Dense Temporal Encoders in CombinedCubes}{43}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Comparative Analysis}{45}{section.4.7}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{46}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Motivation}{46}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{47}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{49}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{50}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Discussion}{53}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Conclusion}{55}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{55}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{55}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{61}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{62}{appendix.B}%
