@@ -381,6 +381,7 @@ class BaseTrainer:
                     indexing="ij",
                 )
                 grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t().to(self.fabric.device)
+                size = list(z.shape)
                 self.model.eval()
                 if self.config.mode == "dynamic":
                     fig, axes = plt.subplots(2, 3, figsize=(24, 10))
