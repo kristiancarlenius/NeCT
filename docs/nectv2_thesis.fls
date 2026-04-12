@@ -1423,6 +1423,11 @@ INPUT ./images//highcontrast_mixedcubes_12h.png
 INPUT images//highcontrast_mixedcubes_12h.png
 INPUT ./images//highcontrast_mixedcubes_12h.png
 INPUT ./images//highcontrast_mixedcubes_12h.png
+INPUT ./images//continous_diagram.png
+INPUT ./images//continous_diagram.png
+INPUT images//continous_diagram.png
+INPUT ./images//continous_diagram.png
+INPUT ./images//continous_diagram.png
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr10.tfm
 INPUT ./nectv2_thesis.bbl
 INPUT nectv2_thesis.bbl

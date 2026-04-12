@@ -1043,6 +1043,13 @@ In step-and-shoot mode the sample is stationary during each exposure, so every p
 
 In continuous rotation mode the shutter remains open throughout. The sample rotates steadily and the detector integrates photons over the full angular range swept during the exposure time. If the exposure time is $\tau$ and the angular velocity is $\omega$, then each projection integrates the sample over an angular interval of $\Delta\phi = \omega \tau$ radians. The resulting projection is geometrically blurred in the angular direction, with severity proportional to $\Delta\phi$.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{continous_diagram.png}
+    \caption{During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.}
+    \label{fig:quality_vs_time}
+\end{figure}
+
 For dynamic experiments continuous rotation has a direct benefit. Processes that occur faster than the step-and-shoot inter-frame interval may be partially or fully unresolvable in that mode, but if continuous rotation reduces the effective time between adjacent projections those same processes become accessible. The trade-off is that each projection is individually less geometrically precise, and a reconstruction algorithm that treats them as step-and-shoot projections will see systematic errors in the forward model.
 
 \section{Forward Model for Continuous Scanning}
