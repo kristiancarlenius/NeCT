@@ -6,9 +6,10 @@
 \contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }}{24}{table.caption.16}%
 \contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations evaluated in \cref {sec:enc_size_nonuniform}. All configurations use $L = $ \leavevmode {\color {red}\textbf {[TODO: value]}} levels and $F = $ \leavevmode {\color {red}\textbf {[TODO: value]}} features per level unless otherwise noted.\relax }}{32}{table.caption.29}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{40}{table.caption.34}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color {red}\textbf {[TODO: dataset name]}}.\relax }}{40}{table.caption.35}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{41}{table.caption.36}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color {red}\textbf {[TODO: dataset name]}}.\relax }}{41}{table.caption.37}%
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces CT acquisition protocol parameters.\relax }}{47}{table.caption.41}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

@@ -29,21 +29,21 @@
 \contentsline {section}{\numberline {4.2}QuadCubes (Baseline)}{34}{section.4.2}%
 \contentsline {section}{\numberline {4.3}SingleCube}{34}{section.4.3}%
 \contentsline {section}{\numberline {4.4}SexCubes}{35}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Alternative Decoders}{37}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Transformer Decoder}{37}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}U-Net Decoder}{37}{subsection.4.5.2}%
-\contentsline {section}{\numberline {4.6}Dense Encoders}{37}{section.4.6}%
-\contentsline {section}{\numberline {4.7}CombinedCubes}{38}{section.4.7}%
-\contentsline {section}{\numberline {4.8}Dense Temporal Encoders in CombinedCubes}{39}{section.4.8}%
-\contentsline {section}{\numberline {4.9}Comparative Analysis}{40}{section.4.9}%
-\contentsline {chapter}{\numberline {5}Continuous Scanning}{41}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Motivation}{41}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{42}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{43}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{44}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Discussion}{44}{section.5.5}%
-\contentsline {chapter}{\numberline {6}Conclusion}{46}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{46}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{46}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{51}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{52}{appendix.B}%
+\contentsline {subsection}{\numberline {4.4.1}Alternative Decoders}{37}{subsection.4.4.1}%
+\contentsline {subsubsection}{Transformer Decoder}{37}{section*.33}%
+\contentsline {subsubsection}{U-Net Decoder}{37}{section*.34}%
+\contentsline {subsection}{\numberline {4.4.2}Dense Encoders}{38}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}CombinedCubes}{38}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Dense Temporal Encoders in CombinedCubes}{40}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Comparative Analysis}{41}{section.4.7}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{42}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Motivation}{42}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{43}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{44}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{45}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Discussion}{47}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Conclusion}{49}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{49}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{49}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{55}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{56}{appendix.B}%

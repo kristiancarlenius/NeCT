@@ -12,11 +12,14 @@
 \contentsline {figure}{\numberline {3.2}{\ignorespaces PSNR at epoch 250 as a function of number of levels $L$, with $F=4$ fixed, shown separately for each log$_2$ hashmap size. Each panel sweeps $L \in \{17,\ldots ,23\}$ with all other parameters held constant.\relax }}{28}{figure.caption.23}%
 \contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at an equalized training time of approximately 14 hours for all $(L, \qopname \relax o{log}_2 T)$ configurations with $F=4$. Each curve groups configurations with the same number of levels $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders.\relax }}{30}{figure.caption.26}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube. The SingleCube output exhibits severe noise from the extreme hash collision load in the 4D encoder, while the QuadCubes decomposition into 3D subproblems produces a clean reconstruction.\relax }}{35}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube.\relax }}{35}{figure.caption.31}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Reconstruction comparison between QuadCubes and three SexCubes configurations (128 neurons, varying hidden layers). Increasing decoder depth improves SexCubes quality but the architecture remains challenged by the lack of higher-order coordinate coupling.\relax }}{36}{figure.caption.32}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces High-contrast reconstruction slices comparing the QuadCubes reference, uniform \textsc {NeCT}{} configuration, and the non-uniform MixedCubes allocation at an equalized 12-hour training budget. Differences are most visible at high-contrast material boundaries.\relax }}{39}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces High-contrast reconstruction slices comparing the QuadCubes reference, uniform \textsc {NeCT}{} configuration, and the non-uniform MixedCubes allocation at an equalized 12-hour training budget. Differences are most visible at high-contrast material boundaries.\relax }}{40}{figure.caption.35}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.\relax }}{42}{figure.caption.36}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.\relax }}{43}{figure.caption.38}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces The hourglass next to the box its placed in in the scanner\relax }}{46}{figure.caption.39}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass in box in the micro-ct scanner.\relax }}{46}{figure.caption.40}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces First scan, 2750 rotations, 4 fps, 150 epochs high contrast imaging.\relax }}{47}{figure.caption.42}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

@@ -260,8 +260,8 @@
 \newlabel{sec:arch_single@cref}{{[section][3][4]4.3}{[1][34][]34}}
 \citation{fridovichkeil2023kplanes}
 \citation{cao2023hexplane}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube. The SingleCube output exhibits severe noise from the extreme hash collision load in the 4D encoder, while the QuadCubes decomposition into 3D subproblems produces a clean reconstruction.\relax }}{35}{figure.caption.31}\protected@file@percent }
-\newlabel{fig:singlecube_reconstruction}{{4.1}{35}{Reconstruction comparison between QuadCubes and SingleCube. The SingleCube output exhibits severe noise from the extreme hash collision load in the 4D encoder, while the QuadCubes decomposition into 3D subproblems produces a clean reconstruction.\relax }{figure.caption.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube.\relax }}{35}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:singlecube_reconstruction}{{4.1}{35}{Reconstruction comparison between QuadCubes and SingleCube.\relax }{figure.caption.31}{}}
 \newlabel{fig:singlecube_reconstruction@cref}{{[figure][1][4]4.1}{[1][34][]35}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.4}SexCubes}{35}{section.4.4}\protected@file@percent }
 \newlabel{sec:arch_sex}{{4.4}{35}{SexCubes}{section.4.4}{}}
@@ -269,81 +269,94 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Reconstruction comparison between QuadCubes and three SexCubes configurations (128 neurons, varying hidden layers). Increasing decoder depth improves SexCubes quality but the architecture remains challenged by the lack of higher-order coordinate coupling.\relax }}{36}{figure.caption.32}\protected@file@percent }
 \newlabel{fig:sexcubes_reconstruction}{{4.2}{36}{Reconstruction comparison between QuadCubes and three SexCubes configurations (128 neurons, varying hidden layers). Increasing decoder depth improves SexCubes quality but the architecture remains challenged by the lack of higher-order coordinate coupling.\relax }{figure.caption.32}{}}
 \newlabel{fig:sexcubes_reconstruction@cref}{{[figure][2][4]4.2}{[1][36][]36}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Alternative Decoders}{37}{section.4.5}\protected@file@percent }
-\newlabel{sec:arch_decoders}{{4.5}{37}{Alternative Decoders}{section.4.5}{}}
-\newlabel{sec:arch_decoders@cref}{{[section][5][4]4.5}{[1][37][]37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Transformer Decoder}{37}{subsection.4.5.1}\protected@file@percent }
-\newlabel{subsec:arch_transformer}{{4.5.1}{37}{Transformer Decoder}{subsection.4.5.1}{}}
-\newlabel{subsec:arch_transformer@cref}{{[subsection][1][4,5]4.5.1}{[1][37][]37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}U-Net Decoder}{37}{subsection.4.5.2}\protected@file@percent }
-\newlabel{subsec:arch_unet}{{4.5.2}{37}{U-Net Decoder}{subsection.4.5.2}{}}
-\newlabel{subsec:arch_unet@cref}{{[subsection][2][4,5]4.5.2}{[1][37][]37}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Dense Encoders}{37}{section.4.6}\protected@file@percent }
-\newlabel{sec:arch_dense}{{4.6}{37}{Dense Encoders}{section.4.6}{}}
-\newlabel{sec:arch_dense@cref}{{[section][6][4]4.6}{[1][37][]37}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.7}CombinedCubes}{38}{section.4.7}\protected@file@percent }
-\newlabel{sec:arch_combined}{{4.7}{38}{CombinedCubes}{section.4.7}{}}
-\newlabel{sec:arch_combined@cref}{{[section][7][4]4.7}{[1][38][]38}}
-\newlabel{eq:combinedcubes_forward}{{4.1}{38}{CombinedCubes}{equation.4.7.1}{}}
-\newlabel{eq:combinedcubes_forward@cref}{{[equation][1][4]4.1}{[1][38][]38}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.8}Dense Temporal Encoders in CombinedCubes}{39}{section.4.8}\protected@file@percent }
-\newlabel{sec:arch_combined_dense}{{4.8}{39}{Dense Temporal Encoders in CombinedCubes}{section.4.8}{}}
-\newlabel{sec:arch_combined_dense@cref}{{[section][8][4]4.8}{[1][39][]39}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces High-contrast reconstruction slices comparing the QuadCubes reference, uniform \textsc  {NeCT}{} configuration, and the non-uniform MixedCubes allocation at an equalized 12-hour training budget. Differences are most visible at high-contrast material boundaries.\relax }}{39}{figure.caption.33}\protected@file@percent }
-\newlabel{fig:nonuniform_quality}{{4.3}{39}{High-contrast reconstruction slices comparing the QuadCubes reference, uniform \NeCT {} configuration, and the non-uniform MixedCubes allocation at an equalized 12-hour training budget. Differences are most visible at high-contrast material boundaries.\relax }{figure.caption.33}{}}
-\newlabel{fig:nonuniform_quality@cref}{{[figure][3][4]4.3}{[1][39][]39}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.9}Comparative Analysis}{40}{section.4.9}\protected@file@percent }
-\newlabel{sec:arch_comparison}{{4.9}{40}{Comparative Analysis}{section.4.9}{}}
-\newlabel{sec:arch_comparison@cref}{{[section][9][4]4.9}{[1][40][]40}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{40}{table.caption.34}\protected@file@percent }
-\newlabel{tab:arch_design_space}{{4.1}{40}{Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }{table.caption.34}{}}
-\newlabel{tab:arch_design_space@cref}{{[table][1][4]4.1}{[1][40][]40}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color  {red}\textbf  {[TODO: dataset name]}}.\relax }}{40}{table.caption.35}\protected@file@percent }
-\newlabel{tab:arch_summary}{{4.2}{40}{Summary comparison of all encoder architectures on \todo {dataset name}.\relax }{table.caption.35}{}}
-\newlabel{tab:arch_summary@cref}{{[table][2][4]4.2}{[1][40][]40}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{41}{chapter.5}\protected@file@percent }
+\citation{ronneberger2015unet}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Alternative Decoders}{37}{subsection.4.4.1}\protected@file@percent }
+\newlabel{sec:arch_decoders}{{4.4.1}{37}{Alternative Decoders}{subsection.4.4.1}{}}
+\newlabel{sec:arch_decoders@cref}{{[subsection][1][4,4]4.4.1}{[1][37][]37}}
+\@writefile{toc}{\contentsline {subsubsection}{Transformer Decoder}{37}{section*.33}\protected@file@percent }
+\newlabel{subsec:arch_transformer}{{4.4.1}{37}{Transformer Decoder}{section*.33}{}}
+\newlabel{subsec:arch_transformer@cref}{{[subsection][1][4,4]4.4.1}{[1][37][]37}}
+\@writefile{toc}{\contentsline {subsubsection}{U-Net Decoder}{37}{section*.34}\protected@file@percent }
+\newlabel{subsec:arch_unet}{{4.4.1}{37}{U-Net Decoder}{section*.34}{}}
+\newlabel{subsec:arch_unet@cref}{{[subsection][1][4,4]4.4.1}{[1][37][]37}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Dense Encoders}{38}{subsection.4.4.2}\protected@file@percent }
+\newlabel{sec:arch_dense}{{4.4.2}{38}{Dense Encoders}{subsection.4.4.2}{}}
+\newlabel{sec:arch_dense@cref}{{[subsection][2][4,4]4.4.2}{[1][38][]38}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}CombinedCubes}{38}{section.4.5}\protected@file@percent }
+\newlabel{sec:arch_combined}{{4.5}{38}{CombinedCubes}{section.4.5}{}}
+\newlabel{sec:arch_combined@cref}{{[section][5][4]4.5}{[1][38][]38}}
+\newlabel{eq:combinedcubes_forward}{{4.6}{39}{CombinedCubes}{equation.4.5.6}{}}
+\newlabel{eq:combinedcubes_forward@cref}{{[equation][6][4]4.6}{[1][38][]39}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Dense Temporal Encoders in CombinedCubes}{40}{section.4.6}\protected@file@percent }
+\newlabel{sec:arch_combined_dense}{{4.6}{40}{Dense Temporal Encoders in CombinedCubes}{section.4.6}{}}
+\newlabel{sec:arch_combined_dense@cref}{{[section][6][4]4.6}{[1][39][]40}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces High-contrast reconstruction slices comparing the QuadCubes reference, uniform \textsc  {NeCT}{} configuration, and the non-uniform MixedCubes allocation at an equalized 12-hour training budget. Differences are most visible at high-contrast material boundaries.\relax }}{40}{figure.caption.35}\protected@file@percent }
+\newlabel{fig:nonuniform_quality}{{4.3}{40}{High-contrast reconstruction slices comparing the QuadCubes reference, uniform \NeCT {} configuration, and the non-uniform MixedCubes allocation at an equalized 12-hour training budget. Differences are most visible at high-contrast material boundaries.\relax }{figure.caption.35}{}}
+\newlabel{fig:nonuniform_quality@cref}{{[figure][3][4]4.3}{[1][39][]40}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.7}Comparative Analysis}{41}{section.4.7}\protected@file@percent }
+\newlabel{sec:arch_comparison}{{4.7}{41}{Comparative Analysis}{section.4.7}{}}
+\newlabel{sec:arch_comparison@cref}{{[section][7][4]4.7}{[1][41][]41}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }}{41}{table.caption.36}\protected@file@percent }
+\newlabel{tab:arch_design_space}{{4.1}{41}{Dynamic encoder architecture design space. The collision rate column gives a qualitative assessment relative to a collision-free 3D encoder.\relax }{table.caption.36}{}}
+\newlabel{tab:arch_design_space@cref}{{[table][1][4]4.1}{[1][41][]41}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Summary comparison of all encoder architectures on \leavevmode {\color  {red}\textbf  {[TODO: dataset name]}}.\relax }}{41}{table.caption.37}\protected@file@percent }
+\newlabel{tab:arch_summary}{{4.2}{41}{Summary comparison of all encoder architectures on \todo {dataset name}.\relax }{table.caption.37}{}}
+\newlabel{tab:arch_summary@cref}{{[table][2][4]4.2}{[1][41][]41}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{42}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:continuous}{{5}{41}{Continuous Scanning}{chapter.5}{}}
-\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][41][]41}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Motivation}{41}{section.5.1}\protected@file@percent }
-\newlabel{sec:cont_motivation}{{5.1}{41}{Motivation}{section.5.1}{}}
-\newlabel{sec:cont_motivation@cref}{{[section][1][5]5.1}{[1][41][]41}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.\relax }}{42}{figure.caption.36}\protected@file@percent }
-\newlabel{fig:quality_vs_time}{{5.1}{42}{During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.\relax }{figure.caption.36}{}}
-\newlabel{fig:quality_vs_time@cref}{{[figure][1][5]5.1}{[1][41][]42}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{42}{section.5.2}\protected@file@percent }
-\newlabel{sec:cont_model}{{5.2}{42}{Forward Model for Continuous Scanning}{section.5.2}{}}
-\newlabel{sec:cont_model@cref}{{[section][2][5]5.2}{[1][42][]42}}
-\newlabel{eq:step_shoot_forward}{{5.1}{42}{Forward Model for Continuous Scanning}{equation.5.2.1}{}}
-\newlabel{eq:step_shoot_forward@cref}{{[equation][1][5]5.1}{[1][42][]42}}
-\newlabel{eq:continuous_forward_exact}{{5.2}{42}{Forward Model for Continuous Scanning}{equation.5.2.2}{}}
-\newlabel{eq:continuous_forward_exact@cref}{{[equation][2][5]5.2}{[1][42][]42}}
-\newlabel{eq:continuous_forward_discrete}{{5.3}{43}{Forward Model for Continuous Scanning}{equation.5.2.3}{}}
-\newlabel{eq:continuous_forward_discrete@cref}{{[equation][3][5]5.3}{[1][43][]43}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{43}{algorithm.1}\protected@file@percent }
-\newlabel{alg:continuous}{{1}{43}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.1}{}}
-\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][43][]43}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{43}{section.5.3}\protected@file@percent }
-\newlabel{sec:cont_static}{{5.3}{43}{Static Dataset Experiments}{section.5.3}{}}
-\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][43][]43}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{44}{section.5.4}\protected@file@percent }
-\newlabel{sec:cont_dynamic}{{5.4}{44}{Dynamic Dataset Experiments}{section.5.4}{}}
-\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][44][]44}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{44}{section.5.5}\protected@file@percent }
-\newlabel{sec:cont_discussion}{{5.5}{44}{Discussion}{section.5.5}{}}
-\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][44][]44}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{46}{chapter.6}\protected@file@percent }
+\newlabel{chap:continuous}{{5}{42}{Continuous Scanning}{chapter.5}{}}
+\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][42][]42}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Motivation}{42}{section.5.1}\protected@file@percent }
+\newlabel{sec:cont_motivation}{{5.1}{42}{Motivation}{section.5.1}{}}
+\newlabel{sec:cont_motivation@cref}{{[section][1][5]5.1}{[1][42][]42}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.\relax }}{43}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:continous_illu}{{5.1}{43}{During a scan the sample is rotated while the scanner is stationary. The illustration is a topdown view of the difference between the two methods where the coloured areas depict where the lense is open during the rotation of the sample.\relax }{figure.caption.38}{}}
+\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][42][]43}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{43}{section.5.2}\protected@file@percent }
+\newlabel{sec:cont_model}{{5.2}{43}{Forward Model for Continuous Scanning}{section.5.2}{}}
+\newlabel{sec:cont_model@cref}{{[section][2][5]5.2}{[1][43][]43}}
+\newlabel{eq:step_shoot_forward}{{5.1}{43}{Forward Model for Continuous Scanning}{equation.5.2.1}{}}
+\newlabel{eq:step_shoot_forward@cref}{{[equation][1][5]5.1}{[1][43][]43}}
+\newlabel{eq:continuous_forward_exact}{{5.2}{43}{Forward Model for Continuous Scanning}{equation.5.2.2}{}}
+\newlabel{eq:continuous_forward_exact@cref}{{[equation][2][5]5.2}{[1][43][]43}}
+\newlabel{eq:continuous_forward_discrete}{{5.3}{44}{Forward Model for Continuous Scanning}{equation.5.2.3}{}}
+\newlabel{eq:continuous_forward_discrete@cref}{{[equation][3][5]5.3}{[1][44][]44}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{44}{algorithm.1}\protected@file@percent }
+\newlabel{alg:continuous}{{1}{44}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.1}{}}
+\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][44][]44}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{44}{section.5.3}\protected@file@percent }
+\newlabel{sec:cont_static}{{5.3}{44}{Static Dataset Experiments}{section.5.3}{}}
+\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][44][]44}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{45}{section.5.4}\protected@file@percent }
+\newlabel{sec:cont_dynamic}{{5.4}{45}{Dynamic Dataset Experiments}{section.5.4}{}}
+\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][45][]45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces The hourglass next to the box its placed in in the scanner\relax }}{46}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:hourglass}{{5.2}{46}{The hourglass next to the box its placed in in the scanner\relax }{figure.caption.39}{}}
+\newlabel{fig:hourglass@cref}{{[figure][2][5]5.2}{[1][45][]46}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass in box in the micro-ct scanner.\relax }}{46}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:hourglass_in_scanner}{{5.3}{46}{The hourglass in box in the micro-ct scanner.\relax }{figure.caption.40}{}}
+\newlabel{fig:hourglass_in_scanner@cref}{{[figure][3][5]5.3}{[1][46][]46}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces CT acquisition protocol parameters.\relax }}{47}{table.caption.41}\protected@file@percent }
+\newlabel{tab:acquisition_params}{{5.1}{47}{CT acquisition protocol parameters.\relax }{table.caption.41}{}}
+\newlabel{tab:acquisition_params@cref}{{[table][1][5]5.1}{[1][46][]47}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces First scan, 2750 rotations, 4 fps, 150 epochs high contrast imaging.\relax }}{47}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:dynamic_cont_reconstruction}{{5.4}{47}{First scan, 2750 rotations, 4 fps, 150 epochs high contrast imaging.\relax }{figure.caption.42}{}}
+\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][4][5]5.4}{[1][46][]47}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{47}{section.5.5}\protected@file@percent }
+\newlabel{sec:cont_discussion}{{5.5}{47}{Discussion}{section.5.5}{}}
+\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][47][]47}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{49}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{6}{46}{Conclusion}{chapter.6}{}}
-\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][46][]46}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{46}{section.6.1}\protected@file@percent }
-\newlabel{sec:conclusion_summary}{{6.1}{46}{Summary of Contributions}{section.6.1}{}}
-\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][46][]46}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{46}{section.6.2}\protected@file@percent }
-\newlabel{sec:conclusion_future}{{6.2}{46}{Limitations and Future Work}{section.6.2}{}}
-\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][46][]46}}
+\newlabel{chap:conclusion}{{6}{49}{Conclusion}{chapter.6}{}}
+\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][49][]49}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{49}{section.6.1}\protected@file@percent }
+\newlabel{sec:conclusion_summary}{{6.1}{49}{Summary of Contributions}{section.6.1}{}}
+\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][49][]49}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{49}{section.6.2}\protected@file@percent }
+\newlabel{sec:conclusion_future}{{6.2}{49}{Limitations and Future Work}{section.6.2}{}}
+\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][49][]49}}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{andersen1984sart}{{1}{1984}{{Andersen and Kak}}{{}}}
@@ -378,14 +391,14 @@
 \bibcite{wang2004ssim}{{30}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
 \bibcite{withers2021ct}{{31}{2021}{{Withers et~al.}}{{}}}
 \bibcite{zha2022naf}{{32}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{51}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{55}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experimental}{{A}{51}{Supplementary Experimental Details}{appendix.A}{}}
-\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][51][]51}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{52}{appendix.B}\protected@file@percent }
+\newlabel{app:experimental}{{A}{55}{Supplementary Experimental Details}{appendix.A}{}}
+\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][55][]55}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{56}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{B}{52}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
-\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][52][]52}}
-\gdef \@abspage@last{63}
+\newlabel{app:hyperparams}{{B}{56}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
+\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][56][]56}}
+\gdef \@abspage@last{67}
