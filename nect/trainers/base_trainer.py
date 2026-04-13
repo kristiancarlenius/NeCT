@@ -419,10 +419,10 @@ class BaseTrainer:
                         dynamic = dynamic / (self.geometry.max_distance_traveled * 2)
                         dynamic = dynamic * (self.dataset.maximum.item() - self.dataset.minimum.item())
                         dynamic = dynamic + self.dataset.minimum.item()
-                        #axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
+                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none")
                         vmin = float(self.dataset.minimum.item())
                         vmax = float(np.percentile(dynamic, 99))
-                        axes[1, i].imshow(dynamic, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
+                        #axes[1, i].imshow(dynamic, cmap="gray", interpolation="none", vmin=vmin, vmax=vmax)
 
                     for ax in axes.ravel():
                         ax.set_axis_off()
