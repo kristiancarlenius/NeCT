@@ -320,7 +320,8 @@ class BaseTrainer:
             try:
                 self.epoch_loss_log_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(self.epoch_loss_log_path, "a", encoding="utf-8") as f:
-                    f.write(f"epoch={self.current_epoch}, avg_loss={avg_loss:.6f}\n")
+                    elapsed = time.perf_counter() - self.training_time
+                    f.write(f"epoch={self.current_epoch}, avg_loss={avg_loss:.6f}, time={elapsed:.1f}s\n")
             except Exception as e:
                 self.logger.warning(f"Failed writing epoch loss log: {e}")
                 
