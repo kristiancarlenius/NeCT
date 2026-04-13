@@ -232,6 +232,32 @@ class BaseTrainer:
     def get_outputdir(self):
         return self.outputdir
 
+    def _write_vram_stats(self):
+        if not self.fabric.is_global_zero:
+            return
+        if not torch.cuda.is_available():
+            return
+        model_dir = Path(self.checkpoint_directory_base).parent
+        if not model_dir.exists():
+            return
+        peak_allocated_bytes = torch.cuda.max_memory_allocated()
+        peak_reserved_bytes = torch.cuda.max_memory_reserved()
+        try:
+            props = torch.cuda.get_device_properties(0)
+            total_bytes = props.total_memory
+            gpu_name = props.name
+        except Exception:
+            total_bytes = 0
+            gpu_name = "unknown"
+        lines = [
+            f"GPU: {gpu_name}",
+            f"Peak allocated: {peak_allocated_bytes / 1024**3:.3f} GB",
+            f"Peak reserved:  {peak_reserved_bytes / 1024**3:.3f} GB",
+            f"Total VRAM:     {total_bytes / 1024**3:.3f} GB",
+        ]
+        with open(model_dir / "vram.txt", "w") as f:
+            f.write("\n".join(lines) + "\n")
+
     def setup_dataset(self):
         self.dataset = NeCTDataset(config=self.config, device="cpu",)  # if gpu memory is less than 50 GB, load to cpu
 
@@ -561,6 +587,8 @@ class BaseTrainer:
             self.step = 0
             self.training_time = time.perf_counter()
             self._save_initial_parameters_text()
+            if torch.cuda.is_available():
+                torch.cuda.reset_peak_memory_stats()
             nvmlInit()
             h = nvmlDeviceGetHandleByIndex(0)
 
@@ -698,6 +726,7 @@ class BaseTrainer:
 
             self.evaluate()
             self.save_model(last=True)
+            self._write_vram_stats()
 
         except KeyboardInterrupt:
             if self.step > 3000:
