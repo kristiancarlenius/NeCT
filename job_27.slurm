@@ -8,7 +8,7 @@
 #SBATCH --time=80:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:a100:1
-#SBATCH --constraint="a100|gpu80g"
+#SBATCH --constraint="gpu80g"
 #SBATCH --ntasks-per-node=4 #CPU cores
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"

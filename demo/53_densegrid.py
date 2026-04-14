@@ -31,7 +31,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "per_level_scale": 1.5,
         },
         "net": TransformerDecoderConfig(
-            d_model=32,
+            d_model=24,
             n_heads=4,
             n_layers=3,
             dropout=0.0,

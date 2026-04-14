@@ -80,6 +80,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "net": MLPNetConfig(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
+            output_activation="None",
             n_neurons=128,
             n_hidden_layers=4,
             include_identity=False,
