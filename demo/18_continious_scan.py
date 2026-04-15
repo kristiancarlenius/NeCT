@@ -6,17 +6,17 @@ import torch
 from nect.config import MLPNetConfig
 
 data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
-geometry_file = Path(data_path) / "geometry_8fps_11000.yaml"
+geometry_file = Path(data_path) / "geometry_4fps_2750.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-reconstruction_path, _ = nect.reconstruct(
+reconstruction_path, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
-    projections=str(Path(data_path) / "proj_8fps_11000.npy"),
+    projections=str(Path(data_path) / "proj_4fps_2750.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_continious_non",
+    exp_name="dynamic_continious",
     config_override={
-        "epochs": "8x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -42,6 +42,8 @@ reconstruction_path, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
+        "accumulation_steps": 2,
+        "continous_scanning": True,
 
     },)
 
