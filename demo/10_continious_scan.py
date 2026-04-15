@@ -64,7 +64,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     projections=str(Path(data_path) / "proj_4fps_2750.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_continious",
+    exp_name="dynamic_continious_ac1",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
@@ -92,7 +92,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 4,
+        "accumulation_steps": 1,
         "continous_scanning": True,
         
     },)
