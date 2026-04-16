@@ -37,7 +37,7 @@ MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_2
 N_TIMESTEPS = 10
 
 # Spatial binning factor (4 = 4× faster/lower-res; 1 = full resolution)
-BINNING = 8
+BINNING = 4
 
 # Optional ROI in *full-resolution* voxel coordinates [start, end].
 # Set to None to use the full volume. Trim air around the hourglass to
@@ -50,12 +50,12 @@ ROI_X = [184, 600]    # binned 23–75   (nVoxel[2]=748)
 # Z-voxel index (in the *binned, ROI-cropped* output) of the hourglass neck.
 # With ROI_Z=[240,1056] the cropped volume starts at binned z=30, so the
 # original binned neck at z=75 becomes index 75-30 = 45 here.
-NECK_Z_VOXEL = 45
+NECK_Z_VOXEL = 46
 
 # Attenuation threshold for segmenting sand vs air.
 # None → Otsu's method applied to the first timestep volume (recommended).
 # Override if Otsu picks the wrong region (inspect threshold_check.png).
-THRESHOLD = None  # e.g. 0.025
+THRESHOLD = 0.18 # e.g. 0.025
 
 # Output directory (sits next to the model/ folder)
 OUTPUT_DIR = Path(MODEL_PATH).parent
