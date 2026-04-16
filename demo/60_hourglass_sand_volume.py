@@ -34,10 +34,10 @@ from nect.sampling import Geometry
 MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_21_4_21_16_2_4_128_L1/2026-04-16T02-30-34/model/"
 
 # How many evenly-spaced timesteps to sample across the full acquisition
-N_TIMESTEPS = 50
+N_TIMESTEPS = 10
 
 # Spatial binning factor (4 = 4× faster/lower-res; 1 = full resolution)
-BINNING = 4
+BINNING = 8
 
 # Optional ROI in *full-resolution* voxel coordinates [start, end].
 # Set to None to use the full volume. Trim air around the hourglass to
