@@ -9,6 +9,8 @@ ffmpeg) with a GIF fallback via imageio.
 CONFIG mirrors 60_hourglass_sand_volume.py — set the same ROI / BINNING.
 """
 
+import shutil
+import subprocess
 from pathlib import Path
 
 import imageio
@@ -164,15 +166,30 @@ def main():
     # ── Write video ───────────────────────────────────────────────────────────
     mp4_path = OUTPUT_DIR / f"{VIDEO_NAME}.mp4"
     gif_path = OUTPUT_DIR / f"{VIDEO_NAME}.gif"
+    frames_dir = OUTPUT_DIR / "_frames_tmp"
+    frames_dir.mkdir(parents=True, exist_ok=True)
+
+    print("Saving frames...")
+    for i, frame in enumerate(frames):
+        imageio.imwrite(str(frames_dir / f"frame_{i:04d}.png"), frame)
 
     try:
-        imageio.mimwrite(str(mp4_path), frames, fps=FPS, codec="libx264",
-                         output_params=["-pix_fmt", "yuv420p"])
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-framerate", str(FPS),
+            "-i", str(frames_dir / "frame_%04d.png"),
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-crf", "18",
+            str(mp4_path),
+        ], check=True)
         print(f"Video saved → {mp4_path}")
     except Exception as e:
-        print(f"MP4 failed ({e}), falling back to GIF...")
+        print(f"ffmpeg failed ({e}), falling back to GIF...")
         imageio.mimwrite(str(gif_path), frames, fps=FPS)
         print(f"GIF saved → {gif_path}")
+    finally:
+        shutil.rmtree(frames_dir)
 
 
 if __name__ == "__main__":
