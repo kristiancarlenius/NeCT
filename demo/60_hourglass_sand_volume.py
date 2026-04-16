@@ -34,7 +34,7 @@ from nect.sampling import Geometry
 MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_21_4_21_16_2_4_128_L1/2026-04-16T02-30-34/model/"
 
 # How many evenly-spaced timesteps to sample across the full acquisition
-N_TIMESTEPS = 10
+N_TIMESTEPS = 50
 
 # Spatial binning factor (4 = 4× faster/lower-res; 1 = full resolution)
 BINNING = 1
@@ -55,7 +55,7 @@ NECK_Z_VOXEL = 370
 # Attenuation threshold for segmenting sand vs air.
 # None → Otsu's method applied to the first timestep volume (recommended).
 # Override if Otsu picks the wrong region (inspect threshold_check.png).
-THRESHOLD = 0.175 # e.g. 0.025
+THRESHOLD = 0.1775 # e.g. 0.025
 
 # Output directory (sits next to the model/ folder)
 OUTPUT_DIR = Path(MODEL_PATH).parent
