@@ -42,16 +42,15 @@ BINNING = 8
 # Optional ROI in *full-resolution* voxel coordinates [start, end].
 # Set to None to use the full volume. Trim air around the hourglass to
 # reduce noise contribution to the Otsu threshold.
-ROI_Z = None   # vertical axis — nVoxel[0]=1148, e.g. [50, 1100]
-ROI_Y = None   # nVoxel[1]=748, e.g. [100, 650]
-ROI_X = None   # nVoxel[2]=748, e.g. [100, 650]
+# Values below are binned coords (BINNING=8) × 8 → full-res.
+ROI_Z = [240, 1056]   # binned 30–132  (vertical axis, nVoxel[0]=1148)
+ROI_Y = [136, 560]    # binned 17–70   (nVoxel[1]=748)
+ROI_X = [184, 600]    # binned 23–75   (nVoxel[2]=748)
 
-# Z-voxel index (in the *binned* output) that sits at the hourglass neck.
-# Everything above (lower index) = top chamber; below = bottom chamber.
-# None → auto-split at midpoint (binned z_h // 2 = 143 with BINNING=4).
-# To find the right value: run once with BINNING=8, open the saved mid-time
-# slice (saved as neck_check.png) and read off the z index.
-NECK_Z_VOXEL = None  # e.g. 143
+# Z-voxel index (in the *binned, ROI-cropped* output) of the hourglass neck.
+# With ROI_Z=[240,1056] the cropped volume starts at binned z=30, so the
+# original binned neck at z=75 becomes index 75-30 = 45 here.
+NECK_Z_VOXEL = 45
 
 # Attenuation threshold for segmenting sand vs air.
 # None → Otsu's method applied to the first timestep volume (recommended).
