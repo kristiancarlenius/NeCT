@@ -156,7 +156,8 @@ def main():
         # Render figure to numpy array
         fig.canvas.draw()
         w, h = fig.canvas.get_width_height()
-        frame = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8).reshape(h, w, 3)
+        buf = np.frombuffer(fig.canvas.tostring_argb(), dtype=np.uint8).reshape(h, w, 4)
+        frame = buf[:, :, 1:]   # ARGB → RGB
         frames.append(frame)
         plt.close(fig)
 
