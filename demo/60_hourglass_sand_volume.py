@@ -50,12 +50,12 @@ ROI_X = [184, 600]    # binned 23–75   (nVoxel[2]=748)
 # Z-voxel index (in the *binned, ROI-cropped* output) of the hourglass neck.
 # With ROI_Z=[240,1056] the cropped volume starts at binned z=30, so the
 # original binned neck at z=75 becomes index 75-30 = 45 here.
-NECK_Z_VOXEL = 368
+NECK_Z_VOXEL = 370
 
 # Attenuation threshold for segmenting sand vs air.
 # None → Otsu's method applied to the first timestep volume (recommended).
 # Override if Otsu picks the wrong region (inspect threshold_check.png).
-THRESHOLD = 0.17 # e.g. 0.025
+THRESHOLD = 0.18 # e.g. 0.025
 
 # Output directory (sits next to the model/ folder)
 OUTPUT_DIR = Path(MODEL_PATH).parent
