@@ -21,7 +21,7 @@ from PIL import Image
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SIZEDIFF_DIR = os.path.join(os.path.dirname(__file__), "sizediff")
-PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect/epoch", "0525_1400.png")
+PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "1300_1400.png")
 CROPS_FILE   = os.path.join(os.path.dirname(__file__), "crops.json")
 
 with open(CROPS_FILE) as f:
@@ -60,9 +60,13 @@ def epoch_from_filename(name: str) -> int | None:
 
 # ── Data collection ───────────────────────────────────────────────────────────
 
+def mse(ref: np.ndarray, test: np.ndarray) -> float:
+    return float(np.mean((ref - test) ** 2))
+
+
 def collect() -> dict[str, dict]:
     """Returns {folder_name: {"n_levels": int, "n_features": int, "log2_hash": int,
-                               "epochs": [int, ...], "psnrs": [float, ...]}}"""
+                               "epochs": [int, ...], "psnrs": [float, ...], "mses": [float, ...]}}"""
     ref_roi = get_roi(load_grayscale(PERFECT_PATH))
     data: dict[str, dict] = {}
 
@@ -78,16 +82,19 @@ def collect() -> dict[str, dict]:
         if not os.path.isdir(epoch_dir):
             continue
 
-        epochs, psnrs = [], []
+        epochs, psnrs, mses = [], [], []
         for fname in sorted(os.listdir(epoch_dir)):
             ep = epoch_from_filename(fname)
             if ep is None:
                 continue
             path = os.path.join(epoch_dir, fname)
             try:
-                p = psnr(ref_roi, get_roi(load_grayscale(path)))
+                roi = get_roi(load_grayscale(path))
+                m = mse(ref_roi, roi)
+                p = float("inf") if m == 0 else 10.0 * math.log10(1.0 / m)
                 epochs.append(ep)
                 psnrs.append(p)
+                mses.append(m)
             except Exception as e:
                 print(f"[warn] {path}: {e}")
 
@@ -98,16 +105,19 @@ def collect() -> dict[str, dict]:
                 "log2_hash": log2_hash,
                 "epochs": epochs,
                 "psnrs": psnrs,
+                "mses": mses,
             }
             print(f"{folder:15s}  {len(epochs)} checkpoints  "
-                  f"PSNR range [{min(psnrs):.2f}, {max(psnrs):.2f}] dB")
+                  f"PSNR [{min(psnrs):.2f}, {max(psnrs):.2f}] dB  "
+                  f"MSE [{min(mses):.6f}, {max(mses):.6f}]")
 
     return data
 
 
 # ── Plotting ──────────────────────────────────────────────────────────────────
 
-def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
+def make_plot(entries: dict[str, dict], metric: str,
+              ylabel: str, title: str, out_path: str) -> None:
     if not entries:
         print(f"[skip] no data for: {title}")
         return
@@ -116,11 +126,11 @@ def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
     cmap = plt.cm.get_cmap("tab10", max(len(entries), 1))
 
     for i, (name, d) in enumerate(sorted(entries.items())):
-        ax.plot(d["epochs"], d["psnrs"], "o-", color=cmap(i),
+        ax.plot(d["epochs"], d[metric], "o-", color=cmap(i),
                 linewidth=1.8, markersize=5, label=name)
 
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("PSNR (dB)  ↑ better")
+    ax.set_ylabel(ylabel)
     ax.set_title(title, fontsize=11)
     ax.legend(bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=8)
     ax.grid(True, alpha=0.3)
@@ -128,6 +138,12 @@ def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
     plt.savefig(out_path, dpi=150)
     print(f"Saved → {out_path}")
     plt.close(fig)
+
+
+METRICS = [
+    ("psnrs", "PSNR (dB)  ↑ better", "psnr"),
+    ("mses",  "MSE  ↓ better",        "mse"),
+]
 
 
 def main() -> None:
@@ -139,21 +155,21 @@ def main() -> None:
     fixed_levels_23 = {k: v for k, v in data.items() if v["n_levels"] == 23}
     fixed_hash_23   = {k: v for k, v in data.items() if v["log2_hash"] == 23}
 
-    make_plot(
-        fixed_levels_23,
-        "PSNR vs Epoch — 23_4_XX  (n_levels=23, n_features=4, varying log2_hash)",
-        os.path.join(RESULTS_DIR, "epoch_psnr_23_4_XX.png"),
-    )
-    make_plot(
-        fixed_hash_23,
-        "PSNR vs Epoch — XX_4_23  (varying n_levels, n_features=4, log2_hash=23)",
-        os.path.join(RESULTS_DIR, "epoch_psnr_XX_4_23.png"),
-    )
-    make_plot(
-        data,
-        "PSNR vs Epoch — all XX_4_YY models",
-        os.path.join(RESULTS_DIR, "epoch_psnr_all.png"),
-    )
+    subsets = [
+        (fixed_levels_23, "23_4_XX", "23_4_XX  (n_levels=23, n_features=4, varying log2_hash)"),
+        (fixed_hash_23,   "XX_4_23", "XX_4_23  (varying n_levels, n_features=4, log2_hash=23)"),
+        (data,            "all",     "all XX_4_YY models"),
+    ]
+
+    for metric_key, ylabel, metric_short in METRICS:
+        for entries, tag, desc in subsets:
+            make_plot(
+                entries,
+                metric_key,
+                ylabel,
+                f"{metric_short.upper()} vs Epoch — {desc}",
+                os.path.join(RESULTS_DIR, f"epoch_{metric_short}_{tag}.png"),
+            )
 
 
 if __name__ == "__main__":

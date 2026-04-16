@@ -22,7 +22,7 @@ from PIL import Image
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SIZEDIFF_DIR = os.path.join(os.path.dirname(__file__), "sizediff")
-PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect/time", "0525_1400.png")
+PERFECT_PATH = os.path.join(SIZEDIFF_DIR, "perfect", "1300_1400.png")
 CROPS_FILE   = os.path.join(os.path.dirname(__file__), "crops.json")
 
 TIME_INTERVAL_HOURS = 6   # hours between successive images in time/
@@ -51,8 +51,12 @@ def get_roi(img: np.ndarray) -> np.ndarray:
     return np.concatenate(pieces)
 
 
+def mse(ref: np.ndarray, test: np.ndarray) -> float:
+    return float(np.mean((ref - test) ** 2))
+
+
 def psnr(ref: np.ndarray, test: np.ndarray) -> float:
-    m = float(np.mean((ref - test) ** 2))
+    m = mse(ref, test)
     return float("inf") if m == 0 else 10.0 * math.log10(1.0 / m)
 
 
@@ -84,13 +88,16 @@ def collect() -> dict[str, dict]:
         if not image_files:
             continue
 
-        hours, psnrs = [], []
+        hours, psnrs, mses = [], [], []
         for idx, fname in enumerate(image_files):
             path = os.path.join(time_dir, fname)
             try:
-                p = psnr(ref_roi, get_roi(load_grayscale(path)))
-                hours.append(idx * TIME_INTERVAL_HOURS)
+                roi = get_roi(load_grayscale(path))
+                m = mse(ref_roi, roi)
+                p = float("inf") if m == 0 else 10.0 * math.log10(1.0 / m)
+                hours.append((idx + 1) * TIME_INTERVAL_HOURS)
                 psnrs.append(p)
+                mses.append(m)
             except Exception as e:
                 print(f"[warn] {path}: {e}")
 
@@ -101,17 +108,20 @@ def collect() -> dict[str, dict]:
                 "log2_hash": log2_hash,
                 "hours": hours,
                 "psnrs": psnrs,
+                "mses": mses,
             }
             print(f"{folder:15s}  {len(hours)} snapshots  "
                   f"up to {max(hours):.0f}h  "
-                  f"PSNR range [{min(psnrs):.2f}, {max(psnrs):.2f}] dB")
+                  f"PSNR [{min(psnrs):.2f}, {max(psnrs):.2f}] dB  "
+                  f"MSE [{min(mses):.6f}, {max(mses):.6f}]")
 
     return data
 
 
 # ── Plotting ──────────────────────────────────────────────────────────────────
 
-def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
+def make_plot(entries: dict[str, dict], metric: str,
+              ylabel: str, title: str, out_path: str) -> None:
     if not entries:
         print(f"[skip] no data for: {title}")
         return
@@ -120,11 +130,11 @@ def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
     cmap = plt.cm.get_cmap("tab10", max(len(entries), 1))
 
     for i, (name, d) in enumerate(sorted(entries.items())):
-        ax.plot(d["hours"], d["psnrs"], "o-", color=cmap(i),
+        ax.plot(d["hours"], d[metric], "o-", color=cmap(i),
                 linewidth=1.8, markersize=5, label=name)
 
     ax.set_xlabel("Training time (hours)")
-    ax.set_ylabel("PSNR (dB)  ↑ better")
+    ax.set_ylabel(ylabel)
     ax.set_title(title, fontsize=11)
     ax.legend(bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=8)
     ax.grid(True, alpha=0.3)
@@ -134,7 +144,6 @@ def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
     ax.set_xticks(range(0, int(max_h) + TIME_INTERVAL_HOURS, TIME_INTERVAL_HOURS))
     ax.xaxis.set_tick_params(which="major", labelbottom=True)
     if max_h > 48:
-        # Only label every 24 h to avoid crowding
         for tick, val in zip(ax.xaxis.get_major_ticks(),
                               range(0, int(max_h) + TIME_INTERVAL_HOURS, TIME_INTERVAL_HOURS)):
             tick.label1.set_visible(val % 24 == 0)
@@ -143,6 +152,12 @@ def make_plot(entries: dict[str, dict], title: str, out_path: str) -> None:
     plt.savefig(out_path, dpi=150)
     print(f"Saved → {out_path}")
     plt.close(fig)
+
+
+METRICS = [
+    ("psnrs", "PSNR (dB)  ↑ better", "psnr"),
+    ("mses",  "MSE  ↓ better",        "mse"),
+]
 
 
 def main() -> None:
@@ -154,21 +169,21 @@ def main() -> None:
     fixed_levels_23 = {k: v for k, v in data.items() if v["n_levels"] == 23}
     fixed_hash_23   = {k: v for k, v in data.items() if v["log2_hash"] == 23}
 
-    make_plot(
-        fixed_levels_23,
-        "PSNR vs Training Time — 23_4_XX  (n_levels=23, n_features=4, varying log2_hash)",
-        os.path.join(RESULTS_DIR, "time_psnr_23_4_XX.png"),
-    )
-    make_plot(
-        fixed_hash_23,
-        "PSNR vs Training Time — XX_4_23  (varying n_levels, n_features=4, log2_hash=23)",
-        os.path.join(RESULTS_DIR, "time_psnr_XX_4_23.png"),
-    )
-    make_plot(
-        data,
-        "PSNR vs Training Time — all XX_4_YY models",
-        os.path.join(RESULTS_DIR, "time_psnr_all.png"),
-    )
+    subsets = [
+        (fixed_levels_23, "23_4_XX", "23_4_XX  (n_levels=23, n_features=4, varying log2_hash)"),
+        (fixed_hash_23,   "XX_4_23", "XX_4_23  (varying n_levels, n_features=4, log2_hash=23)"),
+        (data,            "all",     "all XX_4_YY models"),
+    ]
+
+    for metric_key, ylabel, metric_short in METRICS:
+        for entries, tag, desc in subsets:
+            make_plot(
+                entries,
+                metric_key,
+                ylabel,
+                f"{metric_short.upper()} vs Training Time — {desc}",
+                os.path.join(RESULTS_DIR, f"time_{metric_short}_{tag}.png"),
+            )
 
 
 if __name__ == "__main__":
