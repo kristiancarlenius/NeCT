@@ -172,16 +172,29 @@ def main():
     mid_y = y_w // 2
     mid_x = x_w // 2
 
+    # Percentile-clipped display range so air doesn't crush the contrast
+    vmin = float(np.percentile(vol0, 1))
+    vmax = float(np.percentile(vol0, 99))
+    print(f"  Display range: vmin={vmin:.4f}  vmax={vmax:.4f}  "
+          f"(1st–99th percentile of full volume)")
+
     fig_nc, axes_nc = plt.subplots(2, 2, figsize=(14, 10))
 
+    def show(ax, img, title, xlabel, ylabel, add_neck=False):
+        im = ax.imshow(img, cmap="gray", aspect="auto", vmin=vmin, vmax=vmax)
+        if add_neck:
+            ax.axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
+                       label=f"neck z={neck_z}")
+            ax.legend(fontsize=8)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        plt.colorbar(im, ax=ax, fraction=0.03, pad=0.04)
+
     # Row 0: XZ slice (mid-Y)
-    axes_nc[0, 0].imshow(vol0[:, mid_y, :], cmap="gray", aspect="auto")
-    axes_nc[0, 0].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
-                           label=f"neck z={neck_z}")
-    axes_nc[0, 0].set_title("XZ slice (mid-Y) — raw attenuation")
-    axes_nc[0, 0].set_xlabel("x voxel (binned)")
-    axes_nc[0, 0].set_ylabel("z voxel (binned)  [0=top]")
-    axes_nc[0, 0].legend(fontsize=8)
+    show(axes_nc[0, 0], vol0[:, mid_y, :],
+         "XZ slice (mid-Y) — raw attenuation",
+         "x voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
 
     axes_nc[0, 1].imshow(vol0[:, mid_y, :] > threshold, cmap="gray", aspect="auto")
     axes_nc[0, 1].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
@@ -191,18 +204,13 @@ def main():
     axes_nc[0, 1].legend(fontsize=8)
 
     # Row 1: YZ slice (mid-X) and XY slice at neck
-    axes_nc[1, 0].imshow(vol0[:, :, mid_x], cmap="gray", aspect="auto")
-    axes_nc[1, 0].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
-                           label=f"neck z={neck_z}")
-    axes_nc[1, 0].set_title("YZ slice (mid-X) — raw attenuation")
-    axes_nc[1, 0].set_xlabel("y voxel (binned)")
-    axes_nc[1, 0].set_ylabel("z voxel (binned)  [0=top]")
-    axes_nc[1, 0].legend(fontsize=8)
+    show(axes_nc[1, 0], vol0[:, :, mid_x],
+         "YZ slice (mid-X) — raw attenuation",
+         "y voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
 
-    axes_nc[1, 1].imshow(vol0[neck_z, :, :], cmap="gray", aspect="auto")
-    axes_nc[1, 1].set_title(f"XY slice at neck z={neck_z} — raw attenuation")
-    axes_nc[1, 1].set_xlabel("x voxel (binned)")
-    axes_nc[1, 1].set_ylabel("y voxel (binned)")
+    show(axes_nc[1, 1], vol0[neck_z, :, :],
+         f"XY slice at neck z={neck_z} — raw attenuation",
+         "x voxel (binned)", "y voxel (binned)", add_neck=False)
 
     plt.tight_layout()
     nc_path = out_dir / "neck_check.png"
