@@ -25,7 +25,7 @@ from nect.sampling import Geometry
 
 MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_21_4_21_16_2_4_128_L1/2026-04-16T02-30-34/model/"
 
-N_TIMESTEPS = 30        # number of frames in the video
+N_TIMESTEPS = 10        # number of frames in the video
 BINNING     = 8         # match what you used in script 60
 
 ROI_Z = [240, 1056]    # full-res voxel coords  (binned 30–132)
@@ -37,7 +37,7 @@ ROI_X = [184, 600]     # full-res voxel coords  (binned 23–75)
 SLICE_Y = None   # XZ view: which Y slice to show
 SLICE_X = None   # YZ view: which X slice to show
 
-FPS        = 10          # frames per second in the output video
+FPS        = 1          # frames per second in the output video
 OUTPUT_DIR = Path(MODEL_PATH).parent
 VIDEO_NAME = "hourglass_slices"   # .mp4 written; .gif fallback
 
