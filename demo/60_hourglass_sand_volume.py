@@ -163,28 +163,55 @@ def main():
     else:
         print(f"  Using manual threshold = {threshold:.4f}")
 
-    # Save an XZ mid-slice so you can visually confirm the neck z-position
+    # ── Neck split ────────────────────────────────────────────────────────────
+    neck_z = NECK_Z_VOXEL if NECK_Z_VOXEL is not None else z_h // 2
+
+    # Save diagnostic slices so you can verify the ROI and neck position
     out_dir = OUTPUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
     mid_y = y_w // 2
-    fig_nc, axes_nc = plt.subplots(1, 2, figsize=(12, 5))
-    axes_nc[0].imshow(vol0[:, mid_y, :], cmap="gray", aspect="auto")
-    axes_nc[0].set_title("XZ slice (mid-Y) — raw attenuation")
-    axes_nc[0].set_xlabel("x voxel (binned)")
-    axes_nc[0].set_ylabel("z voxel (binned)  [0=top]")
-    axes_nc[1].imshow(vol0[:, mid_y, :] > threshold, cmap="gray", aspect="auto")
-    axes_nc[1].set_title(f"Sand mask (threshold={threshold:.4f})")
-    axes_nc[1].set_xlabel("x voxel (binned)")
+    mid_x = x_w // 2
+
+    fig_nc, axes_nc = plt.subplots(2, 2, figsize=(14, 10))
+
+    # Row 0: XZ slice (mid-Y)
+    axes_nc[0, 0].imshow(vol0[:, mid_y, :], cmap="gray", aspect="auto")
+    axes_nc[0, 0].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
+                           label=f"neck z={neck_z}")
+    axes_nc[0, 0].set_title("XZ slice (mid-Y) — raw attenuation")
+    axes_nc[0, 0].set_xlabel("x voxel (binned)")
+    axes_nc[0, 0].set_ylabel("z voxel (binned)  [0=top]")
+    axes_nc[0, 0].legend(fontsize=8)
+
+    axes_nc[0, 1].imshow(vol0[:, mid_y, :] > threshold, cmap="gray", aspect="auto")
+    axes_nc[0, 1].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
+                           label=f"neck z={neck_z}")
+    axes_nc[0, 1].set_title(f"Sand mask — XZ (mid-Y), threshold={threshold:.4f}")
+    axes_nc[0, 1].set_xlabel("x voxel (binned)")
+    axes_nc[0, 1].legend(fontsize=8)
+
+    # Row 1: YZ slice (mid-X) and XY slice at neck
+    axes_nc[1, 0].imshow(vol0[:, :, mid_x], cmap="gray", aspect="auto")
+    axes_nc[1, 0].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
+                           label=f"neck z={neck_z}")
+    axes_nc[1, 0].set_title("YZ slice (mid-X) — raw attenuation")
+    axes_nc[1, 0].set_xlabel("y voxel (binned)")
+    axes_nc[1, 0].set_ylabel("z voxel (binned)  [0=top]")
+    axes_nc[1, 0].legend(fontsize=8)
+
+    axes_nc[1, 1].imshow(vol0[neck_z, :, :], cmap="gray", aspect="auto")
+    axes_nc[1, 1].set_title(f"XY slice at neck z={neck_z} — raw attenuation")
+    axes_nc[1, 1].set_xlabel("x voxel (binned)")
+    axes_nc[1, 1].set_ylabel("y voxel (binned)")
+
     plt.tight_layout()
     nc_path = out_dir / "neck_check.png"
     plt.savefig(nc_path, dpi=150)
     plt.close(fig_nc)
-    print(f"  Diagnostic slice saved to {nc_path}")
-    print(f"  → Inspect it and set NECK_Z_VOXEL to the binned z-index of the neck")
-
-    # ── Neck split ────────────────────────────────────────────────────────────
-    neck_z = NECK_Z_VOXEL if NECK_Z_VOXEL is not None else z_h // 2
-    print(f"Neck split at binned z-index {neck_z} (of {z_h})")
+    print(f"  Diagnostic slices saved to {nc_path}")
+    print(f"  → Red dashed line marks neck split at z={neck_z} (of {z_h})")
+    print(f"  → Adjust NECK_Z_VOXEL if the line doesn't sit at the hourglass neck")
+    print(f"Neck split at binned z-index {neck_z} (of {z_h} total z-slices)")
 
     # ── Main loop ─────────────────────────────────────────────────────────────
     top_vols_mm3 = []
