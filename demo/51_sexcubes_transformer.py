@@ -21,8 +21,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "base_lr": 0.0001,
         "lr": 0.004,
         "warmup": {
-            "steps": 1400 * 20,
-            "lr0": 0.02,
+            "steps": 1400 * 15,
+            "lr0": 0.002,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -33,7 +33,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "max_resolution_factor": 2,
         },
         "net": TransformerDecoderConfig(
-            d_model=20,
+            d_model=16,
             n_heads=4,
             n_layers=3,
             dropout=0.0,
