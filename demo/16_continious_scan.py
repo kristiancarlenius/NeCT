@@ -5,6 +5,12 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
+print(torch.__version__)
+print(torch.cuda.get_arch_list())
+print(torch.cuda.get_device_name(0))
+print(torch.cuda.current_device())
+print(torch.cuda.is_available())
+
 data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
 """
 config_file = Path(data_path) / "config.yaml"
@@ -53,12 +59,12 @@ reconstruction_path_static, output_path = nect.reconstruct(
 )
 """
 
-reconstruction_path, _ = nect.reconstruct(
+reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_4fps_2750.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_continious_non",
+    exp_name="dynamic_continious",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
@@ -66,8 +72,8 @@ reconstruction_path, _ = nect.reconstruct(
         "plot_type": "XZ",
         "base_lr": 0.0001,
         "warmup": {
-            "steps": 1400*10,
-            "lr0": 0.0001,
+            "steps": 1400*20,
+            "lr0": 0.001,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -86,5 +92,9 @@ reconstruction_path, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
+        "accumulation_steps": 2,
+        "continous_scanning": True,
         
     },)
+
+print(reconstruction_path_dynamic, _)
