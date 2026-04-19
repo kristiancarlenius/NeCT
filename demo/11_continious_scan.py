@@ -65,16 +65,16 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     projections=str(Path(data_path) / "proj_4fps_5500.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="dynamic_continious_ac1",
+    exp_name="dynamic_continious",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
-        "base_lr": 0.0001,
+        "base_lr": 0.0008,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.0001,
+            "lr0": 0.001,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -93,7 +93,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 1,
+        "accumulation_steps": 3,
         "continous_scanning": True,
         
     },)

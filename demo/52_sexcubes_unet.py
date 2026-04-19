@@ -19,23 +19,23 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
-        "lr": 0.004,
+        "lr": 0.0004,
         "warmup": {
             "steps": 1400 * 20,
-            "lr0": 0.02,
+            "lr0": 0.002,
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 21,
+            "n_levels": 18,
             "n_features_per_level": 4,
             "log2_hashmap_size": 20,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
-        "net": UNetDecoderConfig(
-            hidden_dims=[168, 84, 42],
-            levels_coarse=7,
-            levels_medium=7,
+        "net": UNetDecoderConfig(                                                                                                                                                                   
+            hidden_dims=[84, 42, 21],  # was [168, 84, 42]
+            levels_coarse=5,           # was 7                                                                                                                                                      
+            levels_medium=5,           # was 7
             dropout=0.0,
         ),
     },

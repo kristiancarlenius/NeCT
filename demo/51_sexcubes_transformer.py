@@ -19,7 +19,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "image_interval": 0,
         "plot_type": "XZ",
         "base_lr": 0.0001,
-        "lr": 0.004,
+        "lr": 0.0004,
         "warmup": {
             "steps": 1400 * 15,
             "lr0": 0.002,
@@ -33,9 +33,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "max_resolution_factor": 2,
         },
         "net": TransformerDecoderConfig(
-            d_model=16,
+            d_model=24,
             n_heads=4,
-            n_layers=3,
+            n_layers=2,
             dropout=0.0,
         ),
     },
