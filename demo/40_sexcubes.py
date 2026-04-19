@@ -78,7 +78,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "max_resolution_factor": 2,
         },
         "net": MLPNetConfig(
-            otype="FullyFusedMLP",
+            otype="CutlassMLP",
             activation="LeakyReLU",
             output_activation="None",
             n_neurons=128,
