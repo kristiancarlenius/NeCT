@@ -67,7 +67,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "base_lr": 0.0002,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.001,
+            "lr0": 0.0005,
         },
         "encoder": {
             "otype": "HashGrid",
