@@ -434,7 +434,54 @@ class QuadCubes(nn.Module):
             inputs = torch.cat([zyx, yxt, xzt, zyt], dim=-1)
         out = self.net(inputs)
         return out
-    
+
+
+class SplitQuadCubes(nn.Module):
+    """QuadCubes with separate encoder configs for the spatial (zyx) and temporal (yxt, xzt, zyt) encoders."""
+
+    def __init__(
+        self,
+        spatial_encoding_config: HashEncoderConfig,
+        temporal_encoding_config: HashEncoderConfig,
+        network_config: MLPNetConfig,
+    ):
+        super().__init__()
+        self.include_identity = network_config.include_identity
+        encoding = {
+            "otype": "Composite",
+            "nested": [
+                {"n_dims_to_encode": 3, **spatial_encoding_config.get_encoder_config()},
+                {"n_dims_to_encode": 3, **temporal_encoding_config.get_encoder_config()},
+                {"n_dims_to_encode": 3, **temporal_encoding_config.get_encoder_config()},
+                {"n_dims_to_encode": 3, **temporal_encoding_config.get_encoder_config()},
+            ]
+        }
+        if self.include_identity:
+            encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
+
+        spatial_features = spatial_encoding_config.n_levels * spatial_encoding_config.n_features_per_level
+        temporal_features = temporal_encoding_config.n_levels * temporal_encoding_config.n_features_per_level
+        n_input_dims = spatial_features + 3 * temporal_features + (4 if self.include_identity else 0)
+
+        self.net = tcnn.NetworkWithInputEncoding(
+            n_input_dims=n_input_dims,
+            n_output_dims=1,
+            encoding_config=encoding,
+            network_config=network_config.get_network_config(),
+        )
+
+    def forward(self, zyx, t):
+        yxt = torch.cat([zyx[..., [1, 2]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        xzt = torch.cat([zyx[..., [2, 0]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        zyt = torch.cat([zyx[..., [0, 1]], torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+        if self.include_identity:
+            zyxt = torch.cat([zyx, torch.full((zyx.size(0), 1), t, device=zyx.device)], dim=1)
+            inputs = torch.cat([zyx, yxt, xzt, zyt, zyxt], dim=-1)
+        else:
+            inputs = torch.cat([zyx, yxt, xzt, zyt], dim=-1)
+        return self.net(inputs)
+
+
 class HyperCubes(nn.Module):
     def __init__(
         self,

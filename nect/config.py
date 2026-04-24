@@ -356,6 +356,7 @@ class Config:
     net: MLPNetConfig | PirateNetConfig | TransformerDecoderConfig | UNetDecoderConfig
     concat: Optional[bool]
     encoder_2d: Optional[DenseGridEncoderConfig] = None
+    temporal_encoder: Optional[HashEncoderConfig] = None
     reconstruction_mode: str
     save_volume: bool = False
     downsampling_detector: DownsamplingDetector = DownsamplingDetector(1, 1, 1)
@@ -384,6 +385,10 @@ class Config:
             self.encoder.nDetector = self.geometry.nDetector
             self.encoder.nVoxel = self.geometry.nVoxel
             self.encoder.sample_outside = self.sample_outside
+        if isinstance(self.temporal_encoder, HashEncoderConfig):
+            self.temporal_encoder.nDetector = self.geometry.nDetector
+            self.temporal_encoder.nVoxel = self.geometry.nVoxel
+            self.temporal_encoder.sample_outside = self.sample_outside
 
     def get_dm(self) -> list[float]:
         return self.damp_multi
@@ -486,6 +491,24 @@ class Config:
             model = MixedCubes(
                 encoding_config=self.encoder,
                 encoding_config_2d=self.encoder_2d,
+                network_config=self.net,
+            )
+
+        elif model == "splitquadcubes":
+            from nect.network import SplitQuadCubes
+
+            if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
+                raise ValueError("splitquadcubes: encoder must be HashEncoderConfig (spatial) and net must be MLPNetConfig")
+            if not isinstance(self.temporal_encoder, HashEncoderConfig):
+                raise ValueError("splitquadcubes: temporal_encoder must be HashEncoderConfig")
+
+            spatial_features = self.encoder.n_levels * self.encoder.n_features_per_level
+            temporal_features = self.temporal_encoder.n_levels * self.temporal_encoder.n_features_per_level
+            memory_per_point = 8 * byte_size * (self.encoder.n_levels + 3 * self.temporal_encoder.n_levels)
+
+            model = SplitQuadCubes(
+                spatial_encoding_config=self.encoder,
+                temporal_encoding_config=self.temporal_encoder,
                 network_config=self.net,
             )
 
