@@ -459,12 +459,8 @@ class SplitQuadCubes(nn.Module):
         if self.include_identity:
             encoding["nested"].append({"n_dims_to_encode": 4, "otype": "Identity"})
 
-        spatial_features = spatial_encoding_config.n_levels * spatial_encoding_config.n_features_per_level
-        temporal_features = temporal_encoding_config.n_levels * temporal_encoding_config.n_features_per_level
-        n_input_dims = spatial_features + 3 * temporal_features + (4 if self.include_identity else 0)
-
         self.net = tcnn.NetworkWithInputEncoding(
-            n_input_dims=n_input_dims,
+            n_input_dims=12 + (4 if self.include_identity else 0),
             n_output_dims=1,
             encoding_config=encoding,
             network_config=network_config.get_network_config(),
