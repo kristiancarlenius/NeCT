@@ -1,0 +1,23 @@
+encoder:
+  otype: HashGrid
+  n_levels: 22
+  n_features_per_level: 4
+  log2_hashmap_size: 20
+  base_resolution: 16
+  max_resolution_factor: 2
+
+net:
+  otype: CutlassMLP
+  activation: LeakyReLU
+  output_activation: None
+  n_neurons: 128
+  n_hidden_layers: 4
+  include_identity: False
+  include_adaptive_skip: False
+base_lr: 0.0002
+batch_per_proj: 1
+warmup:
+  steps: 14000
+  lr0: 0.001
+  otype: linear
+model: yaml

@@ -512,7 +512,7 @@ class Config:
                 network_config=self.net,
             )
 
-        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "singlecube", "combinedcubes"]:
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "sexcubes_kplanes", "singlecube", "combinedcubes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
@@ -567,6 +567,16 @@ class Config:
                 memory_per_point = 8 * byte_size * self.encoder.n_levels * 6
 
                 model = SexCubes(
+                    encoding_config=self.encoder,
+                    network_config=self.net,
+                )
+
+            elif model == "sexcubes_kplanes":
+                from nect.network import SexCubesKPlanes
+
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 6
+
+                model = SexCubesKPlanes(
                     encoding_config=self.encoder,
                     network_config=self.net,
                 )
@@ -827,6 +837,7 @@ cfg_paths: dict = {
         "quadcubes": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes.yaml",
         "hypercubes": pathlib.Path(__file__).parent / "cfg/dynamic/hypercubes.yaml",
         "sexcubes": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes.yaml",
+        "sexcubes_kplanes": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_kplanes.yaml",
         "singlecube": pathlib.Path(__file__).parent / "cfg/dynamic/singlecube.yaml",
         "combinedcubes": pathlib.Path(__file__).parent / "cfg/dynamic/combinedcubes.yaml",
         "quadcubes_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/quadcubes_transformer.yaml",
@@ -1033,6 +1044,7 @@ def cfg_sanity_check(cfg: dict):
         "quadcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "tricubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "sexcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "sexcubes_kplanes": {"encoder": hash_encoder, "net": mlp_net},
         "singlecube": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "combinedcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },

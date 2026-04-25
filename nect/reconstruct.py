@@ -170,6 +170,9 @@ def reconstruct(
     elif enc_arc == "sexcubes":
         cfg = get_dynamic_cfg(name="sexcubes")
         cfg["model"] = "sexcubes"
+    elif enc_arc == "sexcubes_kplanes":
+        cfg = get_dynamic_cfg(name="sexcubes_kplanes")
+        cfg["model"] = "sexcubes_kplanes"
     elif enc_arc == "singlecube":
         cfg = get_dynamic_cfg(name="singlecube")
         cfg["model"] = "singlecube"

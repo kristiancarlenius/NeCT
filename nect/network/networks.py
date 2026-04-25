@@ -1102,6 +1102,76 @@ class QuadCubesUNet(nn.Module):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# SexCubesKPlanes
+#
+# Multiplying complementary plane pairs that together cover all 4 coordinates:
+#   f_zy * f_xt  →  z, y, x, t all present
+#   f_zx * f_yt  →  z, x, y, t all present
+#   f_yx * f_zt  →  y, x, z, t all present
+#
+# A point only activates a product when both of its 2D projections match, making
+# the features far more selective than plain concatenation. The MLP no longer
+# has to figure out coordinate coupling on its own — the products encode it
+# explicitly. Inspired by K-Planes (Fridovich-Keil et al., 2023).
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _str_to_act(name: str) -> nn.Module:
+    return {
+        "ReLU": nn.ReLU,
+        "LeakyReLU": nn.LeakyReLU,
+        "Sigmoid": nn.Sigmoid,
+        "Tanh": nn.Tanh,
+        "SiLU": nn.SiLU,
+        "None": nn.Identity,
+    }.get(name, nn.ReLU)()
+
+
+class SexCubesKPlanes(nn.Module):
+    """SexCubes encoder + K-Planes product decoder.
+
+    Feeds both the 6 raw plane features and their 3 complementary Hadamard
+    products into a plain PyTorch MLP (float32). The products give the MLP
+    explicit 4D selectivity so it does not need extreme depth to couple coords.
+
+    Input to MLP: cat([f_zy, f_zx, f_yx, f_zt, f_yt, f_xt,
+                        f_zy*f_xt, f_zx*f_yt, f_yx*f_zt])  →  9 × D features.
+
+    Config:
+        encoding_config : HashEncoderConfig  (same 2D grid as SexCubes)
+        network_config  : MLPNetConfig
+            n_neurons        – width of hidden layers
+            n_hidden_layers  – depth of MLP
+            activation       – hidden activation (ReLU, LeakyReLU, SiLU, …)
+            output_activation – final activation (typically None)
+    """
+
+    def __init__(self, encoding_config: "HashEncoderConfig", network_config: "MLPNetConfig"):
+        super().__init__()
+        self.encoder = _SexEncoder(encoding_config)
+        D = self.encoder.n_output_dims
+        in_dim = 9 * D  # 6 raw + 3 products
+
+        w = network_config.n_neurons
+        layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
+        for _ in range(network_config.n_hidden_layers - 1):
+            layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
+        layers.append(nn.Linear(w, 1))
+        if network_config.output_activation != "None":
+            layers.append(_str_to_act(network_config.output_activation))
+        self.mlp = nn.Sequential(*layers)
+
+    def forward(self, zyx, t):
+        f_zy, f_zx, f_yx, f_zt, f_yt, f_xt = self.encoder(zyx, t)
+
+        p0 = f_zy * f_xt   # z, y, x, t
+        p1 = f_zx * f_yt   # z, x, y, t
+        p2 = f_yx * f_zt   # y, x, z, t
+
+        h = torch.cat([f_zy, f_zx, f_yx, f_zt, f_yt, f_xt, p0, p1, p2], dim=-1)
+        return self.mlp(h)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # SexCubes variants with richer decoders.
 #
 # SexCubes decomposes (z,y,x,t) into all 6 pairwise 2D projections.  Each
