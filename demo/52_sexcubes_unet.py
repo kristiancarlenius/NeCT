@@ -18,15 +18,14 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
-        "base_lr": 0.0001,
-        "lr": 0.0004,
+        "base_lr": 0.0002,
         "warmup": {
             "steps": 1400 * 20,
-            "lr0": 0.002,
+            "lr0": 0.001,
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 18,
+            "n_levels": 20,
             "n_features_per_level": 4,
             "log2_hashmap_size": 20,
             "base_resolution": 16,
