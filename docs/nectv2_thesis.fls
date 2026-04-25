@@ -1255,6 +1255,7 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
 OUTPUT nectv2_thesis.toc
 INPUT ./nectv2_thesis.lof
 INPUT nectv2_thesis.lof
@@ -1271,7 +1272,6 @@ INPUT /usr/share/texmf/fonts/tfm/public/lm/rm-lmbx12.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/rm-lmbx8.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/rm-lmbx6.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmri12.tfm
-INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT ./images//u-net-architecture.png
 INPUT ./images//u-net-architecture.png
 INPUT images//u-net-architecture.png

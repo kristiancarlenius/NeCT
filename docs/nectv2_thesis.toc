@@ -4,46 +4,48 @@
 \contentsline {section}{\numberline {1.2}Research Objectives}{3}{section.1.2}%
 \contentsline {section}{\numberline {1.3}Thesis Structure}{4}{section.1.3}%
 \contentsline {chapter}{\numberline {2}Background}{5}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Neural Networks}{5}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Convolutional Neural Networks and Image-to-Image Architectures}{6}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Implicit Neural Representations}{9}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Neural Radiance Fields (NeRF)}{11}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Multiresolution Hash Encoding}{13}{subsection.2.3.2}%
-\contentsline {section}{\numberline {2.4}X-ray Computed Tomography}{15}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Physical Principles}{15}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Classical Reconstruction Algorithms}{16}{subsection.2.4.2}%
-\contentsline {subsection}{\numberline {2.4.3}4D-CT and Dynamic Imaging}{17}{subsection.2.4.3}%
-\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{17}{section.2.5}%
+\contentsline {section}{\numberline {2.1}X-ray Computed Tomography}{5}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Physical Principles}{5}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Classical Reconstruction Algorithms}{6}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}4D-CT and Dynamic Imaging}{7}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Neural Networks}{8}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Convolutional Neural Networks and Image-to-Image Architectures}{9}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Implicit Neural Representations}{12}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Neural Radiance Fields (NeRF)}{14}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Multiresolution Hash Encoding}{16}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{18}{section.2.5}%
 \contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{18}{subsection.2.5.1}%
 \contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{20}{subsection.2.5.2}%
 \contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{21}{subsection.2.5.3}%
 \contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{22}{subsection.2.5.4}%
-\contentsline {chapter}{\numberline {3}Encoder Size and Performance}{24}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Experimental Setup}{24}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Effect of Total Parameter Count}{26}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Effect on Reconstruction Time}{30}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Precision and Accuracy Metrics}{32}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Non-Uniform Encoder Sizing}{32}{section.3.5}%
-\contentsline {chapter}{\numberline {4}Encoder Architecture}{34}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Collision Rate and the Design Space}{34}{section.4.1}%
-\contentsline {section}{\numberline {4.2}QuadCubes (Baseline)}{35}{section.4.2}%
-\contentsline {section}{\numberline {4.3}SingleCube}{35}{section.4.3}%
-\contentsline {section}{\numberline {4.4}SexCubes}{37}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Alternative Decoders}{39}{subsection.4.4.1}%
-\contentsline {subsubsection}{Transformer Decoder}{39}{section*.33}%
-\contentsline {subsubsection}{U-Net Decoder}{39}{section*.34}%
-\contentsline {subsection}{\numberline {4.4.2}Dense Encoders for SexCubes}{40}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}CombinedCubes}{41}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Dense Temporal Encoders in CombinedCubes}{43}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Comparative Analysis}{45}{section.4.7}%
-\contentsline {chapter}{\numberline {5}Continuous Scanning}{46}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Motivation}{46}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{47}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{49}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{50}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Discussion}{53}{section.5.5}%
-\contentsline {chapter}{\numberline {6}Conclusion}{55}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{55}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{55}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{61}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{62}{appendix.B}%
+\contentsline {part}{I\hspace {1em}Encoder Optimisation}{24}{part.1}%
+\contentsline {chapter}{\numberline {3}Encoder Size and Performance}{26}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Experimental Setup}{26}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Effect of Total Parameter Count}{28}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Effect on Reconstruction Time}{32}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Precision and Accuracy Metrics}{34}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Non-Uniform Encoder Sizing}{34}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Encoder Architecture}{36}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Collision Rate and the Design Space}{36}{section.4.1}%
+\contentsline {section}{\numberline {4.2}QuadCubes (Baseline)}{37}{section.4.2}%
+\contentsline {section}{\numberline {4.3}SingleCube}{37}{section.4.3}%
+\contentsline {section}{\numberline {4.4}SexCubes}{39}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Alternative Decoders}{41}{subsection.4.4.1}%
+\contentsline {subsubsection}{Transformer Decoder}{41}{section*.33}%
+\contentsline {subsubsection}{U-Net Decoder}{41}{section*.34}%
+\contentsline {subsection}{\numberline {4.4.2}Dense Encoders for SexCubes}{42}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}CombinedCubes}{43}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Dense Temporal Encoders in CombinedCubes}{45}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Comparative Analysis}{47}{section.4.7}%
+\contentsline {part}{II\hspace {1em}Continuous Scanning}{48}{part.2}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{49}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Motivation}{49}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Forward Model for Continuous Scanning}{50}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Static Dataset Experiments}{52}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Dynamic Dataset Experiments}{53}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Discussion}{56}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Conclusion}{58}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{58}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{58}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{63}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{64}{appendix.B}%
