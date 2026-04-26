@@ -1,76 +1,26 @@
 from pathlib import Path
-import yaml
-import numpy as np
 import nect
-import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"
-re_create_path = "/cluster/home/kristiac/NeCT/"
-"""
-config_file = Path(data_path) / "config.yaml"
-with open(config_file, "r") as f:
-    config = yaml.safe_load(f)
-config["img_path"] = str(Path(data_path) / "projections")
-tmp_config_file = Path(data_path) / "config_tmp.yaml"
-with open(tmp_config_file, "w") as f:
-    yaml.safe_dump(config, f)
-nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
-"""
-geometry_file = Path(data_path) / "geometry_1400_step.yaml"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
+geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
-# run reconstruction using the new .npy projections
-reconstruction_path_static, output_path = nect.reconstruct(
-    geometry=geometry,
-    projections=str(Path(data_path) / "projections_1400_step.npy"),
-    quality="high",
-    mode="static",
-    exp_name="static_non",
-    config_override={
-        "epochs": "3x",
-        "checkpoint_interval": 0,
-        "image_interval": 0,
-        "plot_type": "XZ",
-        "encoder": {
-            "otype": "HashGrid",
-            "n_levels": 21,
-            "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
-            "base_resolution": 16,
-            "max_resolution_factor": 2,
-        },
-        "net": MLPNetConfig(
-            otype="FullyFusedMLP",
-            activation="LeakyReLU",
-            output_activation="None",
-            n_neurons=64,
-            n_hidden_layers=4,
-            include_identity=False,
-            include_adaptive_skip=False,
-        ),
-    },
-)
-"""
-#print(nect.export_volume_zarr(re_create_path+str(output_path)+"model/"))
-print(nect.export_volume(base_path="/cluster/home/kristiac/NeCT/outputs/static_non/hash_grid_21_4_21_16_2_4_64_L1/2026-02-13T15-34-52/model/", binning=5, ROIx=[40, 60], ROIy=[40, 60], ROIz=[40, 60]))
-"""
 reconstruction_path_dynamic, _ = nect.reconstruct(
     geometry=geometry,
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="sexcubes",
+    exp_name="sizediff",
     config_override={
-        "epochs": "12x",
+        "epochs": "11x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
-        "base_lr": 0.0001,
+        "base_lr": 0.0002,
         "warmup": {
             "steps": 1400*10,
-            "lr0": 0.004,
+            "lr0": 0.0002,
         },
         "encoder": {
             "otype": "HashGrid",
@@ -84,12 +34,10 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             otype="FullyFusedMLP",
             activation="LeakyReLU",
             output_activation="None",
-            n_neurons=64,
-            n_hidden_layers=12,
+            n_neurons=128,
+            n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
-        ),},
-    split_enc=True,
-    )
+        ),
+    },)
 print(reconstruction_path_dynamic, _)
-"""
