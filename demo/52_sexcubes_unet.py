@@ -25,7 +25,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 20,
+            "n_levels": 22,
             "n_features_per_level": 4,
             "log2_hashmap_size": 20,
             "base_resolution": 16,
@@ -35,7 +35,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             hidden_dims=[84, 42, 21],  # was [168, 84, 42]
             levels_coarse=5,           # was 7                                                                                                                                                      
             levels_medium=5,           # was 7
-            dropout=0.0,
+            dropout=0.1,
         ),
     },
     enc_arc="sexcubes_unet",
