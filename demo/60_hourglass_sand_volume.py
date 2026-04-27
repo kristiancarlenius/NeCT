@@ -31,10 +31,10 @@ from nect.sampling import Geometry
 # ─────────────────────────── CONFIG ──────────────────────────────────────────
 
 # Directory containing config.yaml and checkpoints/ subfolder
-MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_21_4_21_16_2_4_128_L1/2026-04-16T02-30-34/model/"
+MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_22_4_22_16_2_4_128_L1/4fps_2750_ac2_re/model/"
 
 # How many evenly-spaced timesteps to sample across the full acquisition
-N_TIMESTEPS = 50
+N_TIMESTEPS = 80
 
 # Spatial binning factor (4 = 4× faster/lower-res; 1 = full resolution)
 BINNING = 1
