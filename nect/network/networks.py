@@ -1102,7 +1102,7 @@ class QuadCubesUNet(nn.Module):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SexCubesKPlanes
+# SexCubesKPlanes / CombinedCubesKPlanes / MixedCubesKPlanes
 #
 # Multiplying complementary plane pairs that together cover all 4 coordinates:
 #   f_zy * f_xt  →  z, y, x, t all present
@@ -1411,3 +1411,168 @@ class SexCubesUNet(nn.Module):
         d1 = self.up1(torch.cat([d2, e1], dim=-1))
 
         return self.out_head(d1)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CombinedCubesKPlanes / MixedCubesKPlanes
+#
+# CombinedCubes factorisation: 3 temporal 2D planes (zt,yt,xt) + 1 spatial 3D
+# encoder (zyx).  For 4D selectivity we form three pairwise products:
+#   f_zyx * f_xt  →  z, y, x, t  (x couples spatial and temporal)
+#   f_zyx * f_yt  →  z, y, x, t  (y couples)
+#   f_zyx * f_zt  →  z, y, x, t  (z couples)
+# Each product is non-zero only when both the spatial and the specific
+# spatial-temporal plane agree, giving the MLP explicit 4D selectivity.
+#
+# CombinedCubesKPlanes uses the same HashEncoderConfig for all four encoders
+# so D_2d == D_3d and the element-wise products are legal.
+#
+# MixedCubesKPlanes uses DenseGridEncoderConfig for the 2D temporal planes so
+# D_2d may differ from D_3d.  Instead we use the triple temporal product
+# f_xt * f_yt * f_zt which lives entirely in D_2d-dimensional space.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class _CombinedEncoder(nn.Module):
+    """Three 2D hash-encoders (zt, yt, xt) + one 3D hash-encoder (zyx).
+
+    All four encoders share the same HashEncoderConfig so their output
+    dimension D is identical, enabling element-wise products downstream.
+    """
+
+    def __init__(self, encoding_config: "HashEncoderConfig"):
+        super().__init__()
+        enc2d = encoding_config.get_encoder_config_2D()
+        enc3d = encoding_config.get_encoder_config()
+        self.enc_zt  = tcnn.Encoding(2, enc2d)
+        self.enc_yt  = tcnn.Encoding(2, enc2d)
+        self.enc_xt  = tcnn.Encoding(2, enc2d)
+        self.enc_zyx = tcnn.Encoding(3, enc3d)
+        self.n_output_dims_2d = self.enc_zt.n_output_dims
+        self.n_output_dims_3d = self.enc_zyx.n_output_dims
+
+    def forward(self, zyx, t):
+        tcol = torch.full((zyx.size(0), 1), float(t), device=zyx.device, dtype=zyx.dtype)
+        zt = torch.cat([zyx[:, [0]], tcol], dim=1)
+        yt = torch.cat([zyx[:, [1]], tcol], dim=1)
+        xt = torch.cat([zyx[:, [2]], tcol], dim=1)
+        return (
+            self.enc_zt(zt).float(),
+            self.enc_yt(yt).float(),
+            self.enc_xt(xt).float(),
+            self.enc_zyx(zyx).float(),
+        )
+
+
+class CombinedCubesKPlanes(nn.Module):
+    """CombinedCubes encoder + K-Planes product decoder.
+
+    Uses the same four encoders as CombinedCubes (3x 2D hash + 1x 3D hash),
+    all sharing one HashEncoderConfig so D_2d == D_3d == D.
+
+    MLP input: cat([f_zt, f_yt, f_xt, f_zyx,
+                    f_zyx*f_xt, f_zyx*f_yt, f_zyx*f_zt])  ->  7 x D features.
+
+    Each pairwise product couples the full spatial feature with one
+    spatial-temporal plane, giving the MLP explicit 4D selectivity.
+    """
+
+    def __init__(self, encoding_config: "HashEncoderConfig", network_config: "MLPNetConfig"):
+        super().__init__()
+        self.encoder = _CombinedEncoder(encoding_config)
+        D = self.encoder.n_output_dims_2d  # == n_output_dims_3d (same config)
+        in_dim = 7 * D  # 4 raw + 3 pairwise products
+
+        w = network_config.n_neurons
+        layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
+        for _ in range(network_config.n_hidden_layers - 1):
+            layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
+        layers.append(nn.Linear(w, 1))
+        if network_config.output_activation != "None":
+            layers.append(_str_to_act(network_config.output_activation))
+        self.mlp = nn.Sequential(*layers)
+
+    def forward(self, zyx, t):
+        f_zt, f_yt, f_xt, f_zyx = self.encoder(zyx, t)
+
+        p_x = f_zyx * f_xt   # spatial x (x, t)
+        p_y = f_zyx * f_yt   # spatial x (y, t)
+        p_z = f_zyx * f_zt   # spatial x (z, t)
+
+        h = torch.cat([f_zt, f_yt, f_xt, f_zyx, p_x, p_y, p_z], dim=-1)
+        return self.mlp(h)
+
+
+class _MixedEncoder(nn.Module):
+    """Three 2D dense-grid encoders (zt, yt, xt) + one 3D hash-encoder (zyx).
+
+    Mirrors MixedCubes: collision-free dense grids for temporal planes,
+    hash grid for spatial.  D_2d and D_3d may differ.
+    """
+
+    def __init__(self, encoding_config: "HashEncoderConfig", encoding_config_2d: "DenseGridEncoderConfig"):
+        super().__init__()
+        enc2d = encoding_config_2d.get_encoder_config()
+        enc3d = encoding_config.get_encoder_config()
+        self.enc_zt  = tcnn.Encoding(2, enc2d)
+        self.enc_yt  = tcnn.Encoding(2, enc2d)
+        self.enc_xt  = tcnn.Encoding(2, enc2d)
+        self.enc_zyx = tcnn.Encoding(3, enc3d)
+        self.n_output_dims_2d = self.enc_zt.n_output_dims
+        self.n_output_dims_3d = self.enc_zyx.n_output_dims
+
+    def forward(self, zyx, t):
+        tcol = torch.full((zyx.size(0), 1), float(t), device=zyx.device, dtype=zyx.dtype)
+        zt = torch.cat([zyx[:, [0]], tcol], dim=1)
+        yt = torch.cat([zyx[:, [1]], tcol], dim=1)
+        xt = torch.cat([zyx[:, [2]], tcol], dim=1)
+        return (
+            self.enc_zt(zt).float(),
+            self.enc_yt(yt).float(),
+            self.enc_xt(xt).float(),
+            self.enc_zyx(zyx).float(),
+        )
+
+
+class MixedCubesKPlanes(nn.Module):
+    """MixedCubes encoder + K-Planes product decoder.
+
+    Uses the same encoders as MixedCubes (3x dense 2D + 1x hash 3D).
+    Because D_2d (dense) may differ from D_3d (hash), pairwise cross-type
+    products are not used.  Instead the triple temporal product captures
+    full 4D selectivity within the dense-grid feature space.
+
+    MLP input: cat([f_zt, f_yt, f_xt, f_zyx,
+                    f_xt*f_yt*f_zt])  ->  4*D_2d + D_3d features.
+
+    The triple product is non-zero only when all three temporal planes agree,
+    making it strongly selective in (z,y,x,t) space.
+    """
+
+    def __init__(
+        self,
+        encoding_config: "HashEncoderConfig",
+        encoding_config_2d: "DenseGridEncoderConfig",
+        network_config: "MLPNetConfig",
+    ):
+        super().__init__()
+        self.encoder = _MixedEncoder(encoding_config, encoding_config_2d)
+        D2 = self.encoder.n_output_dims_2d
+        D3 = self.encoder.n_output_dims_3d
+        in_dim = 4 * D2 + D3  # 3 raw temporal + triple product + spatial
+
+        w = network_config.n_neurons
+        layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
+        for _ in range(network_config.n_hidden_layers - 1):
+            layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
+        layers.append(nn.Linear(w, 1))
+        if network_config.output_activation != "None":
+            layers.append(_str_to_act(network_config.output_activation))
+        self.mlp = nn.Sequential(*layers)
+
+    def forward(self, zyx, t):
+        f_zt, f_yt, f_xt, f_zyx = self.encoder(zyx, t)
+
+        temporal_product = f_xt * f_yt * f_zt   # (x,t) x (y,t) x (z,t) -> full 4D
+
+        h = torch.cat([f_zt, f_yt, f_xt, f_zyx, temporal_product], dim=-1)
+        return self.mlp(h)

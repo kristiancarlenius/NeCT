@@ -494,6 +494,21 @@ class Config:
                 network_config=self.net,
             )
 
+        elif model == "mixedcubes_kplanes":
+            if not isinstance(self.encoder, HashEncoderConfig):
+                raise ValueError("mixedcubes_kplanes: encoder must be HashEncoderConfig (3D spatial)")
+            if not isinstance(self.encoder_2d, DenseGridEncoderConfig):
+                raise ValueError("mixedcubes_kplanes: encoder_2d must be DenseGridEncoderConfig (2D temporal)")
+            if not isinstance(self.net, MLPNetConfig):
+                raise ValueError("mixedcubes_kplanes: net must be MLPNetConfig")
+            from nect.network import MixedCubesKPlanes
+            memory_per_point = 4 * 4 * self.encoder_2d.n_levels * 3 + 8 * 4 * self.encoder.n_levels
+            model = MixedCubesKPlanes(
+                encoding_config=self.encoder,
+                encoding_config_2d=self.encoder_2d,
+                network_config=self.net,
+            )
+
         elif model == "splitquadcubes":
             from nect.network import SplitQuadCubes
 
@@ -512,7 +527,7 @@ class Config:
                 network_config=self.net,
             )
 
-        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "sexcubes_kplanes", "singlecube", "combinedcubes"]:
+        elif model in ["hash_grid", "double_hash_grid", "quadcubes", "hypercubes", "tricubes", "sexcubes", "sexcubes_kplanes", "singlecube", "combinedcubes", "combinedcubes_kplanes"]:
             if not (isinstance(self.encoder, HashEncoderConfig) and isinstance(self.net, MLPNetConfig)):
                 raise ValueError(f"Encoder and network configuration for model type {model} is not valid")
             
@@ -595,10 +610,19 @@ class Config:
             elif model == "combinedcubes":
                 from nect.network import CombinedCubes
 
-                # memory_per_point = nodes_interpolation * byte_size * self.encoder.n_levels * num_encoders
                 memory_per_point = 8 * byte_size * self.encoder.n_levels * 2
 
                 model = CombinedCubes(
+                    encoding_config=self.encoder,
+                    network_config=self.net,
+                )
+
+            elif model == "combinedcubes_kplanes":
+                from nect.network import CombinedCubesKPlanes
+
+                memory_per_point = 8 * byte_size * self.encoder.n_levels * 4
+
+                model = CombinedCubesKPlanes(
                     encoding_config=self.encoder,
                     network_config=self.net,
                 )
@@ -846,6 +870,8 @@ cfg_paths: dict = {
         "sexcubes_unet": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_unet.yaml",
         "sexcubes_densegrid_transformer": pathlib.Path(__file__).parent / "cfg/dynamic/sexcubes_densegrid_transformer.yaml",
         "mixedcubes": pathlib.Path(__file__).parent / "cfg/dynamic/mixedcubes.yaml",
+        "combinedcubes_kplanes": pathlib.Path(__file__).parent / "cfg/dynamic/combinedcubes_kplanes.yaml",
+        "mixedcubes_kplanes": pathlib.Path(__file__).parent / "cfg/dynamic/mixedcubes_kplanes.yaml",
     },
 }
 
@@ -1047,6 +1073,7 @@ def cfg_sanity_check(cfg: dict):
         "sexcubes_kplanes": {"encoder": hash_encoder, "net": mlp_net},
         "singlecube": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
         "combinedcubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []),},
+        "combinedcubes_kplanes": {"encoder": hash_encoder, "net": mlp_net},
         "hypercubes": {"encoder": hash_encoder, "net": mlp_net, "cat": (Optional[bool], []), },
         "quadcubes_transformer": {"encoder": hash_encoder},
         "quadcubes_unet": {"encoder": hash_encoder},
@@ -1058,7 +1085,8 @@ def cfg_sanity_check(cfg: dict):
             "base_resolution": (int, [(int.__ge__, 1, gt_eq)]),
             "per_level_scale": (float, [(float.__gt__, 1.0, gt)]),
         }},
-        "mixedcubes": {"encoder": hash_encoder},}
+        "mixedcubes": {"encoder": hash_encoder},
+        "mixedcubes_kplanes": {"encoder": hash_encoder},}
     
     sanity["kplanes_dynamic"] = sanity["kplanes"]
     sanity_all = {
