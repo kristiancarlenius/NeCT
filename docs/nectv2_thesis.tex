@@ -15,7 +15,7 @@
 \usepackage{float}
 \usepackage{subcaption}
 \usepackage{booktabs}
-\usepackage{hyperref}
+\usepackage[plainpages=false, hypertexnames=false]{hyperref}
 \usepackage{cleveref}
 \usepackage{natbib}
 \usepackage{listings}
@@ -53,6 +53,7 @@
 \begin{document}
 
 % ─── Title page ──────────────────────────────────────────────────────────────
+\hypersetup{pageanchor=false}
 \begin{titlepage}
     \centering
     \vspace*{2cm}
@@ -88,6 +89,7 @@
 \listoftables
 
 \cleardoublepage
+\hypersetup{pageanchor=true}
 \pagenumbering{arabic}
 
 % ═════════════════════════════════════════════════════════════════════════════

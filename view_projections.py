@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
-proj = np.load("/home/user/Documents/NeCT/output/proj_4fps_2750.npy")
+proj = np.load("/home/user/Documents/NeCT/output/proj_8fps_5500.npy")
 print("shape:", proj.shape, "| dtype:", proj.dtype, "| min:", proj.min(), "| max:", proj.max())
 
 n = len(proj)

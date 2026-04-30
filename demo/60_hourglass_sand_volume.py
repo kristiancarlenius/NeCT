@@ -60,7 +60,44 @@ THRESHOLD = 0.165 # e.g. 0.025
 # Output directory (sits next to the model/ folder)
 OUTPUT_DIR = Path(MODEL_PATH).parent
 
+# ── Glitch filtering ──────────────────────────────────────────────────────────
+# Revolution-boundary artefacts appear as sudden spikes ~15× per 800-projection
+# scan (one per full 360° revolution).  The filter detects timesteps whose
+# volume deviates more than FILTER_SIGMA × MAD from the local running median,
+# then replaces them with linear interpolation of their neighbours.
+FILTER_GLITCHES = True   # set False to see the raw spikes in the plot
+FILTER_WINDOW   = 7      # rolling median window width (timesteps)
+FILTER_SIGMA    = 2.5    # outlier threshold in units of MAD
+
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+def filter_glitches(arr: np.ndarray, window: int, sigma: float):
+    """Detect and interpolate over spike artefacts in a 1-D time series.
+
+    Uses a rolling median to estimate the local trend, then flags points whose
+    absolute deviation exceeds sigma × MAD (median absolute deviation of all
+    residuals).  Flagged points are replaced with linear interpolation of their
+    nearest clean neighbours.
+
+    Returns (clean_arr, bad_mask).
+    """
+    from scipy.ndimage import median_filter
+
+    trend = median_filter(arr, size=window, mode="nearest")
+    residuals = arr - trend
+    mad = np.median(np.abs(residuals))
+    if mad == 0:
+        return arr.copy(), np.zeros(len(arr), dtype=bool)
+
+    bad = np.abs(residuals) > sigma * mad * 1.4826   # 1.4826 → consistent with σ
+    if not bad.any():
+        return arr.copy(), bad
+
+    x = np.arange(len(arr))
+    clean = arr.copy()
+    clean[bad] = np.interp(x[bad], x[~bad], arr[~bad])
+    return clean, bad
 
 
 def query_volume(
@@ -245,24 +282,54 @@ def main():
     bot_vols_mm3 = np.array(bot_vols_mm3)
     total_mm3 = top_vols_mm3 + bot_vols_mm3
 
-    # ── Plot ──────────────────────────────────────────────────────────────────
     # Convert t in [0,1] to acquisition index for the x-axis
     t_axis = t_values * len(angles)
 
+    # ── Glitch filtering ──────────────────────────────────────────────────────
+    glitch_mask = np.zeros(len(t_values), dtype=bool)
+    top_vols_clean = top_vols_mm3.copy()
+    bot_vols_clean = bot_vols_mm3.copy()
+
+    if FILTER_GLITCHES:
+        top_vols_clean, top_bad = filter_glitches(top_vols_mm3, FILTER_WINDOW, FILTER_SIGMA)
+        bot_vols_clean, bot_bad = filter_glitches(bot_vols_mm3, FILTER_WINDOW, FILTER_SIGMA)
+        glitch_mask = top_bad | bot_bad
+        if glitch_mask.any():
+            bad_proj = t_axis[glitch_mask].astype(int).tolist()
+            print(f"Filtered {glitch_mask.sum()} glitched timestep(s) "
+                  f"at projection indices: {bad_proj}")
+        else:
+            print("No glitches detected — try lowering FILTER_SIGMA if spikes are still visible.")
+
+    total_clean = top_vols_clean + bot_vols_clean
+
+    # ── Plot ──────────────────────────────────────────────────────────────────
     fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
     ax = axes[0]
-    ax.plot(t_axis, top_vols_mm3, label="Top chamber", color="steelblue")
-    ax.plot(t_axis, bot_vols_mm3, label="Bottom chamber", color="firebrick")
-    ax.plot(t_axis, total_mm3, label="Total", color="gray", linestyle="--", alpha=0.7)
+    ax.plot(t_axis, top_vols_clean, label="Top chamber", color="steelblue")
+    ax.plot(t_axis, bot_vols_clean, label="Bottom chamber", color="firebrick")
+    ax.plot(t_axis, total_clean, label="Total", color="gray", linestyle="--", alpha=0.7)
+    if FILTER_GLITCHES and glitch_mask.any():
+        ax.scatter(t_axis[glitch_mask], top_vols_mm3[glitch_mask],
+                   color="steelblue", marker="x", s=60, zorder=5,
+                   label="Glitch (raw top)")
+        ax.scatter(t_axis[glitch_mask], bot_vols_mm3[glitch_mask],
+                   color="firebrick", marker="x", s=60, zorder=5,
+                   label="Glitch (raw bot)")
     ax.set_ylabel("Sand volume (mm³)")
-    ax.legend()
+    ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
-    ax.set_title("Hourglass sand volume over time")
+    title = "Hourglass sand volume over time"
+    if FILTER_GLITCHES and glitch_mask.any():
+        title += f"  [glitch filter: window={FILTER_WINDOW}, σ={FILTER_SIGMA}]"
+    ax.set_title(title)
 
     ax2 = axes[1]
-    ax2.plot(t_axis, top_vols_mm3 / (total_mm3 + 1e-9) * 100, color="steelblue", label="Top %")
-    ax2.plot(t_axis, bot_vols_mm3 / (total_mm3 + 1e-9) * 100, color="firebrick", label="Bottom %")
+    ax2.plot(t_axis, top_vols_clean / (total_clean + 1e-9) * 100,
+             color="steelblue", label="Top %")
+    ax2.plot(t_axis, bot_vols_clean / (total_clean + 1e-9) * 100,
+             color="firebrick", label="Bottom %")
     ax2.set_ylabel("Fraction of sand (%)")
     ax2.set_xlabel("Projection index")
     ax2.legend()
@@ -282,6 +349,9 @@ def main():
         projection_indices=t_axis,
         top_volume_mm3=top_vols_mm3,
         bottom_volume_mm3=bot_vols_mm3,
+        top_volume_mm3_clean=top_vols_clean,
+        bottom_volume_mm3_clean=bot_vols_clean,
+        glitch_mask=glitch_mask,
         threshold=threshold,
         neck_z_voxel=neck_z,
         binning=BINNING,

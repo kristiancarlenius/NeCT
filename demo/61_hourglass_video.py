@@ -43,7 +43,26 @@ FPS        = 2          # frames per second in the output video
 OUTPUT_DIR = Path(MODEL_PATH).parent
 VIDEO_NAME = "hourglass_slices"   # .mp4 written; .gif fallback
 
+# ── Glitch filtering ──────────────────────────────────────────────────────────
+# Glitched frames (revolution-boundary artefacts) are detected by comparing each
+# frame's mean volume intensity to a rolling median of its neighbours.
+# Detected frames are replaced with a linear blend of the nearest clean frames.
+FILTER_GLITCHES = True   # set False to keep raw glitched frames
+FILTER_WINDOW   = 7      # rolling median window (frames)
+FILTER_SIGMA    = 2.5    # outlier threshold in units of MAD
+
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+def detect_glitches(signal: np.ndarray, window: int, sigma: float) -> np.ndarray:
+    """Return boolean mask of glitched frames using rolling median + MAD."""
+    from scipy.ndimage import median_filter
+    trend = median_filter(signal, size=window, mode="nearest")
+    residuals = signal - trend
+    mad = np.median(np.abs(residuals))
+    if mad == 0:
+        return np.zeros(len(signal), dtype=bool)
+    return np.abs(residuals) > sigma * mad * 1.4826
 
 
 def query_volume(model, t, z_lin, y_lin, x_lin, device):
@@ -126,6 +145,7 @@ def main():
     # ── Render frames ─────────────────────────────────────────────────────────
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     frames = []
+    vol_means = []   # per-frame mean intensity used for glitch detection
 
     angles  = config.geometry.angles
     n_proj  = len(angles)
@@ -136,6 +156,7 @@ def main():
         else:
             vol = calibrate(query_volume(model, float(t), z_lin, y_lin, x_lin, device))
 
+        vol_means.append(float(vol.mean()))
         proj_idx = int(t * n_proj)
 
         fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -162,6 +183,33 @@ def main():
         frame = buf[:, :, 1:]   # ARGB → RGB
         frames.append(frame)
         plt.close(fig)
+
+    # ── Replace glitched frames ───────────────────────────────────────────────
+    if FILTER_GLITCHES:
+        vol_means_arr = np.array(vol_means)
+        glitch_mask = detect_glitches(vol_means_arr, FILTER_WINDOW, FILTER_SIGMA)
+        if glitch_mask.any():
+            glitch_indices = np.where(glitch_mask)[0].tolist()
+            print(f"Replacing {len(glitch_indices)} glitched frame(s): "
+                  f"{[int(t_values[k] * n_proj) for k in glitch_indices]} (projection indices)")
+            clean_indices = np.where(~glitch_mask)[0]
+            for k in glitch_indices:
+                # Find nearest clean frames on each side for linear blend
+                prev_clean = clean_indices[clean_indices < k]
+                next_clean = clean_indices[clean_indices > k]
+                if len(prev_clean) == 0:
+                    frames[k] = frames[next_clean[0]].copy()
+                elif len(next_clean) == 0:
+                    frames[k] = frames[prev_clean[-1]].copy()
+                else:
+                    p, n = int(prev_clean[-1]), int(next_clean[0])
+                    alpha = (k - p) / (n - p)
+                    frames[k] = (
+                        (1 - alpha) * frames[p].astype(np.float32)
+                        + alpha * frames[n].astype(np.float32)
+                    ).astype(np.uint8)
+        else:
+            print("No glitched frames detected — try lowering FILTER_SIGMA if artefacts remain.")
 
     # ── Write video ───────────────────────────────────────────────────────────
     mp4_path = OUTPUT_DIR / f"{VIDEO_NAME}.mp4"
