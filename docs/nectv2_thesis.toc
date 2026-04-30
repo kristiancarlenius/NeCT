@@ -19,36 +19,62 @@
 \contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{21}{subsection.2.5.3}%
 \contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{22}{subsection.2.5.4}%
 \contentsline {part}{I\hspace {1em}Encoder Optimisation}{24}{part.1}%
-\contentsline {chapter}{\numberline {3}Encoder Architecture}{26}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Shared Experimental Setup}{26}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Collision Rate and the Design Space}{27}{section.3.2}%
-\contentsline {section}{\numberline {3.3}QuadCubes (Baseline)}{28}{section.3.3}%
-\contentsline {section}{\numberline {3.4}SingleCube}{28}{section.3.4}%
-\contentsline {section}{\numberline {3.5}SexCubes}{30}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Alternative Decoders}{32}{subsection.3.5.1}%
-\contentsline {subsubsection}{Transformer Decoder}{32}{section*.20}%
-\contentsline {subsubsection}{U-Net Decoder}{32}{section*.21}%
-\contentsline {subsection}{\numberline {3.5.2}Dense Encoders for SexCubes}{33}{subsection.3.5.2}%
-\contentsline {section}{\numberline {3.6}CombinedCubes}{34}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Dense Temporal Encoders in CombinedCubes}{36}{section.3.7}%
-\contentsline {chapter}{\numberline {4}Encoder Sizing}{38}{chapter.4}%
-\contentsline {section}{\numberline {4.1}The Baseline Configuration and Its Cost}{38}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Effect of Total Parameter Count}{39}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Quality and Training Time}{43}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Non-Uniform Encoder Sizing}{45}{section.4.4}%
-\contentsline {chapter}{\numberline {5}Encoder Optimisation: Synthesis and Comparison}{46}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Candidate Configurations}{46}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Unified Comparison}{47}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Discussion}{47}{section.5.3}%
-\contentsline {part}{II\hspace {1em}Continuous Scanning}{49}{part.2}%
-\contentsline {chapter}{\numberline {6}Continuous Scanning}{50}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Motivation}{50}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Forward Model for Continuous Scanning}{51}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Static Dataset Experiments}{52}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Dynamic Dataset Experiments}{53}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Discussion}{56}{section.6.5}%
-\contentsline {chapter}{\numberline {7}Conclusion}{58}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Summary of Contributions}{58}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Limitations and Future Work}{58}{section.7.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{63}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{64}{appendix.B}%
+\contentsline {chapter}{\numberline {3}The Encoder Design Space}{26}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Theory}{26}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}What the Capacity Parameters Control}{26}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Collision Rate as a Function of Encoder Dimensionality}{27}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}The Spatial-Temporal Asymmetry}{28}{subsection.3.1.3}%
+\contentsline {section}{\numberline {3.2}Shared Experimental Setup}{28}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Collision Rate, Hashmap Size, and Encoder Dimensionality}{30}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{31}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}SingleCube: Collision Rate at the Extreme}{33}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Synthesis: Precision Per Parameter Is Governed by Collision Load}{35}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Training Time, Frequency Coverage, and Coordinate Coupling}{35}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{35}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{38}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Training Time at Equalised Budget}{38}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}SexCubes: When Coordinate Coupling Is Sacrificed}{40}{subsection.3.4.4}%
+\contentsline {subsubsection}{MLP Decoder Depth}{41}{section*.24}%
+\contentsline {subsubsection}{Transformer Decoder}{42}{section*.26}%
+\contentsline {subsubsection}{U-Net Decoder}{42}{section*.27}%
+\contentsline {subsubsection}{Dense Encoders for SexCubes}{43}{section*.28}%
+\contentsline {subsection}{\numberline {3.4.5}Synthesis: Precision Per Training Hour Requires Adequate Coverage and Coupling}{43}{subsection.3.4.5}%
+\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{44}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Hashmap Sizing in QuadCubes}{44}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}CombinedCubes: The Architectural Consequence of the Asymmetry}{45}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Dense Temporal Encoders in CombinedCubes}{47}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Synthesis: The Right Architecture Reflects the Structure of the Problem}{49}{subsection.3.5.4}%
+\contentsline {chapter}{\numberline {4}Encoder Optimisation: Synthesis and Comparison}{50}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Candidate Configurations}{50}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Unified Comparison}{51}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Discussion}{51}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{51}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{52}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{52}{subsection.4.3.3}%
+\contentsline {part}{II\hspace {1em}Continuous Scanning}{54}{part.2}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{55}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Theory}{55}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{55}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{56}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{57}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Method}{58}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{58}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Implementation in \textsc {NeCTv2}{}}{59}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Gradient Checkpointing}{59}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Hyperparameters and Training Protocol}{60}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{60}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Dataset}{60}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{61}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Results}{61}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{62}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Dataset}{62}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Results}{65}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{66}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{66}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Benefits and Costs for Dynamic Imaging}{66}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Limitations and Extensions}{67}{subsection.5.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{68}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{68}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{68}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{73}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{74}{appendix.B}%

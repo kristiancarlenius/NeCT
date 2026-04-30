@@ -1,32 +1,43 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
 
 proj = np.load("/home/user/Documents/NeCT/output/proj_4fps_2750.npy")
 print("shape:", proj.shape, "| dtype:", proj.dtype, "| min:", proj.min(), "| max:", proj.max())
 
-# single projection at angle 0
-plt.figure()
-plt.imshow(proj[0], cmap="gray")
-plt.title("Projection angle 0")
-plt.colorbar()
-plt.show()
+n = len(proj)
+vmin, vmax = proj.min(), proj.max()
 
-# grid of 8 evenly spaced angles
-fig, axes = plt.subplots(2, 4, figsize=(14, 6))
-step = len(proj) // 8
-for i, ax in enumerate(axes.flat):
-    ax.imshow(proj[i * step], cmap="gray")
-    ax.set_title(f"angle {i * step}")
-    ax.axis("off")
-plt.tight_layout()
-plt.show()
+fig, ax = plt.subplots(figsize=(8, 7))
+plt.subplots_adjust(bottom=0.15)
 
-# sinogram: all angles through the middle detector row
-mid = proj.shape[1] // 2
-plt.figure()
-plt.imshow(proj[:, mid, :], cmap="gray", aspect="auto")
-plt.title(f"Sinogram (row {mid})")
-plt.xlabel("detector column")
-plt.ylabel("angle index")
-plt.colorbar()
+im = ax.imshow(proj[0], cmap="gray", vmin=vmin, vmax=vmax)
+title = ax.set_title(f"Projection 0 / {n - 1}")
+ax.axis("off")
+plt.colorbar(im, ax=ax)
+
+ax_slider = plt.axes([0.15, 0.05, 0.7, 0.04])
+slider = Slider(ax_slider, "Index", 0, n - 1, valinit=0, valstep=1)
+
+def update(val):
+    i = int(slider.val)
+    im.set_data(proj[i])
+    title.set_text(f"Projection {i} / {n - 1}")
+    fig.canvas.draw_idle()
+
+slider.on_changed(update)
+
+def on_key(event):
+    i = int(slider.val)
+    if event.key == "right":
+        slider.set_val(min(i + 1, n - 1))
+    elif event.key == "left":
+        slider.set_val(max(i - 1, 0))
+    elif event.key == "shift+right":
+        slider.set_val(min(i + 10, n - 1))
+    elif event.key == "shift+left":
+        slider.set_val(max(i - 10, 0))
+
+fig.canvas.mpl_connect("key_press_event", on_key)
+
 plt.show()

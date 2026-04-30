@@ -132,7 +132,7 @@ The third objective is to extend the NeCT forward model to continuous rotation s
 
 Chapter~\ref{chap:background} develops the theoretical background. It opens with X-ray CT from first principles, covering Beer--Lambert's law, cone-beam geometry, classical reconstruction algorithms, and the challenges of 4D-CT and sparse-view acquisition. The second half covers the machine learning tools used to address these problems: the multilayer perceptron, convolutional and attention-based image-to-image architectures, implicit neural representations, Neural Radiance Fields, and the multiresolution hash encoding. The chapter concludes with a detailed description of NeCT, including the static 3D model, the dynamic QuadCubes model, the training pipeline, and the hybrid golden-section sampling scheme.
 
-Part~\ref{part:encoder_optimisation} addresses the first and second research objectives through a three-chapter investigation of the NeCT encoder. A shared experimental setup, covering datasets, evaluation metrics, and computational cost measures, is established at the outset and used consistently throughout all encoder experiments. Chapter~\ref{chap:encoder_arch} explores the structural design space of the 4D encoder, comparing architectures that range from a single 4D encoder to six 2D encoders, along with alternative decoder designs. The findings motivate Chapter~\ref{chap:encoder_size}, which then performs a systematic capacity sweep within the standard QuadCubes architecture to characterise its quality-versus-cost frontier. Chapter~\ref{chap:encoder_comparison} brings both lines of inquiry together in a unified comparison, pitting the best-performing QuadCubes configuration identified by the sweep against the best-performing alternative architecture and the original NeCT baseline.
+Part~\ref{part:encoder_optimisation} addresses the first and second research objectives through an investigation of the NeCT encoder that treats architectural structure and capacity as interrelated rather than independent questions. Chapter~\ref{chap:encoder_design} is the core of this investigation: it establishes a theoretical framework based on three governing phenomena --- collision rate, frequency coverage, and spatial-temporal asymmetry --- and then quantifies each through a systematic parameter sweep within QuadCubes before demonstrating its extreme form through a corresponding alternative architecture. The SingleCube, SexCubes, and CombinedCubes architectures emerge naturally from this structure. Chapter~\ref{chap:encoder_comparison} brings all findings together in a unified comparison of the best configurations against the original NeCT baseline.
 
 Chapter~\ref{chap:continuous} addresses the third research objective. It explains the physical difference between step-and-shoot and continuous rotation scanning, derives the $K$-step averaged forward model, and presents experimental results on both a static validation dataset and a dynamic dataset.
 
@@ -290,7 +290,7 @@ Transformers \citep{vaswani2017attention} are built on self-attention, which all
 %
 where the softmax is applied row-wise. Multi-head attention runs $h$ independent attention operations in parallel on $d/h$-dimensional subspaces and concatenates their outputs, allowing different heads to capture different types of relationships. Each transformer layer pairs a multi-head attention sub-layer with a position-wise feed-forward network, wrapped in residual connections and layer normalisation to stabilise gradient flow through deep stacks.
 
-Because self-attention is permutation-invariant, positional information must be injected explicitly, either through fixed sinusoidal encodings or through learned embeddings \citep{vaswani2017attention}. Applied to images, a vision transformer \citep{dosovitskiy2020vit} divides the input into fixed-size patches treated as tokens, with position embeddings encoding the spatial layout. Self-attention then captures long-range dependencies directly, unlike convolutions which build up context gradually through stacking. However, the $n \times n$ attention matrix makes both memory and computation quadratic in the sequence length $n$, which limits applicability to high-resolution volumetric data and motivates the use of small token counts when transformers serve as decoders for hash-encoded features, as in Chapter~\ref{chap:encoder_arch}.
+Because self-attention is permutation-invariant, positional information must be injected explicitly, either through fixed sinusoidal encodings or through learned embeddings \citep{vaswani2017attention}. Applied to images, a vision transformer \citep{dosovitskiy2020vit} divides the input into fixed-size patches treated as tokens, with position embeddings encoding the spatial layout. Self-attention then captures long-range dependencies directly, unlike convolutions which build up context gradually through stacking. However, the $n \times n$ attention matrix makes both memory and computation quadratic in the sequence length $n$, which limits applicability to high-resolution volumetric data and motivates the use of small token counts when transformers serve as decoders for hash-encoded features, as in Chapter~\ref{chap:encoder_design}.
 
 \subsubsection*{Limitations for CT Reconstruction}
 
@@ -545,7 +545,7 @@ This set covers all four possible 3-element subsets of $\{x, y, z, t\}$, so ever
 %
 where $\gamma_{(\cdot)}$ denotes the trilinear-interpolated hash encoding in the indicated coordinate triplet and $\theta_i$ are the trainable feature vectors of encoder $i$. The MLP has the same architecture as the static model, with 4 hidden layers of 128 neurons and Leaky ReLU activations.
 
-Each encoder operates in a well-conditioned 3D hash space where the collision rate remains manageable at micro-CT resolutions. The overlap between encoders, where the spatial encoder \texttt{xyz} shares each of its three dimensions with one of the temporal encoders, provides redundant representations of spatial structure that assist collision disambiguation and give the MLP multiple views of the same location at different times. The rationale behind this particular factorisation, and how it compares to alternative designs, is the subject of Chapter~\ref{chap:encoder_arch}.
+Each encoder operates in a well-conditioned 3D hash space where the collision rate remains manageable at micro-CT resolutions. The overlap between encoders, where the spatial encoder \texttt{xyz} shares each of its three dimensions with one of the temporal encoders, provides redundant representations of spatial structure that assist collision disambiguation and give the MLP multiple views of the same location at different times. The rationale behind this particular factorisation, and how it compares to alternative designs, is the subject of Chapter~\ref{chap:encoder_design}.
 
 A defining property of the QuadCubes model is that it is trained on all projections from the full dynamic experiment simultaneously. The network learns to distinguish between time-invariant structural features, which are supported by projections from all angles and all times, and dynamic features such as advancing fluid fronts, which are supported only by projections in their temporal vicinity. Static structures therefore converge to a sharp representation, while dynamic features converge with precision proportional to the rate at which they evolve relative to the projection acquisition rate. The temporal resolution is consequently scene-dependent, and for large, rapidly changing features a temporal resolution approaching the time between two successive projections is achievable \citep{friis2025nect}.
 
@@ -565,23 +565,65 @@ In the Bentheimer sandstone experiment, 1\,400 projections were distributed acro
 \label{part:encoder_optimisation}
 % ═════════════════════════════════════════════════════════════════════════════
 
-The NeCT QuadCubes architecture encodes a four-dimensional attenuation field using a set of multiresolution hash grids. In the original paper, the encoder was fixed at the largest practically feasible configuration, with neither its structural design nor its capacity subject to scrutiny. This part of the thesis opens both of those questions simultaneously, guided by a single underlying goal: to find the smallest, fastest encoder that still produces reconstructions of acceptable quality.
+The NeCT QuadCubes architecture encodes a four-dimensional attenuation field using a set of multiresolution hash grids. In the original paper, the encoder was fixed at the largest practically feasible configuration, with neither its structural design nor its capacity subject to scrutiny. This part opens both questions simultaneously and pursues them as a single investigation, because they turn out to measure the same underlying phenomena from two different angles.
 
-The investigation proceeds in three stages. Chapter~\ref{chap:encoder_arch} addresses structure first, asking whether the QuadCubes factorisation of the 4D space is actually the right choice, or whether a different arrangement of encoders achieves better quality at lower cost. Chapter~\ref{chap:encoder_size} then takes the QuadCubes architecture as given and performs a systematic sweep of its capacity parameters, characterising how quality and training time trade off as the encoder shrinks. Chapter~\ref{chap:encoder_comparison} brings both lines of inquiry together in a direct comparison, pitting the best configuration found in each chapter against the original NeCT baseline on a common footing.
+Three phenomena govern the performance of any hash-encoded INR for 4D CT. First, hash collision rate, controlled primarily by the hashmap size parameter and escalating sharply with encoder dimensionality, determines how precisely the encoder can represent fine spatial detail. It therefore sets the ceiling on reconstruction quality per model parameter, and constitutes the dominant driver of model size. Second, the range of spatial frequencies the encoder covers simultaneously, controlled by the number of resolution levels, determines how quickly and completely the model can converge within a fixed wall-clock training budget. Crucially, levels have a much smaller effect on memory than on time: each additional level adds a forward-pass cost but only a small amount of additional storage at coarse resolutions. Third, an asymmetry between the spatial and temporal components of the 4D field means that the optimal encoder treats these two dimensions differently, with consequences both for how capacity should be allocated within a fixed architecture and for what the right architecture is in the first place.
 
-All experiments in this part share the same dataset, evaluation metrics, and computational cost measures, defined in \cref{sec:enc_shared_setup} at the start of Chapter~\ref{chap:encoder_arch}. This consistency makes the results directly comparable across both chapters, and it is what allows Chapter~\ref{chap:encoder_comparison} to combine them into a single unified picture.
+Chapter~\ref{chap:encoder_design} develops these three phenomena jointly. For each phenomenon the chapter first quantifies it through a systematic parameter sweep within the standard QuadCubes architecture, then illustrates its extreme form through an alternative architecture that either violates it catastrophically or resolves it elegantly. Hashmap size and collision rate are paired with SingleCube, which shows what happens when collision load becomes catastrophic. Number of levels and coordinate coupling are paired with the SexCubes family, which shows what happens when coupling is sacrificed in the hope that a deeper decoder can compensate. The spatial-temporal asymmetry, revealed by non-uniform sizing experiments, is paired with CombinedCubes, which follows that asymmetry to its logical structural conclusion. Chapter~\ref{chap:encoder_comparison} then places all findings into a unified comparison against the original NeCT baseline.
 
 % ═════════════════════════════════════════════════════════════════════════════
-\chapter{Encoder Architecture}
-\label{chap:encoder_arch}
+\chapter{The Encoder Design Space}
+\label{chap:encoder_design}
 % ═════════════════════════════════════════════════════════════════════════════
 
-The NeCT QuadCubes architecture uses four 3D multiresolution hash encoders to represent a 4D attenuation field. This is one point in a much larger structural design space, bounded at one extreme by a single 4D encoder that captures all coordinate interactions directly and at the other by six 2D encoders that each cover only a coordinate pair. The question of where in this space to operate is not addressed in the original NeCT paper. This chapter explores it systematically, characterising how reconstruction quality and computational cost change as the structural design of the encoder varies, using the collision rate of the hash table as the primary lens for understanding why different designs succeed or fail.
+This chapter investigates two interrelated questions about the NeCT encoder that the original paper left unaddressed: whether the QuadCubes structural decomposition of the 4D space is the right choice, and whether the capacity assigned to each encoder is appropriate. These questions are pursued together rather than in sequence, because the capacity parameters and the architectural choices are controlled by the same underlying physical effects. The chapter is organised around those effects: collision rate and hashmap size in \cref{sec:collision_and_dim}, frequency coverage and coordinate coupling in \cref{sec:levels_and_coupling}, and spatial-temporal asymmetry in \cref{sec:spatial_temporal_asym}. Each section begins with the quantitative characterisation of the effect within QuadCubes, then presents the architecture that makes that effect most visible.
 
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Theory}
+\label{sec:enc_theory}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{What the Capacity Parameters Control}
+\label{subsec:enc_params_theory}
+
+The multiresolution hash encoder has three capacity parameters: the log$_2$ hashmap size ($\log_2 T$), the number of levels ($L$), and the number of features per level ($F$). These parameters are independent in the sense that each can be varied while holding the others fixed, but they affect different quantities in ways that make their roles qualitatively distinct.
+
+The \textbf{hashmap size} $T = 2^{\log_2 T}$ is the number of feature vectors stored per level in the hash table. Because each of the $L$ levels stores at most $T$ vectors of dimension $F$, the total parameter count of the encoder is bounded by $T \cdot L \cdot F$, with $T$ entering linearly. At practical grid resolutions the finest levels have far more grid vertices than $T$ entries, so multiple vertices are mapped to the same stored vector — a collision. The collision rate at the finest level is approximately $N_\mathrm{max}^d / T$, where $d$ is the encoder input dimension. A higher $T$ reduces this ratio, which reduces the number of distinct spatial locations sharing each feature vector and therefore increases the representational precision available at fine scales. Hashmap size is thus the primary driver of both model size and reconstruction quality: it controls the ceiling of spatial precision the encoder can achieve, and doubling $T$ roughly doubles both memory and quality headroom.
+
+The \textbf{number of levels} $L$ determines how many spatial resolutions the encoder simultaneously represents, ranging from a coarse grid at level 0 to the finest grid at level $L-1$. Each additional level extends the encoder's coverage to a new frequency band and adds a constant forward-pass overhead: the encoder must look up and interpolate feature vectors in one more hash table per sample point per training step. The memory contribution of additional levels, however, is small at the coarse end (those levels are dense and have few vertices) and modest at the fine end (they are already using the full hash table). The dominant effect of $L$ is therefore on training time per epoch: more levels means more table lookups and more MLP input dimensions, which directly increases the per-step computation without a commensurate increase in memory. Reducing $L$ saves training time at the cost of reducing the frequency range the encoder can cover.
+
+The \textbf{features per level} $F$ sets the dimensionality of each stored and interpolated feature vector. It scales the encoder's expressivity at every spatial location and frequency simultaneously. Unlike $T$ which affects precision by reducing collision load, and unlike $L$ which extends frequency coverage, $F$ controls how much information the encoder can pack into a single spatial location at a given resolution. It also scales the input dimension of the MLP: for QuadCubes the MLP receives a concatenated vector of $4 \cdot L \cdot F$ features. $F$ therefore affects both encoder memory (linearly) and MLP cost, making it a less independently tunable parameter than $T$ or $L$.
+
+\subsection{Collision Rate as a Function of Encoder Dimensionality}
+\label{subsec:collision_dim_theory}
+
+The collision rate depends not only on the hashmap size but critically on the input dimension of the encoder. The collision-free hashmap size for an encoder of dimension $d$ requires $T \geq N_\mathrm{max}^d$ at the finest resolution level. For a representative finest resolution of $N_\mathrm{max} = 2^{10} = 1024$ voxels per side:
+%
+\begin{align}
+    d = 2: \quad &\log_2 T_\mathrm{free} = 20, \quad T_\mathrm{free} \approx 10^6, \notag \\
+    d = 3: \quad &\log_2 T_\mathrm{free} = 30, \quad T_\mathrm{free} \approx 10^9, \notag \\
+    d = 4: \quad &\log_2 T_\mathrm{free} = 40, \quad T_\mathrm{free} \approx 10^{12}. \notag
+\end{align}
+%
+At float16 precision with $L = 16$ levels and $F = 4$ features per level, the memory for a single collision-free encoder grows from approximately 128\,MB at $d = 2$, to roughly 64\,GB at $d = 3$, and to approximately 64\,TB at $d = 4$. The $d = 4$ case is entirely infeasible, and the $d = 3$ collision-free encoder would exceed any single GPU. In practice all encoders operate in the collision regime; the architecture question is how to factor the 4D space across multiple lower-dimensional encoders so that each operates with a manageable collision load.
+
+With $\log_2 T = 23$, a 3D encoder at the finest level has a collision rate of $N_\mathrm{max}^3 / T = 2^{30} / 2^{23} = 2^7 = 128$ vertices per entry — moderate and disambiguable through the multi-level structure. The same table size applied to a 4D encoder gives $N_\mathrm{max}^4 / T = 2^{40} / 2^{23} = 2^{17} \approx 131\,000$ vertices per entry — catastrophic and not recoverable. A 2D encoder at $\log_2 T = 20$ has $N_\mathrm{max}^2 / T = 2^{20} / 2^{20} = 1$ — collision-free. The design space therefore spans a collision load range of more than five orders of magnitude across the three encoder dimensionalities.
+
+\subsection{The Spatial-Temporal Asymmetry}
+\label{subsec:spatial_temporal_theory}
+
+The four coordinates $(x, y, z, t)$ do not play symmetric roles in the 4D-CT reconstruction problem. The spatial coordinates describe a rock matrix that is static throughout the experiment; the pore structure does not change. The temporal coordinate describes an evolving fluid front that moves slowly relative to the spatial detail. This asymmetry has two implications for encoder design.
+
+First, the spatial encoder receives gradient updates from projections at all angles and all times, because every projection passes through the static structure. The temporal encoders, by contrast, receive gradient updates only from projections at the corresponding time point: a temporal encoder entry for time $t_0$ is updated only by rays whose timestamps fall near $t_0$. The spatial encoder therefore converges faster and benefits more from high capacity than any individual temporal encoder.
+
+Second, the temporal signal is lower-frequency than the spatial signal: fluid fronts span many pores and evolve smoothly over time, whereas material boundaries are sharp in space. A temporal encoder therefore needs less fine-scale resolution than the spatial encoder to represent its signal without loss. This suggests that allocating capacity uniformly across all four encoders, as the original NeCT baseline does, wastes capacity on the temporal side while potentially under-serving the spatial side.
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section{Shared Experimental Setup}
 \label{sec:enc_shared_setup}
+% ─────────────────────────────────────────────────────────────────────────────
 
-The experimental setup described here applies to all encoder experiments in Part~\ref{part:encoder_optimisation}, including both this chapter and Chapter~\ref{chap:encoder_size}.
+The experimental setup described here applies to all encoder experiments in Part~\ref{part:encoder_optimisation}.
 
 \subsection*{Dataset}
 
@@ -596,254 +638,23 @@ Reconstruction quality is evaluated using three complementary metrics. PSNR meas
     \label{eq:psnr_enc}
 \end{equation}
 %
-where $R$ is the dynamic range of the attenuation values and $\mu^*$ is the ground truth field. SSIM \citep{wang2004ssim} captures perceptual similarity by comparing local statistics of luminance, contrast, and structure, ranging from 0 to 1. Mean absolute error (MAE) is reported alongside these:
+where $R$ is the dynamic range of the attenuation values and $\mu^*$ is the ground truth field. SSIM \citep{wang2004ssim} captures perceptual similarity by comparing local statistics of luminance, contrast, and structure, ranging from 0 to 1. Mean absolute error (MAE) measures average absolute deviation in the same physical units as the attenuation coefficient:
 %
 \begin{equation}
     \mathrm{MAE} = \frac{1}{|\Omega|}\sum_{\mathbf{r} \in \Omega} \left|\muhat(\mathbf{r}) - \mu^*(\mathbf{r})\right|,
     \label{eq:mae_enc}
 \end{equation}
 %
-where $\Omega$ is the set of voxels in the reconstruction volume. MAE is expressed in the same physical units as the attenuation coefficient and is therefore directly interpretable in terms of material contrast. All three metrics are computed on six 2D slices at three points in time: the first, middle, and last timesteps of the scan.
-
-The three metrics capture different aspects of reconstruction fidelity and do not always agree in their ranking of configurations. PSNR and MSE are sensitive to large absolute errors at high-contrast boundaries. SSIM reflects the perceptual sharpness of material boundaries. MAE is less influenced by rare large errors and more reflective of average accuracy across the volume.
+where $\Omega$ is the set of voxels in the reconstruction volume. All three metrics are computed on six 2D slices at three points in time: the first, middle, and last timesteps of the scan. PSNR and MSE are sensitive to large errors at high-contrast boundaries; SSIM reflects perceptual sharpness of material boundaries; MAE is less influenced by rare large errors and more reflective of average accuracy across the volume.
 
 \subsection*{Computational Cost}
 
-Computational cost is characterised by two quantities: peak GPU memory consumption, measured as the maximum memory allocated during training, and total wall-clock training time from initialisation. All experiments are run on a single A100 GPU with 80\,GB VRAM. \todo{Might be better to measure convergence time, but full convergence takes over 60 hours for standard QuadCubes, which is much longer than what is practically used and also requires even compute to test.}
+Computational cost is measured by two quantities: peak GPU memory consumption and total wall-clock training time from initialisation. The primary cost comparison is at an equalised training budget of 14 hours, which corresponds to approximately 150 epochs for the baseline configuration and significantly more for smaller configurations that complete each epoch faster. This equalised-time evaluation isolates the practical question of which configuration produces the best reconstruction within a fixed time budget, independently of how many epochs that represents. All experiments are run on a single A100 GPU with 80\,GB VRAM. \todo{Might be better to also measure at full convergence, but full convergence takes over 60 hours for standard QuadCubes.}
 
-\section{Collision Rate and the Design Space}
-\label{sec:arch_motivation}
+\subsection*{The NeCT Baseline Configuration and Its Cost}
+\label{subsec:enc_baseline}
 
-The collision-free hashmap size for a hash encoder of input dimension $d$ can be estimated by requiring the hash table capacity $T = 2^{\log_2 T}$ to be at least as large as the number of grid vertices at the finest resolution level. For a finest resolution $N_\mathrm{max}$ in each coordinate direction, the number of vertices is $N_\mathrm{max}^d$. Setting $T \geq N_\mathrm{max}^d$ gives the minimum collision-free log$_2$ hashmap size as $d \cdot \log_2 N_\mathrm{max}$.
-
-For a representative finest resolution of $N_\mathrm{max} = 2^{10} = 1024$ voxels per side, this gives:
-%
-\begin{align}
-    d = 2: \quad &\log_2 T_\mathrm{free} = 2 \times 10 = 20, \quad T_\mathrm{free} \approx 10^6, \notag \\
-    d = 3: \quad &\log_2 T_\mathrm{free} = 3 \times 10 = 30, \quad T_\mathrm{free} \approx 10^9, \notag \\
-    d = 4: \quad &\log_2 T_\mathrm{free} = 4 \times 10 = 40, \quad T_\mathrm{free} \approx 10^{12}. \notag
-\end{align}
-%
-At float16 precision with $L = 16$ levels and $F = 4$ features per level, the memory required for a single collision-free encoder grows from approximately 128\,MB for $d = 2$, to roughly 64\,GB for $d = 3$, and to approximately 64\,TB for $d = 4$. The $d = 4$ case is entirely infeasible with any current hardware, and even the $d = 3$ collision-free encoder would consume more memory than is available on any single GPU. In practice, all 3D and 4D configurations operate in the collision regime and rely on the MLP and the multi-level structure to disambiguate collisions. The question is how severely collisions degrade reconstruction quality as the input dimension increases, and whether low-dimensional split encoders provide a practical alternative.
-
-\section{QuadCubes (Baseline)}
-\label{sec:arch_quad}
-
-The QuadCubes architecture was described in full in \cref{subsec:nect_quadcubes}. It uses four 3D multiresolution hash encoders covering all four possible 3-element subsets of $\{x, y, z, t\}$. Every pair of coordinates appears together in at least two encoders, and the spatial encoder \texttt{xyz} overlaps with each of the three temporal encoders in two dimensions. With the baseline configuration ($L = 23$, $\log_2 T = 23$, $F = 4$), the four encoders occupy approximately 5.2\,GB of GPU memory at float16. QuadCubes with this configuration serves as the primary baseline throughout Part~\ref{part:encoder_optimisation}.
-
-\section{SingleCube}
-\label{sec:arch_single}
-
-The most straightforward extension of the static 3D model to 4D is a single 4D multiresolution hash encoder taking $(x, y, z, t)$ as input and mapping directly to a feature vector for the MLP. This is conceptually the natural scaling of NAF from three to four dimensions.
-
-As established in \cref{sec:arch_motivation}, a collision-free 4D encoder at a finest resolution of 1024 would require a hashmap of $2^{40} \approx 10^{12}$ entries. Any practical 4D encoder must therefore operate with a hashmap many orders of magnitude smaller, resulting in a severe collision load. With $\log_2 T = 23$, the expected collision rate at the finest level is $N_\mathrm{max}^4 / T = 2^{40} / 2^{23} = 2^{17} \approx 131\,000$ vertices per hash table entry. Each stored feature vector must represent an average over more than 100\,000 distinct spatial locations, and the disambiguation mechanism has only the levels of the same encoder to draw on, all of which share the same severe collision regime.
-
-\begin{figure}[H]
-    \begin{adjustwidth}{-2cm}{-2cm}
-    \centering
-    \begin{subfigure}[b]{0.6\textwidth}
-        \includegraphics[width=\textwidth]{compairson.png}
-        \caption{QuadCubes (reference)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.6\textwidth}
-        \includegraphics[width=\textwidth]{singlecube.png}
-        \caption{SingleCube}
-    \end{subfigure}
-    \end{adjustwidth}
-    \caption{Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from extreme hash collisions in the 4D encoder.}
-    \label{fig:singlecube_reconstruction}
-\end{figure}
-
-Figure~\ref{fig:singlecube_reconstruction} shows the severity of the collision problem in practice. The SingleCube output exhibits pervasive noise from the extreme hash collision load in the 4D encoder. Even large clusters of high-attenuation material such as mineral concentrations are only vaguely placed in approximately the correct location, with no discernible internal structure. The model is unable to learn sharp features or their precise spatial placement, demonstrating that the degree of collision in a 4D hash table at practical sizes prevents the reconstruction from converging to a meaningful solution. In contrast, the QuadCubes decomposition into four 3D subproblems produces a clean reconstruction with well-resolved material boundaries.
-
-The SingleCube experiment demonstrates that the hash collision rate is a tangible concern and that reducing it leads to better results. The disambiguation mechanism that allows the QuadCubes encoders to handle moderate collision loads depends on cross-encoder context that is unavailable in a single-encoder design.
-
-\vspace{6em}
-
-\section{SexCubes}
-\label{sec:arch_sex}
-
-Moving to the other end of the design space, the SexCubes architecture uses six 2D hash encoders covering all six possible 2-element subsets of $\{x, y, z, t\}$, following the approach taken in K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
-
-The central advantage of 2D encoders is a substantially lower collision rate. A 2D encoder with $\log_2 T = 20$ is collision-free at all resolutions up to $1024 \times 1024$. Six such encoders total approximately 768\,MB, roughly one eighth the memory of the baseline QuadCubes configuration.
-
-The limitation is that each encoder captures interactions between exactly two coordinates and is entirely blind to higher-order interactions. Reconstructing a voxel at $(x, y, z, t)$ from six plane projections is analogous to recovering a 4D function from its six 2D marginals, which is underdetermined without additional coupling. The MLP must therefore perform a substantially harder integration task than in the 3D encoder architectures.
-
-\begin{figure}[H]
-    \begin{adjustwidth}{-2cm}{-2cm}
-    \centering
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{compairson.png}
-        \caption{QuadCubes (ref.)}
-    \end{subfigure}
-    \hspace{0.1cm}
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{sexcubes_128_4.png}
-        \caption{SexCubes 128$\times$4}
-    \end{subfigure}
-    \hspace{0.1cm}
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{sexcubes_128_7.png}
-        \caption{SexCubes 128$\times$7}
-    \end{subfigure}
-    \hspace{0.1cm}
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{sexcubes_128_16.png}
-        \caption{SexCubes 128$\times$16}
-    \end{subfigure}
-    \end{adjustwidth}
-    \caption{Reconstruction comparison between QuadCubes and three SexCubes configurations with 128 neurons per hidden layer and varying decoder depth (4, 7, and 16 hidden layers). Increasing depth improves quality but the architecture remains limited by the lack of higher-order coordinate coupling in the encoder.}
-    \label{fig:sexcubes_reconstruction}
-\end{figure}
-
-Figure~\ref{fig:sexcubes_reconstruction} illustrates how dependent the SexCubes architecture is on decoder capacity. With only 4 hidden layers the reconstruction is essentially unrecognisable as a rock sample, while at 7 hidden layers clear structural patterns emerge. The improvement from 7 to 16 hidden layers is more modest, showing diminishing returns from deeper decoders. Even at 16 layers the reconstruction exhibits persistent streak artefacts and falls short of the QuadCubes reference in overall fidelity. The progressive improvement with depth confirms that the MLP bears a heavy integration burden when the encoders provide only pairwise coordinate information, and that this burden seemingly cannot be fully overcome by making the decoder larger alone.
-
-\subsection{Alternative Decoders}
-\label{sec:arch_decoders}
-
-The strong dependence of SexCubes on decoder depth raises the question of whether a qualitatively different decoder architecture can compensate for the lack of higher-order coupling in 2D encoders more effectively than simply adding MLP layers.
-
-\subsubsection{Transformer Decoder}
-\label{subsec:arch_transformer}
-
-The transformer decoder replaces the standard MLP with a self-attention-based architecture that can explicitly model interactions between the six encoder streams. The six encoder feature vectors are each linearly projected to a common token dimension $d_\text{model}$ via a shared projection layer, producing a sequence of six tokens $\mathbf{T} \in \mathbb{R}^{6 \times d_\text{model}}$. Learnable positional embeddings are added to distinguish the six encoder sources.
-
-The token sequence is processed by $n_\text{layers}$ identical self-attention blocks, each implementing pre-layer-normalisation multi-head self-attention followed by a position-wise feed-forward network with hidden width $6 \cdot d_\text{model}$ and GELU activation. Attention scores are computed via explicit matrix multiplication over $6 \times 6$ matrices rather than through \texttt{nn.MultiheadAttention}, since the standard PyTorch implementation dispatches to flash-attention CUDA kernels that exceed the hardware grid-size limit when the product of batch size and number of heads is large. After the final block, the six output tokens are mean-pooled to a single vector of dimension $d_\text{model}$, which is passed through a two-layer output head (linear, ReLU, linear) to produce the scalar attenuation prediction.
-
-The motivation for using self-attention is that it allows each encoder's representation to be modulated by all five others before the final prediction. In principle, the attention mechanism can learn to combine the six 2D marginals in a way that recovers the missing higher-order interactions, rather than relying on the MLP to do so implicitly through depth alone.
-
-\todo{Add results and the computational overhead.}
-
-\subsubsection{U-Net Decoder}
-\label{subsec:arch_unet}
-
-The U-Net decoder exploits the multi-resolution structure already present in the hash-grid encoder. Each hash grid produces $L$ levels of features that naturally correspond to different spatial scales, and the U-Net processes these at matched resolutions rather than collapsing them into a single flat vector.
-
-The $L$ levels of each encoder are partitioned into three scale groups controlled by two parameters $l_\text{coarse}$ and $l_\text{medium}$. The first $l_\text{coarse}$ levels form the coarse group, the next $l_\text{medium}$ levels form the medium group, and the remaining $L - l_\text{coarse} - l_\text{medium}$ levels form the fine group. For each of the six SexCubes encoders the output is sliced accordingly, and the slices from all six encoders are concatenated at each scale, giving three vectors $\mathbf{c} \in \mathbb{R}^{6 \, l_\text{coarse} \, F}$, $\mathbf{m} \in \mathbb{R}^{6 \, l_\text{medium} \, F}$, and $\mathbf{f} \in \mathbb{R}^{6 \, l_\text{fine} \, F}$.
-
-These are processed by a contracting path and a symmetric expanding path with skip connections, mirroring the U-Net architecture \citep{ronneberger2015unet} adapted for 1D feature vectors:
-%
-\begin{align}
-    \mathbf{e}_1 &= \mathrm{ReLU}(\mathbf{W}_{\downarrow 1}\,\mathbf{c}), \\
-    \mathbf{e}_2 &= \mathrm{ReLU}(\mathbf{W}_{\downarrow 2}\,[\mathbf{m}\,;\,\mathbf{e}_1]), \\
-    \mathbf{e}_3 &= \mathrm{ReLU}(\mathbf{W}_\text{bot}\,[\mathbf{f}\,;\,\mathbf{e}_2]), \\
-    \mathbf{d}_2 &= \mathrm{ReLU}(\mathbf{W}_{\uparrow 2}\,[\mathbf{e}_3\,;\,\mathbf{e}_2]), \\
-    \mathbf{d}_1 &= \mathrm{ReLU}(\mathbf{W}_{\uparrow 1}\,[\mathbf{d}_2\,;\,\mathbf{e}_1]),
-\end{align}
-%
-where $[\,;\,]$ denotes vector concatenation and the widths of $\mathbf{e}_1$, $\mathbf{e}_2$, $\mathbf{e}_3$ are controlled by three hidden dimension parameters $[d_1, d_2, d_3]$. A final linear layer maps $\mathbf{d}_1$ to the scalar attenuation output. The skip connections allow coarse-scale features to bypass the bottleneck and contribute directly to the output, which may help preserve large-scale spatial structure that would otherwise be lost when the fine-scale features dominate the decoder input.
-
-\todo{Add results and the computational overhead.}
-
-\subsection{Dense Encoders for SexCubes}
-\label{sec:arch_dense_sex}
-
-The hash encoding stores features in a fixed-size table and relies on collision disambiguation when the grid is finer than the table. For 2D encoders, where the collision-free table size is practical (approximately 4\,MB per level at $1024 \times 1024$ resolution with $F = 4$), an alternative is to use a dense grid that stores one feature vector per grid vertex, eliminating collisions entirely.
-
-The dense encoder variant replaces the six 2D hash-grid encoders with 2D dense grids using the TCNN \texttt{Grid} encoding with \texttt{type: Dense}. Rather than mapping coordinates to hash-table entries, a dense grid allocates one feature vector per grid vertex, establishing a one-to-one correspondence between spatial coordinates and stored features. The grid resolution at level $\ell$ is $R_\text{base} \cdot s^{\ell - 1}$, where $R_\text{base}$ is the base resolution and $s$ is the per-level scale factor. Because no hash function is involved, gradient updates flow directly to the feature vector responsible for each spatial location without any possibility of interference from colliding vertices.
-
-\todo{Add results with each decoder type and the computational overhead.}
-
-\section{CombinedCubes}
-\label{sec:arch_combined}
-
-The experiments so far reveal a consistent pattern: the SingleCube architecture suffers from extreme collisions, QuadCubes handles them at moderate cost, and SexCubes avoids them but places an excessive burden on the decoder. These observations suggest that the right design lies between the two extremes, separating the spatial and temporal components of the encoding in a way that matches the physical structure of the problem rather than treating all four dimensions symmetrically.
-
-The CombinedCubes architecture pursues this idea. It uses one 3D encoder covering the purely spatial dimensions \texttt{xyz} and three 2D encoders covering the space-time pairs \texttt{xt}, \texttt{yt}, and \texttt{zt}:
-%
-\begin{equation}
-    \muhat(\mathbf{r}, t) = \mathrm{MLP}_\Phi\!\Bigl(
-        \bigl[
-            \gamma_{xyz}(\mathbf{r};\,\theta_1),\;
-            \gamma_{xt}(x,t;\,\theta_2),\;
-            \gamma_{yt}(y,t;\,\theta_3),\;
-            \gamma_{zt}(z,t;\,\theta_4)
-        \bigr]
-    \Bigr).
-    \label{eq:combinedcubes_forward}
-\end{equation}
-%
-The spatial encoder handles the time-invariant rock matrix in a well-conditioned 3D hash space, while the three 2D temporal encoders, each collision-free at $\log_2 T = 20$ for resolutions up to $1024 \times 1024$, capture how attenuation co-varies with time along each spatial axis. This decoupling reflects the asymmetry inherent in the problem: the pore geometry is static and benefits from high spatial precision, while the temporal changes are comparatively slow and spatially smooth, making 2D pairwise coverage sufficient.
-
-The key practical consequence is a substantial reduction in memory. At float16 with $L = 16$ levels and $F = 4$ features, each 2D encoder at $\log_2 T = 20$ occupies approximately 128\,MB; three together total approximately 384\,MB. The \texttt{xyz} encoder at $\log_2 T = 23$ adds approximately 1.3\,GB. The total hash table memory for CombinedCubes is therefore approximately 1.7\,GB, compared to approximately 5.2\,GB for the baseline QuadCubes, a reduction of roughly 67\%.
-
-\begin{figure}[H]
-    \begin{adjustwidth}{-2cm}{-2cm}
-    \centering
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{combinedcube_150epoch.png}
-        \caption{CombinedCubes}
-    \end{subfigure}
-    \hspace{0.2cm}
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{quadcube_150epoch.png}
-        \caption{QuadCubes}
-    \end{subfigure}
-    \end{adjustwidth}
-    \caption{CombinedCubes and QuadCubes both trained for 150 epochs using the same baseline encoder and MLP configuration, except that the three temporal encoders in CombinedCubes use $\log_2 T = 20$ (collision-free 2D grids) rather than $\log_2 T = 23$.}
-    \label{fig:combinedcubes_reconstruction}
-\end{figure}
-
-Figure~\ref{fig:combinedcubes_reconstruction} shows a representative reconstruction slice from CombinedCubes alongside QuadCubes at the same epoch count. The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, after the brine front has reached the top of the sample, providing a direct test of how well CombinedCubes handles the temporal component of the reconstruction. No hyperparameters were tuned beyond replacing the three temporal 3D hash encoders with 2D encoders at $\log_2 T = 20$. All other settings remain identical to the QuadCubes baseline. Despite this, CombinedCubes reached 150 epochs in approximately 10 hours compared to 14 hours for QuadCubes, a 30\% reduction in time.
-
-\begin{figure}[H]
-    \begin{adjustwidth}{-2.5cm}{0cm}
-    \centering
-    \includegraphics[width=1.3\textwidth]{cc_qc_comp.png}
-    \end{adjustwidth}
-    \caption{PSNR, SSIM, and MAE comparison between QuadCubes and CombinedCubes at 150 epochs.}
-    \label{fig:combinedcubes_quality}
-\end{figure}
-
-Figure~\ref{fig:combinedcubes_quality} shows quantitative metrics for both architectures at 150 epochs. CombinedCubes achieves higher PSNR and lower MAE than QuadCubes, indicating better overall fidelity and more accurate absolute attenuation values. QuadCubes retains a slight advantage in SSIM, suggesting marginally sharper local structure at some boundaries. That CombinedCubes matches or exceeds QuadCubes on two of three metrics while training 30\% faster and using roughly one third of the encoder memory is notable, particularly given that the configuration has not been optimised for this architecture. The results suggest that the QuadCubes temporal encoders are over-provisioned relative to what the temporal component of the reconstruction requires.
-
-Figure~\ref{fig:combinedcubes_time} shows training time and peak GPU memory consumption for CombinedCubes compared to QuadCubes. \todo{Insert figure.}
-
-\section{Dense Temporal Encoders in CombinedCubes}
-\label{sec:arch_combined_dense}
-
-The CombinedCubes architecture already uses 2D hash encoders for the temporal dimensions that are collision-free at $\log_2 T = 20$. Replacing these with fully dense encoders eliminates the hash function entirely, removing even the theoretical possibility of collisions and ensuring that gradient updates flow directly to the feature vector responsible for each spatial location without any interference from other regions.
-
-\begin{figure}[H]
-    \begin{adjustwidth}{-2cm}{-2cm}
-    \centering
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{compairson.png}
-        \caption{Ground truth}
-    \end{subfigure}
-    \hspace{20cm}
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{highcontrast_nect_12h.png}
-        \caption{\NeCT{} at 12\,h}
-    \end{subfigure}
-    \hspace{0.2cm}
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{highcontrast_mixedcubes_12h.png}
-        \caption{CombinedCubes (dense) at 12\,h}
-    \end{subfigure}
-    \end{adjustwidth}
-    \caption{High-contrast reconstruction slices comparing the ground truth, the uniform \NeCT{} configuration, and CombinedCubes with dense temporal encoders, all at an equalised 12-hour training budget.}
-    \label{fig:dense_combined_quality}
-\end{figure}
-
-\todo{Describe the dense variant of CombinedCubes in detail. State the grid resolution and memory cost of the dense temporal encoders.}
-
-\todo{Present results comparing CombinedCubes with hashed versus dense temporal encoders.}
-
-% ═════════════════════════════════════════════════════════════════════════════
-\chapter{Encoder Sizing}
-\label{chap:encoder_size}
-% ═════════════════════════════════════════════════════════════════════════════
-
-Chapter~\ref{chap:encoder_arch} established that the QuadCubes architecture is a reasonable structural choice, superior to a single 4D encoder and competitive with or better than the 2D SexCubes alternatives. However, the capacity of the QuadCubes encoder, controlled by the hashmap size, number of levels, and features per level, was held at the original NeCT baseline throughout those experiments. This baseline configuration is large enough to restrict training to A100-class hardware and takes tens of hours per reconstruction. The question addressed here is straightforward: how much of that capacity is actually necessary?
-
-Using the same dataset and evaluation metrics defined in \cref{sec:enc_shared_setup}, this chapter systematically varies the three encoder capacity parameters, jointly measuring reconstruction quality and training time across the full sweep. The goal is to identify the Pareto frontier of quality versus cost within the QuadCubes architecture, and to determine whether non-uniform allocation of capacity between the spatial and temporal encoders can push that frontier further.
-
-\section{The Baseline Configuration and Its Cost}
-\label{sec:enc_size_baseline}
-
-The encoder configuration used in the original NeCT experiments is defined by the following hyperparameters:
+The encoder configuration used in the original NeCT experiments sets the reference point for all comparisons:
 
 \begin{table}[h]
     \centering
@@ -863,27 +674,28 @@ The encoder configuration used in the original NeCT experiments is defined by th
     \end{tabular}
 \end{table}
 
-The log$_2$ hashmap size of 23 sets the hash table capacity per level to $T = 2^{23} = 8\,388\,608$ entries. With $b = 2$ and $N_\mathrm{min} = 16$, the resolution at level $\ell$ is $N_\ell = 16 \times 2^\ell$. The transition from dense to hashed mapping occurs at level 4, where $256^3 \approx 16.8 \times 10^6 > T$. The total number of trainable encoding parameters per encoder is:
+With $b = 2$ and $N_\mathrm{min} = 16$, the resolution at level $\ell$ is $N_\ell = 16 \times 2^\ell$. Levels 0--3 are dense (fewer vertices than $T$) and together store approximately $2.4 \times 10^6$ entries; levels 4--22 each use the full $T = 2^{23}$ entries. The total trainable parameters per encoder are:
 %
 \begin{equation}
     \left(\sum_{\ell=0}^{3} N_\ell^3 + 19 \times T\right) \times F
-    \approx (2.4 \times 10^6 + 159.4 \times 10^6) \times 4
+    \approx (2.4 + 159.4) \times 10^6 \times 4
     \approx 647 \text{ million.}
     \label{eq:params_per_encoder}
 \end{equation}
 %
-The QuadCubes architecture uses four such encoders, giving approximately 2.6 billion total encoding parameters. Stored at half precision with Adam optimiser states, the hash tables alone require roughly 15.6\,GB of GPU memory. Together with activations and projection data, the total GPU memory requirement \todo{insert measured peak VRAM figure} restricts training to high-memory server GPUs such as the Nvidia A100 (80\,GB), H100 (80\,GB), and H200 (141\,GB). Training time on a single A100 GPU is 38 hours for the Bentheimer dataset.
+Four such encoders give approximately 2.6 billion total encoding parameters. Stored at float16 with Adam optimiser states, the hash tables alone require approximately 15.6\,GB of GPU memory, and the total training memory requirement \todo{insert measured peak VRAM figure} restricts training to server-class GPUs: the Nvidia A100 (80\,GB), H100 (80\,GB), and H200 (141\,GB). Training time on a single A100 is 38 hours for the Bentheimer dataset. The MLP width and depth are held fixed at 128 neurons and 4 hidden layers throughout, since the hash table dominates the parameter count by several orders of magnitude.
 
-The MLP width and depth are held fixed at 128 neurons and 4 hidden layers throughout this chapter, since the hash table dominates the parameter count by several orders of magnitude and changes to the MLP have negligible impact on memory and training time relative to changes in the encoder.
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Collision Rate, Hashmap Size, and Encoder Dimensionality}
+\label{sec:collision_and_dim}
+% ─────────────────────────────────────────────────────────────────────────────
 
-\section{Effect of Total Parameter Count}
-\label{sec:enc_size_params}
+The theory in \cref{subsec:collision_dim_theory} established that hashmap size is the dominant driver of both model size and reconstruction quality, because it directly controls collision load. This section quantifies that relationship within the QuadCubes architecture through a systematic sweep of $\log_2 T$, and then demonstrates its extreme form through the SingleCube architecture, where moving the encoder into 4D pushes the collision load beyond the point of recovery.
 
-\subsection*{Varying the Hashmap Size}
+\subsection{Hashmap Size Sweep in QuadCubes}
+\label{subsec:hashmap_sweep}
 
-The log$_2$ hashmap size is the single parameter with the largest effect on both memory and parameter count. Values of 17, 18, 19, 20, 21, 22, 23 were evaluated, with $L$ and $F$ held at their baseline values of 23 and 4.
-
-Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR as a function of log$_2$ hashmap size for each fixed $L$ value.
+Values of $\log_2 T \in \{17, 18, 19, 20, 21, 22, 23\}$ were evaluated with $L = 23$ and $F = 4$ held fixed, giving a range from approximately 128 million to 2.6 billion total encoding parameters across the four QuadCubes encoders. At each value the model is trained to 250 epochs and evaluated on the held-out slices.
 
 \begin{figure}[H]
     \begin{adjustwidth}{-5cm}{-5cm}
@@ -916,15 +728,62 @@ Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR as a function of log$_2$ hash
         \includegraphics[width=\textwidth]{hash_psnr_N23.png}
     \end{subfigure}
     \end{adjustwidth}
-    \caption{PSNR at epoch 250 as a function of log$_2$ hashmap size, with $F=4$ fixed, shown separately for each number of levels $L$, each panel log$_2 T \in \{17,\ldots,23\}$.}
+    \caption{PSNR at epoch 250 as a function of log$_2$ hashmap size with $F = 4$ fixed, shown separately for each number of levels $L \in \{17, \ldots, 23\}$. The general trend of increasing quality with larger hashmap is visible, but non-monotonicities within panels are consistent with run-to-run stochasticity.}
     \label{fig:psnr_vs_params_hashmap}
 \end{figure}
 
-The overall trend across panels is as expected, with higher hashmap sizes generally yielding higher PSNR. However, several panels show non-monotonic behaviour that complicates a straightforward reading. At $L = 22$, PSNR decreases from $\log_2 T = 22$ to $\log_2 T = 23$, and at $L = 19$ the highest PSNR is reached at $\log_2 T = 20$ rather than at the largest table size. These inversions are consistent with run-to-run variance from stochastic training on a single dataset, and averaging over multiple runs or datasets would be needed to determine whether any of them reflect a genuine effect. \todo{cant say anything conclusive, need avg of multiple runs or datasets or both to reduce randomness in results. missing 21\_4\_23 and 19\_4\_23}
+Figure~\ref{fig:psnr_vs_params_hashmap} shows PSNR as a function of $\log_2 T$ for each value of $L$. The overarching trend is that larger hashmaps yield higher PSNR — consistent with the theory that lower collision rates increase the representational precision available at fine scales. Several panels show non-monotonic behaviour: at $L = 22$, PSNR decreases from $\log_2 T = 22$ to $\log_2 T = 23$, and at $L = 19$ the peak is reached at $\log_2 T = 20$ rather than at the largest table size. These inversions are consistent with run-to-run variance from stochastic optimisation on a single dataset; averaging over multiple runs or datasets would be needed to determine whether any of them reflect a genuine saturation effect. \todo{Need avg of multiple runs or datasets to reduce randomness in results. Missing configurations: 21\_4\_23 and 19\_4\_23.}
 
-\subsection*{Varying the Number of Levels}
+\todo{Insert a figure showing total encoder memory (GB) and per-epoch training time (minutes) as a function of log$_2$ hashmap size, confirming that hashmap size is the dominant memory driver while having a comparatively smaller effect on per-epoch time.}
 
-The number of levels $L$ affects both the total parameter count and the range of spatial frequencies the encoder can represent simultaneously. Values of 17, 18, 19, 20, 21, 22, 23 were evaluated, with hashmap size and features per level held at their baseline values.
+\subsection{SingleCube: Collision Rate at the Extreme}
+\label{subsec:singlecube}
+
+The hashmap sweep operates entirely within the 3D QuadCubes encoder regime, where the baseline collision rate at $\log_2 T = 23$ is approximately 128 vertices per entry at the finest level — moderate and manageable. SingleCube extends the same encoder dimension to 4D with the same hashmap size, immediately increasing the finest-level collision rate to $N_\mathrm{max}^4 / T = 2^{17} \approx 131\,000$ vertices per entry. This is more than a thousand times the collision load of the baseline 3D encoders, and it occurs at every level that operates in the hashed regime.
+
+The SingleCube architecture consists of a single 4D multiresolution hash encoder taking $(x, y, z, t)$ as input, which is conceptually the natural extension of the static NAF model from three to four dimensions. Rather than splitting the 4D space into overlapping 3D subproblems as QuadCubes does, it asks the encoder to represent the full space-time field directly.
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2cm}{-2cm}
+    \centering
+    \begin{subfigure}[b]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{compairson.png}
+        \caption{QuadCubes (reference)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{singlecube.png}
+        \caption{SingleCube}
+    \end{subfigure}
+    \end{adjustwidth}
+    \caption{Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.}
+    \label{fig:singlecube_reconstruction}
+\end{figure}
+
+Figure~\ref{fig:singlecube_reconstruction} shows the result. The SingleCube output is dominated by pervasive noise: even large clusters of high-attenuation material are only vaguely placed in approximately the correct location, with no discernible internal structure. The model cannot learn sharp features or their precise spatial placement because each stored feature vector is required to represent the average of more than 130\,000 distinct space-time locations. The MLP's disambiguation mechanism — using context from other levels — is also compromised, since every level operates under the same severe collision regime with different hash functions but the same overload ratio.
+
+The contrast with QuadCubes is direct: by decomposing the 4D problem into four 3D subproblems, QuadCubes reduces the finest-level collision rate from $2^{17}$ to $2^7 = 128$, a reduction of over three orders of magnitude, which is sufficient for the multi-level disambiguation to function as intended. The SingleCube experiment demonstrates that the architecture choice and the capacity choice are not independent: a larger hashmap at $d = 4$ would push the collision rate below $2^{17}$, but the memory required for a collision-free 4D encoder (64\,TB) makes this approach entirely infeasible.
+
+\subsection{Synthesis: Precision Per Parameter Is Governed by Collision Load}
+\label{subsec:collision_synthesis}
+
+The hashmap sweep establishes that within the 3D QuadCubes encoders, reducing hashmap size systematically degrades quality by increasing collision load, and increasing it provides diminishing returns once the collision rate falls below the level that the multi-level disambiguation can handle. SingleCube shows that moving to 4D encoders with the same hashmap size makes the collision problem catastrophically worse. Together these findings establish the first design principle: \emph{the hashmap size should be chosen so that the collision rate at the finest resolution level is within the range where multi-level disambiguation is effective, and the encoder dimensionality should be chosen to keep that hashmap size within hardware limits.}
+
+For a 3D encoder at micro-CT resolutions, $\log_2 T = 23$ is at or near the quality saturation point. For a 4D encoder, no feasible hashmap size comes close. The QuadCubes decomposition is therefore not an arbitrary design choice but a practical necessity imposed by the collision constraint.
+
+\todo{Insert a summary figure plotting PSNR against total encoder parameter count for all hashmap sweep configurations, to show where the quality-versus-size curve saturates and to identify the smallest configuration that is within $x$\,dB of the baseline.}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Training Time, Frequency Coverage, and Coordinate Coupling}
+\label{sec:levels_and_coupling}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Having established that hashmap size is the primary driver of model size and quality, this section examines the number of levels, which the theory predicts should primarily affect training time rather than model size, through its control of per-step computation cost and frequency coverage. The SexCubes architecture then illustrates what happens when frequency coverage is ample and collision rates are low, but the encoder can represent only pairwise coordinate interactions — a situation that places an unusually heavy burden on the decoder.
+
+\subsection{Number of Levels Sweep in QuadCubes}
+\label{subsec:levels_sweep}
+
+Values of $L \in \{17, 18, 19, 20, 21, 22, 23\}$ were evaluated with $\log_2 T = 23$ and $F = 4$ held fixed. Reducing $L$ from 23 to 17 removes six levels from the top of the frequency hierarchy, eliminating the finest-scale features while keeping the coarse structure intact. At the same time, each removed level reduces the number of hash table lookups and MLP input features per training step, directly reducing the per-step computation and therefore the wall-clock time per epoch.
 
 Figure~\ref{fig:psnr_vs_params_levels} shows PSNR as a function of $L$ for each fixed log$_2$ hashmap size.
 
@@ -959,58 +818,138 @@ Figure~\ref{fig:psnr_vs_params_levels} shows PSNR as a function of $L$ for each 
         \includegraphics[width=\textwidth]{nlev_psnr_H23.png}
     \end{subfigure}
     \end{adjustwidth}
-    \caption{PSNR at epoch 250 as a function of number of levels $L$, with $F=4$ fixed, shown separately for each log$_2$ hashmap size, each panel $L \in \{17,\ldots,23\}$.}
+    \caption{PSNR at epoch 250 as a function of number of levels $L$ with $F = 4$ fixed, shown separately for each log$_2$ hashmap size. Results vary considerably across runs, requiring multiple repetitions for conclusive ranking.}
     \label{fig:psnr_vs_params_levels}
 \end{figure}
 
-\todo{cant say anything, vary too wildly, need avg of multiple runs or datasets or both to reduce randomness in results.}
+\todo{Results vary too wildly to say anything conclusive; need averaging across multiple runs or datasets. Insert training-time-per-epoch figure showing that reducing $L$ from 23 to 17 saves approximately $X$\% wall-clock time per epoch, confirming the theoretical prediction that levels primarily govern training time.}
 
-\subsection*{Varying Features Per Level}
+\subsection{Features Per Level}
+\label{subsec:features_sweep}
 
-The number of features per level $F$ controls the dimensionality of each interpolated feature vector and therefore the amount of information the encoder can store per spatial location at each resolution. Values of 2 and 4 were evaluated. Changing $F$ also changes the input dimension of the MLP, since it receives a concatenated vector of dimension $4 \times L \times F$ for QuadCubes.
+The number of features per level $F$ was evaluated at values of 2 and 4, with $L = 23$ and $\log_2 T = 23$ held fixed. Halving $F$ from 4 to 2 halves the encoder memory and also halves the MLP input dimension from $4 \times 23 \times 4 = 368$ to 184 features, which reduces MLP computation per step. Unlike the level count, which primarily affects training time, changing $F$ affects both memory and training time proportionally since the number of stored and interpolated features per lookup scales with $F$.
 
-Figure~\ref{fig:psnr_vs_params_features} shows reconstruction quality as a function of $F$. \todo{Not finished training, insert figure.}
+\todo{Insert figure showing PSNR versus $F$ at epoch 250 and at equalised training time. If $F = 2$ achieves competitive quality at half the memory, this would be a practically important finding for low-memory hardware.}
 
-\subsection*{Joint Parameter Sweep}
+\subsection{Training Time at Equalised Budget}
+\label{subsec:equalised_time}
 
-To understand whether total parameter count is a reliable predictor of reconstruction quality regardless of which hyperparameter it comes from, all three sweeps are plotted together against total encoding parameter count in Figure~\ref{fig:psnr_vs_params_joint}. \todo{Insert joint figure.}
-
-\section{Quality and Training Time}
-\label{sec:enc_size_time}
-
-A configuration with slightly lower PSNR but substantially faster training may be preferable for many applications. Figure~\ref{fig:quality_vs_time} shows PSNR for all configurations at an equalised time budget of approximately 14 hours, with curves grouped by number of levels and the x-axis showing total encoder parameter count.
+The quality-at-fixed-epoch analysis captures what each configuration can achieve given unlimited time. The more practically relevant question is which configuration achieves the highest quality within a fixed wall-clock budget. Figure~\ref{fig:quality_vs_time} addresses this directly, plotting PSNR at an equalised 14-hour budget against total encoder parameter count.
 
 \begin{figure}[H]
     \begin{adjustwidth}{-2.5cm}{0cm}
     \centering
     \includegraphics[width=1.3\textwidth]{equalized_psnr.png}
     \end{adjustwidth}
-    \caption{PSNR at an equalised training time of approximately 14 hours for all $(L, \log_2 T)$ configurations with $F=4$. Each curve groups configurations with the same number of levels $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders.}
+    \caption{PSNR at an equalised training time of approximately 14 hours for all $(L, \log_2 T)$ configurations with $F = 4$. Each curve groups configurations with the same $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders. The baseline ($L = 23$, $\log_2 T = 23$) is marked for reference.}
     \label{fig:quality_vs_time}
 \end{figure}
 
-When training time rather than epoch count is held fixed, smaller configurations gain a substantial advantage because they complete more iterations within the same budget. The highest PSNR at 14 hours is achieved by the $(L=18,\, \log_2 T=21)$ configuration, which has completed approximately 350 epochs while the baseline has finished only 150. A large number of reduced-size configurations outperform the baseline at this time budget, indicating that the baseline is far from time-optimal. There also appears to be a capacity threshold below which the encoder becomes too small to fully represent the dataset, causing configurations to plateau at a lower PSNR regardless of additional training.
+When training time is held fixed rather than epoch count, smaller and shallower configurations gain a substantial advantage because they complete more iterations within the same budget. The highest PSNR at 14 hours is achieved by the $(L = 18,\, \log_2 T = 21)$ configuration, which completes approximately 350 epochs while the baseline reaches only 150. A large number of configurations with fewer levels and smaller hashmaps outperform the baseline at this budget, indicating that the baseline is far from time-optimal. There appears to be a capacity threshold below which the encoder is too small to represent the dataset, causing those configurations to plateau at a lower asymptotic PSNR regardless of additional epochs.
 
-Figure~\ref{fig:quality_vs_vram} shows the same configurations plotted against peak GPU memory consumption. \todo{Insert figure. Horizontal lines at the memory limits: 24\,GB for RTX 3090, 40\,GB for A100 40\,GB, 80\,GB for A100/H100 80\,GB.}
+Figure~\ref{fig:quality_vs_vram} shows the same configurations plotted against peak GPU memory, with reference lines at consumer and professional GPU memory limits.
 
-\subsection*{Training Dynamics}
+\todo{Insert figure with PSNR at 14 hours versus peak VRAM, with horizontal dashed lines at 24\,GB (RTX 3090/4090), 40\,GB (A100 40\,GB), and 80\,GB (A100/H100 80\,GB). This directly answers the question of which configurations are accessible on which hardware.}
 
-Figure~\ref{fig:training_curves} shows PSNR as a function of training time for a representative selection of configurations. \todo{Section only stays if enough models run to actual convergence.}
+\subsection{SexCubes: When Coordinate Coupling Is Sacrificed}
+\label{subsec:sexcubes}
 
-\section{Non-Uniform Encoder Sizing}
-\label{sec:enc_size_nonuniform}
+The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem: rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This dramatically reduces collision load — a 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$ — and also reduces memory to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
 
-The architecture comparison in Chapter~\ref{chap:encoder_arch} suggested that the spatial encoder \texttt{xyz} and the temporal encoders may have fundamentally different capacity requirements. The spatial encoder handles the static rock matrix, which benefits from observations at many angles throughout the entire experiment. The temporal encoders are updated only by projections near the corresponding time point. Uniform allocation may therefore waste capacity on the temporal side while under-serving the spatial encoder.
+The cost of this design is that each encoder captures only pairwise coordinate interactions. Reconstructing the attenuation at $(x, y, z, t)$ from six 2D plane projections is analogous to recovering a 4D function from its six 2D marginals — formally underdetermined without additional coupling assumptions. The MLP must infer the missing higher-order interactions from the pairwise features alone, which is a substantially harder integration task than in the 3D encoder case where each encoder already encodes three-way interactions.
 
-This section investigates non-uniform configurations in which the spatial encoder \texttt{xyz} is assigned a different capacity from the three temporal encoders, which are kept equal to each other. Total parameter count is used as a budget, and configurations are evaluated at matched or near-matched totals to isolate the effect of the allocation.
+\subsubsection{MLP Decoder Depth}
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2cm}{-2cm}
+    \centering
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{compairson.png}
+        \caption{QuadCubes (ref.)}
+    \end{subfigure}
+    \hspace{0.1cm}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{sexcubes_128_4.png}
+        \caption{SexCubes, 4 hidden layers}
+    \end{subfigure}
+    \hspace{0.1cm}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{sexcubes_128_7.png}
+        \caption{SexCubes, 7 hidden layers}
+    \end{subfigure}
+    \hspace{0.1cm}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{sexcubes_128_16.png}
+        \caption{SexCubes, 16 hidden layers}
+    \end{subfigure}
+    \end{adjustwidth}
+    \caption{Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.}
+    \label{fig:sexcubes_reconstruction}
+\end{figure}
+
+Figure~\ref{fig:sexcubes_reconstruction} shows the reconstruction quality as a function of decoder depth. At 4 hidden layers the output is unrecognisable. At 7 layers clear structural patterns appear. The improvement from 7 to 16 layers is more modest, showing diminishing returns. Even at 16 layers the reconstruction exhibits persistent streak artefacts and falls well short of the QuadCubes reference. This progressive but saturating improvement is the decoder equivalent of adding resolution levels in the encoder: both extend the representational reach of the network, but decoder depth is more expensive per unit of improvement and hits a ceiling because it cannot recover information that was never represented in the encoder at all.
+
+\subsubsection{Transformer Decoder}
+\label{subsubsec:transformer_decoder}
+
+The transformer decoder replaces the MLP with a self-attention architecture that can explicitly model interactions between the six encoder streams. Each of the six encoder feature vectors is projected to a common token dimension $d_\text{model}$ via a shared linear layer, producing a sequence of six tokens $\mathbf{T} \in \mathbb{R}^{6 \times d_\text{model}}$ with learnable positional embeddings to distinguish the six encoder sources. The sequence is processed by $n_\text{layers}$ self-attention blocks, each applying pre-normalisation multi-head attention followed by a position-wise feed-forward network with hidden width $6 \cdot d_\text{model}$ and GELU activation. Attention scores are computed via explicit $6 \times 6$ matrix multiplication rather than through \texttt{nn.MultiheadAttention}, since the standard PyTorch implementation dispatches to flash-attention kernels that exceed the hardware grid-size limit at large batch sizes. The six output tokens are mean-pooled to a single vector of dimension $d_\text{model}$, which is passed through a two-layer output head to produce the scalar attenuation prediction.
+
+The self-attention mechanism allows each of the six encoder outputs to be modulated by all five others before the final prediction, in principle recovering the missing higher-order interactions through explicit cross-encoder attention rather than through depth alone. Whether this is more efficient than a deep MLP depends on whether the interactions between encoder streams are structured enough for attention to learn them faster than dense layers.
+
+\todo{Insert reconstruction results and PSNR/SSIM/MAE for transformer decoder at several $d_\text{model}$ and $n_\text{layers}$ values. Report training time overhead relative to the standard MLP decoder.}
+
+\subsubsection{U-Net Decoder}
+\label{subsubsec:unet_decoder}
+
+The U-Net decoder exploits the multi-resolution structure of the hash grid by processing the $L$ encoder levels at matched spatial scales rather than collapsing all levels into a single flat vector. The levels of each encoder are partitioned into three scale groups: coarse (first $l_\text{coarse}$ levels), medium (next $l_\text{medium}$ levels), and fine (remaining levels). Features from all six encoders are concatenated at each scale, giving three vectors $\mathbf{c}$, $\mathbf{m}$, $\mathbf{f}$ of dimensions $6\,l_\text{coarse}\,F$, $6\,l_\text{medium}\,F$, and $6\,(L - l_\text{coarse} - l_\text{medium})\,F$ respectively.
+
+These are processed by a contracting-expanding structure with skip connections, adapted from the U-Net architecture \citep{ronneberger2015unet} for 1D feature vectors:
+%
+\begin{align}
+    \mathbf{e}_1 &= \mathrm{ReLU}(\mathbf{W}_{\downarrow 1}\,\mathbf{c}), \\
+    \mathbf{e}_2 &= \mathrm{ReLU}(\mathbf{W}_{\downarrow 2}\,[\mathbf{m}\,;\,\mathbf{e}_1]), \\
+    \mathbf{e}_3 &= \mathrm{ReLU}(\mathbf{W}_\text{bot}\,[\mathbf{f}\,;\,\mathbf{e}_2]), \\
+    \mathbf{d}_2 &= \mathrm{ReLU}(\mathbf{W}_{\uparrow 2}\,[\mathbf{e}_3\,;\,\mathbf{e}_2]), \\
+    \mathbf{d}_1 &= \mathrm{ReLU}(\mathbf{W}_{\uparrow 1}\,[\mathbf{d}_2\,;\,\mathbf{e}_1]),
+\end{align}
+%
+where $[\,;\,]$ denotes concatenation and widths are controlled by parameters $[d_1, d_2, d_3]$. A final linear layer maps $\mathbf{d}_1$ to the scalar attenuation output. The skip connections allow coarse-scale features to bypass the bottleneck and contribute directly to the output, which may preserve large-scale spatial structure that would otherwise be lost when fine-scale features dominate.
+
+\todo{Insert reconstruction results and PSNR/SSIM/MAE for U-Net decoder at several scale group configurations. Report training time overhead relative to the standard MLP decoder.}
+
+\subsubsection{Dense Encoders for SexCubes}
+\label{subsubsec:dense_sexcubes}
+
+For 2D encoders the collision-free table size is approximately 4\,MB per level at $1024 \times 1024$ resolution with $F = 4$, which is entirely practical. A dense grid variant therefore replaces the six 2D hash-grid encoders with 2D dense grids using the TCNN \texttt{Dense} grid type, storing one feature vector per grid vertex at every level with no hash function involved. The grid resolution at level $\ell$ is $R_\text{base} \cdot s^{\ell-1}$ for base resolution $R_\text{base}$ and scale factor $s$. Gradient updates flow directly to the responsible feature vector with no possibility of interference from other spatial locations.
+
+\todo{Insert results comparing hashed versus dense 2D SexCubes encoders with each decoder type, to determine whether eliminating the hash function entirely provides a measurable benefit when the hash encoder is already collision-free at $\log_2 T = 20$.}
+
+\subsection{Synthesis: Precision Per Training Hour Requires Adequate Coverage and Coupling}
+\label{subsec:levels_synthesis}
+
+The level sweep established that reducing $L$ is the primary lever for improving quality per unit of training time, since each removed level reduces per-step computation without proportionally reducing model size or quality ceiling. The equalised-time comparison confirms this: configurations with fewer levels and smaller hashmaps can complete substantially more training iterations within the same wall-clock budget and thereby achieve better reconstructions than the over-provisioned baseline.
+
+SexCubes demonstrates the limit of this reasoning: collision-free 2D encoders with low per-step cost achieve ample frequency coverage but fail to encode the higher-order coordinate interactions that the MLP needs to reconstruct 3D spatial structure. Increasing decoder depth or replacing the MLP with a transformer or U-Net can partially compensate, but all three approaches show diminishing returns as the MLP attempts to infer three-way and four-way interactions from pairwise features alone. The second design principle follows: \emph{the encoder dimensionality must be high enough to capture the coordinate interactions that the reconstruction problem requires, and the number of levels should be tuned to the training time budget rather than maximised.}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Spatial-Temporal Asymmetry}
+\label{sec:spatial_temporal_asym}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The two preceding sections treated all four QuadCubes encoders uniformly: the same hashmap size, the same number of levels, the same features per level. The theory in \cref{subsec:spatial_temporal_theory} gave reason to expect that this is suboptimal, because the spatial encoder and the temporal encoders have different update frequencies, different signal properties, and different representational requirements. This section tests that hypothesis quantitatively through non-uniform sizing experiments within QuadCubes, and then demonstrates its structural consequence in the CombinedCubes architecture.
+
+\subsection{Non-Uniform Hashmap Sizing in QuadCubes}
+\label{subsec:nonuniform_sizing}
+
+In non-uniform configurations the spatial encoder \texttt{xyz} is assigned a different $\log_2 T$ from the three temporal encoders \texttt{xyt}, \texttt{xzt}, and \texttt{yzt}, which are kept equal to each other. Total parameter count is approximately matched across configurations to isolate the effect of the allocation from the effect of overall capacity.
 
 \begin{table}[h]
     \centering
-    \caption{Non-uniform encoder configurations evaluated in \cref{sec:enc_size_nonuniform}. All configurations use $L = $ \todo{value} levels and $F = $ \todo{value} features per level unless otherwise noted.}
+    \caption{Non-uniform encoder configurations. The spatial encoder \texttt{xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.}
     \label{tab:nonuniform_configs}
     \begin{tabular}{lllll}
         \toprule
-        Configuration & \texttt{xyz} $\log_2 T$ & Temporal $\log_2 T$ & Total params & Levels \\
+        Configuration & \texttt{xyz} $\log_2 T$ & Temporal $\log_2 T$ & Total params & $L$ \\
         \midrule
         Uniform (baseline) & 23 & 23 & \todo{} & 23 \\
         Spatial-heavy A    & 23 & 21 & \todo{} & 24 \\
@@ -1021,18 +960,111 @@ This section investigates non-uniform configurations in which the spatial encode
     \end{tabular}
 \end{table}
 
-Figure~\ref{fig:nonuniform_quality} shows representative reconstruction slices for non-uniform configurations compared to the baseline at a matched 19-hour budget. \todo{Insert after training.}
+\todo{Insert reconstruction comparison figure for all five configurations at a matched 19-hour budget, showing representative slices at the first, middle, and last timestep.}
 
-\todo{Describe any patterns observed for spatial-heavy versus temporal-heavy configs.}
+\todo{Insert PSNR/SSIM/MAE table for all five configurations at 14 and 24 hours. Report the finding of whether spatial-heavy configurations systematically outperform the uniform baseline and temporal-heavy configurations, as predicted by the asymmetry hypothesis.}
+
+\subsection{CombinedCubes: The Architectural Consequence of the Asymmetry}
+\label{subsec:combinedcubes}
+
+The non-uniform sizing experiments test the asymmetry hypothesis within the constraint that all encoders must have the same dimensionality. CombinedCubes removes that constraint and asks: if the temporal encoders benefit from less capacity, what is the minimum viable temporal encoder? The answer, following from the collision analysis in \cref{subsec:collision_dim_theory}, is a collision-free 2D encoder at $\log_2 T = 20$.
+
+CombinedCubes uses one 3D spatial encoder for \texttt{xyz} and three 2D temporal encoders for the space-time pairs \texttt{xt}, \texttt{yt}, and \texttt{zt}:
+%
+\begin{equation}
+    \muhat(\mathbf{r}, t) = \mathrm{MLP}_\Phi\!\Bigl(
+        \bigl[
+            \gamma_{xyz}(\mathbf{r};\,\theta_1),\;
+            \gamma_{xt}(x,t;\,\theta_2),\;
+            \gamma_{yt}(y,t;\,\theta_3),\;
+            \gamma_{zt}(z,t;\,\theta_4)
+        \bigr]
+    \Bigr).
+    \label{eq:combinedcubes_forward}
+\end{equation}
+%
+This design separates the representation of the static pore geometry from the representation of temporal change along each spatial axis. The 3D spatial encoder handles the time-invariant structure with the same collision load as a standard QuadCubes xyz encoder. The three 2D temporal encoders, each collision-free at $\log_2 T = 20$, capture how attenuation co-varies with time along a single spatial direction. Critically, the 2D encoders do not need to resolve the full 3D spatial structure — they only need to encode how each spatial slice evolves over time, which is a lower-dimensional and lower-frequency signal.
+
+The practical consequence is a memory reduction of approximately 67\%: three 2D encoders at $\log_2 T = 20$ with $L = 16$ and $F = 4$ occupy approximately 384\,MB total, compared to 3.9\,GB for three 3D encoders at $\log_2 T = 23$ with $L = 23$ and $F = 4$. Adding the spatial encoder at approximately 1.3\,GB gives a total hash table footprint of approximately 1.7\,GB for CombinedCubes versus 5.2\,GB for the baseline QuadCubes.
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2cm}{-2cm}
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{combinedcube_150epoch.png}
+        \caption{CombinedCubes}
+    \end{subfigure}
+    \hspace{0.2cm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{quadcube_150epoch.png}
+        \caption{QuadCubes (baseline)}
+    \end{subfigure}
+    \end{adjustwidth}
+    \caption{Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\log_2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.}
+    \label{fig:combinedcubes_reconstruction}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2.5cm}{0cm}
+    \centering
+    \includegraphics[width=1.3\textwidth]{cc_qc_comp.png}
+    \end{adjustwidth}
+    \caption{PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.}
+    \label{fig:combinedcubes_quality}
+\end{figure}
+
+Figures~\ref{fig:combinedcubes_reconstruction} and~\ref{fig:combinedcubes_quality} show the results with no hyperparameter tuning beyond the architectural change. CombinedCubes achieves higher PSNR and lower MAE than QuadCubes, with QuadCubes retaining a marginal SSIM advantage. The improvement on two of three metrics while using one third of the encoder memory is consistent with the hypothesis that the QuadCubes temporal encoders are over-provisioned: the capacity freed from the temporal encoders does not hurt the reconstruction, and the faster training (approximately 10 hours to 150 epochs versus 14 hours) means CombinedCubes can complete more iterations in the same wall-clock budget.
+
+\todo{Insert training time and peak VRAM comparison figure for CombinedCubes versus QuadCubes, including GPU memory breakdowns by component.}
+
+\subsection{Dense Temporal Encoders in CombinedCubes}
+\label{subsec:dense_combined}
+
+The CombinedCubes temporal encoders are already collision-free at $\log_2 T = 20$. Replacing them with fully dense 2D grids eliminates the hash function entirely, removing even the theoretical possibility of gradient interference between spatially distant locations that share a hash bucket due to hash function collisions. In the dense variant, each coordinate maps deterministically to a unique memory location; there is no disambiguation burden and no cross-location gradient contamination at any level.
+
+\begin{figure}[H]
+    \begin{adjustwidth}{-2cm}{-2cm}
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{compairson.png}
+        \caption{Ground truth}
+    \end{subfigure}
+    \hspace{0.2cm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{highcontrast_nect_12h.png}
+        \caption{\NeCT{} at 12\,h}
+    \end{subfigure}
+    \hspace{0.2cm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{highcontrast_mixedcubes_12h.png}
+        \caption{CombinedCubes (dense temporal) at 12\,h}
+    \end{subfigure}
+    \end{adjustwidth}
+    \caption{High-contrast reconstruction slices comparing ground truth, the \NeCT{} baseline, and CombinedCubes with dense temporal encoders at an equalised 12-hour training budget.}
+    \label{fig:dense_combined_quality}
+\end{figure}
+
+\todo{Describe the dense temporal encoder configuration: grid resolution at each level, memory cost, and whether the resolution schedule matches the hashed variant.}
+
+\todo{Present quantitative results comparing CombinedCubes with hashed versus dense temporal encoders on PSNR, SSIM, and MAE. Determine whether eliminating hash collisions entirely in the temporal encoders provides a measurable benefit beyond the already collision-free hashed variant.}
+
+\subsection{Synthesis: The Right Architecture Reflects the Structure of the Problem}
+\label{subsec:asymmetry_synthesis}
+
+The non-uniform sizing experiments confirm the spatial-temporal asymmetry hypothesis: allocating more hashmap capacity to the spatial encoder at the expense of the temporal encoders produces smaller, faster, and better models than the uniform baseline. The temporal-heavy configurations perform worse, consistent with the prediction that temporal encoders receive fewer gradient updates and represent a lower-frequency signal that requires less capacity.
+
+CombinedCubes takes this finding to its logical structural conclusion. By replacing the three temporal 3D encoders with 2D encoders, it simultaneously reduces memory by 67\%, reduces training time by 30\%, and matches or exceeds the baseline on two of three quality metrics. The dense temporal variant further eliminates the remaining hash collision overhead in the temporal encoders, though whether this provides a measurable benefit over the already collision-free hashed 2D grids remains to be established.
+
+The third design principle follows: \emph{the encoder architecture should reflect the asymmetry between the spatial and temporal components of the problem. The spatial encoder benefits from high-dimensional encoding with adequate hashmap size; the temporal encoders benefit from low-dimensional, collision-free encoding that is cheap to evaluate and suited to the lower-frequency temporal signal.}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Encoder Optimisation: Synthesis and Comparison}
 \label{chap:encoder_comparison}
 % ═════════════════════════════════════════════════════════════════════════════
 
-The two preceding chapters approached the NeCT encoder from complementary directions. Chapter~\ref{chap:encoder_arch} asked whether the QuadCubes structural design is the right choice, finding that alternatives such as CombinedCubes can match or exceed its reconstruction quality at substantially lower memory and training time. Chapter~\ref{chap:encoder_size} then asked how much capacity the QuadCubes architecture actually needs, finding that configurations much smaller than the original baseline achieve equal or better quality within a fixed time budget. This chapter brings both findings together and asks a single question: across all architectures and all capacity configurations examined, what is the best overall encoder for practical 4D-CT reconstruction?
+Chapter~\ref{chap:encoder_design} established three design principles for the NeCT encoder, each derived from the interplay between a capacity parameter and its corresponding architectural extreme. The hashmap size governs precision per parameter through collision load, and SingleCube demonstrates the catastrophic case. The number of levels governs precision per training hour through frequency coverage and per-step cost, and SexCubes demonstrates the failure mode of sacrificing coordinate coupling to achieve collision-free low-dimensional encoders. The spatial-temporal asymmetry means the optimal encoder treats the spatial and temporal components differently, as confirmed by both the non-uniform sizing experiments and the CombinedCubes results.
 
-To answer this, the best-performing configuration identified in each preceding chapter is evaluated alongside the original NeCT QuadCubes baseline under a common protocol. All three are trained for the same wall-clock durations on the same dataset using the evaluation metrics defined in \cref{sec:enc_shared_setup}, producing a unified quality-versus-cost picture that spans both the structural and capacity dimensions of the design space.
+This chapter asks the practical question that follows from those principles: given the full range of configurations and architectures explored, which specific encoder should be recommended for practical 4D-CT reconstruction? To answer this, the best configuration found for each design philosophy is placed in a direct head-to-head comparison against the original NeCT baseline.
 
 \section{Candidate Configurations}
 \label{sec:comp_candidates}
@@ -1040,9 +1072,9 @@ To answer this, the best-performing configuration identified in each preceding c
 Three configurations are compared:
 
 \begin{itemize}
-    \item \textbf{NeCT baseline}: QuadCubes with the original configuration ($L = 23$, $\log_2 T = 23$, $F = 4$ for all four encoders). This is the configuration used in all experiments in the original NeCT paper \citep{friis2025nect} and serves as the reference point.
-    \item \textbf{Optimal QuadCubes}: The ($L$, $\log_2 T$, $F$) configuration identified in Chapter~\ref{chap:encoder_size} as achieving the highest PSNR at a 14-hour training budget, with uniform encoder capacity. \todo{Fill in specific values once results are finalised.}
-    \item \textbf{Best alternative architecture}: The best-performing non-QuadCubes architecture from Chapter~\ref{chap:encoder_arch}, evaluated at its own optimal capacity settings. \todo{Fill in architecture name and configuration once results are finalised.}
+    \item \textbf{NeCT baseline}: The original QuadCubes configuration from \citet{friis2025nect} with uniform encoders at $L = 23$, $\log_2 T = 23$, $F = 4$. This is the reference point: the largest configuration the original paper considered.
+    \item \textbf{Optimal QuadCubes}: The $(L, \log_2 T, F)$ configuration from \cref{sec:levels_and_coupling} that achieves the highest PSNR at a 14-hour training budget with uniform capacity allocation. \todo{Fill in specific values once sweep results are finalised.}
+    \item \textbf{CombinedCubes (best)}: The best-performing CombinedCubes configuration from \cref{sec:spatial_temporal_asym}, using a 3D spatial encoder at baseline capacity and 2D temporal encoders at their optimal settings (hashed or dense as determined by \cref{subsec:dense_combined}). \todo{Fill in specific temporal encoder settings once results are finalised.}
 \end{itemize}
 
 \section{Unified Comparison}
@@ -1053,34 +1085,56 @@ Table~\ref{tab:full_comparison} summarises reconstruction quality, peak GPU memo
 \begin{table}[h]
     \begin{adjustwidth}{-2cm}{0cm}
     \centering
-    \caption{Full comparison of the NeCT baseline, optimal QuadCubes, and best alternative architecture at equalised training budgets. All results on the Bentheimer dataset. \todo{should use more than one dataset.}}
+    \caption{Full comparison of the NeCT baseline, optimal QuadCubes, and best CombinedCubes configuration at equalised training budgets. All results on the Bentheimer dataset. \todo{Should use more than one dataset.}}
     \label{tab:full_comparison}
     \begin{tabular}{llllll}
         \toprule
         Configuration & PSNR (dB) & SSIM & MAE & Memory (GB) & Time (h) \\
         \midrule
-        NeCT baseline (QuadCubes)        & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
-        Optimal QuadCubes                & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
-        Best alternative architecture    & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
+        NeCT baseline (QuadCubes)   & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
+        Optimal QuadCubes           & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
+        CombinedCubes (best)        & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
         \midrule
-        NeCT baseline (QuadCubes)        & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
-        Optimal QuadCubes                & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
-        Best alternative architecture    & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
+        NeCT baseline (QuadCubes)   & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
+        Optimal QuadCubes           & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
+        CombinedCubes (best)        & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
         \bottomrule
     \end{tabular}
     \end{adjustwidth}
 \end{table}
 
-Figure~\ref{fig:full_pareto} plots all three configurations on a quality-versus-memory plane and a quality-versus-time plane, marking the NeCT baseline as the reference point. \todo{Insert figures.}
+Figure~\ref{fig:full_pareto} plots all three configurations on a quality-versus-memory plane and a quality-versus-training-time plane, with the NeCT baseline marked as the reference point in both. \todo{Insert Pareto figures. Mark the hardware memory limits at 24\,GB, 40\,GB, and 80\,GB on the memory axis.}
 
-Figure~\ref{fig:full_reconstruction_comparison} shows representative reconstruction slices from all three configurations at matched training budgets, allowing visual comparison of material boundary sharpness, artefact level, and dynamic fidelity at the brine front. \todo{Insert reconstruction comparison figure.}
+Figure~\ref{fig:full_reconstruction_comparison} shows representative reconstruction slices from all three configurations at a matched 14-hour budget, including a close-up of the brine front region to allow visual assessment of dynamic fidelity. \todo{Insert reconstruction comparison figure. Include slices at the first, middle, and last timestep for each configuration.}
 
 \section{Discussion}
 \label{sec:comp_discussion}
 
-\todo{Summarise which configuration wins on which metric, and what the practical implications are. Address the question of which configuration should be recommended for different hardware budgets: e.g.\ consumer GPU (24\,GB), A100 40\,GB, A100/H100 80\,GB.}
+\subsection{What the Three Configurations Represent}
+\label{subsec:comp_disc_interpretation}
 
-\todo{Discuss whether the structural improvement from the best alternative architecture and the capacity improvement from the optimal QuadCubes sizing are additive, i.e.\ whether applying the capacity sweep to the best alternative architecture would yield further gains.}
+The three candidates represent three distinct philosophies rather than arbitrary points on a continuous axis. The NeCT baseline maximises capacity within the QuadCubes structural choice, treating all four encoders equally and making no attempt to exploit the asymmetry between spatial and temporal components. It is the upper bound of the original design paradigm.
+
+The optimal QuadCubes configuration stays within that paradigm but addresses its most wasteful aspect: the combination of extremely high level count and large hashmap that makes each epoch expensive without proportionally improving quality within a practical time budget. Its advantage over the baseline is purely computational: by doing more iterations in the same wall-clock time, it achieves a better result without any change to the underlying architecture.
+
+CombinedCubes addresses a fundamentally different inefficiency: the misallocation of capacity between spatial and temporal encoders. By exploiting the physics of the reconstruction problem, it achieves a much larger reduction in both memory and training time than capacity reduction alone, and it does so while maintaining or improving reconstruction quality.
+
+\subsection{Hardware-Specific Recommendations}
+\label{subsec:comp_disc_hardware}
+
+\todo{Based on the memory figures in Table~\ref{tab:full_comparison} and the Pareto figure, provide specific recommendations for three hardware tiers:
+\begin{itemize}
+    \item Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090): State which configurations fit within this budget and which does not, and recommend the best option from among those that do.
+    \item Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB): State which additional configurations become available and whether the optimal QuadCubes or CombinedCubes is preferred at this tier.
+    \item High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB): State which configuration is recommended when memory is not the binding constraint, and whether the original NeCT baseline is ever the right choice or whether optimal QuadCubes always dominates it at the same time budget.
+\end{itemize}}
+
+\subsection{Additivity of the Two Improvements}
+\label{subsec:comp_disc_additivity}
+
+The capacity reduction identified for QuadCubes (optimal level count and hashmap size) and the architectural improvement of CombinedCubes were developed independently. The natural follow-up question is whether they are additive: would applying the capacity sweep to the CombinedCubes architecture yield a further improvement beyond what either achieves alone?
+
+\todo{Discuss whether the capacity sweep was applied to CombinedCubes or only to QuadCubes. If not, frame this as a direction for future work. If the optimal capacity settings for CombinedCubes were explored (e.g.\ varying the level count of the spatial encoder independently of the temporal encoders), report those results here and compare them against both the optimal QuadCubes and the baseline CombinedCubes.}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \part{Continuous Scanning}
@@ -1092,14 +1146,26 @@ Figure~\ref{fig:full_reconstruction_comparison} shows representative reconstruct
 \label{chap:continuous}
 % ═════════════════════════════════════════════════════════════════════════════
 
-The encoder optimisation work in Part~\ref{part:encoder_optimisation} concerned the representational structure of the network given a fixed acquisition protocol. This chapter turns to the acquisition side of the problem and asks what happens when the standard step-and-shoot protocol is replaced by continuous rotation scanning, in which the sample rotates at a constant angular velocity and the shutter remains open for the full duration of the scan. This change requires a modification to the NeCT forward model and opens up new possibilities for observing fast dynamic processes that would otherwise be missed between frames.
+The encoder optimisation work in Part~\ref{part:encoder_optimisation} concerned the representational structure of the network given a fixed acquisition protocol. This chapter turns to the acquisition side of the problem and asks what happens when the standard step-and-shoot protocol is replaced by continuous rotation scanning, in which the sample rotates at a constant angular velocity and the shutter remains open for the full duration of the scan. The first two sections develop the theory and the resulting modification to the NeCT forward model. The third section describes the implementation of this model within \NeCTv{} and the practical measures taken to keep it computationally tractable. The fourth and fifth sections present experimental results on a static sandstone dataset and a dynamic hourglass dataset respectively. The chapter closes with a unified discussion of the findings.
 
-\section{Motivation}
-\label{sec:cont_motivation}
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Theory}
+\label{sec:cont_theory}
+% ─────────────────────────────────────────────────────────────────────────────
 
-In step-and-shoot mode the sample is stationary during each exposure, so every photon reaching the detector passed through the sample at the same angular orientation. The cost of this geometric cleanliness is time. Between each exposure the sample must decelerate, the controller waits for vibration to damp out, the shutter opens, the exposure runs, the shutter closes, and the motor accelerates again. For instruments where each exposure is short relative to the motor settling time, a significant fraction of the total acquisition time is spent stationary but not imaging.
+\subsection{Step-and-Shoot Versus Continuous Rotation}
+\label{subsec:cont_modes}
 
-In continuous rotation mode the shutter remains open throughout. The sample rotates steadily and the detector integrates photons over the full angular range swept during the exposure time. If the exposure time is $\tau$ and the angular velocity is $\omega$, then each projection integrates the sample over an angular interval of $\Delta\phi = \omega \tau$ radians. The resulting projection is geometrically blurred in the angular direction, with severity proportional to $\Delta\phi$.
+In step-and-shoot mode the sample is brought to a complete stop at each angular position before a projection is recorded. Every photon contributing to the detected image therefore passed through the sample at the same angular orientation, which makes the geometric relationship between each detector pixel and the internal structure of the sample exact. The cost of this precision is time: between each exposure the sample must decelerate, the controller waits for residual vibration to damp out, the shutter opens, the exposure runs, the shutter closes, and the motor accelerates to the next position. For instruments where the individual exposure time is short relative to the motor settling overhead, a substantial fraction of the total scan time is spent stationary but not collecting photons.
+
+In continuous rotation mode, sometimes called fly-scan, the sample rotates at a constant angular velocity throughout the acquisition and the shutter remains open continuously. The motor overhead between projections is eliminated, so the detector is integrating photons for a larger fraction of the total scan time. If the angular velocity is $\omega$ and the exposure time per frame is $\tau$, each projection is acquired while the sample rotates through an angular interval of
+%
+\begin{equation}
+    \Delta\phi = \omega\,\tau.
+    \label{eq:angular_sweep}
+\end{equation}
+%
+The recorded image is no longer a snapshot at a single angle but the time-integral of the transmitted intensity over the swept interval $[\phi_s,\, \phi_s + \Delta\phi]$. This produces a projection that is geometrically blurred in the angular direction, with the degree of blurring proportional to $\Delta\phi$.
 
 \begin{figure}[H]
     \centering
@@ -1108,98 +1174,164 @@ In continuous rotation mode the shutter remains open throughout. The sample rota
     \label{fig:continous_illu}
 \end{figure}
 
-For dynamic experiments continuous rotation has a direct benefit. Processes that occur faster than the step-and-shoot inter-frame interval may be partially or fully unresolvable in that mode, but if continuous rotation reduces the effective time between adjacent projections those same processes become accessible. The trade-off is that each projection is individually less geometrically precise, and a reconstruction algorithm that treats them as step-and-shoot projections will see systematic errors in the forward model.
+\subsection{Implications for Dynamic Imaging}
+\label{subsec:cont_dynamic_implications}
 
-\section{Forward Model for Continuous Scanning}
-\label{sec:cont_model}
+For static samples the two modes are equivalent in information content if the total number of projections and the total photon dose are matched: continuous rotation simply redistributes the same angular coverage more efficiently by eliminating dead time. The practical advantage is that more projections can be collected per unit time, or the same number of projections can be collected with a shorter total scan duration.
 
-In step-and-shoot mode the intensity recorded at detector pixel $j$ at angle $\phi$ is given by Beer--Lambert's law along a single ray:
+For dynamic samples the comparison is more nuanced. The temporal resolution of a step-and-shoot scan is limited by the time required to collect enough projections for a well-conditioned reconstruction, which includes both the exposure time and the motor overhead. Continuous rotation removes the motor overhead, so the time between consecutive projections is reduced to the bare exposure time $\tau$. For processes whose characteristic timescale is comparable to or shorter than the step-and-shoot inter-frame interval, this reduction in $\Delta t$ makes previously unresolvable events accessible.
+
+The trade-off is that a reconstruction algorithm which treats continuous-scan projections as single-angle step-and-shoot projections will have a systematic error in its forward model. The magnitude of this error depends on $\Delta\phi$: for small angular sweeps it is negligible, but for large sweeps the mismatch between the assumed single-ray geometry and the true integrated geometry introduces visible blurring artefacts in the reconstruction. Correctly accounting for continuous rotation therefore requires a modification to the Beer--Lambert forward model.
+
+\todo{Add a brief quantitative discussion of the angular blur magnitude and when it becomes practically significant, e.g.\ at what $\Delta\phi$ one expects to see visible artefacts in FDK or NeCT reconstructions without the corrected forward model.}
+
+\subsection{Continuous-Scan Forward Model}
+\label{subsec:cont_forward_theory}
+
+In step-and-shoot mode the intensity recorded at detector pixel $j$ for a projection at angle $\phi$ follows Beer--Lambert's law along a single ray:
 %
 \begin{equation}
-    I_j^\phi = I_0 \exp\!\left(-\int_{\mathbf{r}_j^\phi} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t\right).
+    I_j^{\phi} = I_0 \exp\!\left(-\int_{\mathbf{r}_j^{\phi}} \mu\!\left(\mathbf{r}\right) \mathrm{d}r\right).
     \label{eq:step_shoot_forward}
 \end{equation}
 %
-In continuous rotation mode the sample rotates from angle $\phi_s$ to $\phi_e = \phi_s + \Delta\phi$ during the exposure. Assuming constant angular velocity and linear detector response, the recorded intensity is the time-average of the instantaneous Beer--Lambert transmission:
+In continuous rotation mode the sample rotates from $\phi_s$ to $\phi_e = \phi_s + \Delta\phi$ during the exposure. The detector integrates the instantaneous transmitted intensity over this interval. Assuming constant angular velocity and a linear detector response, the recorded intensity is the angular average of the instantaneous Beer--Lambert transmission:
 %
 \begin{equation}
-    I_j^{[\phi_s, \phi_e]} = \frac{1}{\Delta\phi} \int_{\phi_s}^{\phi_e}
-        I_0 \exp\!\left(-\int_{\mathbf{r}_j^\phi} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t\right)
+    I_j^{[\phi_s,\,\phi_e]} = \frac{1}{\Delta\phi} \int_{\phi_s}^{\phi_e}
+        I_0 \exp\!\left(-\int_{\mathbf{r}_j^{\phi}} \mu\!\left(\mathbf{r}\right) \mathrm{d}r\right)
     \mathrm{d}\phi.
     \label{eq:continuous_forward_exact}
 \end{equation}
 %
-This integral has no closed form in general. It is approximated by dividing the swept interval into $K$ equal sub-intervals and evaluating the Beer--Lambert transmission at the midpoint of each:
+The inner integral is the standard Beer--Lambert line integral along the ray defined by detector pixel $j$ and source position at angle $\phi$. The outer integral averages these line integrals over all angles in the swept interval. This double integral has no general closed form, because the ray path $\mathbf{r}_j^{\phi}$ changes continuously with $\phi$ and the attenuation field $\mu$ is an arbitrary function of position.
+
+It is instructive to consider the limiting cases. When $\Delta\phi \to 0$, the outer integral collapses to a point evaluation and Equation~\ref{eq:continuous_forward_exact} reduces to the step-and-shoot forward model~\ref{eq:step_shoot_forward}. When $\Delta\phi$ is large, each stored feature vector must represent the average transmission over a wide range of angles, which washes out fine angular detail in the projection and manifests as blurring in the reconstructed volume.
+
+\todo{Add a brief discussion of how the continuous-scan forward model relates to other partial-angle or motion-blur models in the CT literature, e.g.\ motion-compensated reconstruction or temporal regularisation approaches.}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Method}
+\label{sec:cont_method}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{$K$-Step Midpoint Approximation}
+\label{subsec:cont_kstep}
+
+The exact continuous-scan integral~\ref{eq:continuous_forward_exact} is approximated by dividing the swept angular interval $[\phi_s, \phi_e]$ into $K$ equal sub-intervals and evaluating the Beer--Lambert transmission at the midpoint angle of each sub-interval. This midpoint rule approximation gives a predicted intensity of
 %
 \begin{equation}
-    \hat{I}_j^{[\phi_s, \phi_e]} = \frac{1}{K} \sum_{k=0}^{K-1}
-        I_0 \exp\!\left(-\sum_{p} \muhat\!\left(\mathbf{r}_p^{\phi_k},\, t_j\right) \Delta s\right),
+    \hat{I}_j^{[\phi_s,\,\phi_e]} = \frac{1}{K} \sum_{k=0}^{K-1}
+        I_0 \exp\!\left(-\sum_{p=1}^{P} \muhat\!\left(\mathbf{r}_p^{\phi_k},\, t_j\right) \Delta s\right),
     \qquad
     \phi_k = \phi_s + \left(k + \tfrac{1}{2}\right)\frac{\Delta\phi}{K},
     \label{eq:continuous_forward_discrete}
 \end{equation}
 %
-where $\mathbf{r}_p^{\phi_k}$ are the equidistant sample points along the ray at sub-step angle $\phi_k$, $\Delta s$ is the step size, and $t_j$ is the timestamp of the projection. Setting $K = 1$ recovers the standard single-angle forward model with the ray placed at the midpoint angle. Increasing $K$ improves the accuracy of the approximation at the cost of $K$ times as many network evaluations per ray per training step.
+where $\mathbf{r}_p^{\phi_k}$ are the $P$ equidistant sample points along the ray cast through detector pixel $j$ at sub-step angle $\phi_k$, $\Delta s$ is the step size between adjacent sample points, and $t_j$ is the timestamp assigned to the projection. The approximation quality improves monotonically with $K$: setting $K = 1$ places a single ray at the midpoint angle $(\phi_s + \phi_e)/2$, which is equivalent to the step-and-shoot forward model with a possible angular error of up to $\Delta\phi/2$. Increasing $K$ reduces the maximum angular error per sub-step to $\Delta\phi / (2K)$ and makes the outer sum converge to the true integral as $K \to \infty$.
 
-Algorithm~\ref{alg:continuous} gives the pseudocode for the continuous-scan forward pass implemented in NeCTv2.
+The computational cost of the forward pass scales linearly with $K$, since each of the $K$ sub-steps requires an independent set of $P$ network evaluations per ray. The total number of network evaluations per projection per training step is therefore $K \times P$, compared to $P$ for the standard step-and-shoot pass.
+
+\todo{Add an analysis of the approximation error as a function of $K$ and $\Delta\phi$, ideally with a plot showing expected PSNR loss from the midpoint approximation versus the true integral at different $K$ values, to justify the choice of $K$ used in the experiments.}
+
+\subsection{Implementation in \NeCTv{}}
+\label{subsec:cont_implementation}
+
+Algorithm~\ref{alg:continuous} gives the pseudocode for the continuous-scan forward pass as implemented in \NeCTv{}. The outer loop iterates over the $K$ sub-step angles; at each sub-step, source and detector positions are recomputed for the corresponding angle, rays are marched through the volume, the network is queried at each sample point, and the resulting Beer--Lambert exponential is accumulated into the running average.
 
 \begin{algorithm}
 \caption{Continuous-Scan Forward Pass in \NeCTv{}}
 \label{alg:continuous}
 \begin{algorithmic}[1]
-\Require Swept angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, projection timestamp $t$
-\Ensure Predicted line integrals $\hat{y}_j$ for all detector pixels $j$
-\State Compute $K$ midpoint angles: $\phi_k \gets \phi_s + (k + \tfrac{1}{2})\,\Delta\phi$, \quad $\Delta\phi = (\phi_e - \phi_s)/K$
+\Require Swept angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, projection timestamp $t_j$
+\Ensure Predicted intensities $\hat{I}_j$ for all detector pixels $j$
+\State Initialise $\hat{I}_j \gets 0$ for all $j$
+\State Compute sub-step size: $\delta\phi \gets (\phi_e - \phi_s) / K$
 \For{$k = 0, \ldots, K-1$}
-    \State Set source and detector positions to angle $\phi_k$
-    \State For each ray $j$, sample $P$ equidistant points $\{\mathbf{r}_p\}$ within the object volume
-    \State Query the network: $\muhat_p \gets f_\theta(\mathbf{r}_p,\, t)$ for all sample points
-    \State Accumulate: $\hat{y}_j \gets \hat{y}_j + \dfrac{1}{K}\, d_j \sum_{p=1}^{P} \muhat_p \,/\, P$
+    \State $\phi_k \gets \phi_s + (k + \tfrac{1}{2})\,\delta\phi$
+    \State Recompute source position $\mathbf{o}(\phi_k)$ and detector pixel directions $\mathbf{d}_j(\phi_k)$
+    \For{each ray $j$}
+        \State Sample $P$ equidistant points $\{\mathbf{r}_p\}$ along ray $(\mathbf{o}(\phi_k),\, \mathbf{d}_j(\phi_k))$
+        \State Query network: $\muhat_p \gets f_\theta(\mathbf{r}_p,\, t_j)$ for all $p$
+        \State $\hat{I}_j \gets \hat{I}_j + \dfrac{I_0}{K} \exp\!\left(-\Delta s \sum_{p=1}^{P} \muhat_p\right)$
+    \EndFor
 \EndFor
-\State \Return $\hat{y}_j$ for all $j$
+\State \Return $\hat{I}_j$ for all $j$
 \end{algorithmic}
 \end{algorithm}
 
-To avoid storing intermediate activations for all $K$ sub-steps simultaneously, NeCTv2 uses gradient checkpointing. A first pass without gradient tracking computes $\hat{y}_j$ and caches only the ray geometries. The loss gradient $\partial\mathcal{L}/\partial\hat{y}_j$ is then computed, and a second pass replays each sub-step with gradients enabled, accumulating parameter updates without holding the full computation graph in memory.
+\subsection{Gradient Checkpointing}
+\label{subsec:cont_checkpointing}
 
-The computational cost scales linearly with $K$ relative to the standard single-angle pass. In practice the total training time for a continuous-scan reconstruction with $K$ accumulation steps is therefore approximately $K$ times the training time for the equivalent step-and-shoot reconstruction.
+A naive implementation of the $K$-step forward pass would hold the full computation graph for all $K$ sub-steps in GPU memory simultaneously before backpropagating through the loss. For large $K$ this multiplies the activation memory by a factor of $K$ relative to the standard single-step pass, which can exceed GPU memory capacity.
 
-\section{Static Dataset Experiments}
+\NeCTv{} avoids this through gradient checkpointing. The forward pass is split into two phases. In the first phase, all $K$ sub-steps are executed without gradient tracking, accumulating only the final predicted intensities $\hat{I}_j$ and caching the ray geometries for each sub-step. In the second phase, the loss gradient $\partial\mathcal{L}/\partial\hat{I}_j$ is computed from the cached intensities, and each sub-step is then replayed individually with gradient tracking enabled. Parameter gradients are accumulated across the $K$ replays without ever holding more than a single sub-step in the active computation graph. This reduces the activation memory overhead from $\mathcal{O}(K)$ to $\mathcal{O}(1)$ at the cost of recomputing each sub-step once, doubling the number of forward evaluations while leaving memory consumption approximately constant.
+
+\todo{Report the measured memory overhead of the continuous-scan forward pass relative to the standard pass, as a function of $K$, to confirm that gradient checkpointing successfully bounds memory growth.}
+
+\subsection{Hyperparameters and Training Protocol}
+\label{subsec:cont_training}
+
+All continuous-scan experiments use the same NeCT training protocol as the encoder experiments in Part~\ref{part:encoder_optimisation}: the Adam optimiser with a linear warm-up followed by cosine decay, a batch size of $5 \times 10^6$ ray sample points per step, and the adaptive ray-marching schedule that increases $P$ from 100 to $1.5 \times \max(N_\mathrm{detector})$ over the first 30\% of training. The only modification to the training loop is the replacement of the single Beer--Lambert evaluation per projection with the $K$-step averaged forward pass described above.
+
+\todo{State the specific $K$ values used in each experiment and justify the choice. Describe how $K$ interacts with the batch size: since each ray now generates $K \times P$ network evaluations, the effective batch size in terms of network queries grows by a factor of $K$, which may require adjusting the number of rays per batch to keep step time constant.}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experiments: Static Validation}
 \label{sec:cont_static}
+% ─────────────────────────────────────────────────────────────────────────────
 
-To validate the continuous-scan forward model in isolation from the additional complexity of dynamic reconstruction, it was first applied to a static dataset using the 3D hash-encoded MLP described in \cref{subsec:nect_static}.
+The static experiment validates the continuous-scan forward model in a setting where the ground truth is known precisely and the dynamic component of the reconstruction is absent. Because the sample does not change, any degradation in reconstruction quality relative to the ground truth can be attributed entirely to the angular blurring from the continuous acquisition, and any improvement from increasing $K$ can be attributed entirely to the improved accuracy of the forward model approximation.
 
-The dataset consists of four scans of the same Bentheimer sandstone sample, acquired without fluid invasion so that the sample remains static throughout. One scan uses the standard step-and-shoot protocol with 1400 projections and serves as the ground truth reference. The remaining three are continuous scans at different projection counts, producing different angular step sizes per projection.
+\subsection{Dataset}
+\label{subsec:cont_static_dataset}
+
+The static dataset consists of four scans of the same Bentheimer sandstone sample used in the encoder experiments, acquired without fluid invasion so that the attenuation field is constant throughout. One scan was acquired in step-and-shoot mode with 1400 projections and serves as the ground truth reference, reconstructed with the standard NeCT static model to produce a high-quality 3D volume. The remaining three datasets are continuous-scan acquisitions at 1400, 360, and 100 projections respectively, spanning a wide range of angular step sizes. The static 3D model from \cref{subsec:nect_static} is used for all reconstructions in this section; no temporal encoder is required.
 
 \begin{table}[h]
     \centering
-    \caption{Static continuous-scan dataset configurations. The angular step $\Delta\phi$ is $360\degree$ divided by the number of projections. Accumulation steps $K$ subdivide each $\Delta\phi$ into finer angular increments of $\Delta\phi / K$.}
+    \caption{Static continuous-scan dataset configurations. The angular step $\Delta\phi$ is $360\degree$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.}
     \label{tab:static_cont_configs}
-    \begin{tabular}{cccc}
+    \begin{tabular}{ccc}
         \toprule
-        Projections & $\Delta\phi$ (degrees) & $K$ tested & Effective sub-step $\Delta\phi / K$ (degrees) \\
+        Projections & $\Delta\phi$ (degrees) & Effective sub-step $\Delta\phi / K$ at $K = \{1, 2, 3, 4, 6\}$ (degrees) \\
         \midrule
-        1400 & 0.26 & 1, 2, 3, 4, 6 & 0.26, 0.13, 0.086, 0.064, 0.043 \\
-        360  & 1.00 & 1, 2, 3, 4, 6 & 1.00, 0.50, 0.33, 0.25, 0.17 \\
-        100  & 3.60 & 1, 2, 3, 4, 6 & 3.60, 1.80, 1.20, 0.90, 0.60 \\
+        1400 & 0.26 & 0.26,\ \ 0.13,\ \ 0.086,\ \ 0.064,\ \ 0.043 \\
+        360  & 1.00 & 1.00,\ \ 0.50,\ \ 0.33,\ \ \ 0.25,\ \ \ 0.17  \\
+        100  & 3.60 & 3.60,\ \ 1.80,\ \ 1.20,\ \ \ 0.90,\ \ \ 0.60  \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Table~\ref{tab:static_cont_configs} reveals useful equivalences across configurations. For example, 360 projections at $K = 4$ yields an effective sub-step of $0.25\degree$, nearly matching 1400 projections at $K = 1$ ($0.26\degree$). Comparing reconstruction quality across these matched pairs isolates how well the accumulation approximation compensates for larger angular steps.
+Several effective sub-step sizes coincide across configurations, as shown in Table~\ref{tab:static_cont_configs}. For example, 360 projections at $K = 4$ gives $0.25\degree$ per sub-step, nearly identical to 1400 projections at $K = 1$ ($0.26\degree$). Comparing reconstruction quality across these matched pairs directly tests whether the $K$-step approximation fully compensates for the larger raw angular step or whether some residual information loss persists.
 
-Figure~\ref{fig:static_cont_reconstruction} shows representative reconstruction slices for a range of $K$ values. \todo{Insert figure.}
+\todo{Confirm the exact scanner parameters used for the static continuous-scan acquisitions: angular velocity, exposure time per frame, detector size, and whether the same physical sample was used for all three continuous-scan counts or whether the projection counts were achieved by subsampling a single long acquisition.}
 
-Figure~\ref{fig:static_cont_psnr} shows PSNR and SSIM as a function of $K$ for each projection count. \todo{Insert figure.}
+\subsection{Evaluation Metrics}
+\label{subsec:cont_static_metrics}
 
-\section{Dynamic Dataset Experiments}
+Reconstruction quality is measured against the step-and-shoot ground truth using PSNR, SSIM, and MAE as defined in \cref{sec:enc_shared_setup}. Metrics are computed on a set of representative 2D slices extracted from the reconstructed 3D volume. \todo{Specify which slices are used and whether the same slice positions are used across all projection counts.}
+
+\subsection{Results}
+\label{subsec:cont_static_results}
+
+\todo{Insert figure showing representative 2D reconstruction slices for each projection count at $K = 1$ (no correction) and at the highest tested $K$, side by side with the step-and-shoot ground truth. This should clearly illustrate the angular blurring at $K = 1$ and its reduction with increasing $K$.}
+
+\todo{Insert figure showing PSNR and SSIM as a function of $K$ for each of the three projection counts (1400, 360, 100). The expected pattern is: for 1400 projections the curves are flat (blurring negligible at $0.26\degree$); for 360 projections there is a clear improvement up to some saturation point; for 100 projections the improvement is largest and saturation occurs at a higher $K$.}
+
+\todo{Insert figure or table showing cross-configuration quality at matched effective sub-step sizes, e.g.\ comparing 360-projection $K=4$ ($0.25\degree$) against 1400-projection $K=1$ ($0.26\degree$), to assess whether the $K$-step approximation is equivalent to a finer native angular sampling.}
+
+\todo{Report training time per epoch as a function of $K$ for a representative projection count, to confirm the expected linear scaling and to give a practical sense of the cost of increasing $K$.}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experiments: Dynamic Hourglass}
 \label{sec:cont_dynamic}
+% ─────────────────────────────────────────────────────────────────────────────
 
-The static experiment established that the forward model correctly compensates for angular blurring. The dynamic experiment extends this to time-resolved reconstruction, where continuous scanning provides a physical advantage over step-and-shoot by recording events that occur within a single exposure interval rather than missing them between frames.
+The dynamic experiment extends the continuous-scan forward model to full 4D reconstruction, where the sample changes during the scan. The hourglass dataset was chosen because it provides a controlled, repeatable dynamic process: sand flows between two chambers on a timescale of minutes, producing clearly visible structural changes between successive projections while remaining a physically simple system without the chemical complexity of a fluid-displacement rock experiment.
 
-\subsection*{Experimental Setup}
-
-The dynamic dataset was acquired using an hourglass placed inside a micro-CT scanner. The hourglass provides a controlled, repeatable dynamic process with sand flowing between chambers on a timescale of minutes, producing visible structural changes between successive projections.
+\subsection{Dataset}
+\label{subsec:cont_dynamic_dataset}
 
 \begin{figure}[H]
     \centering
@@ -1215,7 +1347,7 @@ The dynamic dataset was acquired using an hourglass placed inside a micro-CT sca
     \label{fig:hourglass_in_scanner}
 \end{figure}
 
-Six datasets were acquired, all using 800 projections in continuous rotation mode. The datasets vary in total angular range (2750\degree, 5500\degree, and 11000\degree) and frame rate (2 and 4 fps), producing different combinations of angular step size and temporal sampling density. Table~\ref{tab:acquisition_params} summarises the acquisition parameters.
+Six datasets were acquired, all using 800 projections in continuous rotation mode. The datasets are organised as a $3 \times 2$ factorial design: three total angular ranges (2750\degree, 5500\degree, and 11000\degree) crossed with two frame rates (2 and 4 fps). The angular range determines the angular step per projection $\Delta\phi$, while the frame rate determines the time between consecutive projections $\Delta t$. Table~\ref{tab:acquisition_params} summarises the acquisition parameters for all six datasets.
 
 \begin{table}[h]
   \centering
@@ -1225,11 +1357,11 @@ Six datasets were acquired, all using 800 projections in continuous rotation mod
   \textbf{\#} & \textbf{FPS} & \textbf{Projections} & \textbf{Angle range} &
   \textbf{Total time} & \textbf{$\Delta\phi$} & \textbf{$\Delta t$} \\
   \midrule
-  1 & 4 & 800 & 2750\degree & 261\,s & 3.44\degree & 0.44\,s \\
-  2 & 4 & 800 & 5500\degree & 233\,s & 6.88\degree & 0.29\,s \\
+  1 & 4 & 800 & 2750\degree  & 261\,s & 3.44\degree  & 0.44\,s \\
+  2 & 4 & 800 & 5500\degree  & 233\,s & 6.88\degree  & 0.29\,s \\
   3 & 4 & 800 & 11000\degree & 223\,s & 13.75\degree & 0.28\,s \\
-  4 & 2 & 800 & 2750\degree & 417\,s & 3.44\degree & 0.52\,s \\
-  5 & 2 & 800 & 5500\degree & 417\,s & 6.88\degree & 0.52\,s \\
+  4 & 2 & 800 & 2750\degree  & 417\,s & 3.44\degree  & 0.52\,s \\
+  5 & 2 & 800 & 5500\degree  & 417\,s & 6.88\degree  & 0.52\,s \\
   6 & 2 & 800 & 11000\degree & 421\,s & 13.75\degree & 0.53\,s \\
   \bottomrule
   \end{tabular}
@@ -1238,11 +1370,13 @@ Six datasets were acquired, all using 800 projections in continuous rotation mod
   \label{tab:acquisition_params}
 \end{table}
 
-Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$, giving five reconstructions per dataset and thirty reconstructions in total.
+The angular step $\Delta\phi$ ranges from $3.44\degree$ (datasets 1 and 4) to $13.75\degree$ (datasets 3 and 6). At the largest angular step, angular blurring from the standard $K = 1$ forward model is expected to be most severe. Datasets with the same $\Delta\phi$ but different frame rates (e.g.\ datasets 1 and 4) have the same angular blur per projection but different temporal sampling, allowing the effect of temporal resolution to be separated from the effect of angular blur.
+
+Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$, giving five reconstructions per dataset and thirty reconstructions in total. Table~\ref{tab:dynamic_cont_configs} lists the effective angular sub-step $\Delta\phi / K$ for each combination and highlights matched sub-step values across datasets.
 
 \begin{table}[h]
     \centering
-    \caption{Effective angular sub-step $\Delta\phi / K$ (in degrees) for each combination of dataset angular step and number of accumulation steps $K$. Bold entries mark configurations where the effective sub-step approximately matches between different datasets.}
+    \caption{Effective angular sub-step $\Delta\phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.}
     \label{tab:dynamic_cont_configs}
     \begin{tabular}{cccccc}
         \toprule
@@ -1250,14 +1384,19 @@ Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$
         \cmidrule(lr){2-6}
         $\Delta\phi$ & 1 & 2 & 3 & 4 & 6 \\
         \midrule
-        3.44\degree & 3.44 & 1.72 & 1.15 & 0.86 & 0.57 \\
-        6.88\degree & 6.88 & \textbf{3.44} & 2.29 & \textbf{1.72} & \textbf{1.15} \\
-        13.75\degree & 13.75 & 6.88 & 4.58 & \textbf{3.44} & 2.29 \\
+        3.44\degree  & 3.44  & 1.72          & 1.15 & 0.86          & 0.57          \\
+        6.88\degree  & 6.88  & \textbf{3.44} & 2.29 & \textbf{1.72} & \textbf{1.15} \\
+        13.75\degree & 13.75 & 6.88          & 4.58 & \textbf{3.44} & 2.29          \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\subsection*{Results}
+The bold entries in Table~\ref{tab:dynamic_cont_configs} identify matched pairs that allow a direct test of whether the $K$-step approximation fully recovers the quality of a finer native angular step. For example, dataset 2 ($\Delta\phi = 6.88\degree$) at $K = 2$ has the same effective sub-step of $3.44\degree$ as dataset 1 ($\Delta\phi = 3.44\degree$) at $K = 1$; if the approximation is perfect, these two should yield equal reconstruction quality.
+
+\todo{Describe whether a ground truth volume exists for the hourglass dataset, how evaluation metrics are computed without a ground truth (e.g.\ consistency metrics, qualitative visual assessment, or comparison against a high-quality FDK reconstruction from a subset of the data), and whether FDK or OS-SART-TV reconstructions are included as baselines.}
+
+\subsection{Results}
+\label{subsec:cont_dynamic_results}
 
 \begin{figure}[H]
     \begin{adjustwidth}{-2cm}{-2cm}
@@ -1277,26 +1416,53 @@ Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$
         \caption{Last timestep}
     \end{subfigure}
     \end{adjustwidth}
-    \caption{Dynamic reconstruction of the hourglass from dataset 1 (2750\degree rotation, 4 fps) at 150 epochs, shown at three time points.}
+    \caption{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta\phi = 3.44\degree$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.}
     \label{fig:dynamic_cont_reconstruction}
 \end{figure}
 
 Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass at three time points from dataset 1, demonstrating that the continuous-scan forward model successfully captures the dynamic process of sand redistribution between the two chambers.
 
-\todo{For each of the six datasets, present PSNR/SSIM as a function of $K$. Describe how improvement from increasing $K$ depends on $\Delta\phi$.}
+\todo{Insert figure showing reconstruction slices from datasets 1, 2, and 3 (same frame rate, increasing $\Delta\phi$) at $K=1$ and at the highest $K$, to illustrate how angular blur severity and the benefit of the correction both increase with $\Delta\phi$.}
 
-\todo{Show reconstruction slices at matched $K$ values for different $\Delta\phi$ to illustrate the visual effect of the accumulation correction.}
+\todo{Insert figure showing reconstruction quality (PSNR or visual quality score) as a function of $K$ for each of the six datasets, with the three $\Delta\phi$ values shown in separate panels or with separate curves. The expected pattern is that improvement from increasing $K$ is larger for datasets with larger $\Delta\phi$, and that quality saturates at a $K$ that depends on $\Delta\phi$.}
 
+\todo{Insert comparison across matched sub-step configurations from Table~\ref{tab:dynamic_cont_configs}, analogous to the static matched-pair analysis, to test whether the approximation fully compensates for larger raw angular steps in the dynamic case.}
+
+\todo{Compare datasets with the same $\Delta\phi$ but different frame rates (e.g.\ datasets 1 and 4) to assess the effect of temporal resolution independently of angular blur. Report whether higher temporal resolution (4\,fps) yields visibly sharper tracking of the sand front.}
+
+\todo{Report wall-clock training time per epoch as a function of $K$ for a representative dynamic dataset, confirming linear scaling and providing a practical guide for choosing $K$ in future experiments.}
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section{Discussion}
 \label{sec:cont_discussion}
+% ─────────────────────────────────────────────────────────────────────────────
 
-The continuous-scan forward model extends NeCTv2 to a broader class of CT acquisition protocols without requiring any change to the network architecture or training procedure. The only modification is the replacement of the single-ray Beer--Lambert evaluation with the $K$-step averaged forward pass.
+\subsection{Validity of the Forward Model}
+\label{subsec:cont_disc_model}
 
-The benefit of continuous scanning is most significant for dynamic experiments where the process being imaged has a characteristic timescale comparable to or shorter than the inter-frame interval of a step-and-shoot acquisition. In that regime, step-and-shoot imaging misses events that occur between frames, while continuous scanning integrates over those events and records their signature in the blurred projection data. Recovering sharp reconstructions from these blurred projections requires the $K > 1$ forward model, and the results show that even modest values of $K$ can substantially reduce angular smearing artefacts.
+The static experiment provides a controlled test of the $K$-step approximation in isolation from the complications of dynamic reconstruction. \todo{Summarise the main finding from the static experiment: at what $\Delta\phi$ does the $K=1$ model produce visible artefacts, and how quickly does quality recover as $K$ increases? State whether quality at large $K$ converges to the step-and-shoot baseline, and whether the matched-pair comparisons confirm that the approximation is equivalent to a finer native angular sampling.}
 
-The value of $K$ required for convergence is a practical consideration. \todo{Restate the $K$ saturation finding from the static and dynamic experiments.} Since training time scales linearly with $K$, choosing the smallest adequate $K$ is important for keeping reconstruction times manageable.
+The approximation error of the midpoint rule scales as $\mathcal{O}((\Delta\phi/K)^2)$ for smooth integrands, meaning that doubling $K$ should reduce the approximation error by a factor of four. \todo{State whether this theoretical scaling is observed empirically in the static experiment, and at what $K$ the approximation error becomes negligible relative to other sources of reconstruction error such as photon noise and network expressivity.}
 
-The current implementation assumes a fixed angular velocity throughout the scan and assigns a single timestamp to each projection. For instruments that support variable-speed rotation or that alternate rotation direction between revolutions (as in the Bentheimer experiment of \citet{friis2025nect}), the forward model would need to accept per-projection angular intervals. This extension is straightforward in principle, requiring only that the boundary angles $\phi_s$ and $\phi_e$ be specified per projection rather than computed from a global angular velocity.
+\subsection{Benefits and Costs for Dynamic Imaging}
+\label{subsec:cont_disc_dynamic}
+
+The dynamic experiment shows that the continuous-scan forward model can successfully reconstruct time-resolved 4D data from fly-scan acquisitions. \todo{Summarise the key finding from the dynamic experiment: does the corrected forward model ($K > 1$) produce a measurable improvement in reconstruction quality over the uncorrected model ($K = 1$), and is this improvement larger for datasets with larger $\Delta\phi$? State whether the matched sub-step comparisons from Table~\ref{tab:dynamic_cont_configs} confirm that the correction fully compensates for the coarser angular sampling.}
+
+The primary practical benefit of continuous scanning for dynamic experiments is the elimination of motor overhead between projections, which reduces $\Delta t$ and thereby improves temporal resolution. \todo{Quantify this benefit for the hourglass datasets by comparing the observed temporal resolution, i.e.\ the smallest interval over which a change in the sand level is detectable, between the continuous-scan reconstructions and what would be expected from a step-and-shoot acquisition with the same total scan time.}
+
+The cost is that each projection is individually less geometrically precise, and the $K$-step forward pass increases training time by a factor of $K$. Since training time scales linearly with $K$, choosing the smallest value of $K$ that is adequate for a given $\Delta\phi$ is important for keeping reconstruction times practical. \todo{Provide a recommendation for $K$ as a function of $\Delta\phi$, based on the saturation behaviour observed in both the static and dynamic experiments. For example: $K = 1$ suffices for $\Delta\phi < 1\degree$, $K = 3$ for $1\degree \leq \Delta\phi < 5\degree$, and so on.}
+
+\subsection{Limitations and Extensions}
+\label{subsec:cont_disc_limitations}
+
+The current implementation assumes constant angular velocity throughout the scan and assigns a single timestamp to each projection. For instruments that support variable-speed rotation, or that alternate the rotation direction between revolutions as in the Bentheimer experiment of \citet{friis2025nect}, the forward model would need to accept per-projection angular intervals $[\phi_s^{(j)}, \phi_e^{(j)}]$ rather than computing them from a global angular velocity. This extension is straightforward in principle and requires only a minor change to the data loading pipeline.
+
+\todo{Discuss whether the continuous-scan model interacts with the hybrid golden-section sampling scheme from \cref{subsec:hybrid_golden}. In particular, does the golden offset between revolutions change the effective angular blur pattern, and does the alternating rotation direction require any modification to the forward model?}
+
+\todo{Discuss the assumption of a static attenuation field within each projection's exposure interval. For very fast dynamic processes where the sample changes measurably during a single exposure, this assumption breaks down and the forward model would need to account for intra-exposure motion. State whether the hourglass experiment is in this regime or whether the assumption is well satisfied.}
+
+\todo{Discuss the applicability of the continuous-scan model to other dynamic CT problems beyond sandstone imbibition and hourglass flow, e.g.\ cardiac CT or in-situ mechanical testing, where continuous rotation is standard practice.}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Conclusion}

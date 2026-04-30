@@ -14,7 +14,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     mode="dynamic",
     exp_name="sexcubes_kplanes",
     config_override={
-        "epochs": "10x",
+        "epochs": "6x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
