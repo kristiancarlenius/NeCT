@@ -60,9 +60,15 @@ def compute_metrics(ref, cand, crops):
     for c in crops:
         r = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
         k = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
-        mse = float(np.mean((r - k) ** 2))
+        # normalize candidate to reference intensity so MSE/PSNR measure structure, not brightness offset
+        r_std = r.std()
+        if r_std > 0 and k.std() > 0:
+            k_norm = (k - k.mean()) / k.std() * r_std + r.mean()
+        else:
+            k_norm = k
+        mse = float(np.mean((r - k_norm) ** 2))
         mses.append(mse)
-        psnrs.append(20 * np.log10(255.0 / np.sqrt(mse)) if mse > 0 else 100.0)
+        psnrs.append(10.0 * np.log10(255.0 ** 2 / mse) if mse > 0 else 100.0)
         ssims.append(float(ssim_fn(r, k, data_range=255.0)))
     return float(np.mean(psnrs)), float(np.mean(mses)), float(np.mean(ssims))
 

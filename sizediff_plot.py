@@ -14,8 +14,8 @@ from skimage.metrics import structural_similarity as ssim_fn
 ROOT = Path(__file__).parent
 SIZEDIFF = ROOT / "sizediff"
 CROPS_FILE = ROOT / "crops.json"
-PERFECT_EPOCH = SIZEDIFF / "perfect" / "epoch" / "0525_1400.png"
-PERFECT_TIME = SIZEDIFF / "perfect" / "time" / "0525_1400.png"
+PERFECT_EPOCH = SIZEDIFF / "perfect" / "0525_1400.png"
+PERFECT_TIME = SIZEDIFF / "perfect" / "0525_1400.png"
 RESULTS = ROOT / "results" / "test_plots"
 RESULTS.mkdir(exist_ok=True)
 
@@ -55,34 +55,25 @@ def load_image_gray(path):
     return np.array(Image.open(path).convert("L"), dtype=np.float32)
 
 
-def compute_ssim(ref, cand, crops):
-    vals = []
-    for c in crops:
-        r_crop = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
-        c_crop = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
-        vals.append(float(ssim_fn(r_crop, c_crop, data_range=255.0)))
-    return float(np.mean(vals))
-
-
-def compute_mse(ref, cand, crops):
-    vals = []
-    for c in crops:
-        r_crop = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
-        c_crop = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
-        vals.append(float(np.mean((r_crop - c_crop) ** 2)))
-    return float(np.mean(vals))
-
-
-def compute_psnr(ref, cand, crops):
-    mse = compute_mse(ref, cand, crops)
-    if mse == 0:
-        return float("inf")
-    return float(10.0 * np.log10(255.0 ** 2 / mse))
-
 
 def compute_all_metrics(ref, cand, crops):
-    ssim = compute_ssim(ref, cand, crops)
-    mse  = compute_mse(ref, cand, crops)
+    ssim_vals, mse_vals = [], []
+    for c in crops:
+        r_crop = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        c_crop = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+
+        # normalize candidate to reference intensity so MSE/PSNR measure structure, not brightness offset
+        r_std = r_crop.std()
+        if r_std > 0 and c_crop.std() > 0:
+            c_norm = (c_crop - c_crop.mean()) / c_crop.std() * r_std + r_crop.mean()
+        else:
+            c_norm = c_crop
+
+        ssim_vals.append(float(ssim_fn(r_crop, c_crop, data_range=255.0)))
+        mse_vals.append(float(np.mean((r_crop - c_norm) ** 2)))
+
+    ssim = float(np.mean(ssim_vals))
+    mse  = float(np.mean(mse_vals))
     psnr = float(10.0 * np.log10(255.0 ** 2 / mse)) if mse > 0 else float("inf")
     return ssim, psnr, mse
 
