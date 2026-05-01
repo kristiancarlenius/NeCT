@@ -12,10 +12,43 @@ print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
-geometry_file = Path(data_path) / "geometry_4fps_11000.yaml"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
+geometry_file = Path(data_path) / "geometry_optimized_360_cont.yaml"#"geometry_4fps_11000.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
+reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
+    geometry=geometry,
+    projections=str(Path(data_path) / "proj_360_cont.npy"),#"projections.npy"),
+    quality="high",
+    mode="static",
+    exp_name="static_continious",
+    config_override={
+        "epochs": "4x",
+        "checkpoint_interval": 0,
+        "image_interval": 0,
+        "plot_type": "XZ",
+        "encoder": {
+            "otype": "HashGrid",
+            "n_levels": 23,
+            "n_features_per_level": 4,
+            "log2_hashmap_size": 23,
+            "base_resolution": 16,
+            "max_resolution_factor": 2,
+        },
+        "net": MLPNetConfig(
+            otype="FullyFusedMLP",
+            activation="LeakyReLU",
+            output_activation="None",
+            n_neurons=128,
+            n_hidden_layers=4,
+            include_identity=False,
+            include_adaptive_skip=False,
+        ),
+        "accumulation_steps": 1,
+        "continous_scanning": True,
+    },
+)
+"""
 reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_4fps_11000.npy"),
@@ -55,3 +88,4 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     },)
 
 print(reconstruction_path_dynamic, _)
+"""

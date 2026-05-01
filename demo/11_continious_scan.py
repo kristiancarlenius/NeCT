@@ -12,38 +12,28 @@ print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
-"""
-config_file = Path(data_path) / "config.yaml"
-with open(config_file, "r") as f:
-    config = yaml.safe_load(f)
-config["img_path"] = str(Path(data_path) / "projections")
-tmp_config_file = Path(data_path) / "config_tmp.yaml"
-with open(tmp_config_file, "w") as f:
-    yaml.safe_dump(config, f)
-nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
-"""
-geometry_file = Path(data_path) / "geometry_4fps_5500.yaml"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
+
+geometry_file = Path(data_path) / "geometry_optimized_360_cont.yaml"#"geometry_4fps_5500.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
-# run reconstruction using the new .npy projections
-reconstruction_path_static, output_path = nect.reconstruct(
+
+reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     geometry=geometry,
-    projections=str(Path(data_path) / "projections.npy"),
+    projections=str(Path(data_path) / "proj_360_cont.npy"),#"projections.npy"),
     quality="high",
     mode="static",
-    exp_name="static_init",
+    exp_name="static_continious",
     config_override={
-        "epochs": "1x",
+        "epochs": "4x",
         "checkpoint_interval": 0,
-        "image_interval": 10,
+        "image_interval": 0,
         "plot_type": "XZ",
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 21,
+            "n_levels": 23,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 21,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -56,6 +46,8 @@ reconstruction_path_static, output_path = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
+        "accumulation_steps": 6,
+        "continous_scanning": True,
     },
 )
 """
@@ -97,5 +89,5 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         "continous_scanning": True,
         
     },)
-
 print(reconstruction_path_dynamic, _)
+"""
