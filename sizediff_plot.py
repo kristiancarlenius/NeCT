@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SSIM vs epoch/time plots for sizediff experiments, plus VRAM efficiency."""
+"""SSIM/PSNR/MSE vs epoch/time plots for sizediff experiments, plus VRAM efficiency."""
 
 from pathlib import Path
 import re
@@ -16,7 +16,7 @@ SIZEDIFF = ROOT / "sizediff"
 CROPS_FILE = ROOT / "crops.json"
 PERFECT_EPOCH = SIZEDIFF / "perfect" / "epoch" / "0525_1400.png"
 PERFECT_TIME = SIZEDIFF / "perfect" / "time" / "0525_1400.png"
-RESULTS = ROOT / "results" / "ssim_arc"
+RESULTS = ROOT / "results" / "test_plots"
 RESULTS.mkdir(exist_ok=True)
 
 MODELS = [
@@ -37,6 +37,12 @@ MODEL_COLORS = {
 
 TARGET_18H = 18.0  # hours
 
+METRICS = {
+    "ssim": "SSIM",
+    "psnr": "PSNR (dB)",
+    "mse":  "MSE",
+}
+
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -56,6 +62,29 @@ def compute_ssim(ref, cand, crops):
         c_crop = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
         vals.append(float(ssim_fn(r_crop, c_crop, data_range=255.0)))
     return float(np.mean(vals))
+
+
+def compute_mse(ref, cand, crops):
+    vals = []
+    for c in crops:
+        r_crop = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        c_crop = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        vals.append(float(np.mean((r_crop - c_crop) ** 2)))
+    return float(np.mean(vals))
+
+
+def compute_psnr(ref, cand, crops):
+    mse = compute_mse(ref, cand, crops)
+    if mse == 0:
+        return float("inf")
+    return float(10.0 * np.log10(255.0 ** 2 / mse))
+
+
+def compute_all_metrics(ref, cand, crops):
+    ssim = compute_ssim(ref, cand, crops)
+    mse  = compute_mse(ref, cand, crops)
+    psnr = float(10.0 * np.log10(255.0 ** 2 / mse)) if mse > 0 else float("inf")
+    return ssim, psnr, mse
 
 
 def parse_epoch_losses(path):
@@ -109,29 +138,39 @@ def load_param_data(param_dir, ref_epoch_arr, ref_time_arr, crops):
     epoch_time_map = parse_epoch_losses(losses_file) if losses_file.exists() else {}
     vram_gb = parse_vram_gb(vram_file if vram_file.exists() else None)
 
-    epoch_data = []
+    epoch_ssim, epoch_psnr, epoch_mse = [], [], []
     if epoch_dir.exists():
         for img_path in sorted(epoch_dir.glob("*_1400.png")):
             ep = epoch_from_name(img_path.name)
             if ep is None:
                 continue
             cand = load_image_gray(img_path)
-            epoch_data.append((ep, compute_ssim(ref_epoch_arr, cand, crops)))
+            s, p, m = compute_all_metrics(ref_epoch_arr, cand, crops)
+            epoch_ssim.append((ep, s))
+            epoch_psnr.append((ep, p))
+            epoch_mse.append((ep, m))
 
-    time_data = []
+    time_ssim, time_psnr, time_mse = [], [], []
     if time_dir.exists() and epoch_time_map:
         for img_path in sorted(time_dir.glob("*_1400.png")):
             ep = epoch_from_name(img_path.name)
             if ep is None:
                 continue
-            t_sec = nearest_lookup(epoch_time_map, ep)
+            t_h = nearest_lookup(epoch_time_map, ep) / 3600.0
             cand = load_image_gray(img_path)
-            time_data.append((t_sec / 3600.0, compute_ssim(ref_time_arr, cand, crops)))
+            s, p, m = compute_all_metrics(ref_time_arr, cand, crops)
+            time_ssim.append((t_h, s))
+            time_psnr.append((t_h, p))
+            time_mse.append((t_h, m))
 
     return {
-        "epoch_data": sorted(epoch_data),
-        "time_data": sorted(time_data),
-        "vram_gb": vram_gb,
+        "epoch_ssim": sorted(epoch_ssim),
+        "epoch_psnr": sorted(epoch_psnr),
+        "epoch_mse":  sorted(epoch_mse),
+        "time_ssim":  sorted(time_ssim),
+        "time_psnr":  sorted(time_psnr),
+        "time_mse":   sorted(time_mse),
+        "vram_gb":    vram_gb,
     }
 
 
@@ -159,23 +198,25 @@ def collect_all(crops, ref_epoch_arr, ref_time_arr):
 def cap_to_minimum(all_data):
     """Trim every epoch/time series to the shortest one across all models/configs."""
     epoch_lens = [
-        len(d["epoch_data"])
+        len(d["epoch_ssim"])
         for configs in all_data.values()
         for d in configs.values()
-        if d["epoch_data"]
+        if d["epoch_ssim"]
     ]
     time_lens = [
-        len(d["time_data"])
+        len(d["time_ssim"])
         for configs in all_data.values()
         for d in configs.values()
-        if d["time_data"]
+        if d["time_ssim"]
     ]
     min_epoch = min(epoch_lens) if epoch_lens else 0
     min_time  = min(time_lens)  if time_lens  else 0
     for configs in all_data.values():
         for d in configs.values():
-            d["epoch_data"] = d["epoch_data"][:min_epoch]
-            d["time_data"]  = d["time_data"][:min_time]
+            for key in ("epoch_ssim", "epoch_psnr", "epoch_mse"):
+                d[key] = d[key][:min_epoch]
+            for key in ("time_ssim", "time_psnr", "time_mse"):
+                d[key] = d[key][:min_time]
     print(f"  Capped to {min_epoch} epoch images, {min_time} time images")
     return all_data
 
@@ -190,29 +231,32 @@ def _finish(fig, path, title):
     print(f"  Saved {path}")
 
 
-def plot_model_epoch(model, model_data):
+def plot_model_epoch(model, model_data, metric):
     fig, ax = plt.subplots(figsize=(9, 5))
     cmap = plt.get_cmap("tab10")
+    key = f"epoch_{metric}"
     for i, (label, data) in enumerate(sorted(model_data.items())):
-        pts = data["epoch_data"]
+        pts = data[key]
         if not pts:
             continue
         xs, ys = zip(*pts)
         ax.plot(xs, ys, label=label, color=cmap(i % 10), linewidth=1.5, marker="o",
                 markersize=3)
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("SSIM")
+    ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=8, title="Config", loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"{model}_epoch_ssim.png", f"{model} — SSIM vs Epoch")
+    _finish(fig, RESULTS / f"{model}_epoch_{metric}.png",
+            f"{model} — {METRICS[metric]} vs Epoch")
 
 
-def plot_model_time(model, model_data):
+def plot_model_time(model, model_data, metric):
     fig, ax = plt.subplots(figsize=(9, 5))
     cmap = plt.get_cmap("tab10")
+    key = f"time_{metric}"
     plotted = 0
     for i, (label, data) in enumerate(sorted(model_data.items())):
-        pts = data["time_data"]
+        pts = data[key]
         if not pts:
             continue
         xs, ys = zip(*pts)
@@ -224,45 +268,47 @@ def plot_model_time(model, model_data):
         return
     ax.axvline(TARGET_18H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="18 h")
     ax.set_xlabel("Wall-clock time (hours)")
-    ax.set_ylabel("SSIM")
+    ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=8, title="Config", loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"{model}_time_ssim.png", f"{model} — SSIM vs Time")
+    _finish(fig, RESULTS / f"{model}_time_{metric}.png",
+            f"{model} — {METRICS[metric]} vs Time")
 
 
-def plot_combined_epoch(all_data):
+def plot_combined_epoch(all_data, metric):
     fig, ax = plt.subplots(figsize=(11, 6))
+    key = f"epoch_{metric}"
     for model, model_data in all_data.items():
         color = MODEL_COLORS.get(model, "gray")
         for i, (label, data) in enumerate(sorted(model_data.items())):
-            pts = data["epoch_data"]
+            pts = data[key]
             if not pts:
                 continue
             xs, ys = zip(*pts)
-            is_first = i == 0
             ax.plot(xs, ys, color=color, linewidth=1.2, alpha=0.75,
-                    label=model if is_first else None,
+                    label=model if i == 0 else None,
                     linestyle=["-", "--", ":", "-."][i % 4])
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("SSIM")
+    ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=9, loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / "combined_epoch_ssim.png", "All Models — SSIM vs Epoch")
+    _finish(fig, RESULTS / f"combined_epoch_{metric}.png",
+            f"All Models — {METRICS[metric]} vs Epoch")
 
 
-def plot_combined_time(all_data):
+def plot_combined_time(all_data, metric):
     fig, ax = plt.subplots(figsize=(11, 6))
+    key = f"time_{metric}"
     has_data = False
     for model, model_data in all_data.items():
         color = MODEL_COLORS.get(model, "gray")
         for i, (label, data) in enumerate(sorted(model_data.items())):
-            pts = data["time_data"]
+            pts = data[key]
             if not pts:
                 continue
             xs, ys = zip(*pts)
-            is_first = i == 0
             ax.plot(xs, ys, color=color, linewidth=1.2, alpha=0.75,
-                    label=model if is_first else None,
+                    label=model if i == 0 else None,
                     linestyle=["-", "--", ":", "-."][i % 4])
             has_data = True
     if not has_data:
@@ -270,50 +316,49 @@ def plot_combined_time(all_data):
         return
     ax.axvline(TARGET_18H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="18 h")
     ax.set_xlabel("Wall-clock time (hours)")
-    ax.set_ylabel("SSIM")
+    ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=9, loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / "combined_time_ssim.png", "All Models — SSIM vs Time")
+    _finish(fig, RESULTS / f"combined_time_{metric}.png",
+            f"All Models — {METRICS[metric]} vs Time")
 
 
-def plot_vram_efficiency(all_data):
+def plot_vram_efficiency(all_data, metric):
     fig, ax = plt.subplots(figsize=(9, 6))
-
+    key = f"time_{metric}"
     plotted = []
     for model, model_data in all_data.items():
         color = MODEL_COLORS.get(model, "gray")
         for label, data in sorted(model_data.items()):
             vram = data["vram_gb"]
-            ssim_18h = None
-            if data["time_data"]:
-                # pick the point nearest to 18 h
-                nearest = min(data["time_data"], key=lambda p: abs(p[0] - TARGET_18H))
-                ssim_18h = nearest[1]
-            if vram is None or ssim_18h is None:
+            val_18h = None
+            if data[key]:
+                nearest = min(data[key], key=lambda p: abs(p[0] - TARGET_18H))
+                val_18h = nearest[1]
+            if vram is None or val_18h is None:
                 continue
-            plotted.append((vram, ssim_18h, model, label, color))
+            plotted.append((vram, val_18h, model, label, color))
 
     if not plotted:
         plt.close(fig)
-        print("  No VRAM efficiency data available.")
+        print(f"  No VRAM efficiency data available for {metric}.")
         return
 
-    # scatter + annotate
     seen_models = set()
-    for vram, ssim, model, label, color in plotted:
+    for vram, val, model, label, color in plotted:
         first = model not in seen_models
-        ax.scatter(vram, ssim, color=color, s=70, zorder=3,
+        ax.scatter(vram, val, color=color, s=70, zorder=3,
                    label=model if first else None)
         seen_models.add(model)
-        ax.annotate(label, (vram, ssim), textcoords="offset points",
+        ax.annotate(label, (vram, val), textcoords="offset points",
                     xytext=(5, 3), fontsize=6.5, color=color)
 
     ax.set_xlabel("Peak Reserved VRAM (GB)")
-    ax.set_ylabel(f"SSIM at ~{TARGET_18H:.0f} h")
+    ax.set_ylabel(f"{METRICS[metric]} at ~{TARGET_18H:.0f} h")
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / "vram_efficiency.png",
-            f"VRAM Efficiency — SSIM at {TARGET_18H:.0f} h vs Peak Reserved VRAM")
+    _finish(fig, RESULTS / f"vram_efficiency_{metric}.png",
+            f"VRAM Efficiency — {METRICS[metric]} at {TARGET_18H:.0f} h vs Peak Reserved VRAM")
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
@@ -330,13 +375,14 @@ def main():
 
     print("Generating plots ...")
 
-    for model, model_data in all_data.items():
-        plot_model_epoch(model, model_data)
-        plot_model_time(model, model_data)
+    for metric in METRICS:
+        for model, model_data in all_data.items():
+            plot_model_epoch(model, model_data, metric)
+            plot_model_time(model, model_data, metric)
 
-    plot_combined_epoch(all_data)
-    plot_combined_time(all_data)
-    plot_vram_efficiency(all_data)
+        plot_combined_epoch(all_data, metric)
+        plot_combined_time(all_data, metric)
+        plot_vram_efficiency(all_data, metric)
 
     print("Done. Results in", RESULTS)
 
