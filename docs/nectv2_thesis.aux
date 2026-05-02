@@ -250,226 +250,235 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{30}{subsection.73}\protected@file@percent }
 \newlabel{subsec:hashmap_sweep}{{3.3.1}{30}{Hashmap Size Sweep in QuadCubes}{subsection.73}{}}
 \newlabel{subsec:hashmap_sweep@cref}{{[subsection][1][3,3]3.3.1}{[1][30][]30}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces PSNR at epoch 250 as a function of log$_2$ hashmap size with $F = 4$ fixed, shown separately for each number of levels $L \in \{17, \ldots  , 23\}$. The general trend of increasing quality with larger hashmap is visible, but non-monotonicities within panels are consistent with run-to-run stochasticity.\relax }}{32}{figure.caption.74}\protected@file@percent }
-\newlabel{fig:psnr_vs_params_hashmap}{{3.1}{32}{PSNR at epoch 250 as a function of log$_2$ hashmap size with $F = 4$ fixed, shown separately for each number of levels $L \in \{17, \ldots , 23\}$. The general trend of increasing quality with larger hashmap is visible, but non-monotonicities within panels are consistent with run-to-run stochasticity.\relax }{figure.caption.74}{}}
-\newlabel{fig:psnr_vs_params_hashmap@cref}{{[figure][1][3]3.1}{[1][30][]32}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}SingleCube: Collision Rate at the Extreme}{33}{subsection.75}\protected@file@percent }
-\newlabel{subsec:singlecube}{{3.3.2}{33}{SingleCube: Collision Rate at the Extreme}{subsection.75}{}}
-\newlabel{subsec:singlecube@cref}{{[subsection][2][3,3]3.3.2}{[1][33][]33}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }}{34}{figure.caption.76}\protected@file@percent }
-\newlabel{fig:singlecube_reconstruction}{{3.2}{34}{Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }{figure.caption.76}{}}
-\newlabel{fig:singlecube_reconstruction@cref}{{[figure][2][3]3.2}{[1][33][]34}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Synthesis: Precision Per Parameter Is Governed by Collision Load}{35}{subsection.77}\protected@file@percent }
-\newlabel{subsec:collision_synthesis}{{3.3.3}{35}{Synthesis: Precision Per Parameter Is Governed by Collision Load}{subsection.77}{}}
-\newlabel{subsec:collision_synthesis@cref}{{[subsection][3][3,3]3.3.3}{[1][34][]35}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.4}Training Time, Frequency Coverage, and Coordinate Coupling}{35}{section.78}\protected@file@percent }
-\newlabel{sec:levels_and_coupling}{{3.4}{35}{Training Time, Frequency Coverage, and Coordinate Coupling}{section.78}{}}
-\newlabel{sec:levels_and_coupling@cref}{{[section][4][3]3.4}{[1][35][]35}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{35}{subsection.79}\protected@file@percent }
-\newlabel{subsec:levels_sweep}{{3.4.1}{35}{Number of Levels Sweep in QuadCubes}{subsection.79}{}}
-\newlabel{subsec:levels_sweep@cref}{{[subsection][1][3,4]3.4.1}{[1][35][]35}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at epoch 250 as a function of number of levels $L$ with $F = 4$ fixed, shown separately for each log$_2$ hashmap size. Results vary considerably across runs, requiring multiple repetitions for conclusive ranking.\relax }}{37}{figure.caption.80}\protected@file@percent }
-\newlabel{fig:psnr_vs_params_levels}{{3.3}{37}{PSNR at epoch 250 as a function of number of levels $L$ with $F = 4$ fixed, shown separately for each log$_2$ hashmap size. Results vary considerably across runs, requiring multiple repetitions for conclusive ranking.\relax }{figure.caption.80}{}}
-\newlabel{fig:psnr_vs_params_levels@cref}{{[figure][3][3]3.3}{[1][36][]37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{38}{subsection.81}\protected@file@percent }
-\newlabel{subsec:features_sweep}{{3.4.2}{38}{Features Per Level}{subsection.81}{}}
-\newlabel{subsec:features_sweep@cref}{{[subsection][2][3,4]3.4.2}{[1][38][]38}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}Training Time at Equalised Budget}{38}{subsection.82}\protected@file@percent }
-\newlabel{subsec:equalised_time}{{3.4.3}{38}{Training Time at Equalised Budget}{subsection.82}{}}
-\newlabel{subsec:equalised_time@cref}{{[subsection][3][3,4]3.4.3}{[1][38][]38}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces PSNR vs.\ epoch\relax }}{31}{figure.caption.74}\protected@file@percent }
+\newlabel{fig:epoch_hashmap}{{3.1}{31}{PSNR vs.\ epoch\relax }{figure.caption.74}{}}
+\newlabel{fig:epoch_hashmap@cref}{{[figure][1][3]3.1}{[1][30][]31}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces PSNR for $\qopname  \relax o{log}_2 T \in \{17,\ldots  ,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.\relax }}{31}{figure.caption.75}\protected@file@percent }
+\newlabel{fig:time_hashmap}{{3.2}{31}{PSNR for $\log _2 T \in \{17,\ldots ,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.\relax }{figure.caption.75}{}}
+\newlabel{fig:time_hashmap@cref}{{[figure][2][3]3.2}{[1][31][]31}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at the 18-hour mark versus peak reserved VRAM for each $\qopname  \relax o{log}_2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.\relax }}{32}{figure.caption.76}\protected@file@percent }
+\newlabel{fig:vram_hashmap}{{3.3}{32}{PSNR at the 18-hour mark versus peak reserved VRAM for each $\log _2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.\relax }{figure.caption.76}{}}
+\newlabel{fig:vram_hashmap@cref}{{[figure][3][3]3.3}{[1][31][]32}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}SingleCube: Collision Rate at the Extreme}{32}{subsection.77}\protected@file@percent }
+\newlabel{subsec:singlecube}{{3.3.2}{32}{SingleCube: Collision Rate at the Extreme}{subsection.77}{}}
+\newlabel{subsec:singlecube@cref}{{[subsection][2][3,3]3.3.2}{[1][32][]32}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }}{33}{figure.caption.78}\protected@file@percent }
+\newlabel{fig:singlecube_reconstruction}{{3.4}{33}{Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }{figure.caption.78}{}}
+\newlabel{fig:singlecube_reconstruction@cref}{{[figure][4][3]3.4}{[1][33][]33}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Synthesis: Precision Per Parameter Is Governed by Collision Load}{34}{subsection.79}\protected@file@percent }
+\newlabel{subsec:collision_synthesis}{{3.3.3}{34}{Synthesis: Precision Per Parameter Is Governed by Collision Load}{subsection.79}{}}
+\newlabel{subsec:collision_synthesis@cref}{{[subsection][3][3,3]3.3.3}{[1][34][]34}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Training Time, Frequency Coverage, and Coordinate Coupling}{34}{section.80}\protected@file@percent }
+\newlabel{sec:levels_and_coupling}{{3.4}{34}{Training Time, Frequency Coverage, and Coordinate Coupling}{section.80}{}}
+\newlabel{sec:levels_and_coupling@cref}{{[section][4][3]3.4}{[1][34][]34}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{35}{subsection.81}\protected@file@percent }
+\newlabel{subsec:levels_sweep}{{3.4.1}{35}{Number of Levels Sweep in QuadCubes}{subsection.81}{}}
+\newlabel{subsec:levels_sweep@cref}{{[subsection][1][3,4]3.4.1}{[1][34][]35}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces PSNR for $L \in \{17,\ldots  ,23\}$ with $\qopname  \relax o{log}_2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.\relax }}{35}{figure.caption.82}\protected@file@percent }
+\newlabel{fig:psnr_vs_params_levels}{{3.5}{35}{PSNR for $L \in \{17,\ldots ,23\}$ with $\log _2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.\relax }{figure.caption.82}{}}
+\newlabel{fig:psnr_vs_params_levels@cref}{{[figure][5][3]3.5}{[1][35][]35}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\qopname  \relax o{log}_2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.\relax }}{35}{figure.caption.83}\protected@file@percent }
+\newlabel{fig:vram_levels}{{3.6}{35}{PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\log _2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.\relax }{figure.caption.83}{}}
+\newlabel{fig:vram_levels@cref}{{[figure][6][3]3.6}{[1][35][]35}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{36}{subsection.84}\protected@file@percent }
+\newlabel{subsec:features_sweep}{{3.4.2}{36}{Features Per Level}{subsection.84}{}}
+\newlabel{subsec:features_sweep@cref}{{[subsection][2][3,4]3.4.2}{[1][36][]36}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}Training Time at Equalised Budget}{36}{subsection.85}\protected@file@percent }
+\newlabel{subsec:equalised_time}{{3.4.3}{36}{Training Time at Equalised Budget}{subsection.85}{}}
+\newlabel{subsec:equalised_time@cref}{{[subsection][3][3,4]3.4.3}{[1][36][]36}}
 \citation{fridovichkeil2023kplanes}
 \citation{cao2023hexplane}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces PSNR at an equalised training time of approximately 14 hours for all $(L, \qopname  \relax o{log}_2 T)$ configurations with $F = 4$. Each curve groups configurations with the same $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders. The baseline ($L = 23$, $\qopname  \relax o{log}_2 T = 23$) is marked for reference.\relax }}{39}{figure.caption.83}\protected@file@percent }
-\newlabel{fig:quality_vs_time}{{3.4}{39}{PSNR at an equalised training time of approximately 14 hours for all $(L, \log _2 T)$ configurations with $F = 4$. Each curve groups configurations with the same $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders. The baseline ($L = 23$, $\log _2 T = 23$) is marked for reference.\relax }{figure.caption.83}{}}
-\newlabel{fig:quality_vs_time@cref}{{[figure][4][3]3.4}{[1][38][]39}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}SexCubes: When Coordinate Coupling Is Sacrificed}{40}{subsection.84}\protected@file@percent }
-\newlabel{subsec:sexcubes}{{3.4.4}{40}{SexCubes: When Coordinate Coupling Is Sacrificed}{subsection.84}{}}
-\newlabel{subsec:sexcubes@cref}{{[subsection][4][3,4]3.4.4}{[1][39][]40}}
-\@writefile{toc}{\contentsline {subsubsection}{MLP Decoder Depth}{41}{section*.85}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }}{41}{figure.caption.86}\protected@file@percent }
-\newlabel{fig:sexcubes_reconstruction}{{3.5}{41}{Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }{figure.caption.86}{}}
-\newlabel{fig:sexcubes_reconstruction@cref}{{[figure][5][3]3.5}{[1][40][]41}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces PSNR at an equalised training time of approximately 14 hours for all $(L, \qopname  \relax o{log}_2 T)$ configurations with $F = 4$. Each curve groups configurations with the same $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders. The baseline ($L = 23$, $\qopname  \relax o{log}_2 T = 23$) is marked for reference.\relax }}{37}{figure.caption.86}\protected@file@percent }
+\newlabel{fig:quality_vs_time}{{3.7}{37}{PSNR at an equalised training time of approximately 14 hours for all $(L, \log _2 T)$ configurations with $F = 4$. Each curve groups configurations with the same $L$; x-axis shows total encoder parameter count across all four QuadCubes encoders. The baseline ($L = 23$, $\log _2 T = 23$) is marked for reference.\relax }{figure.caption.86}{}}
+\newlabel{fig:quality_vs_time@cref}{{[figure][7][3]3.7}{[1][36][]37}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}SexCubes: When Coordinate Coupling Is Sacrificed}{38}{subsection.87}\protected@file@percent }
+\newlabel{subsec:sexcubes}{{3.4.4}{38}{SexCubes: When Coordinate Coupling Is Sacrificed}{subsection.87}{}}
+\newlabel{subsec:sexcubes@cref}{{[subsection][4][3,4]3.4.4}{[1][37][]38}}
+\@writefile{toc}{\contentsline {subsubsection}{MLP Decoder Depth}{39}{section*.88}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }}{39}{figure.caption.89}\protected@file@percent }
+\newlabel{fig:sexcubes_reconstruction}{{3.8}{39}{Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }{figure.caption.89}{}}
+\newlabel{fig:sexcubes_reconstruction@cref}{{[figure][8][3]3.8}{[1][38][]39}}
 \citation{ronneberger2015unet}
-\@writefile{toc}{\contentsline {subsubsection}{Transformer Decoder}{42}{section*.87}\protected@file@percent }
-\newlabel{subsubsec:transformer_decoder}{{3.4.4}{42}{Transformer Decoder}{section*.87}{}}
-\newlabel{subsubsec:transformer_decoder@cref}{{[subsection][4][3,4]3.4.4}{[1][42][]42}}
-\@writefile{toc}{\contentsline {subsubsection}{U-Net Decoder}{42}{section*.88}\protected@file@percent }
-\newlabel{subsubsec:unet_decoder}{{3.4.4}{42}{U-Net Decoder}{section*.88}{}}
-\newlabel{subsubsec:unet_decoder@cref}{{[subsection][4][3,4]3.4.4}{[1][42][]42}}
-\@writefile{toc}{\contentsline {subsubsection}{Dense Encoders for SexCubes}{43}{section*.94}\protected@file@percent }
-\newlabel{subsubsec:dense_sexcubes}{{3.4.4}{43}{Dense Encoders for SexCubes}{section*.94}{}}
-\newlabel{subsubsec:dense_sexcubes@cref}{{[subsection][4][3,4]3.4.4}{[1][43][]43}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.5}Synthesis: Precision Per Training Hour Requires Adequate Coverage and Coupling}{43}{subsection.95}\protected@file@percent }
-\newlabel{subsec:levels_synthesis}{{3.4.5}{43}{Synthesis: Precision Per Training Hour Requires Adequate Coverage and Coupling}{subsection.95}{}}
-\newlabel{subsec:levels_synthesis@cref}{{[subsection][5][3,4]3.4.5}{[1][43][]43}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{44}{section.96}\protected@file@percent }
-\newlabel{sec:spatial_temporal_asym}{{3.5}{44}{Spatial-Temporal Asymmetry}{section.96}{}}
-\newlabel{sec:spatial_temporal_asym@cref}{{[section][5][3]3.5}{[1][44][]44}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Hashmap Sizing in QuadCubes}{44}{subsection.97}\protected@file@percent }
-\newlabel{subsec:nonuniform_sizing}{{3.5.1}{44}{Non-Uniform Hashmap Sizing in QuadCubes}{subsection.97}{}}
-\newlabel{subsec:nonuniform_sizing@cref}{{[subsection][1][3,5]3.5.1}{[1][44][]44}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt  {xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.\relax }}{44}{table.caption.98}\protected@file@percent }
-\newlabel{tab:nonuniform_configs}{{3.2}{44}{Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.\relax }{table.caption.98}{}}
-\newlabel{tab:nonuniform_configs@cref}{{[table][2][3]3.2}{[1][44][]44}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes: The Architectural Consequence of the Asymmetry}{45}{subsection.99}\protected@file@percent }
-\newlabel{subsec:combinedcubes}{{3.5.2}{45}{CombinedCubes: The Architectural Consequence of the Asymmetry}{subsection.99}{}}
-\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][45][]45}}
-\newlabel{eq:combinedcubes_forward}{{3.9}{45}{CombinedCubes: The Architectural Consequence of the Asymmetry}{equation.100}{}}
-\newlabel{eq:combinedcubes_forward@cref}{{[equation][9][3]3.9}{[1][45][]45}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\qopname  \relax o{log}_2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }}{46}{figure.caption.101}\protected@file@percent }
-\newlabel{fig:combinedcubes_reconstruction}{{3.6}{46}{Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\log _2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }{figure.caption.101}{}}
-\newlabel{fig:combinedcubes_reconstruction@cref}{{[figure][6][3]3.6}{[1][45][]46}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.\relax }}{47}{figure.caption.102}\protected@file@percent }
-\newlabel{fig:combinedcubes_quality}{{3.7}{47}{PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.\relax }{figure.caption.102}{}}
-\newlabel{fig:combinedcubes_quality@cref}{{[figure][7][3]3.7}{[1][46][]47}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.3}Dense Temporal Encoders in CombinedCubes}{47}{subsection.103}\protected@file@percent }
-\newlabel{subsec:dense_combined}{{3.5.3}{47}{Dense Temporal Encoders in CombinedCubes}{subsection.103}{}}
-\newlabel{subsec:dense_combined@cref}{{[subsection][3][3,5]3.5.3}{[1][47][]47}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces High-contrast reconstruction slices comparing ground truth, the \textsc  {NeCT}{} baseline, and CombinedCubes with dense temporal encoders at an equalised 12-hour training budget.\relax }}{48}{figure.caption.104}\protected@file@percent }
-\newlabel{fig:dense_combined_quality}{{3.8}{48}{High-contrast reconstruction slices comparing ground truth, the \NeCT {} baseline, and CombinedCubes with dense temporal encoders at an equalised 12-hour training budget.\relax }{figure.caption.104}{}}
-\newlabel{fig:dense_combined_quality@cref}{{[figure][8][3]3.8}{[1][47][]48}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.4}Synthesis: The Right Architecture Reflects the Structure of the Problem}{49}{subsection.105}\protected@file@percent }
-\newlabel{subsec:asymmetry_synthesis}{{3.5.4}{49}{Synthesis: The Right Architecture Reflects the Structure of the Problem}{subsection.105}{}}
-\newlabel{subsec:asymmetry_synthesis@cref}{{[subsection][4][3,5]3.5.4}{[1][48][]49}}
+\@writefile{toc}{\contentsline {subsubsection}{Transformer Decoder}{40}{section*.90}\protected@file@percent }
+\newlabel{subsubsec:transformer_decoder}{{3.4.4}{40}{Transformer Decoder}{section*.90}{}}
+\newlabel{subsubsec:transformer_decoder@cref}{{[subsection][4][3,4]3.4.4}{[1][40][]40}}
+\@writefile{toc}{\contentsline {subsubsection}{U-Net Decoder}{40}{section*.91}\protected@file@percent }
+\newlabel{subsubsec:unet_decoder}{{3.4.4}{40}{U-Net Decoder}{section*.91}{}}
+\newlabel{subsubsec:unet_decoder@cref}{{[subsection][4][3,4]3.4.4}{[1][40][]40}}
+\@writefile{toc}{\contentsline {subsubsection}{Dense Encoders for SexCubes}{41}{section*.97}\protected@file@percent }
+\newlabel{subsubsec:dense_sexcubes}{{3.4.4}{41}{Dense Encoders for SexCubes}{section*.97}{}}
+\newlabel{subsubsec:dense_sexcubes@cref}{{[subsection][4][3,4]3.4.4}{[1][41][]41}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.5}Synthesis: Precision Per Training Hour Requires Adequate Coverage and Coupling}{41}{subsection.98}\protected@file@percent }
+\newlabel{subsec:levels_synthesis}{{3.4.5}{41}{Synthesis: Precision Per Training Hour Requires Adequate Coverage and Coupling}{subsection.98}{}}
+\newlabel{subsec:levels_synthesis@cref}{{[subsection][5][3,4]3.4.5}{[1][41][]41}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{42}{section.99}\protected@file@percent }
+\newlabel{sec:spatial_temporal_asym}{{3.5}{42}{Spatial-Temporal Asymmetry}{section.99}{}}
+\newlabel{sec:spatial_temporal_asym@cref}{{[section][5][3]3.5}{[1][42][]42}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Hashmap Sizing in QuadCubes}{42}{subsection.100}\protected@file@percent }
+\newlabel{subsec:nonuniform_sizing}{{3.5.1}{42}{Non-Uniform Hashmap Sizing in QuadCubes}{subsection.100}{}}
+\newlabel{subsec:nonuniform_sizing@cref}{{[subsection][1][3,5]3.5.1}{[1][42][]42}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt  {xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.\relax }}{42}{table.caption.101}\protected@file@percent }
+\newlabel{tab:nonuniform_configs}{{3.2}{42}{Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.\relax }{table.caption.101}{}}
+\newlabel{tab:nonuniform_configs@cref}{{[table][2][3]3.2}{[1][42][]42}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes: The Architectural Consequence of the Asymmetry}{43}{subsection.102}\protected@file@percent }
+\newlabel{subsec:combinedcubes}{{3.5.2}{43}{CombinedCubes: The Architectural Consequence of the Asymmetry}{subsection.102}{}}
+\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][43][]43}}
+\newlabel{eq:combinedcubes_forward}{{3.9}{43}{CombinedCubes: The Architectural Consequence of the Asymmetry}{equation.103}{}}
+\newlabel{eq:combinedcubes_forward@cref}{{[equation][9][3]3.9}{[1][43][]43}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\qopname  \relax o{log}_2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }}{44}{figure.caption.104}\protected@file@percent }
+\newlabel{fig:combinedcubes_reconstruction}{{3.9}{44}{Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\log _2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }{figure.caption.104}{}}
+\newlabel{fig:combinedcubes_reconstruction@cref}{{[figure][9][3]3.9}{[1][43][]44}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.10}{\ignorespaces PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.\relax }}{45}{figure.caption.105}\protected@file@percent }
+\newlabel{fig:combinedcubes_quality}{{3.10}{45}{PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.\relax }{figure.caption.105}{}}
+\newlabel{fig:combinedcubes_quality@cref}{{[figure][10][3]3.10}{[1][44][]45}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.3}Dense Temporal Encoders in CombinedCubes}{45}{subsection.106}\protected@file@percent }
+\newlabel{subsec:dense_combined}{{3.5.3}{45}{Dense Temporal Encoders in CombinedCubes}{subsection.106}{}}
+\newlabel{subsec:dense_combined@cref}{{[subsection][3][3,5]3.5.3}{[1][45][]45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.11}{\ignorespaces High-contrast reconstruction slices comparing ground truth, the \textsc  {NeCT}{} baseline, and CombinedCubes with dense temporal encoders at an equalised 12-hour training budget.\relax }}{46}{figure.caption.107}\protected@file@percent }
+\newlabel{fig:dense_combined_quality}{{3.11}{46}{High-contrast reconstruction slices comparing ground truth, the \NeCT {} baseline, and CombinedCubes with dense temporal encoders at an equalised 12-hour training budget.\relax }{figure.caption.107}{}}
+\newlabel{fig:dense_combined_quality@cref}{{[figure][11][3]3.11}{[1][45][]46}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.4}Synthesis: The Right Architecture Reflects the Structure of the Problem}{47}{subsection.108}\protected@file@percent }
+\newlabel{subsec:asymmetry_synthesis}{{3.5.4}{47}{Synthesis: The Right Architecture Reflects the Structure of the Problem}{subsection.108}{}}
+\newlabel{subsec:asymmetry_synthesis@cref}{{[subsection][4][3,5]3.5.4}{[1][46][]47}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Encoder Optimisation: Synthesis and Comparison}{50}{chapter.106}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Encoder Optimisation: Synthesis and Comparison}{48}{chapter.109}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:encoder_comparison}{{4}{50}{Encoder Optimisation: Synthesis and Comparison}{chapter.106}{}}
-\newlabel{chap:encoder_comparison@cref}{{[chapter][4][]4}{[1][50][]50}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Candidate Configurations}{50}{section.107}\protected@file@percent }
-\newlabel{sec:comp_candidates}{{4.1}{50}{Candidate Configurations}{section.107}{}}
-\newlabel{sec:comp_candidates@cref}{{[section][1][4]4.1}{[1][50][]50}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Unified Comparison}{51}{section.108}\protected@file@percent }
-\newlabel{sec:comp_results}{{4.2}{51}{Unified Comparison}{section.108}{}}
-\newlabel{sec:comp_results@cref}{{[section][2][4]4.2}{[1][51][]51}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Full comparison of the NeCT baseline, optimal QuadCubes, and best CombinedCubes configuration at equalised training budgets. All results on the Bentheimer dataset. \leavevmode {\color  {red}\textbf  {[TODO: Should use more than one dataset.]}}\relax }}{51}{table.caption.109}\protected@file@percent }
-\newlabel{tab:full_comparison}{{4.1}{51}{Full comparison of the NeCT baseline, optimal QuadCubes, and best CombinedCubes configuration at equalised training budgets. All results on the Bentheimer dataset. \todo {Should use more than one dataset.}\relax }{table.caption.109}{}}
-\newlabel{tab:full_comparison@cref}{{[table][1][4]4.1}{[1][51][]51}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Discussion}{51}{section.110}\protected@file@percent }
-\newlabel{sec:comp_discussion}{{4.3}{51}{Discussion}{section.110}{}}
-\newlabel{sec:comp_discussion@cref}{{[section][3][4]4.3}{[1][51][]51}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{51}{subsection.111}\protected@file@percent }
-\newlabel{subsec:comp_disc_interpretation}{{4.3.1}{51}{What the Three Configurations Represent}{subsection.111}{}}
-\newlabel{subsec:comp_disc_interpretation@cref}{{[subsection][1][4,3]4.3.1}{[1][51][]51}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{52}{subsection.112}\protected@file@percent }
-\newlabel{subsec:comp_disc_hardware}{{4.3.2}{52}{Hardware-Specific Recommendations}{subsection.112}{}}
-\newlabel{subsec:comp_disc_hardware@cref}{{[subsection][2][4,3]4.3.2}{[1][52][]52}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{52}{subsection.113}\protected@file@percent }
-\newlabel{subsec:comp_disc_additivity}{{4.3.3}{52}{Additivity of the Two Improvements}{subsection.113}{}}
-\newlabel{subsec:comp_disc_additivity@cref}{{[subsection][3][4,3]4.3.3}{[1][52][]52}}
-\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Continuous Scanning}{54}{part.114}\protected@file@percent }
-\newlabel{part:continuous_scanning}{{II}{55}{Continuous Scanning}{part.114}{}}
-\newlabel{part:continuous_scanning@cref}{{[part][2][]II}{[1][55][]55}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{55}{chapter.115}\protected@file@percent }
+\newlabel{chap:encoder_comparison}{{4}{48}{Encoder Optimisation: Synthesis and Comparison}{chapter.109}{}}
+\newlabel{chap:encoder_comparison@cref}{{[chapter][4][]4}{[1][48][]48}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Candidate Configurations}{48}{section.110}\protected@file@percent }
+\newlabel{sec:comp_candidates}{{4.1}{48}{Candidate Configurations}{section.110}{}}
+\newlabel{sec:comp_candidates@cref}{{[section][1][4]4.1}{[1][48][]48}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Unified Comparison}{49}{section.111}\protected@file@percent }
+\newlabel{sec:comp_results}{{4.2}{49}{Unified Comparison}{section.111}{}}
+\newlabel{sec:comp_results@cref}{{[section][2][4]4.2}{[1][49][]49}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Full comparison of the NeCT baseline, optimal QuadCubes, and best CombinedCubes configuration at equalised training budgets. All results on the Bentheimer dataset. \leavevmode {\color  {red}\textbf  {[TODO: Should use more than one dataset.]}}\relax }}{49}{table.caption.112}\protected@file@percent }
+\newlabel{tab:full_comparison}{{4.1}{49}{Full comparison of the NeCT baseline, optimal QuadCubes, and best CombinedCubes configuration at equalised training budgets. All results on the Bentheimer dataset. \todo {Should use more than one dataset.}\relax }{table.caption.112}{}}
+\newlabel{tab:full_comparison@cref}{{[table][1][4]4.1}{[1][49][]49}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Discussion}{49}{section.113}\protected@file@percent }
+\newlabel{sec:comp_discussion}{{4.3}{49}{Discussion}{section.113}{}}
+\newlabel{sec:comp_discussion@cref}{{[section][3][4]4.3}{[1][49][]49}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{49}{subsection.114}\protected@file@percent }
+\newlabel{subsec:comp_disc_interpretation}{{4.3.1}{49}{What the Three Configurations Represent}{subsection.114}{}}
+\newlabel{subsec:comp_disc_interpretation@cref}{{[subsection][1][4,3]4.3.1}{[1][49][]49}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{50}{subsection.115}\protected@file@percent }
+\newlabel{subsec:comp_disc_hardware}{{4.3.2}{50}{Hardware-Specific Recommendations}{subsection.115}{}}
+\newlabel{subsec:comp_disc_hardware@cref}{{[subsection][2][4,3]4.3.2}{[1][50][]50}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{50}{subsection.116}\protected@file@percent }
+\newlabel{subsec:comp_disc_additivity}{{4.3.3}{50}{Additivity of the Two Improvements}{subsection.116}{}}
+\newlabel{subsec:comp_disc_additivity@cref}{{[subsection][3][4,3]4.3.3}{[1][50][]50}}
+\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Continuous Scanning}{52}{part.117}\protected@file@percent }
+\newlabel{part:continuous_scanning}{{II}{53}{Continuous Scanning}{part.117}{}}
+\newlabel{part:continuous_scanning@cref}{{[part][2][]II}{[1][53][]53}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{53}{chapter.118}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:continuous}{{5}{55}{Continuous Scanning}{chapter.115}{}}
-\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][55][]55}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Theory}{55}{section.116}\protected@file@percent }
-\newlabel{sec:cont_theory}{{5.1}{55}{Theory}{section.116}{}}
-\newlabel{sec:cont_theory@cref}{{[section][1][5]5.1}{[1][55][]55}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{55}{subsection.117}\protected@file@percent }
-\newlabel{subsec:cont_modes}{{5.1.1}{55}{Step-and-Shoot Versus Continuous Rotation}{subsection.117}{}}
-\newlabel{subsec:cont_modes@cref}{{[subsection][1][5,1]5.1.1}{[1][55][]55}}
-\newlabel{eq:angular_sweep}{{5.1}{56}{Step-and-Shoot Versus Continuous Rotation}{equation.118}{}}
-\newlabel{eq:angular_sweep@cref}{{[equation][1][5]5.1}{[1][56][]56}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{56}{figure.caption.119}\protected@file@percent }
-\newlabel{fig:continous_illu}{{5.1}{56}{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }{figure.caption.119}{}}
-\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][56][]56}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{56}{subsection.120}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_implications}{{5.1.2}{56}{Implications for Dynamic Imaging}{subsection.120}{}}
-\newlabel{subsec:cont_dynamic_implications@cref}{{[subsection][2][5,1]5.1.2}{[1][56][]56}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{57}{subsection.121}\protected@file@percent }
-\newlabel{subsec:cont_forward_theory}{{5.1.3}{57}{Continuous-Scan Forward Model}{subsection.121}{}}
-\newlabel{subsec:cont_forward_theory@cref}{{[subsection][3][5,1]5.1.3}{[1][57][]57}}
-\newlabel{eq:step_shoot_forward}{{5.2}{57}{Continuous-Scan Forward Model}{equation.122}{}}
-\newlabel{eq:step_shoot_forward@cref}{{[equation][2][5]5.2}{[1][57][]57}}
-\newlabel{eq:continuous_forward_exact}{{5.3}{57}{Continuous-Scan Forward Model}{equation.123}{}}
-\newlabel{eq:continuous_forward_exact@cref}{{[equation][3][5]5.3}{[1][57][]57}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Method}{58}{section.124}\protected@file@percent }
-\newlabel{sec:cont_method}{{5.2}{58}{Method}{section.124}{}}
-\newlabel{sec:cont_method@cref}{{[section][2][5]5.2}{[1][58][]58}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{58}{subsection.125}\protected@file@percent }
-\newlabel{subsec:cont_kstep}{{5.2.1}{58}{$K$-Step Midpoint Approximation}{subsection.125}{}}
-\newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][58][]58}}
-\newlabel{eq:continuous_forward_discrete}{{5.4}{58}{$K$-Step Midpoint Approximation}{equation.126}{}}
-\newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][58][]58}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Implementation in \textsc  {NeCTv2}{}}{59}{subsection.127}\protected@file@percent }
-\newlabel{subsec:cont_implementation}{{5.2.2}{59}{Implementation in \NeCTv {}}{subsection.127}{}}
-\newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][58][]59}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{59}{algorithm.128}\protected@file@percent }
-\newlabel{alg:continuous}{{1}{59}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.128}{}}
-\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][59][]59}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Gradient Checkpointing}{59}{subsection.129}\protected@file@percent }
-\newlabel{subsec:cont_checkpointing}{{5.2.3}{59}{Gradient Checkpointing}{subsection.129}{}}
-\newlabel{subsec:cont_checkpointing@cref}{{[subsection][3][5,2]5.2.3}{[1][59][]59}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.4}Hyperparameters and Training Protocol}{60}{subsection.130}\protected@file@percent }
-\newlabel{subsec:cont_training}{{5.2.4}{60}{Hyperparameters and Training Protocol}{subsection.130}{}}
-\newlabel{subsec:cont_training@cref}{{[subsection][4][5,2]5.2.4}{[1][60][]60}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{60}{section.131}\protected@file@percent }
-\newlabel{sec:cont_static}{{5.3}{60}{Experiments: Static Validation}{section.131}{}}
-\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][60][]60}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{60}{subsection.132}\protected@file@percent }
-\newlabel{subsec:cont_static_dataset}{{5.3.1}{60}{Dataset}{subsection.132}{}}
-\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][60][]60}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{61}{table.caption.133}\protected@file@percent }
-\newlabel{tab:static_cont_configs}{{5.1}{61}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.133}{}}
-\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][60][]61}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{61}{subsection.134}\protected@file@percent }
-\newlabel{subsec:cont_static_metrics}{{5.3.2}{61}{Evaluation Metrics}{subsection.134}{}}
-\newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][61][]61}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{61}{subsection.135}\protected@file@percent }
-\newlabel{subsec:cont_static_results}{{5.3.3}{61}{Results}{subsection.135}{}}
-\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][61][]61}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{62}{section.136}\protected@file@percent }
-\newlabel{sec:cont_dynamic}{{5.4}{62}{Experiments: Dynamic Hourglass}{section.136}{}}
-\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][62][]62}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{62}{subsection.137}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{62}{Dataset}{subsection.137}{}}
-\newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][62][]62}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{62}{figure.caption.138}\protected@file@percent }
-\newlabel{fig:hourglass}{{5.2}{62}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.138}{}}
-\newlabel{fig:hourglass@cref}{{[figure][2][5]5.2}{[1][62][]62}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{63}{figure.caption.139}\protected@file@percent }
-\newlabel{fig:hourglass_in_scanner}{{5.3}{63}{The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }{figure.caption.139}{}}
-\newlabel{fig:hourglass_in_scanner@cref}{{[figure][3][5]5.3}{[1][62][]63}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{63}{table.caption.140}\protected@file@percent }
-\newlabel{tab:acquisition_params}{{5.2}{63}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.140}{}}
-\newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][63][]63}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.\relax }}{64}{table.caption.141}\protected@file@percent }
-\newlabel{tab:dynamic_cont_configs}{{5.3}{64}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.\relax }{table.caption.141}{}}
-\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][64][]64}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{65}{subsection.142}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_results}{{5.4.2}{65}{Results}{subsection.142}{}}
-\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][64][]65}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{65}{figure.caption.143}\protected@file@percent }
-\newlabel{fig:dynamic_cont_reconstruction}{{5.4}{65}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.143}{}}
-\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][4][5]5.4}{[1][64][]65}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{66}{section.144}\protected@file@percent }
-\newlabel{sec:cont_discussion}{{5.5}{66}{Discussion}{section.144}{}}
-\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][66][]66}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{66}{subsection.145}\protected@file@percent }
-\newlabel{subsec:cont_disc_model}{{5.5.1}{66}{Validity of the Forward Model}{subsection.145}{}}
-\newlabel{subsec:cont_disc_model@cref}{{[subsection][1][5,5]5.5.1}{[1][66][]66}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Benefits and Costs for Dynamic Imaging}{66}{subsection.146}\protected@file@percent }
-\newlabel{subsec:cont_disc_dynamic}{{5.5.2}{66}{Benefits and Costs for Dynamic Imaging}{subsection.146}{}}
-\newlabel{subsec:cont_disc_dynamic@cref}{{[subsection][2][5,5]5.5.2}{[1][66][]66}}
+\newlabel{chap:continuous}{{5}{53}{Continuous Scanning}{chapter.118}{}}
+\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][53][]53}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Theory}{53}{section.119}\protected@file@percent }
+\newlabel{sec:cont_theory}{{5.1}{53}{Theory}{section.119}{}}
+\newlabel{sec:cont_theory@cref}{{[section][1][5]5.1}{[1][53][]53}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{53}{subsection.120}\protected@file@percent }
+\newlabel{subsec:cont_modes}{{5.1.1}{53}{Step-and-Shoot Versus Continuous Rotation}{subsection.120}{}}
+\newlabel{subsec:cont_modes@cref}{{[subsection][1][5,1]5.1.1}{[1][53][]53}}
+\newlabel{eq:angular_sweep}{{5.1}{54}{Step-and-Shoot Versus Continuous Rotation}{equation.121}{}}
+\newlabel{eq:angular_sweep@cref}{{[equation][1][5]5.1}{[1][54][]54}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{54}{figure.caption.122}\protected@file@percent }
+\newlabel{fig:continous_illu}{{5.1}{54}{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }{figure.caption.122}{}}
+\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][54][]54}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{54}{subsection.123}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_implications}{{5.1.2}{54}{Implications for Dynamic Imaging}{subsection.123}{}}
+\newlabel{subsec:cont_dynamic_implications@cref}{{[subsection][2][5,1]5.1.2}{[1][54][]54}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{55}{subsection.124}\protected@file@percent }
+\newlabel{subsec:cont_forward_theory}{{5.1.3}{55}{Continuous-Scan Forward Model}{subsection.124}{}}
+\newlabel{subsec:cont_forward_theory@cref}{{[subsection][3][5,1]5.1.3}{[1][55][]55}}
+\newlabel{eq:step_shoot_forward}{{5.2}{55}{Continuous-Scan Forward Model}{equation.125}{}}
+\newlabel{eq:step_shoot_forward@cref}{{[equation][2][5]5.2}{[1][55][]55}}
+\newlabel{eq:continuous_forward_exact}{{5.3}{55}{Continuous-Scan Forward Model}{equation.126}{}}
+\newlabel{eq:continuous_forward_exact@cref}{{[equation][3][5]5.3}{[1][55][]55}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Method}{56}{section.127}\protected@file@percent }
+\newlabel{sec:cont_method}{{5.2}{56}{Method}{section.127}{}}
+\newlabel{sec:cont_method@cref}{{[section][2][5]5.2}{[1][56][]56}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{56}{subsection.128}\protected@file@percent }
+\newlabel{subsec:cont_kstep}{{5.2.1}{56}{$K$-Step Midpoint Approximation}{subsection.128}{}}
+\newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][56][]56}}
+\newlabel{eq:continuous_forward_discrete}{{5.4}{56}{$K$-Step Midpoint Approximation}{equation.129}{}}
+\newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][56][]56}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Implementation in \textsc  {NeCTv2}{}}{57}{subsection.130}\protected@file@percent }
+\newlabel{subsec:cont_implementation}{{5.2.2}{57}{Implementation in \NeCTv {}}{subsection.130}{}}
+\newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][56][]57}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{57}{algorithm.131}\protected@file@percent }
+\newlabel{alg:continuous}{{1}{57}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.131}{}}
+\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][57][]57}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Gradient Checkpointing}{57}{subsection.132}\protected@file@percent }
+\newlabel{subsec:cont_checkpointing}{{5.2.3}{57}{Gradient Checkpointing}{subsection.132}{}}
+\newlabel{subsec:cont_checkpointing@cref}{{[subsection][3][5,2]5.2.3}{[1][57][]57}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.4}Hyperparameters and Training Protocol}{58}{subsection.133}\protected@file@percent }
+\newlabel{subsec:cont_training}{{5.2.4}{58}{Hyperparameters and Training Protocol}{subsection.133}{}}
+\newlabel{subsec:cont_training@cref}{{[subsection][4][5,2]5.2.4}{[1][58][]58}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{58}{section.134}\protected@file@percent }
+\newlabel{sec:cont_static}{{5.3}{58}{Experiments: Static Validation}{section.134}{}}
+\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][58][]58}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{58}{subsection.135}\protected@file@percent }
+\newlabel{subsec:cont_static_dataset}{{5.3.1}{58}{Dataset}{subsection.135}{}}
+\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][58][]58}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{59}{table.caption.136}\protected@file@percent }
+\newlabel{tab:static_cont_configs}{{5.1}{59}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.136}{}}
+\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][58][]59}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{59}{subsection.137}\protected@file@percent }
+\newlabel{subsec:cont_static_metrics}{{5.3.2}{59}{Evaluation Metrics}{subsection.137}{}}
+\newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][59][]59}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{59}{subsection.138}\protected@file@percent }
+\newlabel{subsec:cont_static_results}{{5.3.3}{59}{Results}{subsection.138}{}}
+\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][59][]59}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{60}{section.139}\protected@file@percent }
+\newlabel{sec:cont_dynamic}{{5.4}{60}{Experiments: Dynamic Hourglass}{section.139}{}}
+\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][60][]60}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{60}{subsection.140}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{60}{Dataset}{subsection.140}{}}
+\newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][60][]60}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{60}{figure.caption.141}\protected@file@percent }
+\newlabel{fig:hourglass}{{5.2}{60}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.141}{}}
+\newlabel{fig:hourglass@cref}{{[figure][2][5]5.2}{[1][60][]60}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{61}{figure.caption.142}\protected@file@percent }
+\newlabel{fig:hourglass_in_scanner}{{5.3}{61}{The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }{figure.caption.142}{}}
+\newlabel{fig:hourglass_in_scanner@cref}{{[figure][3][5]5.3}{[1][60][]61}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{61}{table.caption.143}\protected@file@percent }
+\newlabel{tab:acquisition_params}{{5.2}{61}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.143}{}}
+\newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][61][]61}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.\relax }}{62}{table.caption.144}\protected@file@percent }
+\newlabel{tab:dynamic_cont_configs}{{5.3}{62}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.\relax }{table.caption.144}{}}
+\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][62][]62}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{63}{subsection.145}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_results}{{5.4.2}{63}{Results}{subsection.145}{}}
+\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][62][]63}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{63}{figure.caption.146}\protected@file@percent }
+\newlabel{fig:dynamic_cont_reconstruction}{{5.4}{63}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.146}{}}
+\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][4][5]5.4}{[1][62][]63}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{64}{section.147}\protected@file@percent }
+\newlabel{sec:cont_discussion}{{5.5}{64}{Discussion}{section.147}{}}
+\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][64][]64}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{64}{subsection.148}\protected@file@percent }
+\newlabel{subsec:cont_disc_model}{{5.5.1}{64}{Validity of the Forward Model}{subsection.148}{}}
+\newlabel{subsec:cont_disc_model@cref}{{[subsection][1][5,5]5.5.1}{[1][64][]64}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Benefits and Costs for Dynamic Imaging}{64}{subsection.149}\protected@file@percent }
+\newlabel{subsec:cont_disc_dynamic}{{5.5.2}{64}{Benefits and Costs for Dynamic Imaging}{subsection.149}{}}
+\newlabel{subsec:cont_disc_dynamic@cref}{{[subsection][2][5,5]5.5.2}{[1][64][]64}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations and Extensions}{67}{subsection.147}\protected@file@percent }
-\newlabel{subsec:cont_disc_limitations}{{5.5.3}{67}{Limitations and Extensions}{subsection.147}{}}
-\newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][67][]67}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{68}{chapter.148}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations and Extensions}{65}{subsection.150}\protected@file@percent }
+\newlabel{subsec:cont_disc_limitations}{{5.5.3}{65}{Limitations and Extensions}{subsection.150}{}}
+\newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][65][]65}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{66}{chapter.151}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{6}{68}{Conclusion}{chapter.148}{}}
-\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][68][]68}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{68}{section.149}\protected@file@percent }
-\newlabel{sec:conclusion_summary}{{6.1}{68}{Summary of Contributions}{section.149}{}}
-\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][68][]68}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{68}{section.150}\protected@file@percent }
-\newlabel{sec:conclusion_future}{{6.2}{68}{Limitations and Future Work}{section.150}{}}
-\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][68][]68}}
+\newlabel{chap:conclusion}{{6}{66}{Conclusion}{chapter.151}{}}
+\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][66][]66}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{66}{section.152}\protected@file@percent }
+\newlabel{sec:conclusion_summary}{{6.1}{66}{Summary of Contributions}{section.152}{}}
+\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][66][]66}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{66}{section.153}\protected@file@percent }
+\newlabel{sec:conclusion_future}{{6.2}{66}{Limitations and Future Work}{section.153}{}}
+\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][66][]66}}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{andersen1984sart}{{1}{1984}{{Andersen and Kak}}{{}}}
@@ -506,14 +515,14 @@
 \bibcite{wang2004ssim}{{32}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
 \bibcite{withers2021ct}{{33}{2021}{{Withers et~al.}}{{}}}
 \bibcite{zha2022naf}{{34}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{73}{appendix.152}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{71}{appendix.155}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experimental}{{A}{73}{Supplementary Experimental Details}{appendix.152}{}}
-\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][73][]73}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{74}{appendix.153}\protected@file@percent }
+\newlabel{app:experimental}{{A}{71}{Supplementary Experimental Details}{appendix.155}{}}
+\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][71][]71}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{72}{appendix.156}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{B}{74}{NeCTv2 Hyperparameter Reference}{appendix.153}{}}
-\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][74][]74}}
+\newlabel{app:hyperparams}{{B}{72}{NeCTv2 Hyperparameter Reference}{appendix.156}{}}
+\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][72][]72}}
 \gdef \@abspage@last{85}
