@@ -32,25 +32,24 @@
 \contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{33}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{34}{subsection.3.4.1}%
 \contentsline {subsection}{\numberline {3.4.2}Features Per Level}{37}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Training Time at Equalised Budget}{40}{subsection.3.4.3}%
-\contentsline {subsection}{\numberline {3.4.4}SexCubes}{41}{subsection.3.4.4}%
-\contentsline {subsubsection}{MLP Decoder Depth}{42}{section*.30}%
-\contentsline {subsubsection}{U-Net Decoder}{43}{section*.32}%
-\contentsline {subsection}{\numberline {3.4.5}Precision and Training Time}{44}{subsection.3.4.5}%
-\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{44}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{44}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{49}{subsection.3.5.2}%
-\contentsline {subsubsection}{CombinedCubes with K-Planes Products}{54}{section*.42}%
-\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{54}{subsection.3.5.3}%
-\contentsline {subsubsection}{\textsc {MixedCubes}{} with K-Planes Triple Product}{58}{section*.46}%
-\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{58}{subsection.3.5.4}%
-\contentsline {chapter}{\numberline {4}Encoder Comparison}{60}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Candidate Configurations}{60}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Unified Comparison}{61}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Discussion}{65}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{65}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {3.4.3}SexCubes}{40}{subsection.3.4.3}%
+\contentsline {subsubsection}{MLP Decoder Depth}{41}{section*.28}%
+\contentsline {subsubsection}{U-Net Decoder}{42}{section*.30}%
+\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{42}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{43}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{43}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{48}{subsection.3.5.2}%
+\contentsline {subsubsection}{CombinedCubes with K-Planes Products}{53}{section*.40}%
+\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{53}{subsection.3.5.3}%
+\contentsline {subsubsection}{\textsc {MixedCubes}{} with K-Planes Triple Product}{57}{section*.44}%
+\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{57}{subsection.3.5.4}%
+\contentsline {chapter}{\numberline {4}Encoder Comparison}{59}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Candidate Configurations}{59}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Unified Comparison}{60}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Discussion}{66}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{66}{subsection.4.3.1}%
 \contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{66}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{66}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{67}{subsection.4.3.3}%
 \contentsline {part}{II\hspace {1em}Continuous Scanning}{68}{part.2}%
 \contentsline {chapter}{\numberline {5}Continuous Scanning}{69}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Theory}{69}{section.5.1}%

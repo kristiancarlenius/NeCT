@@ -4,13 +4,13 @@
 \contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{14}{table.caption.9}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }}{28}{table.caption.17}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.\relax }}{45}{table.caption.33}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes while keeping the total parameter budget approximately constant.\relax }}{43}{table.caption.31}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Full comparison of the NeCT baseline, optimal QuadCubes, and best \textsc {MixedCubes}{} configuration at equalised training budgets. All results on the Bentheimer dataset. \leavevmode {\color {red}\textbf {[TODO: Should use more than one dataset.]}}\relax }}{61}{table.caption.47}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Full comparison of the NeCT baseline, optimal QuadCubes, and best \textsc {MixedCubes}{} configuration at equalised training budgets. All results on the Bentheimer dataset. \leavevmode {\color {red}\textbf {[TODO: Should use more than one dataset.]}}\relax }}{60}{table.caption.45}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{75}{table.caption.53}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{77}{table.caption.56}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.\relax }}{78}{table.caption.57}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{75}{table.caption.52}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{77}{table.caption.55}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.\relax }}{78}{table.caption.56}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
