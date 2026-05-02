@@ -153,14 +153,22 @@ def main() -> None:
             entry[f"mse_{epoch_label}"] = mse(ref_crop, test_crop)
             entry[f"psnr_{epoch_label}"] = psnr(ref_crop, test_crop)
 
+        vram_gb = n_params * 2 / 1e9  # fp16: 2 bytes per parameter
+        entry["vram_gb"] = vram_gb
+
         groups.setdefault(n_levels, []).append(entry)
+        psnr_gain = ""
+        if "psnr_100" in entry and "psnr_250" in entry:
+            gain = entry["psnr_250"] - entry["psnr_100"]
+            psnr_gain = f"  gain={gain:+.2f} dB"
         print(
-            f"{folder:15s}  params={n_params:>12,}  "
+            f"{folder:15s}  params={n_params:>12,}  VRAM≈{vram_gb:.1f}GB  "
             + "  ".join(
-                f"MSE@{k}={entry[f'mse_{k}']:.6f}  PSNR@{k}={entry[f'psnr_{k}']:.2f} dB"
+                f"PSNR@{k}={entry[f'psnr_{k}']:.2f} dB"
                 for k in EPOCH_FILES
-                if f"mse_{k}" in entry
+                if f"psnr_{k}" in entry
             )
+            + psnr_gain
         )
 
     if not groups:
@@ -170,6 +178,56 @@ def main() -> None:
     # Sort each group by param count
     for nl in groups:
         groups[nl].sort(key=lambda r: r["n_params"])
+
+    # ── Summary statistics ────────────────────────────────────────────────────
+    all_entries = [e for grp in groups.values() for e in grp]
+    baseline = next((e for e in all_entries if e["name"] == "23_4_23"), None)
+
+    def _summary(epoch_key: str, top_n: int = 5) -> None:
+        scored = [(e, e[epoch_key]) for e in all_entries if epoch_key in e]
+        if not scored:
+            return
+        scored.sort(key=lambda x: x[1], reverse=True)
+        base_val = baseline[epoch_key] if baseline and epoch_key in baseline else None
+        base_params = baseline["n_params"] if baseline else None
+        print(f"\n--- Top {top_n} by {epoch_key} ---")
+        print(f"{'Config':<12} {'Params':>8}  {'VRAM':>6}  {'PSNR':>7}  {'vs baseline':>12}  {'×smaller':>8}")
+        for e, val in scored[:top_n]:
+            vs = f"{val - base_val:+.2f} dB" if base_val is not None else "n/a"
+            xs = f"{base_params / e['n_params']:.1f}×" if base_params else "n/a"
+            print(f"{e['name']:<12} {e['n_params']/1e6:>7.0f}M  {e['vram_gb']:>5.1f}GB  "
+                  f"{val:>7.2f}  {vs:>12}  {xs:>8}")
+        if base_val is not None:
+            print(f"{'baseline':<12} {baseline['n_params']/1e6:>7.0f}M  "
+                  f"{baseline['vram_gb']:>5.1f}GB  {base_val:>7.2f}  {'reference':>12}  {'1.0×':>8}")
+
+    def _pareto(epoch_key: str) -> None:
+        scored = [(e, e[epoch_key]) for e in all_entries if epoch_key in e]
+        if not scored:
+            return
+        scored.sort(key=lambda x: x[0]["n_params"])
+        pareto, best = [], float("-inf")
+        for e, val in scored:
+            if val > best:
+                pareto.append((e, val))
+                best = val
+        print(f"\n--- Pareto front (best PSNR per param budget) at {epoch_key} ---")
+        print(f"{'Config':<12} {'Params':>8}  {'VRAM':>6}  {'PSNR':>7}")
+        for e, val in pareto:
+            print(f"{e['name']:<12} {e['n_params']/1e6:>7.0f}M  {e['vram_gb']:>5.1f}GB  {val:>7.2f}")
+
+    if baseline:
+        print(f"\n=== Baseline (23_4_23): "
+              f"params={baseline['n_params']/1e6:.0f}M  VRAM≈{baseline['vram_gb']:.1f}GB  "
+              + "  ".join(f"PSNR@{k}={baseline[f'psnr_{k}']:.2f} dB"
+                          for k in EPOCH_FILES if f"psnr_{k}" in baseline)
+              + (f"  gain={baseline['psnr_250']-baseline['psnr_100']:+.2f} dB"
+                 if "psnr_100" in baseline and "psnr_250" in baseline else "")
+              + " ===")
+
+    for k in EPOCH_LABELS:
+        _summary(f"psnr_{k}")
+        _pareto(f"psnr_{k}")
 
     sorted_levels = sorted(groups.keys())
     cmap = plt.cm.get_cmap("tab10", len(sorted_levels))

@@ -354,6 +354,92 @@ def plot_vram_efficiency(all_data, metric):
             f"VRAM Efficiency — {METRICS[metric]} at {TARGET_18H:.0f} h vs Peak Reserved VRAM")
 
 
+# ── summary printing ─────────────────────────────────────────────────────────
+
+def print_summary(all_data: dict) -> None:
+    """Print per-config and cross-model statistics for thesis reference."""
+    BASELINE_MODEL  = "quadcubes"
+    BASELINE_CONFIG = "23_4_23_4_128"
+
+    def last(series):
+        return series[-1][1] if series else None
+
+    def at_time(series, target):
+        if not series:
+            return None
+        return min(series, key=lambda p: abs(p[0] - target))[1]
+
+    def _row(model, label, data):
+        ep_p = last(data["epoch_psnr"])
+        ep_s = last(data["epoch_ssim"])
+        ep_m = last(data["epoch_mae"])
+        t_p  = last(data["time_psnr"])
+        t_s  = last(data["time_ssim"])
+        t_m  = last(data["time_mae"])
+        vram = data["vram_gb"]
+        ep_n = data["epoch_psnr"][-1][0] if data["epoch_psnr"] else "?"
+        t_n  = f"{data['time_psnr'][-1][0]:.0f}h" if data["time_psnr"] else "?"
+        psnr_str  = f"{ep_p:.2f}" if ep_p  is not None else "  --  "
+        ssim_str  = f"{ep_s:.4f}" if ep_s  is not None else "  -- "
+        mae_str   = f"{ep_m:.1f}"  if ep_m  is not None else "  --  "
+        tpsnr_str = f"{t_p:.2f}"  if t_p   is not None else "  --  "
+        tssim_str = f"{t_s:.4f}"  if t_s   is not None else "  -- "
+        tmae_str  = f"{t_m:.1f}"  if t_m   is not None else "  --  "
+        vram_str  = f"{vram:.1f}" if vram  is not None else " -- "
+        return (f"  {model:30s} {label:22s}  "
+                f"VRAM={vram_str:>5}GB  "
+                f"epoch{ep_n}: PSNR={psnr_str} SSIM={ssim_str} MAE={mae_str}  "
+                f"@{t_n}: PSNR={tpsnr_str} SSIM={tssim_str} MAE={tmae_str}")
+
+    # ── Per-model tables ──────────────────────────────────────────────────────
+    print("\n" + "=" * 110)
+    print("SUMMARY — per config, last capped epoch and last capped time snapshot")
+    print("=" * 110)
+    for model in MODELS:
+        if model not in all_data:
+            continue
+        print(f"\n  [{model}]")
+        for label, data in sorted(all_data[model].items()):
+            marker = " ◀ baseline" if (model == BASELINE_MODEL and label == BASELINE_CONFIG) else ""
+            print(_row(model, label, data) + marker)
+
+    # ── Cross-model comparison at last time point ─────────────────────────────
+    print("\n" + "=" * 110)
+    print("CROSS-MODEL — all configs sorted by PSNR at last time snapshot")
+    print("=" * 110)
+    rows = []
+    for model, model_data in all_data.items():
+        for label, data in model_data.items():
+            t_p = last(data["time_psnr"])
+            t_s = last(data["time_ssim"])
+            t_m = last(data["time_mae"])
+            t_h = data["time_psnr"][-1][0] if data["time_psnr"] else None
+            if t_p is not None:
+                rows.append((t_p, model, label, data["vram_gb"], t_p, t_s, t_m, t_h))
+    rows.sort(reverse=True)
+    baseline_psnr = None
+    bl = all_data.get(BASELINE_MODEL, {}).get(BASELINE_CONFIG)
+    if bl:
+        baseline_psnr = last(bl["time_psnr"])
+    for _, model, label, vram, t_p, t_s, t_m, t_h in rows:
+        delta = f"({t_p - baseline_psnr:+.2f} dB)" if baseline_psnr is not None else ""
+        marker = " ◀ baseline" if (model == BASELINE_MODEL and label == BASELINE_CONFIG) else ""
+        vram_s = f"{vram:.1f}" if vram is not None else "--"
+        print(f"  {model:30s} {label:22s}  VRAM={vram_s:>5}GB  "
+              f"@{t_h:.0f}h: PSNR={t_p:.2f} SSIM={t_s:.4f} MAE={t_m:.1f}  {delta}{marker}")
+
+    # ── Baseline vs best alternative ─────────────────────────────────────────
+    if baseline_psnr is not None:
+        print(f"\n  Baseline PSNR at last time: {baseline_psnr:.2f} dB")
+        best_non_base = next(
+            (r for r in rows if not (r[1] == BASELINE_MODEL and r[2] == BASELINE_CONFIG)), None)
+        if best_non_base:
+            _, m, l, v, tp, ts, tm, th = best_non_base
+            print(f"  Best alternative:  {m}/{l}  VRAM={v:.1f}GB  "
+                  f"PSNR={tp:.2f} ({tp - baseline_psnr:+.2f} dB)  "
+                  f"SSIM={ts:.4f}  MAE={tm:.1f}")
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -366,7 +452,9 @@ def main():
     all_data = collect_all(crops, ref_epoch, ref_time)
     cap_to_minimum(all_data)
 
-    print("Generating plots ...")
+    print_summary(all_data)
+
+    print("\nGenerating plots ...")
 
     for metric in METRICS:
         for model, model_data in all_data.items():
