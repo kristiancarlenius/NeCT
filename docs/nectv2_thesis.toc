@@ -26,7 +26,7 @@
 \contentsline {subsection}{\numberline {3.1.3}The Spatial-Temporal Asymmetry}{28}{subsection.62}%
 \contentsline {section}{\numberline {3.2}Shared Experimental Setup}{28}{section.63}%
 \contentsline {section}{\numberline {3.3}Collision Rate, Hashmap Size, and Encoder Dimensionality}{30}{section.72}%
-\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{31}{subsection.73}%
+\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{30}{subsection.73}%
 \contentsline {subsection}{\numberline {3.3.2}SingleCube: Collision Rate at the Extreme}{33}{subsection.75}%
 \contentsline {subsection}{\numberline {3.3.3}Synthesis: Precision Per Parameter Is Governed by Collision Load}{35}{subsection.77}%
 \contentsline {section}{\numberline {3.4}Training Time, Frequency Coverage, and Coordinate Coupling}{35}{section.78}%

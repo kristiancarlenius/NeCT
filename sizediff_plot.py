@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SSIM/PSNR/MSE vs epoch/time plots for sizediff experiments, plus VRAM efficiency."""
+"""SSIM/PSNR/MAE vs epoch/time plots for sizediff experiments, plus VRAM efficiency."""
 
 from pathlib import Path
 import re
@@ -40,7 +40,7 @@ TARGET_18H = 18.0  # hours
 METRICS = {
     "ssim": "SSIM",
     "psnr": "PSNR (dB)",
-    "mse":  "MSE",
+    "mae":  "MAE",
 }
 
 
@@ -57,12 +57,12 @@ def load_image_gray(path):
 
 
 def compute_all_metrics(ref, cand, crops):
-    ssim_vals, mse_vals = [], []
+    ssim_vals, mae_vals, mse_vals = [], [], []
     for c in crops:
         r_crop = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
         c_crop = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
 
-        # normalize candidate to reference intensity so MSE/PSNR measure structure, not brightness offset
+        # normalize candidate to reference intensity so MAE/PSNR measure structure, not brightness offset
         r_std = r_crop.std()
         if r_std > 0 and c_crop.std() > 0:
             c_norm = (c_crop - c_crop.mean()) / c_crop.std() * r_std + r_crop.mean()
@@ -70,12 +70,14 @@ def compute_all_metrics(ref, cand, crops):
             c_norm = c_crop
 
         ssim_vals.append(float(ssim_fn(r_crop, c_crop, data_range=255.0)))
+        mae_vals.append(float(np.mean(np.abs(r_crop - c_norm))))
         mse_vals.append(float(np.mean((r_crop - c_norm) ** 2)))
 
     ssim = float(np.mean(ssim_vals))
+    mae  = float(np.mean(mae_vals))
     mse  = float(np.mean(mse_vals))
     psnr = float(10.0 * np.log10(255.0 ** 2 / mse)) if mse > 0 else float("inf")
-    return ssim, psnr, mse
+    return ssim, psnr, mae
 
 
 def parse_epoch_losses(path):
@@ -129,7 +131,7 @@ def load_param_data(param_dir, ref_epoch_arr, ref_time_arr, crops):
     epoch_time_map = parse_epoch_losses(losses_file) if losses_file.exists() else {}
     vram_gb = parse_vram_gb(vram_file if vram_file.exists() else None)
 
-    epoch_ssim, epoch_psnr, epoch_mse = [], [], []
+    epoch_ssim, epoch_psnr, epoch_mae = [], [], []
     if epoch_dir.exists():
         for img_path in sorted(epoch_dir.glob("*_1400.png")):
             ep = epoch_from_name(img_path.name)
@@ -139,9 +141,9 @@ def load_param_data(param_dir, ref_epoch_arr, ref_time_arr, crops):
             s, p, m = compute_all_metrics(ref_epoch_arr, cand, crops)
             epoch_ssim.append((ep, s))
             epoch_psnr.append((ep, p))
-            epoch_mse.append((ep, m))
+            epoch_mae.append((ep, m))
 
-    time_ssim, time_psnr, time_mse = [], [], []
+    time_ssim, time_psnr, time_mae = [], [], []
     if time_dir.exists() and epoch_time_map:
         for img_path in sorted(time_dir.glob("*_1400.png")):
             ep = epoch_from_name(img_path.name)
@@ -152,15 +154,15 @@ def load_param_data(param_dir, ref_epoch_arr, ref_time_arr, crops):
             s, p, m = compute_all_metrics(ref_time_arr, cand, crops)
             time_ssim.append((t_h, s))
             time_psnr.append((t_h, p))
-            time_mse.append((t_h, m))
+            time_mae.append((t_h, m))
 
     return {
         "epoch_ssim": sorted(epoch_ssim),
         "epoch_psnr": sorted(epoch_psnr),
-        "epoch_mse":  sorted(epoch_mse),
+        "epoch_mae":  sorted(epoch_mae),
         "time_ssim":  sorted(time_ssim),
         "time_psnr":  sorted(time_psnr),
-        "time_mse":   sorted(time_mse),
+        "time_mae":   sorted(time_mae),
         "vram_gb":    vram_gb,
     }
 
@@ -204,9 +206,9 @@ def cap_to_minimum(all_data):
     min_time  = min(time_lens)  if time_lens  else 0
     for configs in all_data.values():
         for d in configs.values():
-            for key in ("epoch_ssim", "epoch_psnr", "epoch_mse"):
+            for key in ("epoch_ssim", "epoch_psnr", "epoch_mae"):
                 d[key] = d[key][:min_epoch]
-            for key in ("time_ssim", "time_psnr", "time_mse"):
+            for key in ("time_ssim", "time_psnr", "time_mae"):
                 d[key] = d[key][:min_time]
     print(f"  Capped to {min_epoch} epoch images, {min_time} time images")
     return all_data
