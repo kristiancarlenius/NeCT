@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SSIM/PSNR/MAE vs epoch/time plots for n_levels sweep (XX_4_23 folders)."""
+"""SSIM/PSNR/MAE vs epoch/time plots for hashmap sweep (23_4_XX folders)."""
 
 from pathlib import Path
 import re
@@ -16,10 +16,10 @@ SIZEDIFF = ROOT / "sizediff"
 CROPS_FILE = ROOT / "crops.json"
 PERFECT_EPOCH = SIZEDIFF / "perfect" / "0525_1400.png"
 PERFECT_TIME = SIZEDIFF / "perfect" / "0525_1400.png"
-RESULTS = ROOT / "results" / "nlevel_plots"
+RESULTS = ROOT / "results" / "hashmap23_plots"
 RESULTS.mkdir(parents=True, exist_ok=True)
 
-TARGET_24H = 24.0  # hours
+TARGET_18H = 18.0  # hours
 
 METRICS = {
     "ssim": "SSIM",
@@ -27,7 +27,7 @@ METRICS = {
     "mae":  "MAE",
 }
 
-FOLDER_RE = re.compile(r"^(\d+)_4_23$")
+FOLDER_RE = re.compile(r"^23_4_(\d+)$")
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -163,7 +163,7 @@ def load_config_data(config_dir, ref_epoch_arr, ref_time_arr, crops, epoch_time_
 
 
 def collect_all(crops, ref_epoch_arr, ref_time_arr):
-    """Returns {label: data_dict} for every XX_4_23 folder, sorted by n_levels."""
+    """Returns {label: data_dict} for every 23_4_XX folder, sorted by hashmap size."""
     dirs = sorted(
         (d for d in SIZEDIFF.iterdir() if d.is_dir() and FOLDER_RE.match(d.name)),
         key=lambda d: int(FOLDER_RE.match(d.name).group(1)),
@@ -226,10 +226,10 @@ def plot_epoch(all_data, metric):
         ax.plot(xs, ys, label=label, color=cmap(i % 10), linewidth=1.5, marker="o", markersize=3)
     ax.set_xlabel("Epoch")
     ax.set_ylabel(METRICS[metric])
-    ax.legend(fontsize=8, title="n_levels_4_23", loc="lower right")
+    ax.legend(fontsize=8, title="23_4_hashmap", loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"nlevel_epoch_{metric}.png",
-            f"n_levels sweep (4 layers, hashmap=23) — {METRICS[metric]} vs Epoch")
+    _finish(fig, RESULTS / f"hashmap23_epoch_{metric}.png",
+            f"hashmap sweep (n_levels=23, 4 layers) — {METRICS[metric]} vs Epoch")
 
 
 def plot_time(all_data, metric):
@@ -247,13 +247,13 @@ def plot_time(all_data, metric):
     if not plotted:
         plt.close(fig)
         return
-    ax.axvline(TARGET_24H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="24 h")
+    ax.axvline(TARGET_18H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="24 h")
     ax.set_xlabel("Wall-clock time (hours)")
     ax.set_ylabel(METRICS[metric])
-    ax.legend(fontsize=8, title="n_levels_4_23", loc="lower right")
+    ax.legend(fontsize=8, title="23_4_hashmap", loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"nlevel_time_{metric}.png",
-            f"n_levels sweep (4 layers, hashmap=23) — {METRICS[metric]} vs Time")
+    _finish(fig, RESULTS / f"hashmap23_time_{metric}.png",
+            f"hashmap sweep (n_levels=23, 4 layers) — {METRICS[metric]} vs Time")
 
 
 def plot_vram_efficiency(all_data, metric):
@@ -263,13 +263,13 @@ def plot_vram_efficiency(all_data, metric):
     plotted = []
     for i, (label, data) in enumerate(all_data.items()):
         vram = data["vram_gb"]
-        val_18h = None
+        val_24h = None
         if data[key]:
-            nearest = min(data[key], key=lambda p: abs(p[0] - TARGET_24H))
-            val_18h = nearest[1]
-        if vram is None or val_18h is None:
+            nearest = min(data[key], key=lambda p: abs(p[0] - TARGET_18H))
+            val_24h = nearest[1]
+        if vram is None or val_24h is None:
             continue
-        plotted.append((vram, val_18h, label, cmap(i % 10)))
+        plotted.append((vram, val_24h, label, cmap(i % 10)))
 
     if not plotted:
         plt.close(fig)
@@ -282,11 +282,11 @@ def plot_vram_efficiency(all_data, metric):
                     xytext=(5, 3), fontsize=6.5, color=color)
 
     ax.set_xlabel("Peak Reserved VRAM (GB)")
-    ax.set_ylabel(f"{METRICS[metric]} at ~{TARGET_24H:.0f} h")
+    ax.set_ylabel(f"{METRICS[metric]} at ~{TARGET_18H:.0f} h")
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"nlevel_vram_{metric}.png",
-            f"VRAM Efficiency — {METRICS[metric]} at {TARGET_24H:.0f} h vs Peak Reserved VRAM")
+    _finish(fig, RESULTS / f"hashmap23_vram_{metric}.png",
+            f"VRAM Efficiency — {METRICS[metric]} at {TARGET_18H:.0f} h vs Peak Reserved VRAM")
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
@@ -300,7 +300,7 @@ def main():
     print("Collecting experiment data ...")
     all_data = collect_all(crops, ref_epoch, ref_time)
     if not all_data:
-        print("No XX_4_23 folders found in", SIZEDIFF)
+        print("No 23_4_XX folders found in", SIZEDIFF)
         return
     cap_to_minimum(all_data)
 
