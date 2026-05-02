@@ -1282,11 +1282,6 @@ INPUT ./images//u-net-architecture.png
 INPUT images//u-net-architecture.png
 INPUT ./images//u-net-architecture.png
 INPUT ./images//u-net-architecture.png
-INPUT ./images//transformer.jpg
-INPUT ./images//transformer.jpg
-INPUT images//transformer.jpg
-INPUT ./images//transformer.jpg
-INPUT ./images//transformer.jpg
 INPUT ./images//nerf.png
 INPUT ./images//nerf.png
 INPUT images//nerf.png
@@ -1350,6 +1345,21 @@ INPUT ./images//nlevel_plots/nlevel_vram_psnr.png
 INPUT images//nlevel_plots/nlevel_vram_psnr.png
 INPUT ./images//nlevel_plots/nlevel_vram_psnr.png
 INPUT ./images//nlevel_plots/nlevel_vram_psnr.png
+INPUT ./images//features_plots/features_epoch_psnr.png
+INPUT ./images//features_plots/features_epoch_psnr.png
+INPUT images//features_plots/features_epoch_psnr.png
+INPUT ./images//features_plots/features_epoch_psnr.png
+INPUT ./images//features_plots/features_epoch_psnr.png
+INPUT ./images//features_plots/features_time_psnr.png
+INPUT ./images//features_plots/features_time_psnr.png
+INPUT images//features_plots/features_time_psnr.png
+INPUT ./images//features_plots/features_time_psnr.png
+INPUT ./images//features_plots/features_time_psnr.png
+INPUT ./images//features_plots/features_vram_psnr.png
+INPUT ./images//features_plots/features_vram_psnr.png
+INPUT images//features_plots/features_vram_psnr.png
+INPUT ./images//features_plots/features_vram_psnr.png
+INPUT ./images//features_plots/features_vram_psnr.png
 INPUT ./images//equalized_psnr.png
 INPUT ./images//equalized_psnr.png
 INPUT images//equalized_psnr.png
@@ -1374,8 +1384,6 @@ INPUT ./images//sexcubes_128_16.png
 INPUT images//sexcubes_128_16.png
 INPUT ./images//sexcubes_128_16.png
 INPUT ./images//sexcubes_128_16.png
-INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx8.tfm
-INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx6.tfm
 INPUT ./images//combinedcube_150epoch.png
 INPUT ./images//combinedcube_150epoch.png
 INPUT images//combinedcube_150epoch.png
@@ -1391,6 +1399,7 @@ INPUT ./images//cc_qc_comp.png
 INPUT images//cc_qc_comp.png
 INPUT ./images//cc_qc_comp.png
 INPUT ./images//cc_qc_comp.png
+INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT ./images//compairson.png
 INPUT ./images//compairson.png
 INPUT images//compairson.png
@@ -1406,6 +1415,7 @@ INPUT ./images//highcontrast_mixedcubes_12h.png
 INPUT images//highcontrast_mixedcubes_12h.png
 INPUT ./images//highcontrast_mixedcubes_12h.png
 INPUT ./images//highcontrast_mixedcubes_12h.png
+INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
 INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
 INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
@@ -1434,7 +1444,6 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
-INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr10.tfm
 INPUT ./images//hourglassandbox.jpg
 INPUT ./images//hourglassandbox.jpg

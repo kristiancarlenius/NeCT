@@ -1,4 +1,4 @@
-\begin{thebibliography}{34}
+\begin{thebibliography}{32}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -32,17 +32,6 @@ George Cybenko.
 \newblock \emph{Mathematics of Control, Signals and Systems}, 2\penalty0
   (4):\penalty0 303--314, 1989.
 \newblock \doi{10.1007/BF02551274}.
-
-\bibitem[Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
-  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and
-  Houlsby]{dosovitskiy2020vit}
-Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
-  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
-  Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby.
-\newblock An image is worth 16x16 words: Transformers for image recognition at
-  scale.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2021.
 
 \bibitem[Du et~al.(2017)Du, Yu, Xiang, Wang, and Deene]{du2017convergence}
 Yang Du, Gao Yu, Xia Xiang, Xiaoming Wang, and Yves~De Deene.
@@ -233,14 +222,6 @@ Matthew Tancik, Pratul~P. Srinivasan, Ben Mildenhall, Sara Fridovich-Keil,
   dimensional domains.
 \newblock In \emph{Advances in Neural Information Processing Systems},
   volume~33, pages 7537--7547, 2020.
-
-\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
-  Kaiser, and Polosukhin]{vaswani2017attention}
-Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
-  Aidan~N. Gomez, {\L}ukasz Kaiser, and Illia Polosukhin.
-\newblock Attention is all you need.
-\newblock In \emph{Advances in Neural Information Processing Systems},
-  volume~30, 2017.
 
 \bibitem[Wang et~al.(2004)Wang, Bovik, Sheikh, and Simoncelli]{wang2004ssim}
 Zhou Wang, Alan~C. Bovik, Hamid~R. Sheikh, and Eero~P. Simoncelli.
