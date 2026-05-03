@@ -303,6 +303,28 @@ def main():
 
     total_clean = top_vols_clean + bot_vols_clean
 
+    # ── Truth lines & error metrics ───────────────────────────────────────────
+    # Total sand is conserved → truth is a flat line at the mean total.
+    total_truth = float(total_clean.mean())
+    # Given the measured bottom, conservation dictates what top should be, and vice versa.
+    top_truth = total_truth - bot_vols_clean
+    bot_truth = total_truth - top_vols_clean
+
+    mae_total = float(np.mean(np.abs(total_clean - total_truth)))
+    mse_total = float(np.mean((total_clean - total_truth) ** 2))
+
+    # 1:1 check: Δtop should equal −Δbot  →  residual = Δtop + Δbot = total(t) − total(0)
+    delta_top = top_vols_clean - top_vols_clean[0]
+    delta_bot = bot_vols_clean - bot_vols_clean[0]
+    residual_1to1 = delta_top + delta_bot
+    mae_1to1 = float(np.mean(np.abs(residual_1to1)))
+    mse_1to1 = float(np.mean(residual_1to1 ** 2))
+
+    mae_top = float(np.mean(np.abs(top_vols_clean - top_truth)))
+    mse_top = float(np.mean((top_vols_clean - top_truth) ** 2))
+    mae_bot = float(np.mean(np.abs(bot_vols_clean - bot_truth)))
+    mse_bot = float(np.mean((bot_vols_clean - bot_truth) ** 2))
+
     # ── Plot ──────────────────────────────────────────────────────────────────
     fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
@@ -310,6 +332,12 @@ def main():
     ax.plot(t_axis, top_vols_clean, label="Top chamber", color="steelblue")
     ax.plot(t_axis, bot_vols_clean, label="Bottom chamber", color="firebrick")
     ax.plot(t_axis, total_clean, label="Total", color="gray", linestyle="--", alpha=0.7)
+    ax.axhline(total_truth, color="black", linestyle="-.", linewidth=1.2,
+               label=f"Truth total = {total_truth:.0f} mm³", alpha=0.85)
+    ax.plot(t_axis, top_truth, color="steelblue", linestyle=":", linewidth=1.5,
+            label="Top truth (conservation)", alpha=0.85)
+    ax.plot(t_axis, bot_truth, color="firebrick", linestyle=":", linewidth=1.5,
+            label="Bottom truth (conservation)", alpha=0.85)
     if FILTER_GLITCHES and glitch_mask.any():
         ax.scatter(t_axis[glitch_mask], top_vols_mm3[glitch_mask],
                    color="steelblue", marker="x", s=60, zorder=5,
@@ -358,6 +386,31 @@ def main():
         voxel_vol_mm3=voxel_vol_mm3,
     )
     print(f"Raw data saved to {npz_path}")
+
+    mae_path = out_dir / "mae.txt"
+    with open(mae_path, "w") as f:
+        f.write("Sand volume conservation metrics\n")
+        f.write("=" * 50 + "\n")
+        f.write(f"N_TIMESTEPS={N_TIMESTEPS}  BINNING={BINNING}\n")
+        f.write(f"Truth total (mean): {total_truth:.2f} mm³\n\n")
+
+        f.write("Total conservation (total should be constant):\n")
+        f.write(f"  MAE : {mae_total:.4f} mm³\n")
+        f.write(f"  MSE : {mse_total:.4f} mm⁶\n\n")
+
+        f.write("1:1 tracking (Δtop = −Δbot, residual = Δtop + Δbot):\n")
+        f.write(f"  MAE : {mae_1to1:.4f} mm³\n")
+        f.write(f"  MSE : {mse_1to1:.4f} mm⁶\n\n")
+
+        f.write("Top chamber vs. conservation-derived truth:\n")
+        f.write(f"  MAE : {mae_top:.4f} mm³\n")
+        f.write(f"  MSE : {mse_top:.4f} mm⁶\n\n")
+
+        f.write("Bottom chamber vs. conservation-derived truth:\n")
+        f.write(f"  MAE : {mae_bot:.4f} mm³\n")
+        f.write(f"  MSE : {mse_bot:.4f} mm⁶\n")
+    print(f"Conservation metrics saved to {mae_path}")
+
     plt.show()
 
 
