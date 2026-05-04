@@ -69,6 +69,11 @@ FILTER_GLITCHES = True   # set False to see the raw spikes in the plot
 FILTER_WINDOW   = 7      # rolling median window width (timesteps)
 FILTER_SIGMA    = 2.5    # outlier threshold in units of MAD
 
+# ── Plot-only mode ────────────────────────────────────────────────────────────
+# Set True to skip model inference and reload volumes from a previous run's
+# sand_volume.npz.  Glitch filtering is re-applied with current FILTER_* settings.
+PLOT_ONLY = False
+
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -123,170 +128,190 @@ def query_volume(
 
 
 def main():
-    base_path = Path(MODEL_PATH)
-    device = torch.device(0)
-
-    print("Loading config and model...")
-    config = get_cfg(base_path / "config.yaml")
-    assert config.geometry is not None, "No geometry in config"
-    assert config.mode == "dynamic", "Model must be in dynamic mode"
-
-    model = config.get_model()
-    checkpoints = torch.load(base_path / "checkpoints" / "last.ckpt", map_location="cpu")
-    model.load_state_dict(checkpoints["model"])
-    model = model.to(device)
-    model.eval()
-
-    dataset = NeCTDataset(config=config, device="cpu")
-    geometry = Geometry.from_cfg(
-        config.geometry,
-        reconstruction_mode=config.reconstruction_mode,
-        sample_outside=config.sample_outside,
-    )
-
-    # ── Voxel dimensions ─────────────────────────────────────────────────────
-    nVoxels_raw = list(config.geometry.nVoxel)   # [nz, ny, nx]
-    dVoxel = list(config.geometry.dVoxel)        # [dz, dy, dx] in mm
-    rm = config.sample_outside
-    nVoxels = [nVoxels_raw[0], nVoxels_raw[1] + 2 * rm, nVoxels_raw[2] + 2 * rm]
-
-    # Physical size of one (binned) voxel in mm³
-    voxel_vol_mm3 = (dVoxel[0] * BINNING) * (dVoxel[1] * BINNING) * (dVoxel[2] * BINNING)
-    print(f"Binned voxel volume: {voxel_vol_mm3:.4f} mm³")
-
-    # ── Spatial coordinate ranges ─────────────────────────────────────────────
-    def roi_coords(roi, n_full, n_voxels, rm_offset=0):
-        """Returns (start, end, n_bins) for one axis."""
-        if roi is None:
-            return 0.0, 1.0, n_full // BINNING
-        n_bins = (roi[1] - roi[0]) // BINNING
-        start = (roi[0] - rm_offset) / n_voxels
-        end = (roi[1] - rm_offset) / n_voxels
-        return start, end, n_bins
-
-    start_z, end_z, z_h = roi_coords(ROI_Z, nVoxels_raw[0], nVoxels[0], rm_offset=0)
-    start_y, end_y, y_w = roi_coords(ROI_Y, nVoxels_raw[1], nVoxels[1], rm_offset=rm)
-    start_x, end_x, x_w = roi_coords(ROI_X, nVoxels_raw[2], nVoxels[2], rm_offset=rm)
-
-    print(f"Volume shape per timestep: ({z_h}, {y_w}, {x_w})")
-
-    z_lin = torch.linspace(start_z, end_z, steps=z_h, device=device)
-    y_lin = torch.linspace(start_y, end_y, steps=y_w, device=device)
-    x_lin = torch.linspace(start_x, end_x, steps=x_w, device=device)
-
-    # ── Normalisation constants (same as export_volumes) ─────────────────────
-    scale = 1.0 / geometry.max_distance_traveled
-    data_min = dataset.minimum.item()
-    data_max = dataset.maximum.item()
-
-    def calibrate(raw: np.ndarray) -> np.ndarray:
-        return raw * scale * (data_max - data_min) + data_min
-
-    # ── Timestep schedule ─────────────────────────────────────────────────────
-    angles = config.geometry.angles
-    t_values = np.linspace(0.0, 1.0, N_TIMESTEPS, endpoint=False)
-
-    # ── First volume: threshold + diagnostic images ───────────────────────────
-    print("Querying first timestep volume for threshold / neck diagnostics...")
-    with torch.no_grad():
-        vol0_raw = query_volume(model, float(t_values[0]), z_lin, y_lin, x_lin, device)
-    vol0 = calibrate(vol0_raw)
-
-    threshold = THRESHOLD
-    if threshold is None:
-        threshold = threshold_otsu(vol0)
-        print(f"  Otsu threshold = {threshold:.4f}")
-    else:
-        print(f"  Using manual threshold = {threshold:.4f}")
-
-    # ── Neck split ────────────────────────────────────────────────────────────
-    neck_z = NECK_Z_VOXEL if NECK_Z_VOXEL is not None else z_h // 2
-
-    # Save diagnostic slices so you can verify the ROI and neck position
     out_dir = OUTPUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
-    mid_y = y_w // 2
-    mid_x = x_w // 2
+    npz_path = out_dir / "sand_volume.npz"
 
-    # Percentile-clipped display range so air doesn't crush the contrast
-    vmin = float(np.percentile(vol0, 1))
-    vmax = float(np.percentile(vol0, 99))
-    print(f"  Display range: vmin={vmin:.4f}  vmax={vmax:.4f}  "
-          f"(1st–99th percentile of full volume)")
+    if PLOT_ONLY:
+        print(f"PLOT_ONLY: loading volumes from {npz_path}")
+        data = np.load(npz_path)
+        top_vols_mm3 = data["top_volume_mm3"]
+        bot_vols_mm3 = data["bottom_volume_mm3"]
+        t_axis = data["projection_indices"]
+    else:
+        base_path = Path(MODEL_PATH)
+        device = torch.device(0)
 
-    fig_nc, axes_nc = plt.subplots(2, 2, figsize=(14, 10))
+        print("Loading config and model...")
+        config = get_cfg(base_path / "config.yaml")
+        assert config.geometry is not None, "No geometry in config"
+        assert config.mode == "dynamic", "Model must be in dynamic mode"
 
-    def show(ax, img, title, xlabel, ylabel, add_neck=False):
-        im = ax.imshow(img, cmap="gray", aspect="auto", vmin=vmin, vmax=vmax)
-        if add_neck:
-            ax.axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
-                       label=f"neck z={neck_z}")
-            ax.legend(fontsize=8)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        plt.colorbar(im, ax=ax, fraction=0.03, pad=0.04)
+        model = config.get_model()
+        checkpoints = torch.load(base_path / "checkpoints" / "last.ckpt", map_location="cpu")
+        model.load_state_dict(checkpoints["model"])
+        model = model.to(device)
+        model.eval()
 
-    # Row 0: XZ slice (mid-Y)
-    show(axes_nc[0, 0], vol0[:, mid_y, :],
-         "XZ slice (mid-Y) — raw attenuation",
-         "x voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
+        dataset = NeCTDataset(config=config, device="cpu")
+        geometry = Geometry.from_cfg(
+            config.geometry,
+            reconstruction_mode=config.reconstruction_mode,
+            sample_outside=config.sample_outside,
+        )
 
-    axes_nc[0, 1].imshow(vol0[:, mid_y, :] > threshold, cmap="gray", aspect="auto")
-    axes_nc[0, 1].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
+        # ── Voxel dimensions ─────────────────────────────────────────────────────
+        nVoxels_raw = list(config.geometry.nVoxel)   # [nz, ny, nx]
+        dVoxel = list(config.geometry.dVoxel)        # [dz, dy, dx] in mm
+        rm = config.sample_outside
+        nVoxels = [nVoxels_raw[0], nVoxels_raw[1] + 2 * rm, nVoxels_raw[2] + 2 * rm]
+
+        # Physical size of one (binned) voxel in mm³
+        voxel_vol_mm3 = (dVoxel[0] * BINNING) * (dVoxel[1] * BINNING) * (dVoxel[2] * BINNING)
+        print(f"Binned voxel volume: {voxel_vol_mm3:.4f} mm³")
+
+        # ── Spatial coordinate ranges ─────────────────────────────────────────────
+        def roi_coords(roi, n_full, n_voxels, rm_offset=0):
+            """Returns (start, end, n_bins) for one axis."""
+            if roi is None:
+                return 0.0, 1.0, n_full // BINNING
+            n_bins = (roi[1] - roi[0]) // BINNING
+            start = (roi[0] - rm_offset) / n_voxels
+            end = (roi[1] - rm_offset) / n_voxels
+            return start, end, n_bins
+
+        start_z, end_z, z_h = roi_coords(ROI_Z, nVoxels_raw[0], nVoxels[0], rm_offset=0)
+        start_y, end_y, y_w = roi_coords(ROI_Y, nVoxels_raw[1], nVoxels[1], rm_offset=rm)
+        start_x, end_x, x_w = roi_coords(ROI_X, nVoxels_raw[2], nVoxels[2], rm_offset=rm)
+
+        print(f"Volume shape per timestep: ({z_h}, {y_w}, {x_w})")
+
+        z_lin = torch.linspace(start_z, end_z, steps=z_h, device=device)
+        y_lin = torch.linspace(start_y, end_y, steps=y_w, device=device)
+        x_lin = torch.linspace(start_x, end_x, steps=x_w, device=device)
+
+        # ── Normalisation constants (same as export_volumes) ─────────────────────
+        scale = 1.0 / geometry.max_distance_traveled
+        data_min = dataset.minimum.item()
+        data_max = dataset.maximum.item()
+
+        def calibrate(raw: np.ndarray) -> np.ndarray:
+            return raw * scale * (data_max - data_min) + data_min
+
+        # ── Timestep schedule ─────────────────────────────────────────────────────
+        angles = config.geometry.angles
+        t_values = np.linspace(0.0, 1.0, N_TIMESTEPS, endpoint=False)
+
+        # ── First volume: threshold + diagnostic images ───────────────────────────
+        print("Querying first timestep volume for threshold / neck diagnostics...")
+        with torch.no_grad():
+            vol0_raw = query_volume(model, float(t_values[0]), z_lin, y_lin, x_lin, device)
+        vol0 = calibrate(vol0_raw)
+
+        threshold = THRESHOLD
+        if threshold is None:
+            threshold = threshold_otsu(vol0)
+            print(f"  Otsu threshold = {threshold:.4f}")
+        else:
+            print(f"  Using manual threshold = {threshold:.4f}")
+
+        # ── Neck split ────────────────────────────────────────────────────────────
+        neck_z = NECK_Z_VOXEL if NECK_Z_VOXEL is not None else z_h // 2
+
+        mid_y = y_w // 2
+        mid_x = x_w // 2
+
+        # Percentile-clipped display range so air doesn't crush the contrast
+        vmin = float(np.percentile(vol0, 1))
+        vmax = float(np.percentile(vol0, 99))
+        print(f"  Display range: vmin={vmin:.4f}  vmax={vmax:.4f}  "
+              f"(1st–99th percentile of full volume)")
+
+        fig_nc, axes_nc = plt.subplots(2, 2, figsize=(14, 10))
+
+        def show(ax, img, title, xlabel, ylabel, add_neck=False):
+            im = ax.imshow(img, cmap="gray", aspect="auto", vmin=vmin, vmax=vmax)
+            if add_neck:
+                ax.axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
                            label=f"neck z={neck_z}")
-    axes_nc[0, 1].set_title(f"Sand mask — XZ (mid-Y), threshold={threshold:.4f}")
-    axes_nc[0, 1].set_xlabel("x voxel (binned)")
-    axes_nc[0, 1].legend(fontsize=8)
+                ax.legend(fontsize=8)
+            ax.set_title(title)
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            plt.colorbar(im, ax=ax, fraction=0.03, pad=0.04)
 
-    # Row 1: YZ slice (mid-X) and XY slice at neck
-    show(axes_nc[1, 0], vol0[:, :, mid_x],
-         "YZ slice (mid-X) — raw attenuation",
-         "y voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
+        # Row 0: XZ slice (mid-Y)
+        show(axes_nc[0, 0], vol0[:, mid_y, :],
+             "XZ slice (mid-Y) — raw attenuation",
+             "x voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
 
-    show(axes_nc[1, 1], vol0[neck_z, :, :],
-         f"XY slice at neck z={neck_z} — raw attenuation",
-         "x voxel (binned)", "y voxel (binned)", add_neck=False)
+        axes_nc[0, 1].imshow(vol0[:, mid_y, :] > threshold, cmap="gray", aspect="auto")
+        axes_nc[0, 1].axhline(neck_z, color="red", linewidth=1.5, linestyle="--",
+                               label=f"neck z={neck_z}")
+        axes_nc[0, 1].set_title(f"Sand mask — XZ (mid-Y), threshold={threshold:.4f}")
+        axes_nc[0, 1].set_xlabel("x voxel (binned)")
+        axes_nc[0, 1].legend(fontsize=8)
 
-    plt.tight_layout()
-    nc_path = out_dir / "neck_check.png"
-    plt.savefig(nc_path, dpi=150)
-    plt.close(fig_nc)
-    print(f"  Diagnostic slices saved to {nc_path}")
-    print(f"  → Red dashed line marks neck split at z={neck_z} (of {z_h})")
-    print(f"  → Adjust NECK_Z_VOXEL if the line doesn't sit at the hourglass neck")
-    print(f"Neck split at binned z-index {neck_z} (of {z_h} total z-slices)")
+        # Row 1: YZ slice (mid-X) and XY slice at neck
+        show(axes_nc[1, 0], vol0[:, :, mid_x],
+             "YZ slice (mid-X) — raw attenuation",
+             "y voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
 
-    # ── Main loop ─────────────────────────────────────────────────────────────
-    top_vols_mm3 = []
-    bot_vols_mm3 = []
+        show(axes_nc[1, 1], vol0[neck_z, :, :],
+             f"XY slice at neck z={neck_z} — raw attenuation",
+             "x voxel (binned)", "y voxel (binned)", add_neck=False)
 
-    with torch.no_grad():
-        for i, t in enumerate(tqdm(t_values, desc="Timesteps")):
-            # Reuse already-queried first volume
-            if i == 0:
-                vol = vol0
-            else:
-                raw_vol = query_volume(model, float(t), z_lin, y_lin, x_lin, device)
-                vol = calibrate(raw_vol)
+        plt.tight_layout()
+        nc_path = out_dir / "neck_check.png"
+        plt.savefig(nc_path, dpi=150)
+        plt.close(fig_nc)
+        print(f"  Diagnostic slices saved to {nc_path}")
+        print(f"  → Red dashed line marks neck split at z={neck_z} (of {z_h})")
+        print(f"  → Adjust NECK_Z_VOXEL if the line doesn't sit at the hourglass neck")
+        print(f"Neck split at binned z-index {neck_z} (of {z_h} total z-slices)")
 
-            sand_mask = vol > threshold  # True where sand
+        # ── Main loop ─────────────────────────────────────────────────────────────
+        top_vols_mm3 = []
+        bot_vols_mm3 = []
 
-            top_voxels = sand_mask[:neck_z].sum()
-            bot_voxels = sand_mask[neck_z:].sum()
+        with torch.no_grad():
+            for i, t in enumerate(tqdm(t_values, desc="Timesteps")):
+                # Reuse already-queried first volume
+                if i == 0:
+                    vol = vol0
+                else:
+                    raw_vol = query_volume(model, float(t), z_lin, y_lin, x_lin, device)
+                    vol = calibrate(raw_vol)
 
-            top_vols_mm3.append(top_voxels * voxel_vol_mm3)
-            bot_vols_mm3.append(bot_voxels * voxel_vol_mm3)
+                sand_mask = vol > threshold  # True where sand
 
-    top_vols_mm3 = np.array(top_vols_mm3)
-    bot_vols_mm3 = np.array(bot_vols_mm3)
-    total_mm3 = top_vols_mm3 + bot_vols_mm3
+                top_voxels = sand_mask[:neck_z].sum()
+                bot_voxels = sand_mask[neck_z:].sum()
 
-    # Convert t in [0,1] to acquisition index for the x-axis
-    t_axis = t_values * len(angles)
+                top_vols_mm3.append(top_voxels * voxel_vol_mm3)
+                bot_vols_mm3.append(bot_voxels * voxel_vol_mm3)
+
+        top_vols_mm3 = np.array(top_vols_mm3)
+        bot_vols_mm3 = np.array(bot_vols_mm3)
+
+        # Convert t in [0,1] to acquisition index for the x-axis
+        t_axis = t_values * len(angles)
+
+        np.savez(
+            npz_path,
+            t_values=t_values,
+            projection_indices=t_axis,
+            top_volume_mm3=top_vols_mm3,
+            bottom_volume_mm3=bot_vols_mm3,
+            threshold=threshold,
+            neck_z_voxel=neck_z,
+            binning=BINNING,
+            voxel_vol_mm3=voxel_vol_mm3,
+        )
+        print(f"Raw data saved to {npz_path}")
 
     # ── Glitch filtering ──────────────────────────────────────────────────────
-    glitch_mask = np.zeros(len(t_values), dtype=bool)
+    glitch_mask = np.zeros(len(top_vols_mm3), dtype=bool)
     top_vols_clean = top_vols_mm3.copy()
     bot_vols_clean = bot_vols_mm3.copy()
 
@@ -360,23 +385,6 @@ def main():
     plt.savefig(plot_path, dpi=150)
     print(f"Plot saved to {plot_path}")
 
-    # Also save the raw numbers as .npz for later use / 3D visualisation
-    npz_path = out_dir / "sand_volume.npz"
-    np.savez(
-        npz_path,
-        t_values=t_values,
-        projection_indices=t_axis,
-        top_volume_mm3=top_vols_mm3,
-        bottom_volume_mm3=bot_vols_mm3,
-        top_volume_mm3_clean=top_vols_clean,
-        bottom_volume_mm3_clean=bot_vols_clean,
-        glitch_mask=glitch_mask,
-        threshold=threshold,
-        neck_z_voxel=neck_z,
-        binning=BINNING,
-        voxel_vol_mm3=voxel_vol_mm3,
-    )
-    print(f"Raw data saved to {npz_path}")
 
     mae_path = out_dir / "mae.txt"
     with open(mae_path, "w") as f:
