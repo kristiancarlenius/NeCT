@@ -331,20 +331,11 @@ def main():
     ax = axes[0]
     ax.plot(t_axis, top_vols_clean, label="Top chamber", color="steelblue")
     ax.plot(t_axis, bot_vols_clean, label="Bottom chamber", color="firebrick")
-    ax.plot(t_axis, total_clean, label="Total", color="gray", linestyle="--", alpha=0.7)
-    ax.axhline(total_truth, color="black", linestyle="-.", linewidth=1.2,
-               label=f"Truth total = {total_truth:.0f} mm³", alpha=0.85)
-    ax.plot(t_axis, top_truth, color="steelblue", linestyle=":", linewidth=1.5,
-            label="Top truth (conservation)", alpha=0.85)
-    ax.plot(t_axis, bot_truth, color="firebrick", linestyle=":", linewidth=1.5,
-            label="Bottom truth (conservation)", alpha=0.85)
-    if FILTER_GLITCHES and glitch_mask.any():
-        ax.scatter(t_axis[glitch_mask], top_vols_mm3[glitch_mask],
-                   color="steelblue", marker="x", s=60, zorder=5,
-                   label="Glitch (raw top)")
-        ax.scatter(t_axis[glitch_mask], bot_vols_mm3[glitch_mask],
-                   color="firebrick", marker="x", s=60, zorder=5,
-                   label="Glitch (raw bot)")
+    ax.plot(t_axis, total_clean, label="Total", color="mediumpurple")
+    ax.plot(t_axis, top_truth, color="darkorange", linewidth=1.5,
+            label="Top truth (conservation)")
+    ax.plot(t_axis, bot_truth, color="seagreen", linewidth=1.5,
+            label="Bottom truth (conservation)")
     ax.set_ylabel("Sand volume (mm³)")
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
