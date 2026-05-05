@@ -72,7 +72,7 @@ FILTER_SIGMA    = 5.5    # outlier threshold in units of MAD
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Set True to skip model inference and reload volumes from a previous run's
 # sand_volume.npz.  Glitch filtering is re-applied with current FILTER_* settings.
-PLOT_ONLY = False
+PLOT_ONLY = True
 
 # ─────────────────────────────────────────────────────────────────────────────
 
