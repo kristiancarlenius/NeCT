@@ -67,7 +67,7 @@ OUTPUT_DIR = Path(MODEL_PATH).parent
 # then replaces them with linear interpolation of their neighbours.
 FILTER_GLITCHES = True   # set False to see the raw spikes in the plot
 FILTER_WINDOW   = 3      # rolling median window width (timesteps)
-FILTER_SIGMA    = 2.5    # outlier threshold in units of MAD
+FILTER_SIGMA    = 1.2    # outlier threshold in units of MAD
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Set True to skip model inference and reload volumes from a previous run's
