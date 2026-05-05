@@ -65,9 +65,8 @@ OUTPUT_DIR = Path(MODEL_PATH).parent
 # scan (one per full 360° revolution).  The filter detects timesteps whose
 # volume deviates more than FILTER_SIGMA × MAD from the local running median,
 # then replaces them with linear interpolation of their neighbours.
-FILTER_GLITCHES = True   # set False to see the raw spikes in the plot
-FILTER_WINDOW   = 3      # rolling median window width (timesteps)
-FILTER_SIGMA    = 1.2    # outlier threshold in units of MAD
+FILTER_GLITCHES = True   # set False to see raw spikes in the plot
+FILTER_SIGMA    = 3.0    # outlier threshold: points > sigma × MAD from linear trend are replaced
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Set True to skip model inference and reload volumes from a previous run's
@@ -77,34 +76,47 @@ PLOT_ONLY = True
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def filter_glitches(arr: np.ndarray, window: int, sigma: float):
-    """Detect and interpolate single-point spike artefacts in a 1-D time series.
+def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: str):
+    """Replace points that deviate from a linear trend with the trend value.
 
-    Works in the first-difference domain: a spike at index i produces two
-    consecutive large diffs with opposite signs (d[i-1] large positive, d[i]
-    large negative, or vice versa).  This is robust to monotone drift, which
-    made the old rolling-median residual approach give MAD=0 and never trigger.
+    Fits a line to (t_axis, arr), flags points whose residual exceeds
+    sigma × MAD, replaces them with the linear truth, then prints a pattern
+    analysis of which timesteps were replaced.
 
-    `window` is unused but kept so call sites don't need updating.
     Returns (clean_arr, bad_mask).
     """
-    d = np.diff(arr)
-    med_d = np.median(d)
-    mad = np.median(np.abs(d - med_d))
+    coeffs = np.polyfit(t_axis, arr, 1)
+    truth = np.polyval(coeffs, t_axis)
+    residuals = arr - truth
+
+    mad = np.median(np.abs(residuals - np.median(residuals)))
     if mad == 0:
+        print(f"  {label}: MAD=0, nothing filtered")
         return arr.copy(), np.zeros(len(arr), dtype=bool)
 
     threshold = sigma * mad * 1.4826
-    large = np.abs(d - med_d) > threshold
-    bad = np.zeros(len(arr), dtype=bool)
-    bad[1:-1] = large[:-1] & large[1:] & (d[:-1] * d[1:] < 0)
+    bad = np.abs(residuals) > threshold
 
-    if not bad.any():
-        return arr.copy(), bad
-
-    x = np.arange(len(arr))
     clean = arr.copy()
-    clean[bad] = np.interp(x[bad], x[~bad], arr[~bad])
+    clean[bad] = truth[bad]
+
+    bad_proj = t_axis[bad]
+    print(f"\n  {label}: {bad.sum()} point(s) replaced")
+    if bad.any():
+        print(f"    Projection indices: {bad_proj.astype(int).tolist()}")
+        if len(bad_proj) >= 2:
+            ns = np.arange(len(bad_proj))
+            fit_slope, fit_intercept = np.polyfit(ns, bad_proj, 1)
+            predicted = fit_intercept + fit_slope * ns
+            ss_res = np.sum((bad_proj - predicted) ** 2)
+            ss_tot = np.sum((bad_proj - bad_proj.mean()) ** 2)
+            r2 = 1 - ss_res / ss_tot if ss_tot > 0 else 1.0
+            print(f"    Pattern fit: index(n) = {fit_intercept:.1f} + {fit_slope:.1f}·n  "
+                  f"(R²={r2:.4f})")
+            if r2 > 0.999:
+                print(f"    → Nearly perfect linear spacing: glitches every "
+                      f"~{fit_slope:.1f} projections")
+
     return clean, bad
 
 
@@ -314,20 +326,17 @@ def main():
         print(f"Raw data saved to {npz_path}")
 
     # ── Glitch filtering ──────────────────────────────────────────────────────
-    glitch_mask = np.zeros(len(top_vols_mm3), dtype=bool)
+    total_vols_mm3 = top_vols_mm3 + bot_vols_mm3
     top_vols_clean = top_vols_mm3.copy()
     bot_vols_clean = bot_vols_mm3.copy()
+    glitch_mask = np.zeros(len(top_vols_mm3), dtype=bool)
 
     if FILTER_GLITCHES:
-        top_vols_clean, top_bad = filter_glitches(top_vols_mm3, FILTER_WINDOW, FILTER_SIGMA)
-        bot_vols_clean, bot_bad = filter_glitches(bot_vols_mm3, FILTER_WINDOW, FILTER_SIGMA)
+        print(f"Glitch filter (sigma={FILTER_SIGMA}):")
+        top_vols_clean, top_bad = filter_glitches(top_vols_mm3, t_axis, FILTER_SIGMA, "Top chamber")
+        bot_vols_clean, bot_bad = filter_glitches(bot_vols_mm3, t_axis, FILTER_SIGMA, "Bottom chamber")
+        _, total_bad = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
         glitch_mask = top_bad | bot_bad
-        if glitch_mask.any():
-            bad_proj = t_axis[glitch_mask].astype(int).tolist()
-            print(f"Filtered {glitch_mask.sum()} glitched timestep(s) "
-                  f"at projection indices: {bad_proj}")
-        else:
-            print("No glitches detected — try lowering FILTER_SIGMA if spikes are still visible.")
 
     total_clean = top_vols_clean + bot_vols_clean
 
