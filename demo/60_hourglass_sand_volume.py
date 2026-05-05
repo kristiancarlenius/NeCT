@@ -66,8 +66,8 @@ OUTPUT_DIR = Path(MODEL_PATH).parent
 # volume deviates more than FILTER_SIGMA × MAD from the local running median,
 # then replaces them with linear interpolation of their neighbours.
 FILTER_GLITCHES = True   # set False to see the raw spikes in the plot
-FILTER_WINDOW   = 7      # rolling median window width (timesteps)
-FILTER_SIGMA    = 2.5    # outlier threshold in units of MAD
+FILTER_WINDOW   = 3      # rolling median window width (timesteps)
+FILTER_SIGMA    = 5.5    # outlier threshold in units of MAD
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Set True to skip model inference and reload volumes from a previous run's
@@ -361,12 +361,11 @@ def main():
             label="Top truth (conservation)")
     ax.plot(t_axis, bot_truth, color="seagreen", linewidth=1.5,
             label="Bottom truth (conservation)")
+    ax.set_yscale("log")
     ax.set_ylabel("Sand volume (mm³)")
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
     title = "Hourglass sand volume over time"
-    if FILTER_GLITCHES and glitch_mask.any():
-        title += f"  [glitch filter: window={FILTER_WINDOW}, σ={FILTER_SIGMA}]"
     ax.set_title(title)
 
     ax2 = axes[1]
@@ -375,7 +374,7 @@ def main():
     ax2.plot(t_axis, bot_vols_clean / (total_clean + 1e-9) * 100,
              color="firebrick", label="Bottom %")
     ax2.set_ylabel("Fraction of sand (%)")
-    ax2.set_xlabel("Projection index")
+    ax2.set_xlabel("Timesteps")
     ax2.legend()
     ax2.grid(True, alpha=0.3)
     ax2.set_ylim(0, 100)
