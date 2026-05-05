@@ -85,8 +85,8 @@ def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: st
 
     Returns (clean_arr, bad_mask).
     """
-    coeffs = np.polyfit(t_axis, arr, 1)
-    truth = np.polyval(coeffs, t_axis)
+    t0, t1 = t_axis[0], t_axis[-1]
+    truth = arr[0] + (arr[-1] - arr[0]) * (t_axis - t0) / (t1 - t0)
     residuals = arr - truth
 
     mad = np.median(np.abs(residuals - np.median(residuals)))

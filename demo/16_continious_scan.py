@@ -11,7 +11,7 @@ print(torch.cuda.get_device_name(0))
 print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -22,10 +22,10 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_optimized_100_cont.yaml"#"geometry_4fps_2750.yaml"
+geometry_file = Path(data_path) / "geometry_4fps_2750.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-
+"""
 reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_100_cont.npy"),#"projections.npy"),
@@ -99,4 +99,3 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     },)
 
 print(reconstruction_path_dynamic, _)
-"""
