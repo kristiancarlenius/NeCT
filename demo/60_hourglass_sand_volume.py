@@ -78,24 +78,27 @@ PLOT_ONLY = True
 
 
 def filter_glitches(arr: np.ndarray, window: int, sigma: float):
-    """Detect and interpolate over spike artefacts in a 1-D time series.
+    """Detect and interpolate single-point spike artefacts in a 1-D time series.
 
-    Uses a rolling median to estimate the local trend, then flags points whose
-    absolute deviation exceeds sigma × MAD (median absolute deviation of all
-    residuals).  Flagged points are replaced with linear interpolation of their
-    nearest clean neighbours.
+    Works in the first-difference domain: a spike at index i produces two
+    consecutive large diffs with opposite signs (d[i-1] large positive, d[i]
+    large negative, or vice versa).  This is robust to monotone drift, which
+    made the old rolling-median residual approach give MAD=0 and never trigger.
 
+    `window` is unused but kept so call sites don't need updating.
     Returns (clean_arr, bad_mask).
     """
-    from scipy.ndimage import median_filter
-
-    trend = median_filter(arr, size=window, mode="nearest")
-    residuals = arr - trend
-    mad = np.median(np.abs(residuals))
+    d = np.diff(arr)
+    med_d = np.median(d)
+    mad = np.median(np.abs(d - med_d))
     if mad == 0:
         return arr.copy(), np.zeros(len(arr), dtype=bool)
 
-    bad = np.abs(residuals) > sigma * mad * 1.4826   # 1.4826 → consistent with σ
+    threshold = sigma * mad * 1.4826
+    large = np.abs(d - med_d) > threshold
+    bad = np.zeros(len(arr), dtype=bool)
+    bad[1:-1] = large[:-1] & large[1:] & (d[:-1] * d[1:] < 0)
+
     if not bad.any():
         return arr.copy(), bad
 
