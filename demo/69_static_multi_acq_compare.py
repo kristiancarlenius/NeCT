@@ -154,29 +154,16 @@ def main():
     else:
         names = COMPARE_NAMES
 
-    volumes: dict[str, np.ndarray] = {}
-    for name in names:
-        model_dir = BASE_DIR / name / "model"
-        if not (model_dir / "config.yaml").exists():
-            print(f"  Skipping {name}: config.yaml not found")
-            continue
-        print(f"Reconstructing {name} ...")
-        model, scale, data_min, data_max = load_model(model_dir, device)
-        vol = reconstruct_volume(model, scale, data_min, data_max,
-                                  z_lin, y_lin, x_lin, device)
-        volumes[name] = vol
-        del model
-        torch.cuda.empty_cache()
+    # ── Crop bounds (computed once from grid size) ────────────────────────────
+    z0, z1 = int(0.10 * nz), int(0.90 * nz)
+    y0, y1 = int(0.10 * ny), int(0.75 * ny)
+    x0, x1 = int(0.25 * nx), int(0.75 * nx)
+    cz, cy, cx = z1 - z0, y1 - y0, x1 - x0
 
-    n_models = len(volumes)
-    if n_models == 0:
-        print("No models found — check BASE_DIR and COMPARE_NAMES.")
-        return
+    zi = int(SLICE_Z * cz)
+    yi = int(SLICE_Y * cy)
+    xi = int(SLICE_X * cx)
 
-    # ── Normalise each volume to [0, 1] for display only ─────────────────────
-    # Uses per-volume 1st/99th percentile — identical to what the trainer does
-    # when saving validation images. Keeps all models on the same visual scale
-    # regardless of their dataset-specific calibration offsets.
     def norm01(vol: np.ndarray) -> np.ndarray:
         lo = float(np.percentile(vol, 1))
         hi = float(np.percentile(vol, 99))
@@ -184,23 +171,60 @@ def main():
             return np.zeros_like(vol)
         return np.clip((vol - lo) / (hi - lo), 0.0, 1.0)
 
-    volumes_disp = {name: norm01(vol) for name, vol in volumes.items()}
+    def process(vol: np.ndarray):
+        """Crop and normalise a raw volume; return display volume + 3 slices."""
+        vol = norm01(vol)[z0:z1, y0:y1, x0:x1]
+        return vol, vol[zi], vol[:, yi, :], vol[:, :, xi]
 
-    # ── Crop empty border from all volumes ────────────────────────────────────
-    # 25% each side in x, 10% each side in y and z.
-    z0, z1 = int(0.10 * nz), int(0.90 * nz)
-    y0, y1 = int(0.10 * ny), int(0.75 * ny)
-    x0, x1 = int(0.25 * nx), int(0.75 * nx)
+    # ── Reconstruct GT first, keep in RAM for metrics ─────────────────────────
+    print(f"Reconstructing {GT_NAME} (ground truth) ...")
+    gt_model_dir = BASE_DIR / GT_NAME / "model"
+    if not (gt_model_dir / "config.yaml").exists():
+        print("Ground truth config not found — aborting.")
+        return
+    model, scale, data_min, data_max = load_model(gt_model_dir, device)
+    gt_raw = reconstruct_volume(model, scale, data_min, data_max, z_lin, y_lin, x_lin, device)
+    del model; torch.cuda.empty_cache()
+    gt_vol, gt_xy, gt_xz, gt_yz = process(gt_raw)
+    del gt_raw
 
-    volumes_disp = {name: vol[z0:z1, y0:y1, x0:x1] for name, vol in volumes_disp.items()}
-    volumes      = {name: vol[z0:z1, y0:y1, x0:x1] for name, vol in volumes.items()}
+    # slices stored for plotting: {name: (xy, xz, yz)}
+    slices: dict[str, tuple] = {GT_NAME: (gt_xy, gt_xz, gt_yz)}
 
-    cz, cy, cx = z1 - z0, y1 - y0, x1 - x0
+    metric_names: list[str] = []
+    psnr_vals:    list[float] = []
+    ssim_vals:    list[float] = []
+    mae_vals:     list[float] = []
 
-    # ── Extract slices ────────────────────────────────────────────────────────
-    zi = int(SLICE_Z * cz)
-    yi = int(SLICE_Y * cy)
-    xi = int(SLICE_X * cx)
+    # ── Reconstruct each comparison model, free volume after metrics/slices ───
+    valid_names = [GT_NAME]
+    for name in names:
+        if name == GT_NAME:
+            continue
+        model_dir = BASE_DIR / name / "model"
+        if not (model_dir / "config.yaml").exists():
+            print(f"  Skipping {name}: config.yaml not found")
+            continue
+        print(f"Reconstructing {name} ...")
+        model, scale, data_min, data_max = load_model(model_dir, device)
+        raw = reconstruct_volume(model, scale, data_min, data_max, z_lin, y_lin, x_lin, device)
+        del model; torch.cuda.empty_cache()
+
+        vol, xy, xz, yz = process(raw)
+        del raw
+
+        slices[name] = (xy, xz, yz)
+        metric_names.append(name)
+        psnr_vals.append(float(peak_signal_noise_ratio(gt_vol, vol, data_range=1.0)))
+        ssim_vals.append(float(structural_similarity(gt_vol, vol, data_range=1.0)))
+        mae_vals.append(float(np.mean(np.abs(vol - gt_vol))))
+        valid_names.append(name)
+        del vol
+
+    n_models = len(slices)
+    if n_models == 0:
+        print("No models found — check BASE_DIR and COMPARE_NAMES.")
+        return
 
     # ── Plot: rows = models, cols = {XY slice, XZ slice, YZ slice} ───────────
     n_cols = 3
@@ -212,11 +236,11 @@ def main():
     for j, title in enumerate(col_titles):
         axes[0, j].set_title(title, fontsize=9)
 
-    for i, (name, vol) in enumerate(volumes_disp.items()):
+    for i, (name, (xy, xz, yz)) in enumerate(slices.items()):
         kw = dict(cmap="gray", vmin=0, vmax=1, aspect="auto", interpolation="nearest")
-        axes[i, 0].imshow(vol[zi], **kw)
-        axes[i, 1].imshow(vol[:, yi, :], **kw)
-        axes[i, 2].imshow(vol[:, :, xi], **kw)
+        axes[i, 0].imshow(xy, **kw)
+        axes[i, 1].imshow(xz, **kw)
+        axes[i, 2].imshow(yz, **kw)
         axes[i, 0].set_ylabel(name, fontsize=7, rotation=0, labelpad=60, va="center")
         for j in range(n_cols):
             axes[i, j].set_xticks([])
@@ -228,25 +252,9 @@ def main():
     plt.close()
     print(f"Saved comparison to {OUTPUT_PNG}")
 
-    # ── Metrics vs ground truth ───────────────────────────────────────────────
-    if GT_NAME not in volumes:
-        print("Ground truth not in volumes — skipping metrics.")
+    if not metric_names:
+        print("No comparison models found — skipping metrics.")
         return
-
-    gt_vol = volumes_disp[GT_NAME]
-
-    metric_names: list[str] = []
-    psnr_vals:    list[float] = []
-    ssim_vals:    list[float] = []
-    mae_vals:     list[float] = []
-
-    for name, vol in volumes_disp.items():
-        if name == GT_NAME:
-            continue
-        metric_names.append(name)
-        psnr_vals.append(float(peak_signal_noise_ratio(gt_vol, vol, data_range=1.0)))
-        ssim_vals.append(float(structural_similarity(gt_vol, vol, data_range=1.0)))
-        mae_vals.append(float(np.mean(np.abs(vol - gt_vol))))
 
     np.savez(
         OUTPUT_NPZ,
