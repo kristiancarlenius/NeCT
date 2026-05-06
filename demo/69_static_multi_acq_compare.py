@@ -65,6 +65,12 @@ SLICE_Z = 0.5
 SLICE_Y = 0.5
 SLICE_X = 0.5
 
+# Cylinder mask — the sample is circular in XY.
+# Percentiles are computed only inside the cylinder, and the background is
+# zeroed so corner noise doesn't skew normalisation or metrics.
+# Set to 0.0 to disable.
+MASK_RADIUS_FRAC = 0.45  # fraction of min(cropped_ny, cropped_nx)
+
 OUTPUT_PNG  = BASE_DIR / "comparison.png"
 OUTPUT_PSNR = BASE_DIR / "psnr.png"
 OUTPUT_SSIM = BASE_DIR / "ssim.png"
@@ -176,21 +182,27 @@ def main():
     yi = int(SLICE_Y * ny)
     xi = int(SLICE_X * nx)
 
-    def norm01_inplace(vol: np.ndarray) -> np.ndarray:
-        """Normalise to [0,1] in-place — no temporary copy allocated."""
-        lo = float(np.percentile(vol, 1))
-        hi = float(np.percentile(vol, 99))
-        if hi == lo:
-            vol[:] = 0.0
-            return vol
-        vol -= lo
-        vol /= (hi - lo)
-        np.clip(vol, 0.0, 1.0, out=vol)
-        return vol
+    # ── Cylinder mask (True = inside sample) ─────────────────────────────────
+    if MASK_RADIUS_FRAC > 0.0:
+        cy_c, cx_c = ny / 2.0, nx / 2.0
+        radius = MASK_RADIUS_FRAC * min(ny, nx)
+        yy, xx = np.ogrid[:ny, :nx]
+        mask_2d = ((yy - cy_c) ** 2 + (xx - cx_c) ** 2) <= radius ** 2
+    else:
+        mask_2d = np.ones((ny, nx), dtype=bool)
 
     def process(vol: np.ndarray):
-        """Normalise in-place and extract the three display slices."""
-        norm01_inplace(vol)
+        """Normalise using only inside-cylinder voxels, zero background, extract slices."""
+        inside = vol[:, mask_2d]          # shape (nz, n_inside) — no copy, a view
+        lo = float(np.percentile(inside, 1))
+        hi = float(np.percentile(inside, 99))
+        if hi > lo:
+            vol -= lo
+            vol /= (hi - lo)
+            np.clip(vol, 0.0, 1.0, out=vol)
+        else:
+            vol[:] = 0.0
+        vol[:, ~mask_2d] = 0.0           # zero out background
         return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
 
     # ── Reconstruct GT first, keep in RAM for metrics ─────────────────────────
@@ -232,11 +244,20 @@ def main():
 
         slices[name] = (xy, xz, yz)
         metric_names.append(name)
-        psnr_vals.append(float(peak_signal_noise_ratio(gt_vol, vol, data_range=1.0)))
-        ssim_vals.append(float(structural_similarity(gt_vol, vol, data_range=1.0)))
-        mae_vals.append(float(np.mean(np.abs(vol - gt_vol))))
+        # Compute metrics only inside the cylinder so background zeros
+        # don't artificially inflate PSNR / deflate MAE.
+        gt_inside  = gt_vol[:, mask_2d]
+        vol_inside = vol[:, mask_2d]
+        diff = vol_inside - gt_inside
+        mse  = float(np.mean(diff ** 2))
+        psnr_vals.append(float(10.0 * np.log10(1.0 / (mse + 1e-12))))
+        ssim_vals.append(float(np.mean([
+            structural_similarity(gt_vol[z], vol[z], data_range=1.0)
+            for z in range(nz)
+        ])))
+        mae_vals.append(float(np.mean(np.abs(diff))))
         valid_names.append(name)
-        del vol
+        del vol, diff, vol_inside
 
     n_models = len(slices)
     if n_models == 0:
