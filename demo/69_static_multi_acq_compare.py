@@ -64,6 +64,7 @@ OUTPUT_PSNR = BASE_DIR / "psnr.png"
 OUTPUT_SSIM = BASE_DIR / "ssim.png"
 OUTPUT_MAE  = BASE_DIR / "mae.png"
 OUTPUT_NPZ  = BASE_DIR / "metrics.npz"
+OUTPUT_TXT  = BASE_DIR / "metrics.txt"
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -255,6 +256,17 @@ def main():
         mae=mae_vals,
     )
     print(f"Saved raw metrics to {OUTPUT_NPZ}")
+
+    col_w = max(len(n) for n in metric_names)
+    with open(OUTPUT_TXT, "w") as f:
+        f.write(f"Reconstruction quality vs ground truth ({GT_NAME})\n")
+        f.write(f"BINNING={BINNING}  canonical grid from {GT_NAME}\n")
+        f.write("=" * (col_w + 42) + "\n")
+        f.write(f"{'Model':<{col_w}}   {'PSNR (dB)':>10}   {'SSIM':>8}   {'MAE':>10}\n")
+        f.write("-" * (col_w + 42) + "\n")
+        for name, psnr, ssim, mae in zip(metric_names, psnr_vals, ssim_vals, mae_vals):
+            f.write(f"{name:<{col_w}}   {psnr:>10.4f}   {ssim:>8.4f}   {mae:>10.6f}\n")
+    print(f"Saved scores to {OUTPUT_TXT}")
 
     # ── Colour each bar by projection count ──────────────────────────────────
     def proj_count(name: str) -> str:
