@@ -85,8 +85,11 @@ def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: st
 
     Returns (clean_arr, bad_mask).
     """
-    t0, t1 = t_axis[0], t_axis[-1]
-    truth = arr[0] + (arr[-1] - arr[0]) * (t_axis - t0) / (t1 - t0)
+    K = 5  # number of edge points to median for robust anchors
+    v0 = float(np.median(arr[:K]))
+    v1 = float(np.median(arr[-K:]))
+    t0, t1 = float(t_axis[0]), float(t_axis[-1])
+    truth = v0 + (v1 - v0) * (t_axis - t0) / (t1 - t0)
     residuals = arr - truth
 
     mad = np.median(np.abs(residuals - np.median(residuals)))
@@ -117,7 +120,7 @@ def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: st
                 print(f"    → Nearly perfect linear spacing: glitches every "
                       f"~{fit_slope:.1f} projections")
 
-    return clean, bad
+    return clean, bad, truth
 
 
 def query_volume(
@@ -330,12 +333,13 @@ def main():
     top_vols_clean = top_vols_mm3.copy()
     bot_vols_clean = bot_vols_mm3.copy()
     glitch_mask = np.zeros(len(top_vols_mm3), dtype=bool)
+    top_linear = bot_linear = total_linear = None
 
     if FILTER_GLITCHES:
         print(f"Glitch filter (sigma={FILTER_SIGMA}):")
-        top_vols_clean, top_bad = filter_glitches(top_vols_mm3, t_axis, FILTER_SIGMA, "Top chamber")
-        bot_vols_clean, bot_bad = filter_glitches(bot_vols_mm3, t_axis, FILTER_SIGMA, "Bottom chamber")
-        _, total_bad = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
+        top_vols_clean, top_bad, top_linear = filter_glitches(top_vols_mm3, t_axis, FILTER_SIGMA, "Top chamber")
+        bot_vols_clean, bot_bad, bot_linear = filter_glitches(bot_vols_mm3, t_axis, FILTER_SIGMA, "Bottom chamber")
+        _, total_bad, total_linear = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
         glitch_mask = top_bad | bot_bad
 
     total_clean = top_vols_clean + bot_vols_clean
@@ -369,10 +373,13 @@ def main():
     ax.plot(t_axis, top_vols_clean, label="Top chamber", color="steelblue")
     ax.plot(t_axis, bot_vols_clean, label="Bottom chamber", color="firebrick")
     ax.plot(t_axis, total_clean, label="Total", color="mediumpurple")
-    ax.plot(t_axis, top_truth, color="darkorange", linewidth=1.5,
-            label="Top truth (conservation)")
-    ax.plot(t_axis, bot_truth, color="seagreen", linewidth=1.5,
-            label="Bottom truth (conservation)")
+if top_linear is not None:
+        ax.plot(t_axis, top_linear, color="steelblue", linewidth=1, alpha=0.4,
+                linestyle="--", label="Top filter line")
+        ax.plot(t_axis, bot_linear, color="firebrick", linewidth=1, alpha=0.4,
+                linestyle="--", label="Bot filter line")
+        ax.plot(t_axis, total_linear, color="mediumpurple", linewidth=1, alpha=0.4,
+                linestyle="--", label="Total filter line")
     ax.set_yscale("log")
     ax.set_ylabel("Sand volume (mm³)")
     ax.legend(fontsize=8)

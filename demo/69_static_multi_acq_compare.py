@@ -1,0 +1,279 @@
+"""
+Compare static reconstructions across projection counts and acquisitions.
+
+All models are queried on a single canonical grid (taken from the ground-truth
+geometry) so that every slice index maps to the same physical location regardless
+of each model's own nVoxel or dVoxel settings.
+
+Directory layout expected on the cluster:
+  BASE_DIR/
+    100_ac1/model/config.yaml  + checkpoints/last.ckpt
+    100_ac2/model/config.yaml  + checkpoints/last.ckpt
+    360_ac1/...
+    1400_ac1/...   ← ground truth; provides the canonical grid
+
+Usage:
+    Edit the CONFIG block and run on a GPU node.
+    Outputs:
+      comparison.png      — orthogonal slice grid (rows=models, cols=planes)
+      metrics.png         — PSNR / SSIM / MAE bar charts vs ground truth
+      metrics.npz         — raw metric arrays for further analysis
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from skimage.metrics import peak_signal_noise_ratio, structural_similarity
+
+from nect.config import get_cfg
+from nect.data import NeCTDataset
+from nect.sampling import Geometry
+
+# ───────────────────────────── CONFIG ────────────────────────────────────────
+
+BASE_DIR = Path(
+    "/cluster/home/kristiac/NeCT/outputs/static_continious"
+    "/hash_grid_23_4_23_16_2_4_128_L1"
+)
+
+# Ground-truth folder — defines the canonical grid
+GT_NAME = "1400_ac1"
+
+# Which folders to compare (order = rows in the figure).
+# Use None to auto-discover every folder in BASE_DIR that contains model/.
+COMPARE_NAMES: list[str] | None = [
+    "100_ac1", "100_ac2", "100_ac3", "100_ac4", "100_ac6",
+    "360_ac1", "360_ac2", "360_ac3", "360_ac4", "360_ac6",
+    "1400_ac1",
+]
+
+# Spatial downsampling factor (1 = full res, 4 = 4× faster / lower mem).
+BINNING = 4
+
+# Slice fractions in [0, 1] along z, y, x axes.
+SLICE_Z = 0.5
+SLICE_Y = 0.5
+SLICE_X = 0.5
+
+OUTPUT_PNG  = BASE_DIR / "comparison.png"
+OUTPUT_PSNR = BASE_DIR / "psnr.png"
+OUTPUT_SSIM = BASE_DIR / "ssim.png"
+OUTPUT_MAE  = BASE_DIR / "mae.png"
+OUTPUT_NPZ  = BASE_DIR / "metrics.npz"
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def load_model(model_dir: Path, device: torch.device):
+    """Load model and calibration constants from a model/ directory."""
+    config = get_cfg(model_dir / "config.yaml")
+    model = config.get_model()
+    ckpt = torch.load(model_dir / "checkpoints" / "last.ckpt", map_location="cpu")
+    model.load_state_dict(ckpt["model"])
+    model = model.to(device).eval()
+
+    dataset = NeCTDataset(config=config, device="cpu")
+    geometry = Geometry.from_cfg(
+        config.geometry,
+        reconstruction_mode=config.reconstruction_mode,
+        sample_outside=config.sample_outside,
+    )
+    scale = 1.0 / geometry.max_distance_traveled
+    data_min = dataset.minimum.item()
+    data_max = dataset.maximum.item()
+    return model, scale, data_min, data_max
+
+
+def build_canonical_grid(gt_model_dir: Path, binning: int):
+    """Return (z_lin, y_lin, x_lin) linspace tensors from the GT geometry."""
+    config = get_cfg(gt_model_dir / "config.yaml")
+    nVoxel = list(config.geometry.nVoxel)  # [nz, ny, nx]
+    rm = config.sample_outside
+    # Match create_volume logic: sample_size expands y/x by 2*rm then crops.
+    nz = nVoxel[0] // binning
+    ny = (nVoxel[1] + 2 * rm) // binning
+    nx = (nVoxel[2] + 2 * rm) // binning
+    # Crop back the rm padding in normalised space.
+    rm_frac_y = rm / (nVoxel[1] + 2 * rm)
+    rm_frac_x = rm / (nVoxel[2] + 2 * rm)
+
+    z_lin = torch.linspace(0.5 / nz, 1 - 0.5 / nz, steps=nz)
+    y_lin = torch.linspace(rm_frac_y + 0.5 / ny, 1 - rm_frac_y - 0.5 / ny, steps=nVoxel[1] // binning)
+    x_lin = torch.linspace(rm_frac_x + 0.5 / nx, 1 - rm_frac_x - 0.5 / nx, steps=nVoxel[2] // binning)
+    return z_lin, y_lin, x_lin
+
+
+@torch.no_grad()
+def reconstruct_volume(
+    model,
+    scale: float,
+    data_min: float,
+    data_max: float,
+    z_lin: torch.Tensor,
+    y_lin: torch.Tensor,
+    x_lin: torch.Tensor,
+    device: torch.device,
+) -> np.ndarray:
+    """Query a static model on the canonical grid and calibrate."""
+    nz, ny, nx = len(z_lin), len(y_lin), len(x_lin)
+    vol = torch.zeros((nz, ny, nx), dtype=torch.float32)
+    z_lin_d = z_lin.to(device)
+    y_lin_d = y_lin.to(device)
+    x_lin_d = x_lin.to(device)
+    for i, z_ in enumerate(z_lin_d):
+        z, y, x = torch.meshgrid(
+            [z_.unsqueeze(0), y_lin_d, x_lin_d], indexing="ij"
+        )
+        grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t()
+        raw = model(grid).reshape(ny, nx)
+        calibrated = raw * scale * (data_max - data_min) + data_min
+        vol[i] = calibrated.cpu()
+    return vol.numpy()
+
+
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    gt_model_dir = BASE_DIR / GT_NAME / "model"
+    print("Building canonical grid from ground truth ...")
+    z_lin, y_lin, x_lin = build_canonical_grid(gt_model_dir, BINNING)
+    nz, ny, nx = len(z_lin), len(y_lin), len(x_lin)
+    print(f"  Canonical grid: ({nz}, {ny}, {nx})")
+
+    if COMPARE_NAMES is None:
+        names = sorted(
+            d.name for d in BASE_DIR.iterdir()
+            if d.is_dir() and (d / "model" / "config.yaml").exists()
+        )
+    else:
+        names = COMPARE_NAMES
+
+    volumes: dict[str, np.ndarray] = {}
+    for name in names:
+        model_dir = BASE_DIR / name / "model"
+        if not (model_dir / "config.yaml").exists():
+            print(f"  Skipping {name}: config.yaml not found")
+            continue
+        print(f"Reconstructing {name} ...")
+        model, scale, data_min, data_max = load_model(model_dir, device)
+        vol = reconstruct_volume(model, scale, data_min, data_max,
+                                  z_lin, y_lin, x_lin, device)
+        volumes[name] = vol
+        del model
+        torch.cuda.empty_cache()
+
+    n_models = len(volumes)
+    if n_models == 0:
+        print("No models found — check BASE_DIR and COMPARE_NAMES.")
+        return
+
+    # ── Extract slices ────────────────────────────────────────────────────────
+    zi = int(SLICE_Z * nz)
+    yi = int(SLICE_Y * ny)
+    xi = int(SLICE_X * nx)
+
+    # Global display range from ground truth (or first available model)
+    ref_vol = volumes.get(GT_NAME, next(iter(volumes.values())))
+    vmin = float(np.percentile(ref_vol, 1))
+    vmax = float(np.percentile(ref_vol, 99))
+
+    # ── Plot: rows = models, cols = {XY slice, XZ slice, YZ slice} ───────────
+    n_cols = 3
+    fig, axes = plt.subplots(n_models, n_cols, figsize=(4 * n_cols, 3 * n_models))
+    if n_models == 1:
+        axes = axes[np.newaxis, :]
+
+    col_titles = [f"XY  (z={zi})", f"XZ  (y={yi})", f"YZ  (x={xi})"]
+    for j, title in enumerate(col_titles):
+        axes[0, j].set_title(title, fontsize=9)
+
+    for i, (name, vol) in enumerate(volumes.items()):
+        kw = dict(cmap="gray", vmin=vmin, vmax=vmax, aspect="auto", interpolation="nearest")
+        axes[i, 0].imshow(vol[zi], **kw)
+        axes[i, 1].imshow(vol[:, yi, :], **kw)
+        axes[i, 2].imshow(vol[:, :, xi], **kw)
+        axes[i, 0].set_ylabel(name, fontsize=7, rotation=0, labelpad=60, va="center")
+        for j in range(n_cols):
+            axes[i, j].set_xticks([])
+            axes[i, j].set_yticks([])
+
+    plt.suptitle("Static reconstructions — canonical grid comparison", fontsize=11)
+    plt.tight_layout()
+    plt.savefig(OUTPUT_PNG, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved comparison to {OUTPUT_PNG}")
+
+    # ── Metrics vs ground truth ───────────────────────────────────────────────
+    if GT_NAME not in volumes:
+        print("Ground truth not in volumes — skipping metrics.")
+        return
+
+    gt_vol = volumes[GT_NAME]
+    data_range = float(gt_vol.max() - gt_vol.min())
+
+    metric_names: list[str] = []
+    psnr_vals:    list[float] = []
+    ssim_vals:    list[float] = []
+    mae_vals:     list[float] = []
+
+    for name, vol in volumes.items():
+        if name == GT_NAME:
+            continue
+        metric_names.append(name)
+        psnr_vals.append(float(peak_signal_noise_ratio(gt_vol, vol, data_range=data_range)))
+        ssim_vals.append(float(structural_similarity(gt_vol, vol, data_range=data_range)))
+        mae_vals.append(float(np.mean(np.abs(vol - gt_vol))))
+
+    np.savez(
+        OUTPUT_NPZ,
+        names=metric_names,
+        psnr=psnr_vals,
+        ssim=ssim_vals,
+        mae=mae_vals,
+    )
+    print(f"Saved raw metrics to {OUTPUT_NPZ}")
+
+    # ── Colour each bar by projection count ──────────────────────────────────
+    def proj_count(name: str) -> str:
+        return name.split("_")[0]
+
+    from matplotlib.patches import Patch
+
+    proj_groups = sorted({proj_count(n) for n in metric_names}, key=int)
+    palette = plt.cm.tab10.colors
+    colour_map = {g: palette[i % len(palette)] for i, g in enumerate(proj_groups)}
+    bar_colours = [colour_map[proj_count(n)] for n in metric_names]
+    legend_handles = [Patch(color=colour_map[g], label=f"{g} proj") for g in proj_groups]
+
+    x = np.arange(len(metric_names))
+    figw = max(8, len(metric_names) * 0.8)
+
+    def _bar_plot(vals, ylabel, title, path, fmt, pad):
+        fig, ax = plt.subplots(figsize=(figw, 4), constrained_layout=True)
+        bars = ax.bar(x, vals, color=bar_colours, edgecolor="white", linewidth=0.5)
+        ax.set_ylabel(ylabel)
+        ax.set_title(f"{title} — vs ground truth ({GT_NAME})")
+        ax.set_xticks(x)
+        ax.set_xticklabels(metric_names, rotation=45, ha="right", fontsize=8)
+        ax.yaxis.grid(True, alpha=0.3)
+        ax.set_axisbelow(True)
+        for bar, v in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + pad,
+                    fmt.format(v), ha="center", va="bottom", fontsize=7)
+        ax.legend(handles=legend_handles, title="Projection count", fontsize=9, framealpha=0.9)
+        plt.savefig(path, dpi=150, bbox_inches="tight")
+        plt.close()
+        print(f"Saved {path.name} to {path}")
+
+    _bar_plot(psnr_vals, "PSNR (dB)",            "PSNR (higher is better)", OUTPUT_PSNR, "{:.1f}",  0.2)
+    _bar_plot(ssim_vals, "SSIM",                  "SSIM (higher is better)", OUTPUT_SSIM, "{:.3f}",  0.005)
+    _bar_plot(mae_vals,  "MAE (attenuation units)", "MAE (lower is better)", OUTPUT_MAE,  "{:.4f}",  0.0)
+
+
+if __name__ == "__main__":
+    main()
