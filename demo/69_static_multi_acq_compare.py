@@ -177,10 +177,11 @@ def main():
     yi = int(SLICE_Y * ny)
     xi = int(SLICE_X * nx)
 
-    # Global display range from ground truth (or first available model)
-    ref_vol = volumes.get(GT_NAME, next(iter(volumes.values())))
-    vmin = float(np.percentile(ref_vol, 1))
-    vmax = float(np.percentile(ref_vol, 99))
+    # Global display range: 1st/99th percentile across all volumes so no
+    # single model's calibration offset blows out the brightness.
+    all_vals = np.concatenate([v.ravel() for v in volumes.values()])
+    vmin = float(np.percentile(all_vals, 1))
+    vmax = float(np.percentile(all_vals, 99))
 
     # ── Plot: rows = models, cols = {XY slice, XZ slice, YZ slice} ───────────
     n_cols = 3
