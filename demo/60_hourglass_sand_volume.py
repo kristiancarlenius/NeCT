@@ -31,7 +31,7 @@ from nect.sampling import Geometry
 # ─────────────────────────── CONFIG ──────────────────────────────────────────
 
 # Directory containing config.yaml and checkpoints/ subfolder
-MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_22_4_22_16_2_4_128_L1/4fps_2750_ac2_re/model/"
+MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_22_4_22_16_2_4_128_L1/8fps_11000_ac2_re/model/"
 
 # How many evenly-spaced timesteps to sample across the full acquisition
 N_TIMESTEPS = 800
@@ -66,12 +66,12 @@ OUTPUT_DIR = Path(MODEL_PATH).parent
 # volume deviates more than FILTER_SIGMA × MAD from the local running median,
 # then replaces them with linear interpolation of their neighbours.
 FILTER_GLITCHES = True   # set False to see raw spikes in the plot
-FILTER_SIGMA    = 3.0    # outlier threshold: points > sigma × MAD from linear trend are replaced
+FILTER_SIGMA    = 0.5    # outlier threshold: points > sigma × MAD from linear trend are replaced
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Set True to skip model inference and reload volumes from a previous run's
 # sand_volume.npz.  Glitch filtering is re-applied with current FILTER_* settings.
-PLOT_ONLY = True
+PLOT_ONLY = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -373,7 +373,7 @@ def main():
     ax.plot(t_axis, top_vols_clean, label="Top chamber", color="steelblue")
     ax.plot(t_axis, bot_vols_clean, label="Bottom chamber", color="firebrick")
     ax.plot(t_axis, total_clean, label="Total", color="mediumpurple")
-if top_linear is not None:
+    if top_linear is not None:
         ax.plot(t_axis, top_linear, color="steelblue", linewidth=1, alpha=0.4,
                 linestyle="--", label="Top filter line")
         ax.plot(t_axis, bot_linear, color="firebrick", linewidth=1, alpha=0.4,
@@ -429,7 +429,6 @@ if top_linear is not None:
     print(f"Conservation metrics saved to {mae_path}")
 
     plt.show()
-
 
 if __name__ == "__main__":
     main()
