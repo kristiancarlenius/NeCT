@@ -27,6 +27,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from scipy.ndimage import sobel, laplace
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 from nect.config import get_cfg
@@ -71,12 +72,14 @@ SLICE_X = 0.5
 # Set to 0.0 to disable.
 MASK_RADIUS_FRAC = 0.45  # fraction of min(cropped_ny, cropped_nx)
 
-OUTPUT_PNG  = BASE_DIR / "comparison.png"
-OUTPUT_PSNR = BASE_DIR / "psnr.png"
-OUTPUT_SSIM = BASE_DIR / "ssim.png"
-OUTPUT_MAE  = BASE_DIR / "mae.png"
-OUTPUT_NPZ  = BASE_DIR / "metrics.npz"
-OUTPUT_TXT  = BASE_DIR / "metrics.txt"
+OUTPUT_PNG      = BASE_DIR / "comparison.png"
+OUTPUT_PSNR     = BASE_DIR / "psnr.png"
+OUTPUT_SSIM     = BASE_DIR / "ssim.png"
+OUTPUT_MAE      = BASE_DIR / "mae.png"
+OUTPUT_GRAD     = BASE_DIR / "grad_magnitude.png"
+OUTPUT_LAPVAR   = BASE_DIR / "lap_variance.png"
+OUTPUT_NPZ      = BASE_DIR / "metrics.npz"
+OUTPUT_TXT      = BASE_DIR / "metrics.txt"
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -205,6 +208,17 @@ def main():
         vol[:, ~mask_2d] = 0.0           # zero out background
         return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
 
+    def sharpness_metrics(vol: np.ndarray) -> tuple[float, float]:
+        """Mean gradient magnitude and Laplacian variance inside the cylinder."""
+        gz = sobel(vol, axis=0)
+        gy = sobel(vol, axis=1)
+        gx = sobel(vol, axis=2)
+        grad_mag = np.sqrt(gz ** 2 + gy ** 2 + gx ** 2)
+        mean_grad = float(np.mean(grad_mag[:, mask_2d]))
+        lap = laplace(vol)
+        lap_var = float(np.var(lap[:, mask_2d]))
+        return mean_grad, lap_var
+
     # ── Reconstruct GT first, keep in RAM for metrics ─────────────────────────
     print(f"Reconstructing {GT_NAME} (ground truth) ...")
     gt_model_dir = BASE_DIR / GT_NAME / "model"
@@ -216,6 +230,8 @@ def main():
     del model; torch.cuda.empty_cache()
     gt_vol, gt_xy, gt_xz, gt_yz = process(gt_raw)
     del gt_raw
+    gt_grad, gt_lapvar = sharpness_metrics(gt_vol)
+    print(f"  GT sharpness — grad: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}")
 
     # slices stored for plotting: {name: (xy, xz, yz)}
     slices: dict[str, tuple] = {GT_NAME: (gt_xy, gt_xz, gt_yz)}
@@ -224,6 +240,8 @@ def main():
     psnr_vals:    list[float] = []
     ssim_vals:    list[float] = []
     mae_vals:     list[float] = []
+    grad_vals:    list[float] = []
+    lapvar_vals:  list[float] = []
 
     # ── Reconstruct each comparison model, free volume after metrics/slices ───
     valid_names = [GT_NAME]
@@ -256,6 +274,9 @@ def main():
             for z in range(nz)
         ])))
         mae_vals.append(float(np.mean(np.abs(diff))))
+        mg, lv = sharpness_metrics(vol)
+        grad_vals.append(mg)
+        lapvar_vals.append(lv)
         valid_names.append(name)
         del vol, diff, vol_inside
 
@@ -300,18 +321,25 @@ def main():
         psnr=psnr_vals,
         ssim=ssim_vals,
         mae=mae_vals,
+        grad=grad_vals,
+        lapvar=lapvar_vals,
     )
     print(f"Saved raw metrics to {OUTPUT_NPZ}")
 
     col_w = max(len(n) for n in metric_names)
+    sep = col_w + 66
     with open(OUTPUT_TXT, "w") as f:
         f.write(f"Reconstruction quality vs ground truth ({GT_NAME})\n")
         f.write(f"BINNING={BINNING}  canonical grid from {GT_NAME}\n")
-        f.write("=" * (col_w + 42) + "\n")
-        f.write(f"{'Model':<{col_w}}   {'PSNR (dB)':>10}   {'SSIM':>8}   {'MAE':>10}\n")
-        f.write("-" * (col_w + 42) + "\n")
-        for name, psnr, ssim, mae in zip(metric_names, psnr_vals, ssim_vals, mae_vals):
-            f.write(f"{name:<{col_w}}   {psnr:>10.4f}   {ssim:>8.4f}   {mae:>10.6f}\n")
+        f.write(f"GT sharpness — grad_mag: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}\n")
+        f.write("=" * sep + "\n")
+        f.write(f"{'Model':<{col_w}}   {'PSNR (dB)':>10}   {'SSIM':>8}   {'MAE':>10}"
+                f"   {'Grad Mag':>10}   {'Lap Var':>12}\n")
+        f.write("-" * sep + "\n")
+        for name, psnr, ssim, mae, gm, lv in zip(
+                metric_names, psnr_vals, ssim_vals, mae_vals, grad_vals, lapvar_vals):
+            f.write(f"{name:<{col_w}}   {psnr:>10.4f}   {ssim:>8.4f}   {mae:>10.6f}"
+                    f"   {gm:>10.4f}   {lv:>12.6f}\n")
     print(f"Saved scores to {OUTPUT_TXT}")
 
     # ── Colour each bar by projection count ──────────────────────────────────
@@ -346,9 +374,11 @@ def main():
         plt.close()
         print(f"Saved {path.name} to {path}")
 
-    _bar_plot(psnr_vals, "PSNR (dB)",            "PSNR (higher is better)", OUTPUT_PSNR, "{:.1f}",  0.2)
-    _bar_plot(ssim_vals, "SSIM",                  "SSIM (higher is better)", OUTPUT_SSIM, "{:.3f}",  0.005)
-    _bar_plot(mae_vals,  "MAE (attenuation units)", "MAE (lower is better)", OUTPUT_MAE,  "{:.4f}",  0.0)
+    _bar_plot(psnr_vals,   "PSNR (dB)",             "PSNR (higher is better, ref-dependent)",  OUTPUT_PSNR,   "{:.1f}",   0.2)
+    _bar_plot(ssim_vals,   "SSIM",                  "SSIM (higher is better, ref-dependent)",  OUTPUT_SSIM,   "{:.3f}",   0.005)
+    _bar_plot(mae_vals,    "MAE",                    "MAE (lower is better, ref-dependent)",    OUTPUT_MAE,    "{:.4f}",   0.0)
+    _bar_plot(grad_vals,   "Mean gradient magnitude","Sharpness — gradient magnitude (no ref, higher = sharper)", OUTPUT_GRAD,   "{:.4f}",   0.0)
+    _bar_plot(lapvar_vals, "Laplacian variance",     "Sharpness — Laplacian variance (no ref, higher = sharper)", OUTPUT_LAPVAR, "{:.6f}",   0.0)
 
 
 if __name__ == "__main__":

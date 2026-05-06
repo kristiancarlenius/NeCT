@@ -49,6 +49,11 @@
 \newcommand{\INR}{INR}
 \newcommand{\NeRF}{NeRF}
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+% Matched sub-step colours for dynamic configs table
+\definecolor{matchred}{RGB}{210,40,40}
+\definecolor{matchblue}{RGB}{30,100,200}
+\definecolor{matchgreen}{RGB}{30,150,60}
+\definecolor{matchorange}{RGB}{210,120,0}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \begin{document}
@@ -1481,7 +1486,7 @@ Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$
 
 \begin{table}[h]
     \centering
-    \caption{Effective angular sub-step $\Delta\phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Bold entries mark pairs of configurations with matching effective sub-steps across different datasets, enabling controlled comparisons.}
+    \caption{Effective angular sub-step $\Delta\phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree\ (appears in all three rows); blue: 6.88\degree; green: 1.72\degree; orange: 1.15\degree.}
     \label{tab:dynamic_cont_configs}
     \begin{tabular}{cccccc}
         \toprule
@@ -1489,16 +1494,16 @@ Each dataset was reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$
         \cmidrule(lr){2-6}
         $\Delta\phi$ & 1 & 2 & 3 & 4 & 6 \\
         \midrule
-        3.44\degree  & 3.44  & 1.72          & 1.15 & 0.86          & 0.57          \\
-        6.88\degree  & 6.88  & \textbf{3.44} & 2.29 & \textbf{1.72} & \textbf{1.15} \\
-        13.75\degree & 13.75 & 6.88          & 4.58 & \textbf{3.44} & 2.29          \\
+        3.44\degree  & \textcolor{matchred}{3.44}   & \textcolor{matchgreen}{1.72}   & \textcolor{matchorange}{1.15}  & 0.86 & 0.57 \\
+        6.88\degree  & \textcolor{matchblue}{6.88}   & \textcolor{matchred}{3.44}     & 2.29 & \textcolor{matchgreen}{1.72}   & \textcolor{matchorange}{1.15}  \\
+        13.75\degree & 13.75 & \textcolor{matchblue}{6.88}   & 4.58 & \textcolor{matchred}{3.44}     & 2.29 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-The bold entries in Table~\ref{tab:dynamic_cont_configs} identify matched pairs that allow a direct test of whether the $K$-step approximation fully recovers the quality of a finer native angular step. For example, dataset 2 ($\Delta\phi = 6.88\degree$) at $K = 2$ has the same effective sub-step of $3.44\degree$ as dataset 1 ($\Delta\phi = 3.44\degree$) at $K = 1$. If the approximation is perfect, these two should yield equal reconstruction quality.
+The colour-coded entries in Table~\ref{tab:dynamic_cont_configs} identify matched pairs that allow a direct test of whether the $K$-step approximation fully recovers the quality of a finer native angular step. For example, dataset 2 ($\Delta\phi = 6.88\degree$) at $K = 2$ has the same effective sub-step of $3.44\degree$ as dataset 1 ($\Delta\phi = 3.44\degree$) at $K = 1$. If the approximation is perfect, these two should yield equal reconstruction quality.
 
-\todo{Describe whether a ground truth volume exists for the hourglass dataset, how evaluation metrics are computed without a ground truth (e.g.\ consistency metrics, qualitative visual assessment, or comparison against a high-quality FDK reconstruction from a subset of the data), and whether FDK or OS-SART-TV reconstructions are included as baselines.}
+No voxel-level ground truth is available for the hourglass dataset, because the sample is continuously evolving and a simultaneous reference acquisition is not possible. Reconstruction quality is therefore evaluated using a physically grounded volume metric. At each reconstructed time step, the volume of sand present in the upper and lower chambers is computed by segmenting the attenuation field and integrating the high-attenuation region within each chamber. Because the hourglass is a closed system with a fixed total quantity of sand, the sum of the upper and lower chamber volumes must be constant, and the rate of transfer between chambers is determined by the orifice geometry and gravity. The reconstructed volume time series is compared against this known physical trajectory, with the deviation between the reconstructed and expected chamber volumes serving as the primary quality measure. A reconstruction that faithfully captures the sand dynamics will track the monotonic depletion of the upper chamber and the corresponding filling of the lower chamber. Errors in the forward model or insufficient angular sampling will produce reconstructions where the apparent sand volume is inconsistent with the physical constraint, either failing to track the correct rate of change or introducing spurious fluctuations.
 
 \subsection{Results}
 \label{subsec:cont_dynamic_results}
