@@ -380,7 +380,6 @@ def main():
                 linestyle="--", label="Bot filter line")
         ax.plot(t_axis, total_linear, color="mediumpurple", linewidth=1, alpha=0.4,
                 linestyle="--", label="Total filter line")
-    ax.set_yscale("log")
     ax.set_ylabel("Sand volume (mm³)")
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)

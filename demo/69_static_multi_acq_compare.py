@@ -172,16 +172,23 @@ def main():
         print("No models found — check BASE_DIR and COMPARE_NAMES.")
         return
 
+    # ── Normalise each volume to [0, 1] for display only ─────────────────────
+    # Uses per-volume 1st/99th percentile — identical to what the trainer does
+    # when saving validation images. Keeps all models on the same visual scale
+    # regardless of their dataset-specific calibration offsets.
+    def norm01(vol: np.ndarray) -> np.ndarray:
+        lo = float(np.percentile(vol, 1))
+        hi = float(np.percentile(vol, 99))
+        if hi == lo:
+            return np.zeros_like(vol)
+        return np.clip((vol - lo) / (hi - lo), 0.0, 1.0)
+
+    volumes_disp = {name: norm01(vol) for name, vol in volumes.items()}
+
     # ── Extract slices ────────────────────────────────────────────────────────
     zi = int(SLICE_Z * nz)
     yi = int(SLICE_Y * ny)
     xi = int(SLICE_X * nx)
-
-    # Global display range: 1st/99th percentile across all volumes so no
-    # single model's calibration offset blows out the brightness.
-    all_vals = np.concatenate([v.ravel() for v in volumes.values()])
-    vmin = float(np.percentile(all_vals, 1))
-    vmax = float(np.percentile(all_vals, 99))
 
     # ── Plot: rows = models, cols = {XY slice, XZ slice, YZ slice} ───────────
     n_cols = 3
@@ -193,8 +200,8 @@ def main():
     for j, title in enumerate(col_titles):
         axes[0, j].set_title(title, fontsize=9)
 
-    for i, (name, vol) in enumerate(volumes.items()):
-        kw = dict(cmap="gray", vmin=vmin, vmax=vmax, aspect="auto", interpolation="nearest")
+    for i, (name, vol) in enumerate(volumes_disp.items()):
+        kw = dict(cmap="gray", vmin=0, vmax=1, aspect="auto", interpolation="nearest")
         axes[i, 0].imshow(vol[zi], **kw)
         axes[i, 1].imshow(vol[:, yi, :], **kw)
         axes[i, 2].imshow(vol[:, :, xi], **kw)
