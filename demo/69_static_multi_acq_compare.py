@@ -185,10 +185,21 @@ def main():
 
     volumes_disp = {name: norm01(vol) for name, vol in volumes.items()}
 
+    # ── Crop empty border from all volumes ────────────────────────────────────
+    # 25% each side in x, 10% each side in y and z.
+    z0, z1 = int(0.10 * nz), int(0.90 * nz)
+    y0, y1 = int(0.10 * ny), int(0.90 * ny)
+    x0, x1 = int(0.25 * nx), int(0.75 * nx)
+
+    volumes_disp = {name: vol[z0:z1, y0:y1, x0:x1] for name, vol in volumes_disp.items()}
+    volumes      = {name: vol[z0:z1, y0:y1, x0:x1] for name, vol in volumes.items()}
+
+    cz, cy, cx = z1 - z0, y1 - y0, x1 - x0
+
     # ── Extract slices ────────────────────────────────────────────────────────
-    zi = int(SLICE_Z * nz)
-    yi = int(SLICE_Y * ny)
-    xi = int(SLICE_X * nx)
+    zi = int(SLICE_Z * cz)
+    yi = int(SLICE_Y * cy)
+    xi = int(SLICE_X * cx)
 
     # ── Plot: rows = models, cols = {XY slice, XZ slice, YZ slice} ───────────
     n_cols = 3
