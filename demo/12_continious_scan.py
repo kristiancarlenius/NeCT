@@ -12,12 +12,11 @@ print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
 
-geometry_file = Path(data_path) / "geometry_8fps_11000.yaml"
+geometry_file = Path(data_path) / "geometry_optimized_360_cont.yaml"#"geometry_8fps_11000.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-"""
 reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_360_cont.npy"),#"projections.npy"),
@@ -91,3 +90,5 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     },)
 
 print(reconstruction_path_dynamic, _)
+
+"""
