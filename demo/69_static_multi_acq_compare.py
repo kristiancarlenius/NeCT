@@ -221,20 +221,19 @@ def main():
         print("Ground truth not in volumes — skipping metrics.")
         return
 
-    gt_vol = volumes[GT_NAME]
-    data_range = float(gt_vol.max() - gt_vol.min())
+    gt_vol = volumes_disp[GT_NAME]
 
     metric_names: list[str] = []
     psnr_vals:    list[float] = []
     ssim_vals:    list[float] = []
     mae_vals:     list[float] = []
 
-    for name, vol in volumes.items():
+    for name, vol in volumes_disp.items():
         if name == GT_NAME:
             continue
         metric_names.append(name)
-        psnr_vals.append(float(peak_signal_noise_ratio(gt_vol, vol, data_range=data_range)))
-        ssim_vals.append(float(structural_similarity(gt_vol, vol, data_range=data_range)))
+        psnr_vals.append(float(peak_signal_noise_ratio(gt_vol, vol, data_range=1.0)))
+        ssim_vals.append(float(structural_similarity(gt_vol, vol, data_range=1.0)))
         mae_vals.append(float(np.mean(np.abs(vol - gt_vol))))
 
     np.savez(
