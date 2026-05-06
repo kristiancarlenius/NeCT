@@ -54,7 +54,13 @@ COMPARE_NAMES: list[str] | None = [
 # Spatial downsampling factor (1 = full res, 2 = 2× faster / lower mem).
 BINNING = 1
 
-# Slice fractions in [0, 1] along z, y, x axes.
+# Crop fractions: only query this sub-region of the full volume.
+# (start, end) as fractions of each axis — cuts empty air around the sample.
+CROP_Z = (0.10, 0.90)   # top / bottom
+CROP_Y = (0.10, 0.75)   # front / back
+CROP_X = (0.25, 0.75)   # left / right
+
+# Slice fractions within the cropped volume in [0, 1].
 SLICE_Z = 0.5
 SLICE_Y = 0.5
 SLICE_X = 0.5
@@ -90,21 +96,33 @@ def load_model(model_dir: Path, device: torch.device):
 
 
 def build_canonical_grid(gt_model_dir: Path, binning: int):
-    """Return (z_lin, y_lin, x_lin) linspace tensors from the GT geometry."""
+    """Return (z_lin, y_lin, x_lin) spanning only the cropped sample region."""
     config = get_cfg(gt_model_dir / "config.yaml")
     nVoxel = list(config.geometry.nVoxel)  # [nz, ny, nx]
     rm = config.sample_outside
-    # Match create_volume logic: sample_size expands y/x by 2*rm then crops.
-    nz = nVoxel[0] // binning
-    ny = (nVoxel[1] + 2 * rm) // binning
-    nx = (nVoxel[2] + 2 * rm) // binning
-    # Crop back the rm padding in normalised space.
+
+    # Inner coordinate range after removing rm padding (y and x only).
     rm_frac_y = rm / (nVoxel[1] + 2 * rm)
     rm_frac_x = rm / (nVoxel[2] + 2 * rm)
+    y_inner = (rm_frac_y, 1.0 - rm_frac_y)
+    x_inner = (rm_frac_x, 1.0 - rm_frac_x)
 
-    z_lin = torch.linspace(0.5 / nz, 1 - 0.5 / nz, steps=nz)
-    y_lin = torch.linspace(rm_frac_y + 0.5 / ny, 1 - rm_frac_y - 0.5 / ny, steps=nVoxel[1] // binning)
-    x_lin = torch.linspace(rm_frac_x + 0.5 / nx, 1 - rm_frac_x - 0.5 / nx, steps=nVoxel[2] // binning)
+    # Apply crop fractions to each axis's usable range.
+    def crop_range(lo, hi, c0, c1):
+        span = hi - lo
+        return lo + c0 * span, lo + c1 * span
+
+    z_lo, z_hi = crop_range(0.0, 1.0,         *CROP_Z)
+    y_lo, y_hi = crop_range(*y_inner,           *CROP_Y)
+    x_lo, x_hi = crop_range(*x_inner,           *CROP_X)
+
+    nz = max(1, int((CROP_Z[1] - CROP_Z[0]) * nVoxel[0] / binning))
+    ny = max(1, int((CROP_Y[1] - CROP_Y[0]) * nVoxel[1] / binning))
+    nx = max(1, int((CROP_X[1] - CROP_X[0]) * nVoxel[2] / binning))
+
+    z_lin = torch.linspace(z_lo, z_hi, steps=nz)
+    y_lin = torch.linspace(y_lo, y_hi, steps=ny)
+    x_lin = torch.linspace(x_lo, x_hi, steps=nx)
     return z_lin, y_lin, x_lin
 
 
@@ -144,7 +162,7 @@ def main():
     print("Building canonical grid from ground truth ...")
     z_lin, y_lin, x_lin = build_canonical_grid(gt_model_dir, BINNING)
     nz, ny, nx = len(z_lin), len(y_lin), len(x_lin)
-    print(f"  Canonical grid: ({nz}, {ny}, {nx})")
+    print(f"  Canonical grid (cropped): ({nz}, {ny}, {nx})")
 
     if COMPARE_NAMES is None:
         names = sorted(
@@ -154,27 +172,26 @@ def main():
     else:
         names = COMPARE_NAMES
 
-    # ── Crop bounds (computed once from grid size) ────────────────────────────
-    z0, z1 = int(0.10 * nz), int(0.90 * nz)
-    y0, y1 = int(0.10 * ny), int(0.75 * ny)
-    x0, x1 = int(0.25 * nx), int(0.75 * nx)
-    cz, cy, cx = z1 - z0, y1 - y0, x1 - x0
+    zi = int(SLICE_Z * nz)
+    yi = int(SLICE_Y * ny)
+    xi = int(SLICE_X * nx)
 
-    zi = int(SLICE_Z * cz)
-    yi = int(SLICE_Y * cy)
-    xi = int(SLICE_X * cx)
-
-    def norm01(vol: np.ndarray) -> np.ndarray:
+    def norm01_inplace(vol: np.ndarray) -> np.ndarray:
+        """Normalise to [0,1] in-place — no temporary copy allocated."""
         lo = float(np.percentile(vol, 1))
         hi = float(np.percentile(vol, 99))
         if hi == lo:
-            return np.zeros_like(vol)
-        return np.clip((vol - lo) / (hi - lo), 0.0, 1.0)
+            vol[:] = 0.0
+            return vol
+        vol -= lo
+        vol /= (hi - lo)
+        np.clip(vol, 0.0, 1.0, out=vol)
+        return vol
 
     def process(vol: np.ndarray):
-        """Crop and normalise a raw volume; return display volume + 3 slices."""
-        vol = norm01(vol)[z0:z1, y0:y1, x0:x1]
-        return vol, vol[zi], vol[:, yi, :], vol[:, :, xi]
+        """Normalise in-place and extract the three display slices."""
+        norm01_inplace(vol)
+        return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
 
     # ── Reconstruct GT first, keep in RAM for metrics ─────────────────────────
     print(f"Reconstructing {GT_NAME} (ground truth) ...")
