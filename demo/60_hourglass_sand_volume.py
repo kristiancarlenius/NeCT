@@ -55,7 +55,7 @@ NECK_Z_VOXEL = 370
 # Attenuation threshold for segmenting sand vs air.
 # None → Otsu's method applied to the first timestep volume (recommended).
 # Override if Otsu picks the wrong region (inspect threshold_check.png).
-THRESHOLD = 0.165 # e.g. 0.025
+THRESHOLD = -0.045 # e.g. 0.025
 
 # Output directory (sits next to the model/ folder)
 OUTPUT_DIR = Path(MODEL_PATH).parent
