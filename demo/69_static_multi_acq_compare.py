@@ -189,7 +189,7 @@ def main():
     # ── Crop empty border from all volumes ────────────────────────────────────
     # 25% each side in x, 10% each side in y and z.
     z0, z1 = int(0.10 * nz), int(0.90 * nz)
-    y0, y1 = int(0.20 * ny), int(0.80 * ny)
+    y0, y1 = int(0.10 * ny), int(0.75 * ny)
     x0, x1 = int(0.25 * nx), int(0.75 * nx)
 
     volumes_disp = {name: vol[z0:z1, y0:y1, x0:x1] for name, vol in volumes_disp.items()}
