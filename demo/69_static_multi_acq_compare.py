@@ -51,8 +51,8 @@ COMPARE_NAMES: list[str] | None = [
     "1400_ac1",
 ]
 
-# Spatial downsampling factor (1 = full res, 4 = 4× faster / lower mem).
-BINNING = 4
+# Spatial downsampling factor (1 = full res, 2 = 2× faster / lower mem).
+BINNING = 1
 
 # Slice fractions in [0, 1] along z, y, x axes.
 SLICE_Z = 0.5
@@ -188,7 +188,7 @@ def main():
     # ── Crop empty border from all volumes ────────────────────────────────────
     # 25% each side in x, 10% each side in y and z.
     z0, z1 = int(0.10 * nz), int(0.90 * nz)
-    y0, y1 = int(0.10 * ny), int(0.90 * ny)
+    y0, y1 = int(0.20 * ny), int(0.80 * ny)
     x0, x1 = int(0.25 * nx), int(0.75 * nx)
 
     volumes_disp = {name: vol[z0:z1, y0:y1, x0:x1] for name, vol in volumes_disp.items()}
@@ -223,7 +223,7 @@ def main():
 
     plt.suptitle("Static reconstructions — canonical grid comparison", fontsize=11)
     plt.tight_layout()
-    plt.savefig(OUTPUT_PNG, dpi=150, bbox_inches="tight")
+    plt.savefig(OUTPUT_PNG, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Saved comparison to {OUTPUT_PNG}")
 
@@ -284,7 +284,7 @@ def main():
             ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + pad,
                     fmt.format(v), ha="center", va="bottom", fontsize=7)
         ax.legend(handles=legend_handles, title="Projection count", fontsize=9, framealpha=0.9)
-        plt.savefig(path, dpi=150, bbox_inches="tight")
+        plt.savefig(path, dpi=300, bbox_inches="tight")
         plt.close()
         print(f"Saved {path.name} to {path}")
 
