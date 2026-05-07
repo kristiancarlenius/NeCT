@@ -189,28 +189,23 @@ def collect_all(crops, ref_epoch_arr, ref_time_arr):
 # ── capping ──────────────────────────────────────────────────────────────────
 
 def cap_to_minimum(all_data):
-    """Trim every epoch/time series to the shortest one across all models/configs."""
-    epoch_lens = [
-        len(d["epoch_ssim"])
-        for configs in all_data.values()
-        for d in configs.values()
-        if d["epoch_ssim"]
-    ]
-    time_lens = [
-        len(d["time_ssim"])
-        for configs in all_data.values()
-        for d in configs.values()
-        if d["time_ssim"]
-    ]
-    min_epoch = min(epoch_lens) if epoch_lens else 0
-    min_time  = min(time_lens)  if time_lens  else 0
-    for configs in all_data.values():
+    """Trim epoch and time series per-model so no config within a family is cut short."""
+    for model, configs in all_data.items():
+        epoch_lens = [len(d["epoch_ssim"]) for d in configs.values() if d["epoch_ssim"]]
+        max_times  = [d["time_ssim"][-1][0] for d in configs.values() if d["time_ssim"]]
+
+        min_epoch    = min(epoch_lens) if epoch_lens else 0
+        max_time_cap = min(max_times)  if max_times  else None
+
         for d in configs.values():
             for key in ("epoch_ssim", "epoch_psnr", "epoch_mae"):
                 d[key] = d[key][:min_epoch]
-            for key in ("time_ssim", "time_psnr", "time_mae"):
-                d[key] = d[key][:min_time]
-    print(f"  Capped to {min_epoch} epoch images, {min_time} time images")
+            if max_time_cap is not None:
+                for key in ("time_ssim", "time_psnr", "time_mae"):
+                    d[key] = [p for p in d[key] if p[0] <= max_time_cap]
+
+        time_info = f"{max_time_cap:.2f} h" if max_time_cap is not None else "n/a"
+        print(f"  {model}: capped to {min_epoch} epoch images, time trimmed to {time_info}")
     return all_data
 
 
@@ -352,6 +347,148 @@ def plot_vram_efficiency(all_data, metric):
     ax.grid(True, alpha=0.3)
     _finish(fig, RESULTS / f"vram_efficiency_{metric}.png",
             f"VRAM Efficiency — {METRICS[metric]} at {TARGET_18H:.0f} h vs Peak Reserved VRAM")
+
+
+# ── top-2 diverging comparison ───────────────────────────────────────────────
+
+def plot_top2_comparison(all_data):
+    """Diverging bar chart: top-2 configs per architecture, all 3 metrics.
+
+    Layout
+    ------
+    Y-axis  : 5 architectures × 3 metrics (PSNR / SSIM / MAE), grouped.
+    Left    : top-1 config bars (extend left / negative x).
+    Right   : top-2 config bars (extend right / positive x).
+    Values are normalised per-metric to [0, 1] across all plotted data so
+    that PSNR, SSIM, and MAE share one axis.  MAE is flipped (lower → longer
+    bar) so longer always means better.  Raw values are printed on each bar.
+    """
+    METRIC_KEYS   = ["PSNR",   "SSIM",   "MAE"]
+    METRIC_SERIES = ["time_psnr", "time_ssim", "time_mae"]
+    METRIC_FLIP   = [False, False, True]   # MAE: lower is better → flip
+    METRIC_FMT    = [".2f", ".4f", ".2f"]
+    METRIC_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c"]
+
+    # ── select top-2 configs per architecture by last-time PSNR ──────────────
+    top2 = {}
+    for model in MODELS:
+        if model not in all_data:
+            continue
+        entries = []
+        for label, data in all_data[model].items():
+            if not data["time_psnr"]:
+                continue
+            metrics = {
+                "PSNR": data["time_psnr"][-1][1],
+                "SSIM": data["time_ssim"][-1][1] if data["time_ssim"] else None,
+                "MAE":  data["time_mae"][-1][1]  if data["time_mae"]  else None,
+            }
+            entries.append((metrics["PSNR"], label, metrics))
+        entries.sort(reverse=True)
+        if entries:
+            top2[model] = [(e[1], e[2]) for e in entries[:2]]
+
+    if not top2:
+        print("  No time data for top-2 comparison — skipping.")
+        return
+
+    # ── normalise each metric across all selected values ─────────────────────
+    all_vals = {m: [] for m in METRIC_KEYS}
+    for pairs in top2.values():
+        for _, metrics in pairs:
+            for m in METRIC_KEYS:
+                if metrics.get(m) is not None:
+                    all_vals[m].append(metrics[m])
+
+    def norm(val, metric):
+        vals = all_vals[metric]
+        lo, hi = min(vals), max(vals)
+        if hi == lo:
+            return 0.5
+        n = (val - lo) / (hi - lo)
+        return (1 - n) if METRIC_FLIP[METRIC_KEYS.index(metric)] else n
+
+    # ── layout geometry ───────────────────────────────────────────────────────
+    arch_list    = [m for m in MODELS if m in top2]
+    n_arch       = len(arch_list)
+    n_metrics    = len(METRIC_KEYS)
+    bar_h        = 0.18          # height of each bar
+    metric_gap   = 0.02          # gap between metrics within a group
+    arch_spacing = n_metrics * (bar_h + metric_gap) + 0.35  # gap between arches
+
+    fig, ax = plt.subplots(figsize=(14, max(5, n_arch * arch_spacing * 1.6)))
+
+    y_arch_centers = []
+    for ai, model in enumerate(arch_list):
+        arch_center = ai * arch_spacing
+        y_arch_centers.append(arch_center)
+        pairs = top2[model]
+
+        for mi, (mkey, mcolor, mfmt) in enumerate(zip(METRIC_KEYS, METRIC_COLORS, METRIC_FMT)):
+            y = arch_center + (mi - (n_metrics - 1) / 2) * (bar_h + metric_gap)
+
+            # top-1: extends LEFT (negative)
+            if len(pairs) >= 1:
+                val1 = pairs[0][1].get(mkey)
+                if val1 is not None:
+                    w = -norm(val1, mkey)
+                    ax.barh(y, w, bar_h, color=mcolor, alpha=0.85, left=0)
+                    ax.text(w - 0.01, y, f"{val1:{mfmt}}",
+                            ha="right", va="center", fontsize=7, color="white",
+                            fontweight="bold")
+
+            # top-2: extends RIGHT (positive)
+            if len(pairs) >= 2:
+                val2 = pairs[1][1].get(mkey)
+                if val2 is not None:
+                    w = norm(val2, mkey)
+                    ax.barh(y, w, bar_h, color=mcolor, alpha=0.50, left=0)
+                    ax.text(w + 0.01, y, f"{val2:{mfmt}}",
+                            ha="left", va="center", fontsize=7)
+
+    # ── central spine ─────────────────────────────────────────────────────────
+    ax.axvline(0, color="black", linewidth=1.2)
+
+    # ── architecture labels ───────────────────────────────────────────────────
+    ax.set_yticks(y_arch_centers)
+    ax.set_yticklabels(arch_list, fontsize=10)
+
+    # model name annotations above/below each arch group
+    x_pad = 0.04
+    for ai, model in enumerate(arch_list):
+        pairs = top2[model]
+        yc = y_arch_centers[ai]
+        half = (n_metrics * (bar_h + metric_gap)) / 2
+        if len(pairs) >= 1:
+            ax.text(-x_pad, yc + half + 0.05, pairs[0][0],
+                    ha="right", va="bottom", fontsize=7.5, color="#1a1a8c",
+                    style="italic")
+        if len(pairs) >= 2:
+            ax.text(x_pad, yc - half - 0.05, pairs[1][0],
+                    ha="left", va="top", fontsize=7.5, color="#8c1a1a",
+                    style="italic")
+
+    # ── metric legend ─────────────────────────────────────────────────────────
+    from matplotlib.patches import Patch
+    legend_patches = [Patch(color=c, label=f"{m} {'(flip)' if f else ''}")
+                      for m, c, f in zip(METRIC_KEYS, METRIC_COLORS, METRIC_FLIP)]
+    ax.legend(handles=legend_patches, fontsize=9, loc="lower right",
+              title="Metric  (normalised 0–1 per metric,\nlonger = better)")
+
+    # direction labels
+    ax.text(-0.02, ax.get_ylim()[1], "← top-1 model", ha="right", va="top",
+            fontsize=9, color="#1a1a8c")
+    ax.text(0.02, ax.get_ylim()[1], "top-2 model →", ha="left", va="top",
+            fontsize=9, color="#8c1a1a")
+
+    ax.set_xlabel("Normalised score  (0 = worst, 1 = best within metric)")
+    ax.set_xlim(-1.15, 1.15)
+    ax.set_title("Top-2 configs per architecture — PSNR / SSIM / MAE at last time point",
+                 fontsize=12)
+    ax.grid(axis="x", alpha=0.25)
+    ax.spines[["top", "right"]].set_visible(False)
+
+    _finish(fig, RESULTS / "top2_comparison.png", "")
 
 
 # ── summary printing ─────────────────────────────────────────────────────────
