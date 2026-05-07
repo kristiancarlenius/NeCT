@@ -36,43 +36,43 @@
 \contentsline {subsubsection}{MLP Decoder Depth}{42}{section*.26}%
 \contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{43}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{43}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{43}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{48}{subsection.3.5.2}%
-\contentsline {subsubsection}{CombinedCubes with K-Planes Products}{53}{section*.37}%
-\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{53}{subsection.3.5.3}%
-\contentsline {subsubsection}{\textsc {MixedCubes}{} with K-Planes Triple Product}{57}{section*.41}%
-\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{57}{subsection.3.5.4}%
-\contentsline {chapter}{\numberline {4}Encoder Comparison}{59}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Candidate Configurations}{59}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Unified Comparison}{60}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Discussion}{66}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{66}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{66}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{67}{subsection.4.3.3}%
-\contentsline {part}{II\hspace {1em}Continuous Scanning}{68}{part.2}%
-\contentsline {chapter}{\numberline {5}Continuous Scanning}{69}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Theory}{69}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{69}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{70}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{71}{subsection.5.1.3}%
-\contentsline {section}{\numberline {5.2}Method}{72}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{72}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Implementation in \textsc {NeCTv2}{}}{73}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Gradient Checkpointing}{73}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Hyperparameters and Training Protocol}{74}{subsection.5.2.4}%
-\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{74}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Dataset}{74}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{75}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Results}{75}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{76}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Dataset}{76}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Results}{79}{subsection.5.4.2}%
-\contentsline {section}{\numberline {5.5}Discussion}{80}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{80}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Benefits and Costs for Dynamic Imaging}{80}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Limitations and Extensions}{81}{subsection.5.5.3}%
-\contentsline {chapter}{\numberline {6}Conclusion}{82}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{82}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{82}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{86}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{87}{appendix.B}%
+\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{44}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{49}{subsection.3.5.2}%
+\contentsline {subsubsection}{CombinedCubes with K-Planes Products}{54}{section*.37}%
+\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{54}{subsection.3.5.3}%
+\contentsline {subsubsection}{\textsc {MixedCubes}{} with K-Planes Triple Product}{58}{section*.41}%
+\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{58}{subsection.3.5.4}%
+\contentsline {chapter}{\numberline {4}Encoder Comparison}{60}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Candidate Configurations}{60}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Unified Comparison}{61}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Discussion}{67}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{67}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{67}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{68}{subsection.4.3.3}%
+\contentsline {part}{II\hspace {1em}Continuous Scanning}{69}{part.2}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{70}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Theory}{70}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{70}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{71}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{72}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Method}{73}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{73}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Implementation in \textsc {NeCTv2}{}}{74}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Gradient Checkpointing}{74}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Hyperparameters and Training Protocol}{75}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{75}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Dataset}{75}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{76}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Results}{76}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{77}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Dataset}{77}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Results}{80}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{81}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{81}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Benefits and Costs for Dynamic Imaging}{81}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Limitations and Extensions}{82}{subsection.5.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{83}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{83}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{83}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{88}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{89}{appendix.B}%

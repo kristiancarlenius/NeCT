@@ -23,9 +23,16 @@ CROPS_FILE = ROOT / "crop_img_comparison.json"
 OUT_DIR = ROOT / "docs" / "images"
 
 SOURCES = [
-    (ROOT / "sizediff" / "perfect" / "0525_1400.png",                             "compairson.png"),
+    # MixedCubes quality figure
+    (ROOT / "sizediff" / "perfect" / "0525_1400.png",                              "compairson.png"),
     (ROOT / "sizediff" / "quadcubes" / "23_4_23_4_128" / "time" / "0130_1400.png", "highcontrast_nect_12h.png"),
     (ROOT / "sizediff" / "mixedcubes" / "24_4_24_4_128" / "time" / "0170_1400.png", "highcontrast_mixedcubes_12h.png"),
+    # MLP decoder depth figure
+    (ROOT / "sizediff" / "sexcubes" / "128_4"  / "0525_1400.png", "sexcubes_128_4.png"),
+    (ROOT / "sizediff" / "sexcubes" / "128_7"  / "0525_1400.png", "sexcubes_128_7.png"),
+    (ROOT / "sizediff" / "sexcubes" / "128_16" / "0525_1400.png", "sexcubes_128_16.png"),
+    # SingleCube figure
+    (ROOT / "sizediff" / "singlecube" / "24_4_24_4_128" / "1050_1400.png", "singlecube.png"),
 ]
 
 UPSCALE = 4        # nearest-neighbour upscale factor for print clarity
