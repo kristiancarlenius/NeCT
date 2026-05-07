@@ -33,10 +33,13 @@ SOURCES = [
     (ROOT / "sizediff" / "sexcubes" / "128_16" / "0525_1400.png", "sexcubes_128_16.png"),
     # SingleCube figure
     (ROOT / "sizediff" / "singlecube" / "24_4_24_4_128" / "1050_1400.png", "singlecube.png"),
+    # CombinedCubes vs QuadCubes epoch 150 reconstruction slices
+    (ROOT / "sizediff" / "combinedcube" / "24_4_24_6_128" / "0150_1400.png", "combinedcube_150epoch.png"),
+    (ROOT / "sizediff" / "quadcubes" / "23_4_23_4_128" / "epoch" / "0150_1400.png", "quadcube_150epoch.png"),
 ]
 
 UPSCALE = 4        # nearest-neighbour upscale factor for print clarity
-P_LOW, P_HIGH = 2, 98  # percentile clip for intensity stretch
+P_LOW, P_HIGH = 1.0, 100  # percentile clip for intensity stretch
 
 
 def load_gray(path: Path) -> np.ndarray:
