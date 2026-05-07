@@ -71,9 +71,9 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 16,
+            "n_levels": 22,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 25,
+            "log2_hashmap_size": 24,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
@@ -85,7 +85,10 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
-        ),},
+        ),
+        "tv_temporal": 1e-4,
+        "n_levels_temporal": 18,
+    },
     enc_arc="combinedcubes",
     )
 #hust å teste med 23_4_24, 24_4_23, 22_4_22, ect.

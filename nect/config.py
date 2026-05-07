@@ -369,6 +369,8 @@ class Config:
     checkpoint_epoch: Optional[int] = None 
     damp_multi: Optional[list[float]] = None 
     tv: float = 0.0
+    tv_temporal: float = 0.0
+    n_levels_temporal: Optional[int] = None
     sample_outside: int = 0
     accumulation_steps: int | None = None
     continous_scanning: bool = False
@@ -610,11 +612,13 @@ class Config:
             elif model == "combinedcubes":
                 from nect.network import CombinedCubes
 
-                memory_per_point = 8 * byte_size * self.encoder.n_levels * 2
+                temporal_levels = self.n_levels_temporal if self.n_levels_temporal is not None else self.encoder.n_levels
+                memory_per_point = 8 * byte_size * (3 * temporal_levels + self.encoder.n_levels)
 
                 model = CombinedCubes(
                     encoding_config=self.encoder,
                     network_config=self.net,
+                    n_levels_temporal=self.n_levels_temporal,
                 )
 
             elif model == "combinedcubes_kplanes":
@@ -1166,6 +1170,8 @@ def cfg_sanity_check(cfg: dict):
         "base_lr": (float, [(float.__gt__, 0.0, gt_eq)]),
         "lr": (float, [(float.__gt__, 0.0, gt_eq)]),
         "tv": (float, [(float.__ge__, 0.0, gt_eq)]),
+        "tv_temporal": (float, [(float.__ge__, 0.0, gt_eq)]),
+        "n_levels_temporal": (int, [(int.__ge__, 1, gt_eq)]),
         "sample_outside": (int, [(int.__ge__, 0, gt_eq)]),
         "accumulation_steps": (Optional[int], [(int.__ge__, 1, gt_eq)]),
         "continous_scanning": (bool, []),

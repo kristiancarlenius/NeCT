@@ -708,27 +708,20 @@ class CombinedCubes(nn.Module):
         self,
         encoding_config: HashEncoderConfig,
         network_config: MLPNetConfig,
+        n_levels_temporal: int | None = None,
     ):
         super().__init__()
+        enc_2d = encoding_config.get_encoder_config_2D()
+        if n_levels_temporal is not None:
+            enc_2d = {**enc_2d, "n_levels": n_levels_temporal}
+        enc_3d = encoding_config.get_encoder_config()
         encoding = {
             "otype": "Composite",
             "nested": [
-                {
-                    "n_dims_to_encode": 2,
-                    **encoding_config.get_encoder_config_2D() #x, t
-                },
-                {
-                    "n_dims_to_encode": 2,
-                    **encoding_config.get_encoder_config_2D() #y, t
-                },
-                {
-                    "n_dims_to_encode": 2,
-                    **encoding_config.get_encoder_config_2D() #z, t
-                },
-                {
-                    "n_dims_to_encode": 3,
-                    **encoding_config.get_encoder_config() #x, y, z
-                }
+                {"n_dims_to_encode": 2, **enc_2d},  # z, t
+                {"n_dims_to_encode": 2, **enc_2d},  # y, t
+                {"n_dims_to_encode": 2, **enc_2d},  # x, t
+                {"n_dims_to_encode": 3, **enc_3d},  # z, y, x
             ]
         }
 

@@ -710,6 +710,15 @@ class BaseTrainer:
                             tv_loss = total_variation_3d(atten_hat, weight=self.config.tv)
                             loss += tv_loss
 
+                        if (self.config.mode == "dynamic" and self.current_projection > self.config.warmup.steps and self.config.tv_temporal > 0):
+                            t_float = float(timestep)
+                            t_perturbed = min(1.0, t_float + 0.02)
+                            tv_grid = torch.rand(500, 3, device=self.fabric.device)
+                            f_t = self.model(tv_grid, t_float)
+                            f_tp = self.model(tv_grid, t_perturbed)
+                            temporal_tv_loss = self.config.tv_temporal * torch.mean(torch.abs(f_tp - f_t))
+                            loss += temporal_tv_loss
+
                         self.fabric.backward(loss)
                         if self.config.clip_grad_value is not None:
                             torch.nn.utils.clip_grad_value_(self.model.parameters(), self.config.clip_grad_value)

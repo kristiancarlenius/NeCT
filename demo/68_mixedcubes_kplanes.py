@@ -25,7 +25,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 20,
+            "n_levels": 22,
             "n_features_per_level": 2,
             "log2_hashmap_size": 25,
             "base_resolution": 16,
@@ -42,10 +42,11 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             activation="LeakyReLU",
             output_activation="None",
             n_neurons=128,
-            n_hidden_layers=6,
+            n_hidden_layers=4,
             include_identity=False,
             include_adaptive_skip=False,
         ),
+        "tv_temporal": 1e-4,
     },
     enc_arc="mixedcubes_kplanes",
 )
