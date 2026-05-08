@@ -602,6 +602,8 @@ def main():
         plot_combined_time(all_data, metric)
         plot_vram_efficiency(all_data, metric)
 
+    plot_top2_comparison(all_data)
+
     print("Done. Results in", RESULTS)
 
 
