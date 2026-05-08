@@ -23,6 +23,7 @@ Usage:
 from __future__ import annotations
 
 import atexit
+import gc
 import shutil
 import tempfile
 from pathlib import Path
@@ -92,11 +93,35 @@ OUTPUT_TXT      = BASE_DIR / "metrics.txt"
 
 
 def load_model(model_dir: Path, device: torch.device):
-    """Load model and calibration constants from a model/ directory."""
+    """Load model and calibration constants from a model/ directory.
+
+    On first call per model, extracts a model-only 'inference.pt' from the full
+    training checkpoint (which includes ~2x optimizer state).  Subsequent calls
+    load only the 3 GB model weights rather than the 9+ GB full checkpoint.
+    """
     config = get_cfg(model_dir / "config.yaml")
     model = config.get_model()
-    ckpt = torch.load(model_dir / "checkpoints" / "last.ckpt", map_location="cpu")
-    model.load_state_dict(ckpt["model"])
+
+    ckpt_path = model_dir / "checkpoints" / "last.ckpt"
+    inf_path  = model_dir / "checkpoints" / "inference.pt"
+
+    if inf_path.exists():
+        sd = torch.load(inf_path, map_location="cpu")
+        model.load_state_dict(sd)
+        del sd
+    else:
+        # Use mmap=True (PyTorch ≥2.1) so the optimizer state is never paged into
+        # RAM — only the model tensors we actually touch are loaded.
+        print(f"    Extracting model-only weights (one-time, saving inference.pt) ...")
+        try:
+            ckpt = torch.load(ckpt_path, map_location="cpu", mmap=True)
+        except TypeError:
+            ckpt = torch.load(ckpt_path, map_location="cpu")
+        model.load_state_dict(ckpt["model"])
+        torch.save(ckpt["model"], inf_path)
+        del ckpt
+        gc.collect()
+
     model = model.to(device).eval()
 
     dataset = NeCTDataset(config=config, device="cpu")
