@@ -22,12 +22,15 @@ Usage:
 
 from __future__ import annotations
 
+import atexit
+import shutil
+import tempfile
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from scipy.ndimage import sobel, laplace
+from scipy.ndimage import sobel as sobel2d, laplace as laplace2d
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 from nect.config import get_cfg
@@ -71,6 +74,10 @@ SLICE_X = 0.5
 # zeroed so corner noise doesn't skew normalisation or metrics.
 # Set to 0.0 to disable.
 MASK_RADIUS_FRAC = 0.45  # fraction of min(cropped_ny, cropped_nx)
+
+# Scratch directory for memory-mapped volumes (~2× vol size free space needed).
+# None = allocate in RAM (fast, needs ~8 GB free RAM at BINNING=1).
+SCRATCH_DIR: Path | None = BASE_DIR / ".tmp"
 
 OUTPUT_PNG      = BASE_DIR / "comparison.png"
 OUTPUT_PSNR     = BASE_DIR / "psnr.png"
@@ -145,10 +152,17 @@ def reconstruct_volume(
     y_lin: torch.Tensor,
     x_lin: torch.Tensor,
     device: torch.device,
+    path: str | None = None,
 ) -> np.ndarray:
-    """Query a static model on the canonical grid and calibrate."""
+    """Query a static model on the canonical grid and calibrate.
+
+    path: if given, write into a memory-mapped file instead of RAM.
+    """
     nz, ny, nx = len(z_lin), len(y_lin), len(x_lin)
-    vol = torch.zeros((nz, ny, nx), dtype=torch.float32)
+    if path is not None:
+        vol: np.ndarray = np.memmap(path, dtype=np.float32, mode="w+", shape=(nz, ny, nx))
+    else:
+        vol = np.zeros((nz, ny, nx), dtype=np.float32)
     z_lin_d = z_lin.to(device)
     y_lin_d = y_lin.to(device)
     x_lin_d = x_lin.to(device)
@@ -159,8 +173,8 @@ def reconstruct_volume(
         grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t()
         raw = model(grid).reshape(ny, nx)
         calibrated = raw * scale * (data_max - data_min) + data_min
-        vol[i] = calibrated.cpu()
-    return vol.numpy()
+        vol[i] = calibrated.cpu().numpy()
+    return vol
 
 
 def main():
@@ -195,42 +209,88 @@ def main():
         mask_2d = np.ones((ny, nx), dtype=bool)
 
     def process(vol: np.ndarray):
-        """Normalise using only inside-cylinder voxels, zero background, extract slices."""
-        inside = vol[:, mask_2d]          # shape (nz, n_inside) — no copy, a view
-        lo = float(np.percentile(inside, 1))
-        hi = float(np.percentile(inside, 99))
+        """Normalise and zero background in-place, using sampled percentiles."""
+        # Sample every ~150th z-slice to estimate percentiles without a 2 GB gather.
+        step = max(1, nz // 150)
+        sample = np.concatenate([np.array(vol[z])[mask_2d] for z in range(0, nz, step)])
+        lo = float(np.percentile(sample, 1))
+        hi = float(np.percentile(sample, 99))
+        del sample
+        chunk = 64
         if hi > lo:
-            vol -= lo
-            vol /= (hi - lo)
-            np.clip(vol, 0.0, 1.0, out=vol)
+            for z0 in range(0, nz, chunk):
+                z1 = min(z0 + chunk, nz)
+                s = np.array(vol[z0:z1])   # load chunk into RAM
+                s -= lo
+                s /= (hi - lo)
+                np.clip(s, 0.0, 1.0, out=s)
+                s[:, ~mask_2d] = 0.0
+                vol[z0:z1] = s
         else:
             vol[:] = 0.0
-        vol[:, ~mask_2d] = 0.0           # zero out background
         return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
 
-    def sharpness_metrics(vol: np.ndarray) -> tuple[float, float]:
-        """Mean gradient magnitude and Laplacian variance inside the cylinder."""
-        gz = sobel(vol, axis=0)
-        gy = sobel(vol, axis=1)
-        gx = sobel(vol, axis=2)
-        grad_mag = np.sqrt(gz ** 2 + gy ** 2 + gx ** 2)
-        mean_grad = float(np.mean(grad_mag[:, mask_2d]))
-        lap = laplace(vol)
-        lap_var = float(np.var(lap[:, mask_2d]))
+    def sharpness_metrics(xy: np.ndarray, xz: np.ndarray, yz: np.ndarray) -> tuple[float, float]:
+        """2-D Sobel sharpness from the three canonical slices (avoids full-volume Sobel)."""
+        def _grad(s):
+            gx = sobel2d(s.astype(np.float32), axis=1)
+            gy = sobel2d(s.astype(np.float32), axis=0)
+            return float(np.mean(np.sqrt(gx ** 2 + gy ** 2)))
+
+        def _lapvar(s):
+            return float(np.var(laplace2d(s.astype(np.float32))))
+
+        mean_grad = (_grad(xy) + _grad(xz) + _grad(yz)) / 3
+        lap_var   = (_lapvar(xy) + _lapvar(xz) + _lapvar(yz)) / 3
         return mean_grad, lap_var
 
-    # ── Reconstruct GT first, keep in RAM for metrics ─────────────────────────
+    def compute_metrics_streamed(gt_vol, vol):
+        """PSNR / MAE in z-chunks; SSIM per slice.  Peak extra RAM ≈ chunk × slice size."""
+        chunk = 64
+        mse_sum, mae_sum, n_px, ssim_sum = 0.0, 0.0, 0, 0.0
+        for z0 in range(0, nz, chunk):
+            z1 = min(z0 + chunk, nz)
+            gt_c = np.array(gt_vol[z0:z1])
+            v_c  = np.array(vol[z0:z1])
+            gt_m = gt_c[:, mask_2d]
+            v_m  = v_c[:, mask_2d]
+            d    = v_m - gt_m
+            mse_sum += float(np.sum(d ** 2))
+            mae_sum += float(np.sum(np.abs(d)))
+            n_px    += d.size
+            for k in range(z1 - z0):
+                ssim_sum += float(structural_similarity(gt_c[k], v_c[k], data_range=1.0))
+        mse  = mse_sum / max(n_px, 1)
+        mae  = mae_sum / max(n_px, 1)
+        psnr = float(10.0 * np.log10(1.0 / (mse + 1e-12)))
+        ssim = ssim_sum / nz
+        return psnr, ssim, mae
+
+    # ── Set up scratch dir for memory-mapped volumes ──────────────────────────
+    if SCRATCH_DIR is not None:
+        SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
+        tmp_dir: Path | None = SCRATCH_DIR
+        atexit.register(shutil.rmtree, str(SCRATCH_DIR), ignore_errors=True)
+    else:
+        tmp_dir = None
+
+    def _mmap_path(name: str) -> str | None:
+        return str(tmp_dir / name) if tmp_dir is not None else None
+
+    # ── Reconstruct GT first, keep (memory-mapped) for streamed metrics ───────
     print(f"Reconstructing {GT_NAME} (ground truth) ...")
     gt_model_dir = BASE_DIR / GT_NAME / "model"
     if not (gt_model_dir / "config.yaml").exists():
         print("Ground truth config not found — aborting.")
         return
     model, scale, data_min, data_max = load_model(gt_model_dir, device)
-    gt_raw = reconstruct_volume(model, scale, data_min, data_max, z_lin, y_lin, x_lin, device)
+    gt_vol = reconstruct_volume(
+        model, scale, data_min, data_max, z_lin, y_lin, x_lin, device,
+        path=_mmap_path("gt.mmap"),
+    )
     del model; torch.cuda.empty_cache()
-    gt_vol, gt_xy, gt_xz, gt_yz = process(gt_raw)
-    del gt_raw
-    gt_grad, gt_lapvar = sharpness_metrics(gt_vol)
+    gt_vol, gt_xy, gt_xz, gt_yz = process(gt_vol)
+    gt_grad, gt_lapvar = sharpness_metrics(gt_xy, gt_xz, gt_yz)
     print(f"  GT sharpness — grad: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}")
 
     # slices stored for plotting: {name: (xy, xz, yz)}
@@ -254,7 +314,10 @@ def main():
             continue
         print(f"Reconstructing {name} ...")
         model, scale, data_min, data_max = load_model(model_dir, device)
-        raw = reconstruct_volume(model, scale, data_min, data_max, z_lin, y_lin, x_lin, device)
+        raw = reconstruct_volume(
+            model, scale, data_min, data_max, z_lin, y_lin, x_lin, device,
+            path=_mmap_path("cmp.mmap"),   # reused/overwritten each iteration
+        )
         del model; torch.cuda.empty_cache()
 
         vol, xy, xz, yz = process(raw)
@@ -262,23 +325,15 @@ def main():
 
         slices[name] = (xy, xz, yz)
         metric_names.append(name)
-        # Compute metrics only inside the cylinder so background zeros
-        # don't artificially inflate PSNR / deflate MAE.
-        gt_inside  = gt_vol[:, mask_2d]
-        vol_inside = vol[:, mask_2d]
-        diff = vol_inside - gt_inside
-        mse  = float(np.mean(diff ** 2))
-        psnr_vals.append(float(10.0 * np.log10(1.0 / (mse + 1e-12))))
-        ssim_vals.append(float(np.mean([
-            structural_similarity(gt_vol[z], vol[z], data_range=1.0)
-            for z in range(nz)
-        ])))
-        mae_vals.append(float(np.mean(np.abs(diff))))
-        mg, lv = sharpness_metrics(vol)
+        psnr, ssim, mae = compute_metrics_streamed(gt_vol, vol)
+        psnr_vals.append(psnr)
+        ssim_vals.append(ssim)
+        mae_vals.append(mae)
+        mg, lv = sharpness_metrics(xy, xz, yz)
         grad_vals.append(mg)
         lapvar_vals.append(lv)
         valid_names.append(name)
-        del vol, diff, vol_inside
+        del vol
 
     n_models = len(slices)
     if n_models == 0:

@@ -37,6 +37,8 @@ MODEL_COLORS = {
 
 TARGET_18H = 18.0  # hours
 
+QUADCUBES_FOCUSED_CONFIG = "23_4_23"  # config prefix for focused subset
+
 METRICS = {
     "ssim": "SSIM",
     "psnr": "PSNR (dB)",
@@ -263,7 +265,7 @@ def plot_model_time(model, model_data, metric):
             f"{model} — {METRICS[metric]} vs Time")
 
 
-def plot_combined_epoch(all_data, metric):
+def plot_combined_epoch(all_data, metric, filename=None, title=None):
     fig, ax = plt.subplots(figsize=(11, 6))
     key = f"epoch_{metric}"
     for model, model_data in all_data.items():
@@ -274,17 +276,17 @@ def plot_combined_epoch(all_data, metric):
                 continue
             xs, ys = zip(*pts)
             ax.plot(xs, ys, color=color, linewidth=1.2, alpha=0.75,
-                    label=model if i == 0 else None,
+                    label=f"{model}/{label}" if i > 0 else model,
                     linestyle=["-", "--", ":", "-."][i % 4])
     ax.set_xlabel("Epoch")
     ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=9, loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"combined_epoch_{metric}.png",
-            f"All Models — {METRICS[metric]} vs Epoch")
+    _finish(fig, RESULTS / (filename or f"combined_epoch_{metric}.png"),
+            title or f"All Models — {METRICS[metric]} vs Epoch")
 
 
-def plot_combined_time(all_data, metric):
+def plot_combined_time(all_data, metric, filename=None, title=None):
     fig, ax = plt.subplots(figsize=(11, 6))
     key = f"time_{metric}"
     has_data = False
@@ -296,7 +298,7 @@ def plot_combined_time(all_data, metric):
                 continue
             xs, ys = zip(*pts)
             ax.plot(xs, ys, color=color, linewidth=1.2, alpha=0.75,
-                    label=model if i == 0 else None,
+                    label=f"{model}/{label}" if i > 0 else model,
                     linestyle=["-", "--", ":", "-."][i % 4])
             has_data = True
     if not has_data:
@@ -307,8 +309,8 @@ def plot_combined_time(all_data, metric):
     ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=9, loc="lower right")
     ax.grid(True, alpha=0.3)
-    _finish(fig, RESULTS / f"combined_time_{metric}.png",
-            f"All Models — {METRICS[metric]} vs Time")
+    _finish(fig, RESULTS / (filename or f"combined_time_{metric}.png"),
+            title or f"All Models — {METRICS[metric]} vs Time")
 
 
 def plot_vram_efficiency(all_data, metric):
@@ -577,6 +579,22 @@ def print_summary(all_data: dict) -> None:
                   f"SSIM={ts:.4f}  MAE={tm:.1f}")
 
 
+# ── focused subset ───────────────────────────────────────────────────────────
+
+def build_focused_data(all_data):
+    """quadcubes configs matching 23_4_23 + all large-spatial/temporal configs."""
+    focused = {}
+    for model, model_data in all_data.items():
+        if model == "quadcubes":
+            filtered = {label: data for label, data in model_data.items()
+                        if label.startswith(QUADCUBES_FOCUSED_CONFIG)}
+            if filtered:
+                focused[model] = filtered
+        elif model in ("quadcubes_large_spatial", "quadcubes_large_temporal"):
+            focused[model] = model_data
+    return focused
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -603,6 +621,21 @@ def main():
         plot_vram_efficiency(all_data, metric)
 
     plot_top2_comparison(all_data)
+
+    focused_data = build_focused_data(all_data)
+    if focused_data:
+        print("\nGenerating focused QuadCubes plots ...")
+        for metric in METRICS:
+            plot_combined_epoch(
+                focused_data, metric,
+                filename=f"focused_epoch_{metric}.png",
+                title=f"QuadCubes (23_4_23) vs Large Variants — {METRICS[metric]} vs Epoch",
+            )
+            plot_combined_time(
+                focused_data, metric,
+                filename=f"focused_time_{metric}.png",
+                title=f"QuadCubes (23_4_23) vs Large Variants — {METRICS[metric]} vs Time",
+            )
 
     print("Done. Results in", RESULTS)
 
