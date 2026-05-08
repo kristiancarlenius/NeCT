@@ -333,7 +333,7 @@ NeRF represents a static scene as a continuous 5D function
 %
 where $\mathbf{x} = (x, y, z) \in \mathbb{R}^3$ is a spatial location, $\mathbf{d} \in \mathbb{S}^2$ is a unit viewing direction, $\mathbf{c} = (r, g, b)$ is the emitted RGB colour, and $\sigma \geq 0$ is the volume density at $\mathbf{x}$. The density represents the differential probability that a ray is absorbed at $\mathbf{x}$ and is predicted from position only to enforce multi-view consistency. The colour depends on both position and direction, allowing NeRF to represent view-dependent effects such as specular reflections.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{nerf.png}
     \caption{The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.}
@@ -433,7 +433,7 @@ The first application of multiresolution hash encoding to CT reconstruction was 
 \subsection{NeCT Pipeline Overview}
 \label{subsec:nect_pipeline}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{nect_pipeline.png}
     \caption{The NeCT training pipeline. Rays are sampled from recorded projections, marched through the hash-encoded network to predict attenuation values, integrated via the discretised Beer--Lambert law to produce predicted detector intensities, and compared to the measured intensities by the L1 loss. Gradients are backpropagated to update the network weights.}
@@ -467,7 +467,7 @@ Because the hash table entries are updated only for the small subset of grid ver
 \subsection{Static 3D Reconstruction}
 \label{subsec:nect_static}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.80\textwidth]{static_nect.png}
     \caption{Network block for static reconstruction model using one encoder and MLP.}
@@ -492,7 +492,7 @@ NeCT outperformed FDK, OS-SART-TV, and NAF on both metrics across all eleven dat
 \subsection{Dynamic 4D Reconstruction: NeCT QuadCubes}
 \label{subsec:nect_quadcubes}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{quadcubes.png}
     \caption{The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders concatenating the feature vectors are decoded by a shared MLP.}
@@ -679,28 +679,28 @@ The theory in \cref{subsec:collision_dim_theory} established that hashmap size i
 
 Values of $\log_2 T \in \{17, 18, 19, 20, 21, 22, 23\}$ were evaluated with $L = 23$ and $F = 4$ held fixed, giving a range from approximately 128 million to 2.6 billion total encoding parameters across the four QuadCubes encoders.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{hashmap23_plots/hashmap23_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{hashmap23_plots/hashmap23_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for $\log_2 T \in \{17,\ldots,23\}$ with $L = 23$ and $F = 4$ fixed.}
     \label{fig:epoch_hashmap}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{hashmap23_plots/hashmap23_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{hashmap23_plots/hashmap23_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for $\log_2 T \in \{17,\ldots,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.}
     \label{fig:time_hashmap}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{hashmap23_plots/hashmap23_vram_psnr.png}
+    \includegraphics[width=1.1\textwidth]{hashmap23_plots/hashmap23_vram_psnr.png}
     \end{adjustwidth}
     \caption{PSNR at the 18-hour mark versus peak reserved VRAM for each $\log_2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.}
     \label{fig:vram_hashmap}
@@ -715,7 +715,7 @@ The hashmap sweep operates entirely within the 3D QuadCubes encoder regime, wher
 
 The SingleCube architecture consists of a single 4D multiresolution hash encoder taking $(x, y, z, t)$ as input, which is conceptually the natural extension of the static NAF model from three to four dimensions. Rather than splitting the 4D space into overlapping 3D subproblems as QuadCubes does, it asks the encoder to represent the full space-time field directly.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
     \centering
     \begin{subfigure}[b]{0.6\textwidth}
@@ -755,28 +755,28 @@ Having established that hashmap size is the primary driver of model size and qua
 
 Values of $L \in \{17, 18, 19, 20, 21, 22, 23\}$ were evaluated with $\log_2 T = 23$ and $F = 4$ held fixed. Reducing $L$ from 23 to 17 removes six levels from the top of the frequency hierarchy, eliminating the finest-scale features while keeping the coarse structure intact. At the same time, each removed level reduces the number of hash table lookups and MLP input features per training step, directly reducing the per-step computation and therefore the wall-clock time per epoch.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{nlevel_plots/nlevel_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{nlevel_plots/nlevel_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for $L \in \{17,\ldots,23\}$ with $\log_2 T = 23$ and $F = 4$ fixed.}
     \label{fig:levels_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{nlevel_plots/nlevel_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{nlevel_plots/nlevel_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for $L \in \{17,\ldots,23\}$ with $\log_2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.}
     \label{fig:levels_time}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{nlevel_plots/nlevel_vram_psnr.png}
+    \includegraphics[width=1.1\textwidth]{nlevel_plots/nlevel_vram_psnr.png}
     \end{adjustwidth}
     \caption{PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\log_2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.}
     \label{fig:vram_levels}
@@ -793,28 +793,28 @@ Across all architectures evaluated in this chapter, the spatial encoder is sensi
 
 Values of $F \in \{1, 2, 4\}$ were evaluated with $L = 23$ and $\log_2 T = 23$ held fixed. Reducing $F$ halves both the encoder memory and the MLP input dimension per step (from $4 \times 23 \times 4 = 368$ to 184 features at $F = 2$, and to 92 at $F = 1$), so unlike the level count, $F$ affects both memory and computation proportionally.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{features_plots/features_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{features_plots/features_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for $F \in \{1, 2, 4\}$ with $L = 23$ and $\log_2 T = 23$ fixed.}
     \label{fig:features_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{features_plots/features_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{features_plots/features_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for $F \in \{1, 2, 4\}$ with $L = 23$ and $\log_2 T = 23$ fixed. Each curve is one feature count; the dashed vertical line marks the 24-hour budget.}
     \label{fig:features_time}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{features_plots/features_vram_psnr.png}
+    \includegraphics[width=1.1\textwidth]{features_plots/features_vram_psnr.png}
     \end{adjustwidth}
     \caption{PSNR at the 24-hour mark versus peak reserved VRAM for $F \in \{1, 2, 4\}$ ($L = 23$, $\log_2 T = 23$). Halving $F$ from 4 to 2 roughly halves VRAM with negligible quality loss.}
     \label{fig:vram_features}
@@ -827,13 +827,7 @@ $F = 2$ is surprisingly competitive with $F = 4$ in the epoch plot, reaching a v
 \subsection{SexCubes}
 \label{subsec:sexcubes}
 
-The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
-
-The cost of this design is that each encoder captures only pairwise coordinate interactions. Reconstructing the attenuation at $(x, y, z, t)$ from six 2D plane projections is analogous to recovering a 4D function from its six 2D marginals, which is formally underdetermined without additional coupling assumptions. The MLP must infer the missing higher-order interactions from the pairwise features alone, which is a harder integration task than in the 3D encoder case where each encoder already encodes three-way interactions.
-
-\subsubsection{MLP Decoder Depth}
-
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
@@ -860,6 +854,12 @@ The cost of this design is that each encoder captures only pairwise coordinate i
     \label{fig:sexcubes_reconstruction}
 \end{figure}
 
+The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
+
+The cost of this design is that each encoder captures only pairwise coordinate interactions. Reconstructing the attenuation at $(x, y, z, t)$ from six 2D plane projections is analogous to recovering a 4D function from its six 2D marginals, which is formally underdetermined without additional coupling assumptions. The MLP must infer the missing higher-order interactions from the pairwise features alone, which is a harder integration task than in the 3D encoder case where each encoder already encodes three-way interactions.
+
+\subsubsection{MLP Decoder Depth}
+
 Figure~\ref{fig:sexcubes_reconstruction} shows the reconstruction quality as a function of decoder depth. At 4 hidden layers the output is unrecognisable. At 7 layers clear structural patterns appear and the reconstruction becomes recognisable. Increasing depth to 16 layers, however, produces a worse result than 7 layers rather than a better one. Without regularisation such as dropout, a deeper MLP in this setting overfits to noise in the pairwise feature inputs rather than learning to integrate them into coherent spatial structure. The 2D encoders provide only marginal information per coordinate pair, and a very deep decoder amplifies inconsistencies in those features rather than resolving them. This non-monotonic behaviour with depth shows that the fundamental limitation of SexCubes is not insufficient decoder capacity but insufficient encoder information. The missing three-way and four-way coordinate interactions cannot be recovered by any MLP, regardless of depth, because they were never encoded in the first place.
 
 \subsection{Precision and Training Time}
@@ -885,62 +885,60 @@ In non-uniform configurations the spatial encoder \texttt{xyz} is assigned a dif
     \centering
     \caption{Non-uniform encoder configurations. The spatial encoder \texttt{xyz} and the three temporal encoders are assigned different hashmap sizes. Peak training VRAM is listed for each configuration.}
     \label{tab:nonuniform_configs}
-    \begin{tabular}{lllll}
+    \begin{tabular}{llllll}
         \toprule
-        Configuration & \texttt{xyz} $\log_2 T$ & Temporal $\log_2 T$ & VRAM (GB) & $L$ \\
+        Configuration & \texttt{xyz} $\log_2 T$ & Temporal $\log_2 T$ & VRAM (GB) & $L$ & PSNR at 18\,h (dB) \\
         \midrule
-        Uniform (baseline) & 23 & 23 & 44.8 & 23 \\
-        Spatial-heavy A    & 23 & 21 & 20.1 & 24 \\
-        Spatial-heavy B    & 24 & 19 & 24.1 & 23 \\
-        Temporal-heavy A   & 21 & 23 & 36.5 & 23 \\
-        Temporal-heavy B   & 19 & 23 & 34.4 & 24 \\
+        Uniform (baseline) & 23 & 23 & 44.8 & 23 & 35.89 \\
+        Spatial-heavy A    & 23 & 21 & 20.1 & 24 & 36.24 \\
+        Spatial-heavy B    & 24 & 19 & 24.1 & 23 & 36.96 \\
+        Temporal-heavy A   & 21 & 23 & 36.5 & 23 & 34.03 \\
+        Temporal-heavy B   & 19 & 23 & 34.4 & 24 & 31.52 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\todo{Insert representative reconstruction slices for all five configurations at a matched 18-hour budget.}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/quadcubes_large_spatial_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/quadcubes_large_spatial_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for QuadCubes with an enlarged spatial encoder (\texttt{xyz}) relative to the three temporal encoders. The smaller spatial-heavy config ($L=23$, $\log_2 T_\text{spatial}=23$, 20.1\,GB) reaches 36.65\,dB at epoch~500 versus the uniform baseline's 36.47\,dB at 44.8\,GB. The larger config ($L=24$, $\log_2 T=24$, 24.1\,GB) reaches 37.86\,dB.}
     \label{fig:spatial_heavy_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/quadcubes_large_spatial_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/quadcubes_large_spatial_time_psnr.png}
     \end{adjustwidth}
-    \caption{PSNR vs.\ wall-clock time for spatial-heavy QuadCubes configurations. At 18\,h the smaller spatial-heavy config achieves PSNR 36.60\,dB, SSIM 0.920, MAE 2.3, versus the uniform baseline's 35.89\,dB, SSIM 0.912, MAE 2.5, using less than half the VRAM (20.1\,GB vs 44.8\,GB).}
+    \caption{PSNR vs.\ wall-clock time for spatial-heavy QuadCubes configurations. At 18\,h the larger spatial-heavy config (24.1\,GB) achieves 36.96\,dB and the smaller (20.1\,GB) achieves 36.24\,dB, both exceeding the uniform baseline (44.8\,GB) while using less than half the VRAM.}
     \label{fig:spatial_heavy_time}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/quadcubes_large_temporal_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/quadcubes_large_temporal_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for QuadCubes with enlarged temporal encoders. Despite consuming 34--37\,GB VRAM, temporal-heavy configurations plateau well below the uniform baseline. At epoch~500 the larger temporal-heavy config (36.5\,GB) reaches 34.79\,dB versus the baseline's 36.47\,dB at 44.8\,GB; the smaller (34.4\,GB) only 31.77\,dB.}
     \label{fig:temporal_heavy_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/quadcubes_large_temporal_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/quadcubes_large_temporal_time_psnr.png}
     \end{adjustwidth}
-    \caption{PSNR vs.\ wall-clock time for temporal-heavy QuadCubes configurations. At 18\,h the configs reach 34.46\,dB (SSIM 0.876, MAE 3.0, 36.5\,GB) and 31.68\,dB (SSIM 0.785, MAE 4.3, 34.4\,GB) respectively, both substantially below the 35.89\,dB baseline despite comparable VRAM budgets.}
+    \caption{PSNR vs.\ wall-clock time for temporal-heavy QuadCubes configurations. At 18\,h the larger temporal-heavy config (36.5\,GB) reaches 34.03\,dB and the smaller (34.4\,GB) reaches 31.52\,dB, both substantially below the baseline despite comparable VRAM budgets.}
     \label{fig:temporal_heavy_time}
 \end{figure}
 
-The results confirm the asymmetry hypothesis. The smaller spatial-heavy configuration (20.1\,GB) outperforms the uniform baseline (44.8\,GB) on all three metrics at 18\,h, with PSNR 36.60 vs 35.89\,dB ($+0.71$\,dB), SSIM 0.920 vs 0.912, and MAE 2.3 vs 2.5, while using less than half the VRAM. Enlarging the spatial encoder further (24.1\,GB) raises PSNR to 37.53\,dB ($+1.65$\,dB) at 18\,h, with SSIM 0.934 and MAE 2.1. Both spatial-heavy variants reach their gains within the 18-hour budget and converge faster per epoch than the baseline, because the reduced temporal encoder size lowers the per-step memory footprint and allows larger effective batch sizes.
+The results confirm the asymmetry hypothesis. At 18\,h the smaller spatial-heavy configuration (20.1\,GB) achieves 36.24\,dB and the larger (24.1\,GB) achieves 36.96\,dB, both exceeding the baseline while using less than half the VRAM. Both spatial-heavy variants converge faster per epoch than the baseline because the reduced temporal encoder size lowers the per-step memory footprint and allows larger effective batch sizes.
 
-Temporal-heavy configurations tell the opposite story across both the epoch and the time plots. Despite consuming 34--37\,GB, the two temporal-heavy variants plateau well below the uniform baseline and show no sign of closing the gap with additional training. The epoch curves diverge early and maintain a stable offset, ruling out the possibility that the temporal-heavy models simply need more time. The quality deficit is structural. Additional hashmap capacity in the temporal encoders cannot represent spatial information the 2D temporal planes do not encode, and the MLP cannot recover spatial precision that the encoders never captured. Hashmap capacity allocated to the temporal encoders returns less quality per byte than the same capacity allocated to the spatial encoder, and increasing temporal capacity beyond the baseline allocation reduces reconstruction quality.
+Temporal-heavy configurations tell the opposite story across both the epoch and the time plots. Despite consuming 34--37\,GB, the two temporal-heavy variants plateau well below the uniform baseline and show no sign of closing the gap with additional training. At 18\,h the larger temporal-heavy config (36.5\,GB) reaches only 34.03\,dB and the smaller (34.4\,GB) reaches 31.52\,dB. The epoch curves diverge early and maintain a stable offset, ruling out the possibility that the temporal-heavy models simply need more time. The quality deficit is structural. Additional hashmap capacity in the temporal encoders cannot represent spatial information the 2D temporal planes do not encode, and the MLP cannot recover spatial precision that the encoders never captured. Hashmap capacity allocated to the temporal encoders returns less quality per byte than the same capacity allocated to the spatial encoder, and increasing temporal capacity beyond the baseline allocation reduces reconstruction quality.
 
-\todo{Insert PSNR/SSIM/MAE summary table for all five configurations at 18 hours.}
 
 \subsection{CombinedCubes}
 \label{subsec:combinedcubes}
@@ -965,7 +963,7 @@ This design separates the representation of the static pore geometry from the re
 
 The practical consequence is a memory reduction of approximately 67\%. Three 2D encoders at $\log_2 T = 20$ with $L = 16$ and $F = 4$ occupy approximately 384\,MB total, compared to 3.9\,GB for three 3D encoders at $\log_2 T = 23$ with $L = 23$ and $F = 4$. Adding the spatial encoder at approximately 1.3\,GB gives a total hash table footprint of approximately 1.7\,GB for CombinedCubes versus 5.2\,GB for the baseline QuadCubes.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
@@ -982,28 +980,28 @@ The practical consequence is a memory reduction of approximately 67\%. Three 2D 
     \label{fig:combinedcubes_reconstruction}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{0cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{cc_qc_comp.png}
+    \includegraphics[width=1.1\textwidth]{cc_qc_comp.png}
     \end{adjustwidth}
     \caption{PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.}
     \label{fig:combinedcubes_quality}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/combinedcube_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/combinedcube_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for CombinedCubes configurations with varying encoder settings. The best-performing config (\texttt{24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). A memory-efficient config (\texttt{22\_4\_22\_6\_128}, 8.3\,GB) already matches the baseline epoch-500 PSNR.}
     \label{fig:combinedcubes_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/combinedcube_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/combinedcube_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for CombinedCubes configurations. At 24\,h the best two configs reach 37.28\,dB (\texttt{18\_4\_24\_4\_128}, 18.3\,GB) and 37.18\,dB (\texttt{24\_4\_24\_6\_128}, 24.3\,GB), both exceeding the QuadCubes baseline's 35.89\,dB. The memory-efficient \texttt{22\_4\_22\_6\_128} (8.3\,GB) achieves 36.24\,dB at 24\,h, approaching the baseline at one fifth of the VRAM.}
     \label{fig:combinedcubes_time}
@@ -1011,7 +1009,7 @@ The practical consequence is a memory reduction of approximately 67\%. Three 2D 
 
 Figures~\ref{fig:combinedcubes_reconstruction} and~\ref{fig:combinedcubes_quality} show the initial 150-epoch comparison. CombinedCubes achieves higher PSNR and lower MAE than QuadCubes at that checkpoint, with QuadCubes retaining a marginal SSIM advantage. Over the full training run (Figures~\ref{fig:combinedcubes_epoch} and \ref{fig:combinedcubes_time}), the advantage deepens. At epoch~500 the best CombinedCubes configuration (\texttt{24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB PSNR, SSIM 0.945, and MAE 1.8, compared to the QuadCubes baseline's 36.47\,dB, SSIM 0.921, and MAE 2.4. At the 24-hour wall-clock mark, \texttt{18\_4\_24\_4\_128} (18.3\,GB) achieves 37.28\,dB PSNR, SSIM 0.926, and MAE 2.1, a gain of $+1.39$\,dB over the baseline at 59\% less VRAM. Even a memory-efficient configuration (\texttt{22\_4\_22\_6\_128}, 8.3\,GB) reaches 36.24\,dB PSNR at 24\,h, approaching baseline quality at one fifth of the VRAM.
 
-A consistent observation across CombinedCubes configurations is that deeper decoders (6 hidden layers rather than 4) produce more stable training curves and slightly higher final PSNR. This is not observed within QuadCubes, where decoder depth has negligible effect. The explanation follows from the architectural difference. QuadCubes overlaps all four encoders pairwise, meaning every coordinate interaction is represented redundantly across multiple encoders. CombinedCubes separates the spatial and temporal encoders more cleanly, so the MLP receives less redundant information and benefits from slightly more decoding capacity to reconstruct the final attenuation value. This additional capacity requirement is modest (6 versus 4 hidden layers), confirming that the architectural separation does not fundamentally burden the decoder.
+Across CombinedCubes configurations, decoder depth has a modest and inconsistent effect. The best-performing configuration at the 24-hour mark uses 4 hidden layers, while the best epoch-500 result comes from a 6-layer configuration. This is in contrast to QuadCubes, where decoder depth has negligible effect on any metric. The difference is plausible: CombinedCubes separates the spatial and temporal encoders more cleanly than QuadCubes, so the MLP receives less redundant information and may occasionally benefit from slightly more capacity to integrate it. However, 4 hidden layers are sufficient for the strongest results in practice, and increasing to 6 does not reliably improve performance.
 
 \subsubsection{CombinedCubes with K-Planes Products}
 \label{subsubsec:combinedcubes_kplanes}
@@ -1040,11 +1038,7 @@ The total input dimension increases from $4D$ to $7D$, a 75\% increase in MLP in
 \subsection{\MixedCubes}
 \label{subsec:mixedcubes}
 
-\MixedCubes{} extends CombinedCubes by replacing the three 2D hash-grid temporal encoders with fully dense 2D grids. For 2D encoders the collision-free table size is approximately 4\,MB per level at $1024 \times 1024$ resolution with $F = 4$, which is entirely practical. A dense grid stores one feature vector per grid vertex at every level using the TCNN \texttt{Dense} grid type, with no hash function involved. The grid resolution at level $\ell$ is $R_\text{base} \cdot s^{\ell-1}$ for base resolution $R_\text{base}$ and scale factor $s$. Gradient updates flow directly to the responsible feature vector, completely eliminating hash bucket collisions and the associated gradient interference.
-
-The CombinedCubes temporal encoders are already collision-free at $\log_2 T = 20$, so \MixedCubes{} does not reduce the collision rate further in the strict sense. The benefit of the dense grid is qualitative. The correspondence between spatial coordinates and stored feature vectors is now exact and guaranteed by construction rather than probabilistic. In principle this allows the encoder to represent fine temporal detail with maximal fidelity and without any risk of interference, at the cost of a fixed and larger memory footprint than the hashed variant (the dense grid cannot be downsized by reducing a single parameter the way $\log_2 T$ can).
-
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
@@ -1066,21 +1060,25 @@ The CombinedCubes temporal encoders are already collision-free at $\log_2 T = 20
     \label{fig:mixedcubes_quality}
 \end{figure}
 
+\MixedCubes{} extends CombinedCubes by replacing the three 2D hash-grid temporal encoders with fully dense 2D grids. For 2D encoders the collision-free table size is approximately 4\,MB per level at $1024 \times 1024$ resolution with $F = 4$, which is entirely practical. A dense grid stores one feature vector per grid vertex at every level using the TCNN \texttt{Dense} grid type, with no hash function involved. The grid resolution at level $\ell$ is $R_\text{base} \cdot s^{\ell-1}$ for base resolution $R_\text{base}$ and scale factor $s$. Gradient updates flow directly to the responsible feature vector, completely eliminating hash bucket collisions and the associated gradient interference.
+
+The CombinedCubes temporal encoders are already collision-free at $\log_2 T = 20$, so \MixedCubes{} does not reduce the collision rate further in the strict sense. The benefit of the dense grid is qualitative. The correspondence between spatial coordinates and stored feature vectors is now exact and guaranteed by construction rather than probabilistic. In principle this allows the encoder to represent fine temporal detail with maximal fidelity and without any risk of interference, at the cost of a fixed and larger memory footprint than the hashed variant (the dense grid cannot be downsized by reducing a single parameter the way $\log_2 T$ can).
+
 The dense temporal encoders in the baseline \MixedCubes{} configuration use a base resolution of $R_\text{base} = 16$, a per-level scale factor of $s = 1.5$, and $F = 4$ features per level. The resolution at level $\ell$ is $N_\ell = \lfloor 16 \times 1.5^{\ell-1} \rfloor$, reaching approximately $615 \times 615$ at level 10. All grid vertices are stored explicitly, giving approximately 680\,000 entries per encoder. At float16 precision this is approximately 5.4\,MB per encoder and 16\,MB for the three temporal encoders combined, compared to approximately 25\,MB for three hashed 2D encoders at $\log_2 T = 20$. The dense grid therefore uses less memory than the hashed alternative at this resolution while guaranteeing a direct coordinate-to-feature mapping. The number of levels and the per-level scale factor are the primary capacity parameters for the temporal encoders and were varied across the \MixedCubes{} configurations shown in the figures below.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/mixedcubes_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/mixedcubes_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for \MixedCubes{} configurations. The best-performing config (\texttt{24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. A lightweight config (\texttt{18\_4\_22\_4\_64}, 5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM.}
     \label{fig:mixedcubes_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/mixedcubes_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/mixedcubes_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for \MixedCubes{} configurations. At 24\,h the best config (\texttt{24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt{18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB, within 0.08\,dB of the baseline at roughly one ninth of the VRAM.}
     \label{fig:mixedcubes_time}
@@ -1088,7 +1086,7 @@ The dense temporal encoders in the baseline \MixedCubes{} configuration use a ba
 
 Figures~\ref{fig:mixedcubes_epoch} and \ref{fig:mixedcubes_time} show that \MixedCubes{} consistently outperforms the QuadCubes baseline. At the 24-hour mark the best configuration (\texttt{24\_4\_24\_4\_128}, 22.1\,GB) achieves PSNR 37.73\,dB, SSIM 0.936, and MAE 2.0, a gain of $+1.84$\,dB in PSNR, $+0.024$ in SSIM, and $-0.5$ in MAE over the baseline (35.89\,dB, SSIM 0.912, MAE 2.5) at half the VRAM. Notably, \texttt{18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB at 21\,h, within 0.08\,dB of the baseline while using only 11\% of the baseline's 44.8\,GB. At epoch~500, \texttt{24\_4\_24\_4\_128} reaches 38.25\,dB with SSIM 0.940 and MAE 1.9. The \texttt{23\_4\_23\_4\_128} configuration (13.1\,GB) achieves 36.88\,dB PSNR and SSIM 0.900 at 23\,h, approximately $+1.0$\,dB above the baseline at less than one third of its VRAM.
 
-As with CombinedCubes, deeper decoders (6 hidden layers) provide more stable convergence in \MixedCubes{}, and this effect is more pronounced than in QuadCubes. The structural reason is the same. With the spatial and temporal components separated into distinct encoders that share no feature dimensions, the MLP receives clearly partitioned rather than redundantly overlapping information, and benefits from modest additional capacity to integrate it.
+As with CombinedCubes, the effect of decoder depth in \MixedCubes{} is modest and configuration-dependent. The best-performing \MixedCubes{} configurations use 4 hidden layers, and increasing to 6 does not consistently improve results. The same reasoning applies: the cleaner separation between spatial and temporal encoders means the MLP receives less redundant information than in QuadCubes, but 4 hidden layers are sufficient to integrate it effectively.
 
 \subsubsection{\MixedCubes{} with K-Planes Triple Product}
 \label{subsubsec:mixedcubes_kplanes}
@@ -1115,7 +1113,7 @@ where $\mathbf{f}_{xt} \odot \mathbf{f}_{yt} \odot \mathbf{f}_{zt}$ is the eleme
 
 The non-uniform sizing experiments confirm the spatial-temporal asymmetry hypothesis. Redirecting hashmap capacity from temporal to spatial encoders improves quality on all three metrics at substantially lower VRAM. Temporal-heavy configurations, by contrast, perform well below the baseline despite comparable memory budgets. Increasing temporal encoder capacity within the QuadCubes architecture returns far less quality per byte than the same increase applied to the spatial encoder.
 
-CombinedCubes takes this finding to its structural conclusion. By replacing the three temporal 3D encoders with collision-free 2D encoders, it simultaneously reduces memory by 67\%, reduces training time by approximately 30\%, and achieves better reconstruction quality across all metrics. The best CombinedCubes configuration at 24\,h ($+1.39$\,dB, 18.3\,GB) outperforms the baseline at less than half the VRAM. \MixedCubes{} takes this a step further by replacing the hashed 2D temporal encoders with fully dense grids, guaranteeing an exact coordinate-to-feature correspondence and yielding the best 24-hour result across all architectures ($+1.84$\,dB, 22.1\,GB). Both architectures benefit from slightly deeper decoders (6 hidden layers) compared to QuadCubes, reflecting the fact that the cleaner architectural separation between spatial and temporal components places more decoding responsibility on the MLP, a modest and well-motivated cost.
+CombinedCubes takes this finding to its structural conclusion. By replacing the three temporal 3D encoders with collision-free 2D encoders, it simultaneously reduces memory by 67\%, reduces training time by approximately 30\%, and achieves better reconstruction quality across all metrics. The best CombinedCubes configuration at 24\,h ($+1.39$\,dB, 18.3\,GB) outperforms the baseline at less than half the VRAM. \MixedCubes{} takes this a step further by replacing the hashed 2D temporal encoders with fully dense grids, guaranteeing an exact coordinate-to-feature correspondence and yielding the best 24-hour result across all architectures ($+1.84$\,dB, 22.1\,GB). Decoder depth has a modest and configuration-dependent effect in both architectures. The best results use 4 hidden layers, though some 6-layer configurations achieve higher quality at epoch convergence. Four layers are sufficient for the strongest 24-hour results, and the architectural separation does not impose a fundamental additional burden on the decoder.
 
 The K-Planes product variants augment both architectures by passing element-wise feature products to the MLP alongside the raw encoder outputs, restoring some of the multi-way coordinate selectivity that separated encoders do not provide directly. For CombinedCubes, three pairwise spatial-temporal products are feasible because all encoders share the same feature dimension. For \MixedCubes{}, the triple temporal product is used instead, providing strong 4D selectivity within the temporal feature space without requiring dimension compatibility between the dense temporal and hash spatial encoders.
 
@@ -1128,7 +1126,7 @@ The third design principle follows from this. The encoder architecture should re
 
 Chapter~\ref{chap:encoder_design} established three design principles for the NeCT encoder, each derived from the interplay between a capacity parameter and its corresponding architectural extreme. The hashmap size governs precision per parameter through collision load, and SingleCube demonstrates the catastrophic case. The number of levels governs precision per training hour through frequency coverage and per-step cost, and SexCubes demonstrates the failure mode of sacrificing coordinate coupling to achieve collision-free low-dimensional encoders. The spatial-temporal asymmetry means the optimal encoder treats the spatial and temporal components differently, as confirmed by the non-uniform sizing experiments, the CombinedCubes results, and the \MixedCubes{} results.
 
-The practical question that follows is which specific encoder should be recommended for practical 4D-CT reconstruction, given the full range of configurations and architectures explored. The best configuration found for each design philosophy is placed in a direct head-to-head comparison against the original NeCT baseline.
+The practical question that follows is which configuration should be recommended for practical 4D-CT reconstruction. Four configurations spanning the key design choices explored in Chapter~\ref{chap:encoder_design} are compared against each other and against the original NeCT baseline on a common footing.
 
 \section{Candidate Configurations}
 \label{sec:comp_candidates}
@@ -1137,7 +1135,8 @@ Three configurations are compared.
 
 \begin{itemize}
     \item \textbf{NeCT baseline.} The original QuadCubes configuration from \citet{friis2025nect} with uniform encoders at $L = 23$, $\log_2 T = 23$, $F = 4$. This is the reference point, representing the largest configuration the original paper considered.
-    \item \textbf{Optimal QuadCubes.} The $(L, \log_2 T, F)$ configuration from \cref{sec:levels_and_coupling} that achieves the highest PSNR at a 14-hour training budget with uniform capacity allocation. \todo{Fill in specific values once sweep results are finalised.}
+    \item \textbf{Spatial-heavy QuadCubes.} Configuration \texttt{24\_4\_24\_4\_128} from \cref{subsec:nonuniform_sizing}, enlarging the spatial \texttt{xyz} encoder relative to the three temporal encoders. Best at 24\,h: 37.53\,dB PSNR, SSIM 0.934, MAE 2.1, at 24.1\,GB VRAM.
+    \item \textbf{CombinedCubes (best).} Configuration \texttt{18\_4\_24\_4\_128} from \cref{subsec:combinedcubes}: 3D spatial hash encoder with three collision-free 2D hash temporal encoders (18.3\,GB). Best at 24\,h: 37.28\,dB PSNR, SSIM 0.926, MAE 2.1.
     \item \textbf{\MixedCubes{} (best).} Configuration \texttt{24\_4\_24\_4\_128} from \cref{subsec:mixedcubes}, using a 3D spatial hash encoder and three fully dense 2D temporal encoders at 22.1\,GB VRAM. This is the highest-scoring architecture at the 24-hour mark (37.73\,dB PSNR, SSIM 0.936, MAE 2.0) and at epoch~500 (38.25\,dB PSNR, SSIM 0.940, MAE 1.9).
 \end{itemize}
 
@@ -1149,41 +1148,39 @@ Table~\ref{tab:full_comparison} summarises reconstruction quality, peak GPU memo
 \begin{table}[h]
     \begin{adjustwidth}{-2cm}{0cm}
     \centering
-    \caption{Full comparison of the NeCT baseline, optimal QuadCubes, and best \MixedCubes{} configuration at equalised training budgets. All results on the Bentheimer dataset. \todo{Should use more than one dataset.}}
+    \caption{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset. \todo{Should use more than one dataset.}}
     \label{tab:full_comparison}
     \begin{tabular}{llllll}
         \toprule
-        Configuration & PSNR (dB) & SSIM & MAE & Memory (GB) & Time (h) \\
+        Configuration & PSNR (dB) & SSIM & MAE & VRAM (GB) & Time (h) \\
         \midrule
-        NeCT baseline (QuadCubes)   & \todo{} & \todo{} & \todo{} & 44.8 & 14 \\
-        Optimal QuadCubes           & \todo{} & \todo{} & \todo{} & \todo{} & 14 \\
-        \MixedCubes{} \texttt{24\_4\_24\_4\_128} & \todo{} & \todo{} & \todo{} & 22.1 & 14 \\
+        NeCT baseline (QuadCubes)                   & 35.89 & 0.912 & 2.5 & 44.8 & 24 \\
+        Spatial-heavy QuadCubes \texttt{24\_4\_24\_4\_128}  & 37.53 & 0.934 & 2.1 & 24.1 & 24 \\
+        CombinedCubes \texttt{18\_4\_24\_4\_128}          & 37.28 & 0.926 & 2.1 & 18.3 & 24 \\
+        \MixedCubes{} \texttt{24\_4\_24\_4\_128}          & 37.73 & 0.936 & 2.0 & 22.1 & 24 \\
         \midrule
-        NeCT baseline (QuadCubes)   & 35.89 & 0.912 & 2.5 & 44.8 & 24 \\
-        Optimal QuadCubes           & \todo{} & \todo{} & \todo{} & \todo{} & 24 \\
-        \MixedCubes{} \texttt{24\_4\_24\_4\_128} & 37.73 & 0.936 & 2.0 & 22.1 & 24 \\
+        NeCT baseline (QuadCubes)                   & 36.47 & 0.921 & 2.4 & 44.8 & ep.\,500 \\
+        Spatial-heavy QuadCubes \texttt{24\_4\_24\_4\_128}  & 37.86 & 0.934 & 2.1 & 24.1 & ep.\,500 \\
+        CombinedCubes \texttt{24\_4\_24\_6\_128}          & 38.88 & 0.945 & 1.8 & 24.3 & ep.\,500 \\
+        \MixedCubes{} \texttt{24\_4\_24\_4\_128}          & 38.25 & 0.940 & 1.9 & 22.1 & ep.\,500 \\
         \bottomrule
     \end{tabular}
     \end{adjustwidth}
 \end{table}
 
-Figure~\ref{fig:full_pareto} plots all three configurations on a quality-versus-memory plane and a quality-versus-training-time plane, with the NeCT baseline marked as the reference point in both. \todo{Insert Pareto figures. Mark the hardware memory limits at 24\,GB, 40\,GB, and 80\,GB on the memory axis.}
-
-Figure~\ref{fig:full_reconstruction_comparison} shows representative reconstruction slices from all three configurations at a matched 14-hour budget. \todo{Insert reconstruction comparison figure. Include slices at the first, middle, and last timestep for each configuration.}
-
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/quadcubes_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/quadcubes_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt{23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt{22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt{21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.}
     \label{fig:quadcubes_all_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/quadcubes_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/quadcubes_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for QuadCubes configurations. At 24\,h the baseline achieves 35.89\,dB (SSIM 0.912, MAE 2.5, 44.8\,GB); the mid-size config achieves 35.87\,dB (SSIM 0.909, MAE 2.6, 23.1\,GB), essentially identical quality at half the VRAM.}
     \label{fig:quadcubes_all_time}
@@ -1191,19 +1188,19 @@ Figure~\ref{fig:full_reconstruction_comparison} shows representative reconstruct
 
 The QuadCubes results establish an important reference point. In the epoch plot, the three configurations separate cleanly by hashmap size, with the baseline (44.8\,GB) reaching 36.47\,dB, the mid-size configuration (23.1\,GB) reaching 36.08\,dB, and the smallest (11.9\,GB) reaching 35.04\,dB. The quality gap between baseline and mid-size is only 0.39\,dB despite a near-doubling of VRAM. In the wall-clock time plot this gap narrows further. The mid-size configuration reaches 35.87\,dB at 24\,h versus the baseline's 35.89\,dB, essentially indistinguishable quality at half the memory. This confirms the finding from the hashmap sweep that the baseline is operating past the point of diminishing returns, as the additional parameters do not return proportional quality gains. Within the QuadCubes family, there is therefore no reason to use the full-size baseline configuration unless memory is unconstrained and convergence time is the only concern.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/combined_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/combined_epoch_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ epoch for all architectures. At epoch~500 the top configurations are: CombinedCubes \texttt{24\_4\_24\_6\_128} 38.88\,dB (24.3\,GB), \MixedCubes{} \texttt{24\_4\_24\_4\_128} 38.25\,dB (22.1\,GB), spatial-heavy QuadCubes 37.86\,dB (24.1\,GB), and the uniform QuadCubes baseline 36.47\,dB (44.8\,GB). Temporal-heavy QuadCubes lag well behind at 34.79 and 31.77\,dB despite comparable VRAM.}
     \label{fig:combined_epoch}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/combined_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/combined_time_psnr.png}
     \end{adjustwidth}
     \caption{PSNR vs.\ wall-clock time for all architectures. At 24\,h the ranking is as follows. \MixedCubes{} \texttt{24\_4\_24\_4\_128} 37.73\,dB (22.1\,GB), spatial-heavy QuadCubes \texttt{24\_4\_24\_4\_128} 37.53\,dB (24.1\,GB), CombinedCubes \texttt{18\_4\_24\_4\_128} 37.28\,dB (18.3\,GB), and the QuadCubes baseline 35.89\,dB (44.8\,GB). CombinedCubes and \MixedCubes{} overtake the baseline early in training and maintain the lead throughout.}
     \label{fig:combined_time}
@@ -1213,10 +1210,21 @@ The cross-architecture epoch and time plots show the full picture. At epoch~500,
 
 In the wall-clock time plot, \MixedCubes{} and CombinedCubes overtake the QuadCubes baseline early in training and maintain their lead throughout. This early crossover is explained by the lower per-epoch cost of the split-encoder architectures. With smaller temporal encoders, each training step is faster, so more epochs are completed within any given wall-clock budget. The result is that the quality advantage of the split-encoder design compounds over time rather than being limited to final-epoch performance. At 24\,h the ranking is as follows. \MixedCubes{} leads at 37.73\,dB, followed by spatial-heavy QuadCubes at 37.53\,dB, CombinedCubes at 37.28\,dB, and the uniform baseline at 35.89\,dB. All three alternatives to the baseline exceed it by more than 1.3\,dB at comparable or lower memory cost.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.3\textwidth]{psnr_arc/vram_efficiency_psnr.png}
+    \includegraphics[width=1.1\textwidth]{psnr_arc/top2_comparison.png}
+    \end{adjustwidth}
+    \caption{PSNR, SSIM, and MAE for the four candidate configurations at the 24-hour mark, shown as grouped bars. The consistent ranking across all three metrics confirms that the quality advantage of the split-encoder architectures over the NeCT baseline is not specific to any single measure.}
+    \label{fig:top2_comparison}
+\end{figure}
+
+Figure~\ref{fig:top2_comparison} confirms that the ranking observed in PSNR holds across all three evaluation metrics. SSIM and MAE tell the same story: \MixedCubes{} and CombinedCubes both improve on the baseline in every metric simultaneously, while the spatial-heavy QuadCubes also outperforms the uniform baseline on all three. The results are therefore not an artefact of PSNR sensitivity to particular types of error.
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-2.5cm}{-2.5cm}
+    \centering
+    \includegraphics[width=1.1\textwidth]{psnr_arc/vram_efficiency_psnr.png}
     \end{adjustwidth}
     \caption{PSNR at approximately 18 hours of training versus peak reserved VRAM for each architecture and configuration tested. Each point is one experimental run; models are colour-coded by architecture family. The Pareto frontier runs through \MixedCubes{} and CombinedCubes configurations, which achieve the highest quality at every memory level. The QuadCubes family spans a wide VRAM range but clusters below the split-encoder frontier. Temporal-heavy QuadCubes configurations (lower left) are dominated by spatial-heavy and split-encoder alternatives at every budget.}
     \label{fig:vram_efficiency}
@@ -1230,26 +1238,32 @@ Figure~\ref{fig:vram_efficiency} places all architectures and configurations on 
 \subsection{What the Three Configurations Represent}
 \label{subsec:comp_disc_interpretation}
 
-The three candidates represent three distinct philosophies rather than arbitrary points on a continuous axis. The NeCT baseline maximises capacity within the QuadCubes structural choice, treating all four encoders equally and making no attempt to exploit the asymmetry between spatial and temporal components. It is the upper bound of the original design paradigm, and the results show it is neither the fastest nor the best. The mid-size uniform QuadCubes configuration achieves essentially identical quality at half the VRAM, and all split-encoder architectures exceed its quality at lower cost.
+The four candidates represent a progression of design decisions rather than arbitrary points on a continuous axis. The NeCT baseline is the upper bound of the original design paradigm: uniform capacity across all four encoders with no attempt to exploit the spatial-temporal asymmetry. The results show it is neither the most memory-efficient nor the highest quality: every other candidate here exceeds its reconstruction quality at lower VRAM.
 
-The optimal QuadCubes configuration stays within the uniform-encoder paradigm but addresses its most wasteful aspect, the combination of extremely high level count and large hashmap that makes each epoch expensive without proportionally improving quality within a practical time budget. Its advantage over the baseline is purely computational. By doing more iterations in the same wall-clock time, it achieves a better result without any change to the underlying architecture.
+Spatial-heavy QuadCubes demonstrates that significant gains are achievable within the QuadCubes architecture simply by reallocating capacity from the temporal encoders to the spatial encoder. At 24\,h it exceeds the baseline by 1.64\,dB PSNR while using only 24.1\,GB versus 44.8\,GB. This improvement requires no change to the architecture, only a change to the hashmap size allocation, making it the most straightforward upgrade path from the original NeCT.
 
-CombinedCubes and \MixedCubes{} address a fundamentally different inefficiency, the misallocation of capacity between spatial and temporal encoders. By exploiting the physics of the reconstruction problem, both achieve a much larger reduction in memory and training time than capacity reduction alone, while exceeding the baseline reconstruction quality. \MixedCubes{} offers an additional precision guarantee through its collision-free dense temporal grids and achieves the highest quality of any architecture tested at the 24-hour mark.
+CombinedCubes goes further by changing the structure of the temporal encoders from 3D hash grids to collision-free 2D hash grids. This reduces memory to 18.3\,GB, smaller than the spatial-heavy QuadCubes, while achieving 37.28\,dB at 24\,h. The architectural separation also speeds up training, allowing the model to complete more epochs within the same wall-clock budget.
+
+\MixedCubes{} replaces the 2D hash temporal encoders with fully dense grids, guaranteeing an exact coordinate-to-feature correspondence. It achieves the highest quality at the 24-hour mark (37.73\,dB) and the highest epoch-500 result among the split-encoder architectures (38.25\,dB), at 22.1\,GB. The best epoch-500 result overall belongs to CombinedCubes \texttt{24\_4\_24\_6\_128} at 38.88\,dB. This configuration uses 6 hidden layers, though the improvement over the 4-layer equivalent is not consistent across all configurations.
 
 \subsection{Hardware-Specific Recommendations}
 \label{subsec:comp_disc_hardware}
 
-\todo{Based on the memory figures in Table~\ref{tab:full_comparison} and the Pareto figure, provide specific recommendations for three hardware tiers:
-\begin{itemize}
-    \item Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090): State which configurations fit within this budget and which does not, and recommend the best option from among those that do.
-    \item Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB): State which additional configurations become available and whether the optimal QuadCubes or CombinedCubes is preferred at this tier.
-    \item High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB): State which configuration is recommended when memory is not the binding constraint, and whether the original NeCT baseline is ever the right choice or whether optimal QuadCubes always dominates it at the same time budget.
-\end{itemize}}
+A notable consequence of the results is that the best-performing CombinedCubes and \MixedCubes{} configurations both fit within 24\,GB of VRAM, which is the capacity of widely available consumer GPUs such as the RTX 3090 and RTX 4090. The original NeCT baseline, at 44.8\,GB, cannot run on any consumer GPU and requires high-end server hardware. The improvements developed in this thesis therefore expand access to NeCT-class 4D-CT reconstruction from a small number of research facilities to a much broader range of hardware.
+
+\paragraph{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}
+The NeCT baseline (44.8\,GB) and spatial-heavy QuadCubes (24.1\,GB) do not fit within this budget. CombinedCubes \texttt{18\_4\_24\_4\_128} (18.3\,GB) and \MixedCubes{} \texttt{24\_4\_24\_4\_128} (22.1\,GB) both fit comfortably. \MixedCubes{} achieves 37.73\,dB PSNR at 24\,h, 1.84\,dB above the baseline, and is the recommended choice at this tier. For users with tighter memory constraints, the lightweight \MixedCubes{} \texttt{18\_4\_22\_4\_64} (5.1\,GB) reaches within 0.08\,dB of the baseline at 11\% of its VRAM, and CombinedCubes \texttt{22\_4\_22\_6\_128} (8.3\,GB) matches the baseline quality at epoch~500 at less than one fifth of its VRAM. These lightweight configurations make NeCT-class reconstruction accessible even on mid-range consumer hardware.
+
+\paragraph{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}
+Spatial-heavy QuadCubes (24.1\,GB) becomes available at this tier, but it produces lower quality than both CombinedCubes and \MixedCubes{} at higher VRAM. The CombinedCubes \texttt{24\_4\_24\_6\_128} configuration (24.3\,GB), which achieves the best epoch-500 result of 38.88\,dB, also fits within this budget. \MixedCubes{} \texttt{24\_4\_24\_4\_128} (22.1\,GB) remains the recommended choice for the 24-hour wall-clock setting. There is no reason to prefer spatial-heavy QuadCubes over the split-encoder alternatives at this tier.
+
+\paragraph{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}
+The original NeCT baseline (44.8\,GB) fits within this budget, but it is never the right choice. At any training time budget, \MixedCubes{} and CombinedCubes achieve higher reconstruction quality at lower VRAM. The baseline's 40-hour training time and 44.8\,GB footprint are unnecessary costs that do not return a quality advantage. On 80\,GB hardware the split-encoder architectures can be run with their largest configurations while leaving substantial headroom, and the training time savings of 30\% or more translate directly into faster reconstruction turnaround.
 
 \subsection{Additivity of the Two Improvements}
 \label{subsec:comp_disc_additivity}
 
-The capacity reduction identified for QuadCubes (optimal level count and hashmap size) and the architectural improvement of CombinedCubes and \MixedCubes{} were developed as separate investigations. The results show that both improvements are substantial independently. Reducing QuadCubes capacity to the mid-size configuration halves VRAM with negligible quality loss, while switching to CombinedCubes or \MixedCubes{} yields both large memory savings and a quality increase of more than 1.5\,dB at the 24-hour mark. Whether the two improvements are fully additive, that is, whether applying further capacity reduction to the split-encoder architectures beyond what was tested here would yield additional gains, remains an open question and a natural direction for future work.
+The capacity reallocation explored within QuadCubes (spatial-heavy sizing) and the architectural changes of CombinedCubes and \MixedCubes{} were developed as separate investigations. The results show that both improvements are substantial independently. Spatial-heavy QuadCubes exceeds the baseline by 1.64\,dB at 24\,h while using 46\% less VRAM. Switching to CombinedCubes or \MixedCubes{} yields further memory savings and quality gains of more than 1.3\,dB over the baseline. Whether the two improvements are fully additive, that is, whether applying further capacity reduction to the split-encoder architectures beyond what was tested here would yield additional gains, remains an open question and a natural direction for future work.
 
 
 % ═════════════════════════════════════════════════════════════════════════════
@@ -1283,7 +1297,7 @@ In continuous rotation mode, sometimes called fly-scan, the sample rotates at a 
 %
 The recorded image is no longer a snapshot at a single angle but the time-integral of the transmitted intensity over the swept interval $[\phi_s,\, \phi_s + \Delta\phi]$. This produces a projection that is geometrically blurred in the angular direction, with the degree of blurring proportional to $\Delta\phi$.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{continous_diagram.png}
     \caption{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).}
@@ -1443,14 +1457,14 @@ The dynamic experiment extends the continuous-scan forward model to full 4D reco
 \subsection{Dataset}
 \label{subsec:cont_dynamic_dataset}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{hourglassandbox.jpg}
     \caption{The hourglass sample next to the enclosure used for mounting in the scanner.}
     \label{fig:hourglass}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{hg_in_ct.jpg}
     \caption{The hourglass mounted in its enclosure inside the micro-CT scanner.}
@@ -1508,7 +1522,7 @@ No voxel-level ground truth is available for the hourglass dataset, because the 
 \subsection{Results}
 \label{subsec:cont_dynamic_results}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
     \centering
     \begin{subfigure}[b]{0.35\textwidth}

@@ -31,7 +31,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from scipy.ndimage import sobel as sobel2d, laplace as laplace2d
+from scipy.ndimage import binary_erosion, sobel as sobel2d, laplace as laplace2d
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 from nect.config import get_cfg
@@ -256,14 +256,25 @@ def main():
         return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
 
     def sharpness_metrics(xy: np.ndarray, xz: np.ndarray, yz: np.ndarray) -> tuple[float, float]:
-        """2-D Sobel sharpness from the three canonical slices (avoids full-volume Sobel)."""
-        def _grad(s):
-            gx = sobel2d(s.astype(np.float32), axis=1)
-            gy = sobel2d(s.astype(np.float32), axis=0)
-            return float(np.mean(np.sqrt(gx ** 2 + gy ** 2)))
+        """2-D Sobel sharpness from the three canonical slices.
 
-        def _lapvar(s):
-            return float(np.var(laplace2d(s.astype(np.float32))))
+        Averages only over interior pixels (eroded foreground) to avoid the large
+        artificial gradient at the hard zero-boundary left by the cylinder mask.
+        """
+        def _interior(s: np.ndarray) -> np.ndarray:
+            return binary_erosion(s > 0, iterations=2)
+
+        def _grad(s: np.ndarray) -> float:
+            s = s.astype(np.float32)
+            gx = sobel2d(s, axis=1)
+            gy = sobel2d(s, axis=0)
+            m = _interior(s)
+            return float(np.mean(np.sqrt(gx ** 2 + gy ** 2)[m])) if m.any() else 0.0
+
+        def _lapvar(s: np.ndarray) -> float:
+            s = s.astype(np.float32)
+            m = _interior(s)
+            return float(np.var(laplace2d(s)[m])) if m.any() else 0.0
 
         mean_grad = (_grad(xy) + _grad(xz) + _grad(yz)) / 3
         lap_var   = (_lapvar(xy) + _lapvar(xz) + _lapvar(yz)) / 3
