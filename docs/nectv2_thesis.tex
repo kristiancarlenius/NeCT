@@ -1313,7 +1313,6 @@ For dynamic samples the comparison is more nuanced. The temporal resolution of a
 
 The trade-off is that a reconstruction algorithm which treats continuous-scan projections as single-angle step-and-shoot projections will have a systematic error in its forward model. The magnitude of this error depends on $\Delta\phi$. For small angular sweeps it is negligible, but for large sweeps the mismatch between the assumed single-ray geometry and the true integrated geometry introduces visible blurring artefacts in the reconstruction. Correctly accounting for continuous rotation therefore requires a modification to the Beer--Lambert forward model.
 
-\todo{Add a brief quantitative discussion of the angular blur magnitude and when it becomes practically significant, e.g.\ at what $\Delta\phi$ one expects to see visible artefacts in FDK or NeCT reconstructions without the corrected forward model.}
 
 \subsection{Continuous-Scan Forward Model}
 \label{subsec:cont_forward_theory}
@@ -1439,13 +1438,7 @@ Reconstruction quality is measured against the step-and-shoot ground truth using
 \subsection{Results}
 \label{subsec:cont_static_results}
 
-\todo{Insert figure showing representative 2D reconstruction slices for each projection count at $K = 1$ (no correction) and at the highest tested $K$, side by side with the step-and-shoot ground truth. This should clearly illustrate the angular blurring at $K = 1$ and its reduction with increasing $K$.}
-
-\todo{Insert figure showing PSNR and SSIM as a function of $K$ for each of the three projection counts (1400, 360, 100). The expected pattern is: for 1400 projections the curves are flat (blurring negligible at $0.26\degree$); for 360 projections there is a clear improvement up to some saturation point; for 100 projections the improvement is largest and saturation occurs at a higher $K$.}
-
-\todo{Insert figure or table showing cross-configuration quality at matched effective sub-step sizes, e.g.\ comparing 360-projection $K=4$ ($0.25\degree$) against 1400-projection $K=1$ ($0.26\degree$), to assess whether the $K$-step approximation is equivalent to a finer native angular sampling.}
-
-\todo{Report training time per epoch as a function of $K$ for a representative projection count, to confirm the expected linear scaling and to give a practical sense of the cost of increasing $K$.}
+\todo{Insert static experiment results: reconstruction slices at $K=1$ and highest $K$ versus ground truth for each projection count; PSNR and SSIM vs.\ $K$ curves for each projection count; matched-pair comparison table at equivalent effective sub-step angles across configurations.}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Experiments: Dynamic Hourglass}
@@ -1546,13 +1539,7 @@ No voxel-level ground truth is available for the hourglass dataset, because the 
 
 Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass at three time points from dataset 1, demonstrating that the continuous-scan forward model successfully captures the dynamic process of sand redistribution between the two chambers.
 
-\todo{Insert figure showing reconstruction slices from datasets 1, 2, and 3 (same frame rate, increasing $\Delta\phi$) at $K=1$ and at the highest $K$, to illustrate how angular blur severity and the benefit of the correction both increase with $\Delta\phi$.}
-
-\todo{Insert figure showing reconstruction quality (PSNR or visual quality score) as a function of $K$ for each of the six datasets, with the three $\Delta\phi$ values shown in separate panels or with separate curves. The expected pattern is that improvement from increasing $K$ is larger for datasets with larger $\Delta\phi$, and that quality saturates at a $K$ that depends on $\Delta\phi$.}
-
-\todo{Insert comparison across matched sub-step configurations from Table~\ref{tab:dynamic_cont_configs}, analogous to the static matched-pair analysis, to test whether the approximation fully compensates for larger raw angular steps in the dynamic case.}
-
-\todo{Compare datasets with the same $\Delta\phi$ but different frame rates (e.g.\ datasets 1 and 4) to assess the effect of temporal resolution independently of angular blur. Report whether higher temporal resolution (4\,fps) yields visibly sharper tracking of the sand front.}
+\todo{Insert dynamic experiment results: reconstruction slices at $K=1$ and highest $K$ across the three $\Delta\phi$ values (same frame rate) to show how correction benefit scales with angular step; quality curves as a function of $K$ for all six datasets; matched-pair comparisons from Table~\ref{tab:dynamic_cont_configs}; and a comparison of the two frame rates at matched $\Delta\phi$ to isolate the effect of temporal resolution on sand-front tracking.}
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -1563,29 +1550,31 @@ Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass a
 \subsection{Validity of the Forward Model}
 \label{subsec:cont_disc_model}
 
-The static experiment provides a controlled test of the $K$-step approximation in isolation from the complications of dynamic reconstruction. \todo{Summarise the main finding from the static experiment: at what $\Delta\phi$ does the $K=1$ model produce visible artefacts, and how quickly does quality recover as $K$ increases? State whether quality at large $K$ converges to the step-and-shoot baseline, and whether the matched-pair comparisons confirm that the approximation is equivalent to a finer native angular sampling.}
+The static experiment is designed to isolate the effect of the $K$-step approximation from the complications of dynamic reconstruction. Because the sample does not change, the step-and-shoot ground truth is a fixed reference and any quality difference between $K = 1$ and higher $K$ can be attributed directly to the forward model correction. The key questions are how much the $K = 1$ model degrades relative to ground truth for each angular step size, how quickly quality recovers as $K$ increases, and whether the matched-pair design confirms that a corrected coarser acquisition is interchangeable with a finer native acquisition.
 
-The approximation error of the midpoint rule scales as $\mathcal{O}((\Delta\phi/K)^2)$ for smooth integrands, meaning that doubling $K$ should reduce the approximation error by a factor of four. \todo{State whether this theoretical scaling is observed empirically in the static experiment, and at what $K$ the approximation error becomes negligible relative to other sources of reconstruction error such as photon noise and network expressivity.}
+The approximation error of the midpoint rule scales as $\mathcal{O}((\Delta\phi/K)^2)$ for smooth integrands, meaning that the error shrinks by a factor of four each time $K$ is doubled. In practice the relevant threshold is not where the approximation error reaches zero but where it becomes negligible relative to other sources of reconstruction error such as photon noise, limited network expressivity, and the finite angular sampling of the discrete projections themselves. The static results will establish where this threshold lies for the projection counts and angular steps used here.
 
-\subsection{Benefits and Costs for Dynamic Imaging}
+\todo{Insert static experiment results and analysis here once training is complete.}
+
+\subsection{Continuous Scanning for Dynamic Imaging}
 \label{subsec:cont_disc_dynamic}
 
-The dynamic experiment shows that the continuous-scan forward model can successfully reconstruct time-resolved 4D data from fly-scan acquisitions. \todo{Summarise the key finding from the dynamic experiment: does the corrected forward model ($K > 1$) produce a measurable improvement in reconstruction quality over the uncorrected model ($K = 1$), and is this improvement larger for datasets with larger $\Delta\phi$? State whether the matched sub-step comparisons from Table~\ref{tab:dynamic_cont_configs} confirm that the correction fully compensates for the coarser angular sampling.}
+The central motivation for continuous scanning in dynamic experiments is not acquisition speed but temporal continuity. A step-and-shoot scanner must decelerate and hold the sample stationary for every projection, introducing mechanical delays that set a floor on the time between projections. In continuous rotation this floor is removed: the detector collects data throughout the rotation and the time between projections is limited only by detector readout speed. For processes such as sand flow in the hourglass, which evolves continuously during the scan, this matters because the sample does not pause while the motor stops.
 
-The primary practical benefit of continuous scanning for dynamic experiments is the elimination of motor overhead between projections, which reduces $\Delta t$ and thereby improves temporal resolution. \todo{Quantify this benefit for the hourglass datasets by comparing the observed temporal resolution, i.e.\ the smallest interval over which a change in the sand level is detectable, between the continuous-scan reconstructions and what would be expected from a step-and-shoot acquisition with the same total scan time.}
+The cost of continuous acquisition is that each projection integrates over a finite angular interval rather than a single angle, introducing geometric blur that grows with $\Delta\phi$. The $K$-step forward model corrects for this by approximating the angular integral, at the cost of increasing the number of network evaluations per projection by a factor of $K$. Since training time scales linearly with $K$, this is a direct trade-off between reconstruction accuracy and reconstruction speed. The results will establish what value of $K$ is sufficient for each angular step size, and whether the matched-pair design confirms that the corrected model fully compensates for the coarser native sampling.
 
-The cost is that each projection is individually less geometrically precise, and the $K$-step forward pass increases training time by a factor of $K$. Since training time scales linearly with $K$, choosing the smallest value of $K$ that is adequate for a given $\Delta\phi$ is important for keeping reconstruction times practical. \todo{Provide a recommendation for $K$ as a function of $\Delta\phi$, based on the saturation behaviour observed in both the static and dynamic experiments. For example: $K = 1$ suffices for $\Delta\phi < 1\degree$, $K = 3$ for $1\degree \leq \Delta\phi < 5\degree$, and so on.}
+The frame-rate comparison between datasets with the same $\Delta\phi$ but different acquisition speeds tests a separate question: whether higher temporal resolution yields visibly improved tracking of the sand front, independent of the angular blur correction.
 
-\subsection{Limitations and Extensions}
+\todo{Insert dynamic experiment results and analysis here once training is complete, including the matched-pair comparisons and the frame-rate comparison.}
+
+\subsection{Limitations}
 \label{subsec:cont_disc_limitations}
 
-The current implementation assumes constant angular velocity throughout the scan and assigns a single timestamp to each projection. For instruments that support variable-speed rotation, or that alternate the rotation direction between revolutions as in the Bentheimer experiment of \citet{friis2025nect}, the forward model would need to accept per-projection angular intervals $[\phi_s^{(j)}, \phi_e^{(j)}]$ rather than computing them from a global angular velocity. This extension is straightforward in principle and requires only a minor change to the data loading pipeline.
+The current implementation assumes constant angular velocity throughout the scan and computes per-projection angular intervals from a single global $\omega$. For instruments that support variable-speed rotation, or that alternate rotation direction between revolutions as in the dynamic NeCT experiments of \citet{friis2025nect}, the forward model would need to accept per-projection angular intervals $[\phi_s^{(j)}, \phi_e^{(j)}]$ rather than computing them globally. This extension is straightforward in principle and requires only a change to the data loading pipeline.
 
-\todo{Discuss whether the continuous-scan model interacts with the hybrid golden-section sampling scheme from \cref{subsec:hybrid_golden}. In particular, does the golden offset between revolutions change the effective angular blur pattern, and does the alternating rotation direction require any modification to the forward model?}
+The model also assumes that the attenuation field is static within each projection's exposure interval, so that the angular averaging integral is over geometry only and not over a simultaneously evolving sample. For the hourglass at the frame rates used here, the sand front moves slowly relative to the exposure time and this assumption is well satisfied. For faster dynamic processes, such as fluid flow in a high-permeability sample or mechanical deformation under rapid loading, intra-exposure motion could become significant and would require a more general forward model that integrates over both angle and sample state simultaneously.
 
-\todo{Discuss the assumption of a static attenuation field within each projection's exposure interval. For very fast dynamic processes where the sample changes measurably during a single exposure, this assumption breaks down and the forward model would need to account for intra-exposure motion. State whether the hourglass experiment is in this regime or whether the assumption is well satisfied.}
-
-\todo{Discuss the applicability of the continuous-scan model to other dynamic CT problems beyond sandstone imbibition and hourglass flow, e.g.\ cardiac CT or in-situ mechanical testing, where continuous rotation is standard practice.}
+Finally, the approach is applicable beyond the sandstone and hourglass experiments used here. Any dynamic CT application in which the sample undergoes continuous change and the scanner operates in fly-scan mode is a potential candidate, including in-situ mechanical testing and certain industrial inspection workflows. The degree of benefit from the forward model correction will depend on the angular step size per projection, which varies widely across instrument types and acquisition protocols.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Conclusion}

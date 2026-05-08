@@ -38,8 +38,8 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{66}{figure.caption.52}%
 \contentsline {figure}{\numberline {5.2}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{72}{figure.caption.54}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{73}{figure.caption.55}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{75}{figure.caption.58}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{72}{figure.caption.55}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{74}{figure.caption.58}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
