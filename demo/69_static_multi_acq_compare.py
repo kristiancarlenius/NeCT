@@ -1,25 +1,3 @@
-"""
-Compare static reconstructions across projection counts and acquisitions.
-
-All models are queried on a single canonical grid (taken from the ground-truth
-geometry) so that every slice index maps to the same physical location regardless
-of each model's own nVoxel or dVoxel settings.
-
-Directory layout expected on the cluster:
-  BASE_DIR/
-    100_ac1/model/config.yaml  + checkpoints/last.ckpt
-    100_ac2/model/config.yaml  + checkpoints/last.ckpt
-    360_ac1/...
-    1400_ac1/...   ← ground truth; provides the canonical grid
-
-Usage:
-    Edit the CONFIG block and run on a GPU node.
-    Outputs:
-      comparison.png      — orthogonal slice grid (rows=models, cols=planes)
-      metrics.png         — PSNR / SSIM / MAE bar charts vs ground truth
-      metrics.npz         — raw metric arrays for further analysis
-"""
-
 from __future__ import annotations
 
 import atexit
@@ -38,46 +16,31 @@ from nect.config import get_cfg
 from nect.data import NeCTDataset
 from nect.sampling import Geometry
 
-# ───────────────────────────── CONFIG ────────────────────────────────────────
-
 BASE_DIR = Path(
     "/cluster/home/kristiac/NeCT/outputs/static_continious"
     "/hash_grid_23_4_23_16_2_4_128_L1"
 )
 
-# Ground-truth folder — defines the canonical grid
 GT_NAME = "1400_ac1"
 
-# Which folders to compare (order = rows in the figure).
-# Use None to auto-discover every folder in BASE_DIR that contains model/.
 COMPARE_NAMES: list[str] | None = [
     "100_ac1", "100_ac2", "100_ac3", "100_ac4", "100_ac6",
     "360_ac1", "360_ac2", "360_ac3", "360_ac4", "360_ac6",
     "1400_ac1",
 ]
 
-# Spatial downsampling factor (1 = full res, 2 = 2× faster / lower mem).
 BINNING = 1
 
-# Crop fractions: only query this sub-region of the full volume.
-# (start, end) as fractions of each axis — cuts empty air around the sample.
-CROP_Z = (0.10, 0.90)   # top / bottom
-CROP_Y = (0.10, 0.75)   # front / back
-CROP_X = (0.25, 0.75)   # left / right
+CROP_Z = (0.10, 0.90)
+CROP_Y = (0.10, 0.75)
+CROP_X = (0.25, 0.75)
 
-# Slice fractions within the cropped volume in [0, 1].
 SLICE_Z = 0.5
 SLICE_Y = 0.5
 SLICE_X = 0.5
 
-# Cylinder mask — the sample is circular in XY.
-# Percentiles are computed only inside the cylinder, and the background is
-# zeroed so corner noise doesn't skew normalisation or metrics.
-# Set to 0.0 to disable.
-MASK_RADIUS_FRAC = 0.45  # fraction of min(cropped_ny, cropped_nx)
+MASK_RADIUS_FRAC = 0.45
 
-# Scratch directory for memory-mapped volumes (~2× vol size free space needed).
-# None = allocate in RAM (fast, needs ~8 GB free RAM at BINNING=1).
 SCRATCH_DIR: Path | None = BASE_DIR / ".tmp"
 
 OUTPUT_PNG      = BASE_DIR / "comparison.png"
@@ -89,16 +52,8 @@ OUTPUT_LAPVAR   = BASE_DIR / "lap_variance.png"
 OUTPUT_NPZ      = BASE_DIR / "metrics.npz"
 OUTPUT_TXT      = BASE_DIR / "metrics.txt"
 
-# ─────────────────────────────────────────────────────────────────────────────
-
 
 def load_model(model_dir: Path, device: torch.device):
-    """Load model and calibration constants from a model/ directory.
-
-    On first call per model, extracts a model-only 'inference.pt' from the full
-    training checkpoint (which includes ~2x optimizer state).  Subsequent calls
-    load only the 3 GB model weights rather than the 9+ GB full checkpoint.
-    """
     config = get_cfg(model_dir / "config.yaml")
     model = config.get_model()
 
@@ -110,8 +65,6 @@ def load_model(model_dir: Path, device: torch.device):
         model.load_state_dict(sd)
         del sd
     else:
-        # Use mmap=True (PyTorch ≥2.1) so the optimizer state is never paged into
-        # RAM — only the model tensors we actually touch are loaded.
         print(f"    Extracting model-only weights (one-time, saving inference.pt) ...")
         try:
             ckpt = torch.load(ckpt_path, map_location="cpu", mmap=True)
@@ -137,25 +90,22 @@ def load_model(model_dir: Path, device: torch.device):
 
 
 def build_canonical_grid(gt_model_dir: Path, binning: int):
-    """Return (z_lin, y_lin, x_lin) spanning only the cropped sample region."""
     config = get_cfg(gt_model_dir / "config.yaml")
-    nVoxel = list(config.geometry.nVoxel)  # [nz, ny, nx]
+    nVoxel = list(config.geometry.nVoxel)
     rm = config.sample_outside
 
-    # Inner coordinate range after removing rm padding (y and x only).
     rm_frac_y = rm / (nVoxel[1] + 2 * rm)
     rm_frac_x = rm / (nVoxel[2] + 2 * rm)
     y_inner = (rm_frac_y, 1.0 - rm_frac_y)
     x_inner = (rm_frac_x, 1.0 - rm_frac_x)
 
-    # Apply crop fractions to each axis's usable range.
     def crop_range(lo, hi, c0, c1):
         span = hi - lo
         return lo + c0 * span, lo + c1 * span
 
-    z_lo, z_hi = crop_range(0.0, 1.0,         *CROP_Z)
-    y_lo, y_hi = crop_range(*y_inner,           *CROP_Y)
-    x_lo, x_hi = crop_range(*x_inner,           *CROP_X)
+    z_lo, z_hi = crop_range(0.0, 1.0,   *CROP_Z)
+    y_lo, y_hi = crop_range(*y_inner,    *CROP_Y)
+    x_lo, x_hi = crop_range(*x_inner,    *CROP_X)
 
     nz = max(1, int((CROP_Z[1] - CROP_Z[0]) * nVoxel[0] / binning))
     ny = max(1, int((CROP_Y[1] - CROP_Y[0]) * nVoxel[1] / binning))
@@ -179,10 +129,6 @@ def reconstruct_volume(
     device: torch.device,
     path: str | None = None,
 ) -> np.ndarray:
-    """Query a static model on the canonical grid and calibrate.
-
-    path: if given, write into a memory-mapped file instead of RAM.
-    """
     nz, ny, nx = len(z_lin), len(y_lin), len(x_lin)
     if path is not None:
         vol: np.ndarray = np.memmap(path, dtype=np.float32, mode="w+", shape=(nz, ny, nx))
@@ -224,7 +170,6 @@ def main():
     yi = int(SLICE_Y * ny)
     xi = int(SLICE_X * nx)
 
-    # ── Cylinder mask (True = inside sample) ─────────────────────────────────
     if MASK_RADIUS_FRAC > 0.0:
         cy_c, cx_c = ny / 2.0, nx / 2.0
         radius = MASK_RADIUS_FRAC * min(ny, nx)
@@ -234,8 +179,6 @@ def main():
         mask_2d = np.ones((ny, nx), dtype=bool)
 
     def process(vol: np.ndarray):
-        """Normalise and zero background in-place, using sampled percentiles."""
-        # Sample every ~150th z-slice to estimate percentiles without a 2 GB gather.
         step = max(1, nz // 150)
         sample = np.concatenate([np.array(vol[z])[mask_2d] for z in range(0, nz, step)])
         lo = float(np.percentile(sample, 1))
@@ -245,7 +188,7 @@ def main():
         if hi > lo:
             for z0 in range(0, nz, chunk):
                 z1 = min(z0 + chunk, nz)
-                s = np.array(vol[z0:z1])   # load chunk into RAM
+                s = np.array(vol[z0:z1])
                 s -= lo
                 s /= (hi - lo)
                 np.clip(s, 0.0, 1.0, out=s)
@@ -256,11 +199,6 @@ def main():
         return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
 
     def sharpness_metrics(xy: np.ndarray, xz: np.ndarray, yz: np.ndarray) -> tuple[float, float]:
-        """2-D Sobel sharpness from the three canonical slices.
-
-        Averages only over interior pixels (eroded foreground) to avoid the large
-        artificial gradient at the hard zero-boundary left by the cylinder mask.
-        """
         def _interior(s: np.ndarray) -> np.ndarray:
             return binary_erosion(s > 0, iterations=2)
 
@@ -281,7 +219,6 @@ def main():
         return mean_grad, lap_var
 
     def compute_metrics_streamed(gt_vol, vol):
-        """PSNR / MAE in z-chunks; SSIM per slice.  Peak extra RAM ≈ chunk × slice size."""
         chunk = 64
         mse_sum, mae_sum, n_px, ssim_sum = 0.0, 0.0, 0, 0.0
         for z0 in range(0, nz, chunk):
@@ -302,7 +239,6 @@ def main():
         ssim = ssim_sum / nz
         return psnr, ssim, mae
 
-    # ── Set up scratch dir for memory-mapped volumes ──────────────────────────
     if SCRATCH_DIR is not None:
         SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
         tmp_dir: Path | None = SCRATCH_DIR
@@ -313,7 +249,6 @@ def main():
     def _mmap_path(name: str) -> str | None:
         return str(tmp_dir / name) if tmp_dir is not None else None
 
-    # ── Reconstruct GT first, keep (memory-mapped) for streamed metrics ───────
     print(f"Reconstructing {GT_NAME} (ground truth) ...")
     gt_model_dir = BASE_DIR / GT_NAME / "model"
     if not (gt_model_dir / "config.yaml").exists():
@@ -329,7 +264,6 @@ def main():
     gt_grad, gt_lapvar = sharpness_metrics(gt_xy, gt_xz, gt_yz)
     print(f"  GT sharpness — grad: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}")
 
-    # slices stored for plotting: {name: (xy, xz, yz)}
     slices: dict[str, tuple] = {GT_NAME: (gt_xy, gt_xz, gt_yz)}
 
     metric_names: list[str] = []
@@ -339,7 +273,6 @@ def main():
     grad_vals:    list[float] = []
     lapvar_vals:  list[float] = []
 
-    # ── Reconstruct each comparison model, free volume after metrics/slices ───
     valid_names = [GT_NAME]
     for name in names:
         if name == GT_NAME:
@@ -352,7 +285,7 @@ def main():
         model, scale, data_min, data_max = load_model(model_dir, device)
         raw = reconstruct_volume(
             model, scale, data_min, data_max, z_lin, y_lin, x_lin, device,
-            path=_mmap_path("cmp.mmap"),   # reused/overwritten each iteration
+            path=_mmap_path("cmp.mmap"),
         )
         del model; torch.cuda.empty_cache()
 
@@ -376,7 +309,6 @@ def main():
         print("No models found — check BASE_DIR and COMPARE_NAMES.")
         return
 
-    # ── Plot: rows = models, cols = {XY slice, XZ slice, YZ slice} ───────────
     n_cols = 3
     fig, axes = plt.subplots(n_models, n_cols, figsize=(4 * n_cols, 3 * n_models))
     if n_models == 1:
@@ -433,7 +365,6 @@ def main():
                     f"   {gm:>10.4f}   {lv:>12.6f}\n")
     print(f"Saved scores to {OUTPUT_TXT}")
 
-    # ── Colour each bar by projection count ──────────────────────────────────
     def proj_count(name: str) -> str:
         return name.split("_")[0]
 
@@ -465,11 +396,11 @@ def main():
         plt.close()
         print(f"Saved {path.name} to {path}")
 
-    _bar_plot(psnr_vals,   "PSNR (dB)",             "PSNR (higher is better, ref-dependent)",  OUTPUT_PSNR,   "{:.1f}",   0.2)
-    _bar_plot(ssim_vals,   "SSIM",                  "SSIM (higher is better, ref-dependent)",  OUTPUT_SSIM,   "{:.3f}",   0.005)
-    _bar_plot(mae_vals,    "MAE",                    "MAE (lower is better, ref-dependent)",    OUTPUT_MAE,    "{:.4f}",   0.0)
-    _bar_plot(grad_vals,   "Mean gradient magnitude","Sharpness — gradient magnitude (no ref, higher = sharper)", OUTPUT_GRAD,   "{:.4f}",   0.0)
-    _bar_plot(lapvar_vals, "Laplacian variance",     "Sharpness — Laplacian variance (no ref, higher = sharper)", OUTPUT_LAPVAR, "{:.6f}",   0.0)
+    _bar_plot(psnr_vals,   "PSNR (dB)",              "PSNR (higher is better, ref-dependent)",                    OUTPUT_PSNR,   "{:.1f}",   0.2)
+    _bar_plot(ssim_vals,   "SSIM",                   "SSIM (higher is better, ref-dependent)",                    OUTPUT_SSIM,   "{:.3f}",   0.005)
+    _bar_plot(mae_vals,    "MAE",                     "MAE (lower is better, ref-dependent)",                      OUTPUT_MAE,    "{:.4f}",   0.0)
+    _bar_plot(grad_vals,   "Mean gradient magnitude", "Sharpness — gradient magnitude (no ref, higher = sharper)", OUTPUT_GRAD,   "{:.4f}",   0.0)
+    _bar_plot(lapvar_vals, "Laplacian variance",      "Sharpness — Laplacian variance (no ref, higher = sharper)", OUTPUT_LAPVAR, "{:.6f}",   0.0)
 
 
 if __name__ == "__main__":
