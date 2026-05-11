@@ -36,12 +36,12 @@
 \contentsline {subsubsection}{MLP Decoder Depth}{38}{section*.27}%
 \contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{40}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{40}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{40}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{42}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{41}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{44}{subsection.3.5.2}%
 \contentsline {subsubsection}{CombinedCubes with K-Planes Products}{48}{section*.37}%
 \contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{49}{subsection.3.5.3}%
-\contentsline {subsubsection}{\textsc {MixedCubes}{} with K-Planes Triple Product}{51}{section*.41}%
-\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{52}{subsection.3.5.4}%
+\contentsline {subsubsection}{\textsc {MixedCubes}{} with K-Planes Triple Product}{50}{section*.41}%
+\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{53}{subsection.3.5.4}%
 \contentsline {chapter}{\numberline {4}Encoder Comparison}{54}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Candidate Configurations}{54}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Unified Comparison}{55}{section.4.2}%
@@ -66,16 +66,16 @@
 \contentsline {section}{\numberline {5.3}Experiments: Static Validation}{69}{section.5.3}%
 \contentsline {subsection}{\numberline {5.3.1}Dataset}{69}{subsection.5.3.1}%
 \contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{70}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Results}{70}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{70}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Dataset}{70}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Results}{73}{subsection.5.4.2}%
-\contentsline {section}{\numberline {5.5}Discussion}{74}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{74}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Continuous Scanning for Dynamic Imaging}{74}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Limitations}{75}{subsection.5.5.3}%
-\contentsline {chapter}{\numberline {6}Conclusion}{77}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{77}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{77}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{82}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{83}{appendix.B}%
+\contentsline {subsection}{\numberline {5.3.3}Results}{71}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{72}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Dataset}{72}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Results}{74}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{76}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{76}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Continuous Scanning for Dynamic Imaging}{76}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Limitations}{77}{subsection.5.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{78}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{78}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{78}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{83}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{84}{appendix.B}%

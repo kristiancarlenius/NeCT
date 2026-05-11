@@ -1,4 +1,4 @@
-\begin{thebibliography}{29}
+\begin{thebibliography}{35}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -66,12 +66,30 @@ Henrik Friis, H{\aa}kon Nese, Giacomo Luani, Colin Pryme, Lars Rennan, Basab
 \newblock \emph{Communications Physics}, 8:\penalty0 339, 2025.
 \newblock \doi{10.1038/s42005-025-02249-0}.
 
+\bibitem[Goethals et~al.(2025)Goethals, Bultreys, Berg, Boone, and
+  Aelterman]{goethals2025dyrect}
+Wout Goethals, Tom Bultreys, Steffen Berg, Matthieu~N. Boone, and Jan
+  Aelterman.
+\newblock Dyrect computed tomography: Dynamic reconstruction of events on a
+  continuous timescale.
+\newblock \emph{IEEE Transactions on Computational Imaging}, 11:\penalty0
+  638--649, 2025.
+\newblock \doi{10.1109/TCI.2025.3541234}.
+
 \bibitem[Goethals et~al.(2022)]{goethals2022dynamic}
 Wout Goethals et~al.
 \newblock Dynamic {CT} reconstruction with improved temporal resolution for
   scanning of fluid flow in porous media.
 \newblock \emph{Water Resources Research}, 58:\penalty0 e2021WR031365, 2022.
 \newblock \doi{10.1029/2021WR031365}.
+
+\bibitem[Gordon et~al.(1970)Gordon, Bender, and Herman]{gordon1970algebraic}
+Richard Gordon, Robert Bender, and Gabor~T. Herman.
+\newblock Algebraic reconstruction techniques ({ART}) for three-dimensional
+  electron microscopy and {X}-ray photography.
+\newblock \emph{Journal of Theoretical Biology}, 29\penalty0 (3):\penalty0
+  471--481, 1970.
+\newblock \doi{10.1016/0022-5193(70)90109-8}.
 
 \bibitem[Gostick et~al.(2019)]{gostick2019porespy}
 Jeff Gostick et~al.
@@ -160,6 +178,13 @@ Vinod Nair and Geoffrey~E. Hinton.
 \newblock In \emph{Proceedings of the 27th International Conference on Machine
   Learning (ICML)}, pages 807--814, 2010.
 
+\bibitem[Park et~al.(2023)]{park2023temporal}
+Sungheon Park et~al.
+\newblock Temporal interpolation is all you need for dynamic neural radiance
+  fields.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 4212--4221, 2023.
+
 \bibitem[Patwari et~al.(2023)]{patwari2023hallucination}
 Mayank Patwari et~al.
 \newblock Reducing the risk of hallucinations with interpretable deep learning
@@ -167,6 +192,20 @@ Mayank Patwari et~al.
 \newblock \emph{Physics in Medicine \& Biology}, 68\penalty0 (19):\penalty0
   19LT01, 2023.
 \newblock \doi{10.1088/1361-6560/acf5d0}.
+
+\bibitem[Peksa et~al.(2015)Peksa, Wolf, and Zitha]{peksa2015bentheimer}
+A.~E. Peksa, K.-H. A.~A. Wolf, and P.~L.~J. Zitha.
+\newblock Bentheimer sandstone revisited for experimental purposes.
+\newblock \emph{Marine and Petroleum Geology}, 67:\penalty0 701--719, 2015.
+\newblock \doi{10.1016/j.marpetgeo.2015.06.001}.
+
+\bibitem[Radon(1917)]{radon1917}
+Johann Radon.
+\newblock {\"U}ber die bestimmung von funktionen durch ihre integralwerte
+  l{\"a}ngs gewisser mannigfaltigkeiten.
+\newblock \emph{Berichte {\"u}ber die Verhandlungen der K{\"o}niglich
+  S{\"a}chsischen Gesellschaft der Wissenschaften zu Leipzig,
+  Mathematisch-Physische Klasse}, 69:\penalty0 262--277, 1917.
 
 \bibitem[Rahaman et~al.(2019)Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht,
   Bengio, and Courville]{rahaman2019spectral}
@@ -182,6 +221,14 @@ David~E. Rumelhart, Geoffrey~E. Hinton, and Ronald~J. Williams.
 \newblock Learning representations by back-propagating errors.
 \newblock \emph{Nature}, 323:\penalty0 533--536, 1986.
 \newblock \doi{10.1038/323533a0}.
+
+\bibitem[Shen et~al.(2022)Shen, Pauly, and Xing]{shen2022nerp}
+Liyue Shen, John Pauly, and Lei Xing.
+\newblock {NeRP}: Implicit neural representation learning with prior embedding
+  for sparsely sampled image reconstruction.
+\newblock \emph{IEEE Transactions on Neural Networks and Learning Systems},
+  pages 1--13, 2022.
+\newblock \doi{10.1109/TNNLS.2022.3148236}.
 
 \bibitem[Sitzmann et~al.(2020)Sitzmann, Martel, Bergman, Lindell, and
   Wetzstein]{sitzmann2020siren}

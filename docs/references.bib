@@ -92,6 +92,18 @@
   doi     = {10.1029/2021WR031365},
 }
 
+@article{goethals2025dyrect,
+  author  = {Goethals, Wout and Bultreys, Tom and Berg, Steffen
+             and Boone, Matthieu N. and Aelterman, Jan},
+  title   = {Dyrect Computed Tomography: Dynamic Reconstruction of Events
+             on a Continuous Timescale},
+  journal = {IEEE Transactions on Computational Imaging},
+  volume  = {11},
+  pages   = {638--649},
+  year    = {2025},
+  doi     = {10.1109/TCI.2025.3541234},
+}
+
 @inproceedings{kohler2004golden,
   author    = {Kohler, Thomas},
   title     = {A projection access scheme for iterative reconstruction based on
@@ -136,48 +148,6 @@
   pages   = {2278--2324},
   year    = {1998},
   doi     = {10.1109/5.726791},
-}
-
-@article{jin2017deep,
-  author  = {Jin, Kyong Hwan and McCann, Michael T. and Froustey, Emmanuel and Unser, Michael},
-  title   = {Deep Convolutional Neural Network for Inverse Problems in Imaging},
-  journal = {IEEE Transactions on Image Processing},
-  volume  = {26},
-  number  = {9},
-  pages   = {4509--4522},
-  year    = {2017},
-  doi     = {10.1109/TIP.2017.2713099},
-}
-
-@article{hu2021hybrid,
-  author  = {Hu, Dianlin and others},
-  title   = {Hybrid-Domain Neural Network Processing for Sparse-View {CT} Reconstruction},
-  journal = {IEEE Transactions on Radiation and Plasma Medical Sciences},
-  volume  = {5},
-  number  = {1},
-  pages   = {88--98},
-  year    = {2021},
-  doi     = {10.1109/TRPMS.2020.3011413},
-}
-
-@inproceedings{goodfellow2014gan,
-  author    = {Goodfellow, Ian and others},
-  title     = {Generative Adversarial Nets},
-  booktitle = {Advances in Neural Information Processing Systems},
-  volume    = {27},
-  pages     = {2672--2680},
-  year      = {2014},
-}
-
-@article{guo2022physics,
-  author  = {Guo, Ziyu and others},
-  title   = {Physics-assisted generative adversarial network for {X}-ray tomography},
-  journal = {Optics Express},
-  volume  = {30},
-  number  = {13},
-  pages   = {23238--23259},
-  year    = {2022},
-  doi     = {10.1364/OE.459948},
 }
 
 @article{patwari2023hallucination,
@@ -300,6 +270,17 @@
   publisher = {Springer},
 }
 
+% ─── NeRP (INR for sparse-view CT with prior) ────────────────────────────────
+@article{shen2022nerp,
+  author  = {Shen, Liyue and Pauly, John and Xing, Lei},
+  title   = {{NeRP}: Implicit Neural Representation Learning with Prior Embedding
+             for Sparsely Sampled Image Reconstruction},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  pages   = {1--13},
+  year    = {2022},
+  doi     = {10.1109/TNNLS.2022.3148236},
+}
+
 % ─── FDK ─────────────────────────────────────────────────────────────────────
 @article{feldkamp1984,
   author  = {Feldkamp, L. A. and Davis, L. C. and Kress, J. W.},
@@ -353,19 +334,6 @@
   year      = {2023},
 }
 
-% ─── DCTR / Dyrect CT ────────────────────────────────────────────────────────
-@article{goethals2025dyrect,
-  author  = {Goethals, Wout and Bultreys, Tom and Berg, Steffen
-             and Boone, Matthieu N. and Aelterman, Jan},
-  title   = {Dyrect Computed Tomography: Dynamic Reconstruction of Events
-             on a Continuous Timescale},
-  journal = {IEEE Transactions on Computational Imaging},
-  volume  = {11},
-  pages   = {638--649},
-  year    = {2025},
-  doi     = {10.1109/TCI.2025.3541234},
-}
-
 % ─── SSIM ────────────────────────────────────────────────────────────────────
 @article{wang2004ssim,
   author  = {Wang, Zhou and Bovik, Alan C. and Sheikh, Hamid R. and Simoncelli, Eero P.},
@@ -409,27 +377,6 @@
   howpublished = {\url{https://klacansky.com/open-scivis-datasets/}},
 }
 
-% ─── U-Net ───────────────────────────────────────────────────────────────────
-@inproceedings{ronneberger2015unet,
-  author    = {Ronneberger, Olaf and Fischer, Philipp and Brox, Thomas},
-  title     = {{U-Net}: Convolutional Networks for Biomedical Image Segmentation},
-  booktitle = {Medical Image Computing and Computer-Assisted Intervention (MICCAI)},
-  pages     = {234--241},
-  year      = {2015},
-  publisher = {Springer},
-}
-
-% ─── NeRP (INR for sparse-view CT) ───────────────────────────────────────────
-@article{shen2022nerp,
-  author  = {Shen, Liyue and Pauly, John and Xing, Lei},
-  title   = {{NeRP}: Implicit Neural Representation Learning with Prior Embedding
-             for Sparsely Sampled Image Reconstruction},
-  journal = {IEEE Transactions on Neural Networks and Learning Systems},
-  pages   = {1--13},
-  year    = {2022},
-  doi     = {10.1109/TNNLS.2022.3148236},
-}
-
 % ─── X-ray CT review ─────────────────────────────────────────────────────────
 @article{withers2021ct,
   author  = {Withers, Philip J. and others},
@@ -439,25 +386,4 @@
   pages   = {1--17},
   year    = {2021},
   doi     = {10.1038/s43586-021-00015-4},
-}
-
-@inproceedings{vaswani2017attention,
-  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and
-               Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N.
-               and Kaiser, {\L}ukasz and Polosukhin, Illia},
-  title     = {Attention Is All You Need},
-  booktitle = {Advances in Neural Information Processing Systems},
-  volume    = {30},
-  year      = {2017},
-}
-
-@inproceedings{dosovitskiy2020vit,
-  author    = {Dosovitskiy, Alexey and Beyer, Lucas and Kolesnikov, Alexander
-               and Weissenborn, Dirk and Zhai, Xiaohua and Unterthiner, Thomas
-               and Dehghani, Mostafa and Minderer, Matthias and Heigold, Georg
-               and Gelly, Sylvain and Uszkoreit, Jakob and Houlsby, Neil},
-  title     = {An Image is Worth 16x16 Words: Transformers for Image
-               Recognition at Scale},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2021},
 }

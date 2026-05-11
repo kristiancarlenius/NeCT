@@ -1510,6 +1510,11 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr10.tfm
+INPUT ./images//combined_score.png
+INPUT ./images//combined_score.png
+INPUT images//combined_score.png
+INPUT ./images//combined_score.png
+INPUT ./images//combined_score.png
 INPUT ./images//hourglassandbox.jpg
 INPUT ./images//hourglassandbox.jpg
 INPUT images//hourglassandbox.jpg
