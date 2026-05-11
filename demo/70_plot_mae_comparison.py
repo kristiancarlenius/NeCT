@@ -4,9 +4,12 @@ Compare sand-volume MAE metrics across multiple runs, grouped by acquisition cou
 Run names are expected to follow the pattern: {fps}_{steps}_ac{N}[_re]
 e.g. 4fps_11000_ac2, 8fps_5500_ac6_re
 
-Groups: one line per {fps}_{steps} combination.
-X-axis: ac number (2, 3, 4, 6, ...).
-Four subplots, one per MAE metric.
+Outputs (all saved to OUT_DIR):
+  mae_total.png, mae_1to1.png, mae_top.png, mae_bot.png
+      One image per metric.  All {fps}_{steps} groups as lines, x = ac number.
+
+  mae_group_4fps_11000.png, mae_group_8fps_5500.png, ...
+      One image per {fps}_{steps} group.  All four metrics as lines, x = ac number.
 
 Usage:
     Set BASE_DIR below and run locally (no GPU needed).
@@ -27,21 +30,26 @@ BASE_DIR = Path(
     "/quadcubes_22_4_22_16_2_4_128_L1"
 )
 
-# Output file written next to this script
-OUTPUT_PNG = Path(__file__).parent / "mae_comparison.png"
+# Directory where all PNGs are written
+OUT_DIR = Path(__file__).parent / "mae_plots"
 
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Matches e.g. "4fps_11000_ac2", "8fps_5500_ac6_re"
 RUN_RE = re.compile(r"^(\d+fps_\d+)_ac(\d+)")
 
 METRICS = ["total", "1to1", "top", "bot"]
-METRIC_TITLES = [
-    "Total conservation MAE",
-    "1:1 tracking MAE",
-    "Top chamber MAE",
-    "Bottom chamber MAE",
-]
+METRIC_TITLES = {
+    "total": "Total conservation MAE (mm³)",
+    "1to1":  "1:1 tracking MAE (mm³)",
+    "top":   "Top chamber MAE (mm³)",
+    "bot":   "Bottom chamber MAE (mm³)",
+}
+METRIC_COLORS = {
+    "total": "mediumpurple",
+    "1to1":  "darkorange",
+    "top":   "steelblue",
+    "bot":   "firebrick",
+}
 
 
 def parse_mae(path: Path) -> dict[str, float] | None:
@@ -74,40 +82,78 @@ def collect(base: Path) -> dict[str, dict[int, dict[str, float]]]:
     return dict(groups)
 
 
-def plot(groups: dict[str, dict[int, dict]], out: Path) -> None:
+def _annotate(ax, ac_nums, vals):
+    for ac, val in zip(ac_nums, vals):
+        ax.annotate(f"{val:.0f}", (ac, val),
+                    textcoords="offset points", xytext=(0, 6),
+                    ha="center", fontsize=8)
+
+
+def all_ac_ticks(groups):
+    return sorted({ac for g in groups.values() for ac in g})
+
+
+# ── One image per metric (all groups as lines) ────────────────────────────────
+
+def plot_per_metric(groups: dict, out_dir: Path) -> None:
     sorted_groups = sorted(groups)
     colors = plt.cm.tab10(np.linspace(0, 1, len(sorted_groups)))
+    ac_ticks = all_ac_ticks(groups)
 
-    fig, axes = plt.subplots(2, 2, figsize=(13, 8), sharey=False)
-    axes = axes.flatten()
-
-    for ax, metric, title in zip(axes, METRICS, METRIC_TITLES):
+    for metric in METRICS:
+        fig, ax = plt.subplots(figsize=(8, 5))
         for group, color in zip(sorted_groups, colors):
             ac_data = groups[group]
             ac_nums = sorted(ac_data)
             vals = [ac_data[ac][metric] for ac in ac_nums]
             ax.plot(ac_nums, vals, marker="o", label=group, color=color)
-            for ac, val in zip(ac_nums, vals):
-                ax.annotate(f"{val:.0f}", (ac, val),
-                            textcoords="offset points", xytext=(0, 6),
-                            ha="center", fontsize=7)
-        ax.set_title(title)
+            _annotate(ax, ac_nums, vals)
+
+        ax.set_title(METRIC_TITLES[metric])
         ax.set_xlabel("Acquisition count (ac)")
         ax.set_ylabel("MAE (mm³)")
-        ax.set_xticks(sorted({ac for g in groups.values() for ac in g}))
+        ax.set_xticks(ac_ticks)
         ax.grid(alpha=0.3)
         ax.set_ylim(bottom=0)
+        ax.legend(fontsize=8)
 
-    # Shared legend outside the subplots
-    handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=3, fontsize=9,
-               bbox_to_anchor=(0.5, -0.04))
+        path = out_dir / f"mae_{metric}.png"
+        plt.tight_layout()
+        plt.savefig(path, dpi=150)
+        plt.close(fig)
+        print(f"Saved {path}")
 
-    fig.suptitle("Sand volume MAE by acquisition count", fontsize=13)
-    plt.tight_layout(rect=[0, 0.06, 1, 1])
-    plt.savefig(out, dpi=150, bbox_inches="tight")
-    print(f"Plot saved to {out}")
-    plt.show()
+
+# ── One image per group (all metrics as lines) ────────────────────────────────
+
+def plot_per_group(groups: dict, out_dir: Path) -> None:
+    ac_ticks = all_ac_ticks(groups)
+
+    for group in sorted(groups):
+        ac_data = groups[group]
+        ac_nums = sorted(ac_data)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        for metric in METRICS:
+            vals = [ac_data[ac][metric] for ac in ac_nums]
+            ax.plot(ac_nums, vals, marker="o",
+                    label=METRIC_TITLES[metric].split(" MAE")[0],
+                    color=METRIC_COLORS[metric])
+            _annotate(ax, ac_nums, vals)
+
+        ax.set_title(f"{group} — MAE by acquisition count")
+        ax.set_xlabel("Acquisition count (ac)")
+        ax.set_ylabel("MAE (mm³)")
+        ax.set_xticks(ac_ticks)
+        ax.grid(alpha=0.3)
+        ax.set_ylim(bottom=0)
+        ax.legend(fontsize=8)
+
+        path = out_dir / f"mae_group_{group}.png"
+        plt.tight_layout()
+        plt.savefig(path, dpi=150)
+        plt.close(fig)
+        print(f"Saved {path}")
 
 
 def main():
@@ -123,7 +169,10 @@ def main():
             print(f"  {group}_ac{ac}: total={m['total']:.2f}  1to1={m['1to1']:.2f}  "
                   f"top={m['top']:.2f}  bot={m['bot']:.2f}  mm³")
 
-    plot(groups, OUTPUT_PNG)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    plot_per_metric(groups, OUT_DIR)
+    plot_per_group(groups, OUT_DIR)
+    print(f"\nAll plots written to {OUT_DIR}/")
 
 
 if __name__ == "__main__":
