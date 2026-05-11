@@ -1,9 +1,13 @@
 """
-Hourglass sand volume analysis.
+Hourglass sand volume analysis — batch over all runs.
 
-For each timestep, queries the dynamic model to get a calibrated 3D volume,
-segments sand via threshold (Otsu or manual), splits into top/bottom chambers
-at a user-defined neck z-voxel index, and plots sand volume (mm³) over time.
+Iterates every immediate subdirectory of BASE_DIR that contains a model/
+folder, runs the full sand-volume analysis, and writes sand_volume.npz,
+sand_volume.png, neck_check.png, and mae.txt into each run's directory.
+
+Threshold is chosen per fps tier:
+  4fps → THRESHOLD_4FPS = 0.16
+  8fps → THRESHOLD_8FPS = -0.045
 
 Geometry for this dataset:
   nVoxel = [1148, 748, 748]   — z is the tall/vertical axis of the hourglass
@@ -12,10 +16,10 @@ Geometry for this dataset:
 
 Usage:
     Edit the CONFIG section below and run on a GPU node.
-    After a first quick run (BINNING=8, N_TIMESTEPS=10) inspect the Otsu
-    threshold and neck position, then re-run with BINNING=4, N_TIMESTEPS=50.
+    Set SKIP_EXISTING = True to resume an interrupted batch run.
 """
 
+import re
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -30,8 +34,14 @@ from nect.sampling import Geometry
 
 # ─────────────────────────── CONFIG ──────────────────────────────────────────
 
-# Directory containing config.yaml and checkpoints/ subfolder
-MODEL_PATH = "/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_22_4_22_16_2_4_128_L1/8fps_11000_ac2_re/model/"
+BASE_DIR = Path(
+    "/cluster/home/kristiac/NeCT/outputs/dynamic_continious"
+    "/quadcubes_22_4_22_16_2_4_128_L1"
+)
+
+# Per-fps attenuation thresholds for sand segmentation
+THRESHOLD_4FPS = 0.16
+THRESHOLD_8FPS = -0.045
 
 # How many evenly-spaced timesteps to sample across the full acquisition
 N_TIMESTEPS = 800
@@ -40,52 +50,53 @@ N_TIMESTEPS = 800
 BINNING = 1
 
 # Optional ROI in *full-resolution* voxel coordinates [start, end].
-# Set to None to use the full volume. Trim air around the hourglass to
-# reduce noise contribution to the Otsu threshold.
-# Values below are binned coords (BINNING=8) × 8 → full-res.
-ROI_Z = [240, 1056]   # binned 30–132  (vertical axis, nVoxel[0]=1148)
-ROI_Y = [136, 560]    # binned 17–70   (nVoxel[1]=748)
-ROI_X = [184, 600]    # binned 23–75   (nVoxel[2]=748)
+# Set to None to use the full volume.
+ROI_Z = [240, 1056]
+ROI_Y = [136, 560]
+ROI_X = [184, 600]
 
 # Z-voxel index (in the *binned, ROI-cropped* output) of the hourglass neck.
-# With ROI_Z=[240,1056] the cropped volume starts at binned z=30, so the
-# original binned neck at z=75 becomes index 75-30 = 45 here.
 NECK_Z_VOXEL = 370
 
-# Attenuation threshold for segmenting sand vs air.
-# None → Otsu's method applied to the first timestep volume (recommended).
-# Override if Otsu picks the wrong region (inspect threshold_check.png).
-THRESHOLD = -0.045 # e.g. 0.025
-
-# Output directory (sits next to the model/ folder)
-OUTPUT_DIR = Path(MODEL_PATH).parent
-
 # ── Glitch filtering ──────────────────────────────────────────────────────────
-# Revolution-boundary artefacts appear as sudden spikes ~15× per 800-projection
-# scan (one per full 360° revolution).  The filter detects timesteps whose
-# volume deviates more than FILTER_SIGMA × MAD from the local running median,
-# then replaces them with linear interpolation of their neighbours.
-FILTER_GLITCHES = True   # set False to see raw spikes in the plot
-FILTER_SIGMA    = 0.5    # outlier threshold: points > sigma × MAD from linear trend are replaced
+FILTER_GLITCHES = True
+FILTER_SIGMA    = 500
+
+# Skip runs that already have a mae.txt (useful for resuming)
+SKIP_EXISTING = True
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
-# Set True to skip model inference and reload volumes from a previous run's
-# sand_volume.npz.  Glitch filtering is re-applied with current FILTER_* settings.
+# Reload volumes from a previous run's sand_volume.npz instead of re-querying.
 PLOT_ONLY = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 
+FPS_RE = re.compile(r"^(\d+)fps")
+
+
+def threshold_for(run_name: str) -> float:
+    m = FPS_RE.match(run_name)
+    if not m:
+        raise ValueError(f"Cannot determine fps from run name '{run_name}'")
+    fps = int(m.group(1))
+    if fps == 4:
+        return THRESHOLD_4FPS
+    if fps == 8:
+        return THRESHOLD_8FPS
+    raise ValueError(f"No threshold configured for {fps}fps (run: '{run_name}')")
+
+
+def find_runs(base: Path) -> list[Path]:
+    runs = sorted(p for p in base.iterdir() if p.is_dir() and (p / "model").is_dir())
+    if not runs:
+        print(f"No subdirectories with a model/ folder found under {base}")
+    return runs
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: str):
-    """Replace points that deviate from a linear trend with the trend value.
-
-    Fits a line to (t_axis, arr), flags points whose residual exceeds
-    sigma × MAD, replaces them with the linear truth, then prints a pattern
-    analysis of which timesteps were replaced.
-
-    Returns (clean_arr, bad_mask).
-    """
-    K = 5  # number of edge points to median for robust anchors
+    K = 5
     v0 = float(np.median(arr[:K]))
     v1 = float(np.median(arr[-K:]))
     t0, t1 = float(t_axis[0]), float(t_axis[-1])
@@ -95,7 +106,7 @@ def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: st
     mad = np.median(np.abs(residuals - np.median(residuals)))
     if mad == 0:
         print(f"  {label}: MAD=0, nothing filtered")
-        return arr.copy(), np.zeros(len(arr), dtype=bool)
+        return arr.copy(), np.zeros(len(arr), dtype=bool), truth
 
     threshold = sigma * mad * 1.4826
     bad = np.abs(residuals) > threshold
@@ -131,7 +142,6 @@ def query_volume(
     x_lin: torch.Tensor,
     device: torch.device,
 ) -> np.ndarray:
-    """Returns calibrated 3D volume (z, y, x) for a single timestep t in [0,1]."""
     z_h, y_w, x_w = len(z_lin), len(y_lin), len(x_lin)
     output = torch.zeros((z_h, y_w, x_w), device="cpu", dtype=torch.float32)
     t_tensor = torch.tensor(t, device=device)
@@ -145,10 +155,16 @@ def query_volume(
     return output.numpy()
 
 
-def main():
-    out_dir = OUTPUT_DIR
-    out_dir.mkdir(parents=True, exist_ok=True)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def process_run(run_dir: Path) -> None:
+    out_dir = run_dir
     npz_path = out_dir / "sand_volume.npz"
+    threshold = threshold_for(run_dir.name)
+
+    print(f"\n{'='*60}")
+    print(f"Run: {run_dir.name}  |  threshold={threshold}")
+    print(f"{'='*60}")
 
     if PLOT_ONLY:
         print(f"PLOT_ONLY: loading volumes from {npz_path}")
@@ -157,16 +173,16 @@ def main():
         bot_vols_mm3 = data["bottom_volume_mm3"]
         t_axis = data["projection_indices"]
     else:
-        base_path = Path(MODEL_PATH)
+        model_path = run_dir / "model"
         device = torch.device(0)
 
         print("Loading config and model...")
-        config = get_cfg(base_path / "config.yaml")
+        config = get_cfg(model_path / "config.yaml")
         assert config.geometry is not None, "No geometry in config"
         assert config.mode == "dynamic", "Model must be in dynamic mode"
 
         model = config.get_model()
-        checkpoints = torch.load(base_path / "checkpoints" / "last.ckpt", map_location="cpu")
+        checkpoints = torch.load(model_path / "checkpoints" / "last.ckpt", map_location="cpu")
         model.load_state_dict(checkpoints["model"])
         model = model.to(device)
         model.eval()
@@ -178,72 +194,54 @@ def main():
             sample_outside=config.sample_outside,
         )
 
-        # ── Voxel dimensions ─────────────────────────────────────────────────────
-        nVoxels_raw = list(config.geometry.nVoxel)   # [nz, ny, nx]
-        dVoxel = list(config.geometry.dVoxel)        # [dz, dy, dx] in mm
+        nVoxels_raw = list(config.geometry.nVoxel)
+        dVoxel = list(config.geometry.dVoxel)
         rm = config.sample_outside
         nVoxels = [nVoxels_raw[0], nVoxels_raw[1] + 2 * rm, nVoxels_raw[2] + 2 * rm]
 
-        # Physical size of one (binned) voxel in mm³
         voxel_vol_mm3 = (dVoxel[0] * BINNING) * (dVoxel[1] * BINNING) * (dVoxel[2] * BINNING)
         print(f"Binned voxel volume: {voxel_vol_mm3:.4f} mm³")
 
-        # ── Spatial coordinate ranges ─────────────────────────────────────────────
         def roi_coords(roi, n_full, n_voxels, rm_offset=0):
-            """Returns (start, end, n_bins) for one axis."""
             if roi is None:
                 return 0.0, 1.0, n_full // BINNING
             n_bins = (roi[1] - roi[0]) // BINNING
             start = (roi[0] - rm_offset) / n_voxels
-            end = (roi[1] - rm_offset) / n_voxels
+            end   = (roi[1] - rm_offset) / n_voxels
             return start, end, n_bins
 
         start_z, end_z, z_h = roi_coords(ROI_Z, nVoxels_raw[0], nVoxels[0], rm_offset=0)
         start_y, end_y, y_w = roi_coords(ROI_Y, nVoxels_raw[1], nVoxels[1], rm_offset=rm)
         start_x, end_x, x_w = roi_coords(ROI_X, nVoxels_raw[2], nVoxels[2], rm_offset=rm)
-
         print(f"Volume shape per timestep: ({z_h}, {y_w}, {x_w})")
 
         z_lin = torch.linspace(start_z, end_z, steps=z_h, device=device)
         y_lin = torch.linspace(start_y, end_y, steps=y_w, device=device)
         x_lin = torch.linspace(start_x, end_x, steps=x_w, device=device)
 
-        # ── Normalisation constants (same as export_volumes) ─────────────────────
-        scale = 1.0 / geometry.max_distance_traveled
+        scale    = 1.0 / geometry.max_distance_traveled
         data_min = dataset.minimum.item()
         data_max = dataset.maximum.item()
 
         def calibrate(raw: np.ndarray) -> np.ndarray:
             return raw * scale * (data_max - data_min) + data_min
 
-        # ── Timestep schedule ─────────────────────────────────────────────────────
-        angles = config.geometry.angles
+        angles   = config.geometry.angles
         t_values = np.linspace(0.0, 1.0, N_TIMESTEPS, endpoint=False)
 
-        # ── First volume: threshold + diagnostic images ───────────────────────────
         print("Querying first timestep volume for threshold / neck diagnostics...")
         with torch.no_grad():
             vol0_raw = query_volume(model, float(t_values[0]), z_lin, y_lin, x_lin, device)
         vol0 = calibrate(vol0_raw)
 
-        threshold = THRESHOLD
-        if threshold is None:
-            threshold = threshold_otsu(vol0)
-            print(f"  Otsu threshold = {threshold:.4f}")
-        else:
-            print(f"  Using manual threshold = {threshold:.4f}")
+        print(f"  Using threshold = {threshold:.4f}")
 
-        # ── Neck split ────────────────────────────────────────────────────────────
         neck_z = NECK_Z_VOXEL if NECK_Z_VOXEL is not None else z_h // 2
+        mid_y  = y_w // 2
+        mid_x  = x_w // 2
 
-        mid_y = y_w // 2
-        mid_x = x_w // 2
-
-        # Percentile-clipped display range so air doesn't crush the contrast
         vmin = float(np.percentile(vol0, 1))
         vmax = float(np.percentile(vol0, 99))
-        print(f"  Display range: vmin={vmin:.4f}  vmax={vmax:.4f}  "
-              f"(1st–99th percentile of full volume)")
 
         fig_nc, axes_nc = plt.subplots(2, 2, figsize=(14, 10))
 
@@ -258,7 +256,6 @@ def main():
             ax.set_ylabel(ylabel)
             plt.colorbar(im, ax=ax, fraction=0.03, pad=0.04)
 
-        # Row 0: XZ slice (mid-Y)
         show(axes_nc[0, 0], vol0[:, mid_y, :],
              "XZ slice (mid-Y) — raw attenuation",
              "x voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
@@ -270,7 +267,6 @@ def main():
         axes_nc[0, 1].set_xlabel("x voxel (binned)")
         axes_nc[0, 1].legend(fontsize=8)
 
-        # Row 1: YZ slice (mid-X) and XY slice at neck
         show(axes_nc[1, 0], vol0[:, :, mid_x],
              "YZ slice (mid-X) — raw attenuation",
              "y voxel (binned)", "z voxel (binned)  [0=top]", add_neck=True)
@@ -284,35 +280,21 @@ def main():
         plt.savefig(nc_path, dpi=150)
         plt.close(fig_nc)
         print(f"  Diagnostic slices saved to {nc_path}")
-        print(f"  → Red dashed line marks neck split at z={neck_z} (of {z_h})")
-        print(f"  → Adjust NECK_Z_VOXEL if the line doesn't sit at the hourglass neck")
-        print(f"Neck split at binned z-index {neck_z} (of {z_h} total z-slices)")
 
-        # ── Main loop ─────────────────────────────────────────────────────────────
         top_vols_mm3 = []
         bot_vols_mm3 = []
 
         with torch.no_grad():
-            for i, t in enumerate(tqdm(t_values, desc="Timesteps")):
-                # Reuse already-queried first volume
-                if i == 0:
-                    vol = vol0
-                else:
-                    raw_vol = query_volume(model, float(t), z_lin, y_lin, x_lin, device)
-                    vol = calibrate(raw_vol)
-
-                sand_mask = vol > threshold  # True where sand
-
-                top_voxels = sand_mask[:neck_z].sum()
-                bot_voxels = sand_mask[neck_z:].sum()
-
-                top_vols_mm3.append(top_voxels * voxel_vol_mm3)
-                bot_vols_mm3.append(bot_voxels * voxel_vol_mm3)
+            for i, t in enumerate(tqdm(t_values, desc=run_dir.name)):
+                vol = vol0 if i == 0 else calibrate(
+                    query_volume(model, float(t), z_lin, y_lin, x_lin, device)
+                )
+                sand_mask = vol > threshold
+                top_vols_mm3.append(sand_mask[:neck_z].sum() * voxel_vol_mm3)
+                bot_vols_mm3.append(sand_mask[neck_z:].sum() * voxel_vol_mm3)
 
         top_vols_mm3 = np.array(top_vols_mm3)
         bot_vols_mm3 = np.array(bot_vols_mm3)
-
-        # Convert t in [0,1] to acquisition index for the x-axis
         t_axis = t_values * len(angles)
 
         np.savez(
@@ -332,32 +314,27 @@ def main():
     total_vols_mm3 = top_vols_mm3 + bot_vols_mm3
     top_vols_clean = top_vols_mm3.copy()
     bot_vols_clean = bot_vols_mm3.copy()
-    glitch_mask = np.zeros(len(top_vols_mm3), dtype=bool)
     top_linear = bot_linear = total_linear = None
 
     if FILTER_GLITCHES:
         print(f"Glitch filter (sigma={FILTER_SIGMA}):")
-        top_vols_clean, top_bad, top_linear = filter_glitches(top_vols_mm3, t_axis, FILTER_SIGMA, "Top chamber")
-        bot_vols_clean, bot_bad, bot_linear = filter_glitches(bot_vols_mm3, t_axis, FILTER_SIGMA, "Bottom chamber")
-        _, total_bad, total_linear = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
-        glitch_mask = top_bad | bot_bad
+        top_vols_clean, _, top_linear   = filter_glitches(top_vols_mm3,   t_axis, FILTER_SIGMA, "Top chamber")
+        bot_vols_clean, _, bot_linear   = filter_glitches(bot_vols_mm3,   t_axis, FILTER_SIGMA, "Bottom chamber")
+        _,              _, total_linear = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
 
     total_clean = top_vols_clean + bot_vols_clean
 
-    # ── Truth lines & error metrics ───────────────────────────────────────────
-    # Total sand is conserved → truth is a flat line at the mean total.
+    # ── Error metrics ─────────────────────────────────────────────────────────
     total_truth = float(total_clean.mean())
-    # Given the measured bottom, conservation dictates what top should be, and vice versa.
-    top_truth = total_truth - bot_vols_clean
-    bot_truth = total_truth - top_vols_clean
+    top_truth   = total_truth - bot_vols_clean
+    bot_truth   = total_truth - top_vols_clean
 
     mae_total = float(np.mean(np.abs(total_clean - total_truth)))
     mse_total = float(np.mean((total_clean - total_truth) ** 2))
 
-    # 1:1 check: Δtop should equal −Δbot  →  residual = Δtop + Δbot = total(t) − total(0)
-    delta_top = top_vols_clean - top_vols_clean[0]
-    delta_bot = bot_vols_clean - bot_vols_clean[0]
-    residual_1to1 = delta_top + delta_bot
+    delta_top      = top_vols_clean - top_vols_clean[0]
+    delta_bot      = bot_vols_clean - bot_vols_clean[0]
+    residual_1to1  = delta_top + delta_bot
     mae_1to1 = float(np.mean(np.abs(residual_1to1)))
     mse_1to1 = float(np.mean(residual_1to1 ** 2))
 
@@ -370,27 +347,21 @@ def main():
     fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
     ax = axes[0]
-    ax.plot(t_axis, top_vols_clean, label="Top chamber", color="steelblue")
+    ax.plot(t_axis, top_vols_clean, label="Top chamber",    color="steelblue")
     ax.plot(t_axis, bot_vols_clean, label="Bottom chamber", color="firebrick")
-    ax.plot(t_axis, total_clean, label="Total", color="mediumpurple")
+    ax.plot(t_axis, total_clean,    label="Total",          color="mediumpurple")
     if top_linear is not None:
-        ax.plot(t_axis, top_linear, color="steelblue", linewidth=1, alpha=0.4,
-                linestyle="--", label="Top filter line")
-        ax.plot(t_axis, bot_linear, color="firebrick", linewidth=1, alpha=0.4,
-                linestyle="--", label="Bot filter line")
-        ax.plot(t_axis, total_linear, color="mediumpurple", linewidth=1, alpha=0.4,
-                linestyle="--", label="Total filter line")
+        ax.plot(t_axis, top_linear,   color="steelblue",   linewidth=1, alpha=0.4, linestyle="--", label="Top filter line")
+        ax.plot(t_axis, bot_linear,   color="firebrick",   linewidth=1, alpha=0.4, linestyle="--", label="Bot filter line")
+        ax.plot(t_axis, total_linear, color="mediumpurple", linewidth=1, alpha=0.4, linestyle="--", label="Total filter line")
     ax.set_ylabel("Sand volume (mm³)")
+    ax.set_title(f"Hourglass sand volume — {run_dir.name}")
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
-    title = "Hourglass sand volume over time"
-    ax.set_title(title)
 
     ax2 = axes[1]
-    ax2.plot(t_axis, top_vols_clean / (total_clean + 1e-9) * 100,
-             color="steelblue", label="Top %")
-    ax2.plot(t_axis, bot_vols_clean / (total_clean + 1e-9) * 100,
-             color="firebrick", label="Bottom %")
+    ax2.plot(t_axis, top_vols_clean / (total_clean + 1e-9) * 100, color="steelblue",  label="Top %")
+    ax2.plot(t_axis, bot_vols_clean / (total_clean + 1e-9) * 100, color="firebrick",  label="Bottom %")
     ax2.set_ylabel("Fraction of sand (%)")
     ax2.set_xlabel("Timesteps")
     ax2.legend()
@@ -400,8 +371,8 @@ def main():
     plt.tight_layout()
     plot_path = out_dir / "sand_volume.png"
     plt.savefig(plot_path, dpi=150)
+    plt.close(fig)
     print(f"Plot saved to {plot_path}")
-
 
     mae_path = out_dir / "mae.txt"
     with open(mae_path, "w") as f:
@@ -427,7 +398,21 @@ def main():
         f.write(f"  MSE : {mse_bot:.4f} mm⁶\n")
     print(f"Conservation metrics saved to {mae_path}")
 
-    plt.show()
+
+def main():
+    runs = find_runs(BASE_DIR)
+    print(f"Found {len(runs)} run(s) under {BASE_DIR}")
+
+    for run_dir in runs:
+        if SKIP_EXISTING and not PLOT_ONLY and (run_dir / "mae.txt").exists():
+            print(f"Skipping {run_dir.name} (mae.txt already exists)")
+            continue
+        try:
+            process_run(run_dir)
+        except Exception as e:
+            print(f"ERROR processing {run_dir.name}: {e}")
+            continue
+
 
 if __name__ == "__main__":
     main()
