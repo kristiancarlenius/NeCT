@@ -155,11 +155,14 @@ class ContinousScanningTrainer(BaseTrainer):
                     linspace = [(end_linspace[k] + end_linspace[k + 1]) / 2 for k in range(self.config.accumulation_steps)]
                     points_per_batch = 5000000  # 5 million points per batch is about the maximum that can be processed at once with tinycudann
 
-                    # Pass 1: accumulate y_pred without computation graphs to save memory.
+                    # Pass 1: accumulate y_pred and y_target without computation graphs to save memory.
                     # With all graphs alive simultaneously, memory scales with accumulation_steps.
                     # Cache projector outputs so Pass 2 doesn't recompute them.
+                    # Both y_pred and y_target are averaged across all sub-angles so the loss
+                    # compares quantities computed at the same set of ray geometries.
                     y_pred = None
-                    y_last = None
+                    y_target = None
+                    valid_steps = 0
                     cached_angles = []  # list of (points_filtered, zero_points_mask, points_shape, distances)
                     with torch.no_grad():
                         for ang in linspace:
@@ -168,7 +171,6 @@ class ContinousScanningTrainer(BaseTrainer):
                             if points is None or y is None:
                                 cached_angles.append(None)
                                 continue
-                            y_last = y
                             zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
                             points_shape = points.size()
                             if points_shape[1] == 0:
@@ -195,10 +197,13 @@ class ContinousScanningTrainer(BaseTrainer):
                             contrib = torch.sum(atten_hat, dim=1) * (distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
                             if y_pred is None:
                                 y_pred = contrib
+                                y_target = y / self.config.accumulation_steps
                             else:
                                 y_pred += contrib
+                                y_target = y_target + y / self.config.accumulation_steps
+                            valid_steps += 1
 
-                    if y_pred is None or y_last is None:
+                    if y_pred is None or y_target is None:
                         continue
 
                     # Treat y_pred as a leaf to compute dL/dy_pred without touching model params.
@@ -212,10 +217,10 @@ class ContinousScanningTrainer(BaseTrainer):
                         loss = 0
                         patch_size = min(math.floor(math.sqrt(self.projector.total_detector_pixels)), math.floor(math.sqrt(self.batch_size)),)  # 25x25 patch size, add a parameter later
                         self.fabric.log_dict({"patch_size": patch_size}, step=self.step)
-                        loss += self.loss_fn(y_pred_for_loss, y_last)
-                        loss += self.s3im_loss(y_pred_for_loss, y_last, patch_size=patch_size)
+                        loss += self.loss_fn(y_pred_for_loss, y_target)
+                        loss += self.s3im_loss(y_pred_for_loss, y_target, patch_size=patch_size)
                     else:
-                        loss = self.loss_fn(y_pred_for_loss, y_last)
+                        loss = self.loss_fn(y_pred_for_loss, y_target)
 
                     loss.backward()
                     grad_y_pred = y_pred_leaf.grad.detach()

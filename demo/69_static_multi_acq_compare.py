@@ -403,10 +403,11 @@ def main():
     _bar_plot(grad_vals,   "Mean gradient magnitude", "Sharpness — gradient magnitude (no ref, higher = sharper)", OUTPUT_GRAD,   "{:.4f}",   0.0)
     _bar_plot(lapvar_vals, "Laplacian variance",      "Sharpness — Laplacian variance (no ref, higher = sharper)", OUTPUT_LAPVAR, "{:.6f}",   0.0)
 
-    # ── Combined score: geometric mean of normalised sharpness and accuracy ────
+    # ── Combined score: arithmetic mean of normalised sharpness and accuracy ────
     # grad_norm  ∈ [0,1], higher = sharper
     # acc_norm   ∈ [0,1], higher = more accurate (1 - normalised MAE)
-    # combined   = sqrt(grad_norm * acc_norm)  — geometric mean penalises extremes
+    # combined   = (grad_norm + acc_norm) / 2  — arithmetic mean avoids zeroing out
+    # models that are worst on one metric (geometric mean collapses to 0 for those).
     g = np.array(grad_vals, dtype=np.float64)
     m = np.array(mae_vals,  dtype=np.float64)
 
@@ -414,14 +415,14 @@ def main():
     m_range = m.max() - m.min()
     grad_norm = (g - g.min()) / g_range if g_range > 0 else np.full_like(g, 0.5)
     acc_norm  = 1.0 - ((m - m.min()) / m_range if m_range > 0 else np.full_like(m, 0.5))
-    combined  = np.sqrt(grad_norm * acc_norm)
+    combined  = (grad_norm + acc_norm) / 2.0
 
     fig, ax = plt.subplots(figsize=(figw, 4), constrained_layout=True)
     bars = ax.bar(x, combined, color=bar_colours, edgecolor="white", linewidth=0.5)
     ax.set_ylabel("Combined score (higher is better)")
     ax.set_title(
-        f"Combined score — sharpness × accuracy vs {GT_NAME}\n"
-        f"geometric mean of normalised grad magnitude and normalised (1−MAE)"
+        f"Combined score — sharpness + accuracy vs {GT_NAME}\n"
+        f"arithmetic mean of normalised grad magnitude and normalised (1−MAE)"
     )
     ax.set_xticks(x)
     ax.set_xticklabels(metric_names, rotation=45, ha="right", fontsize=8)
@@ -437,7 +438,7 @@ def main():
     print(f"Saved {OUTPUT_COMBINED.name} to {OUTPUT_COMBINED}")
 
     with open(OUTPUT_TXT, "a") as f:
-        f.write("\nCombined score (geometric mean of norm. grad and norm. accuracy vs GT)\n")
+        f.write("\nCombined score (arithmetic mean of norm. grad and norm. accuracy vs GT)\n")
         f.write("-" * sep + "\n")
         for name, cs, gn, an in zip(metric_names, combined, grad_norm, acc_norm):
             f.write(f"{name:<{col_w}}   combined={cs:.4f}   grad_norm={gn:.4f}   acc_norm={an:.4f}\n")
