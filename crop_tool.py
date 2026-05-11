@@ -32,7 +32,7 @@ from matplotlib.widgets import RectangleSelector
 import numpy as np
 from PIL import Image
 
-CROPS_FILE = Path(__file__).parent / "crop_img_comparison.json"
+CROPS_FILE = Path(__file__).parent / "crop_static_big.json"
 N_PANELS = 1
 COLORS = ["#e41a1c"]
 

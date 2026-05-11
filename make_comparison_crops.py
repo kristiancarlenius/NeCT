@@ -19,7 +19,7 @@ from PIL import Image
 
 ROOT = Path(__file__).parent
 
-CROPS_FILE = ROOT / "crop_img_comparison.json"
+CROPS_FILE = ROOT / "crop_static_big.json"#img_comparison.json"
 OUT_DIR = ROOT / "docs" / "images"
 
 SOURCES = [
@@ -39,7 +39,7 @@ SOURCES = [
 ]
 
 UPSCALE = 4        # nearest-neighbour upscale factor for print clarity
-P_LOW, P_HIGH = 1.0, 100  # percentile clip for intensity stretch
+P_LOW, P_HIGH = 0, 100  # percentile clip for intensity stretch
 
 
 def load_gray(path: Path) -> np.ndarray:

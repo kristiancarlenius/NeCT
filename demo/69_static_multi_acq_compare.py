@@ -49,6 +49,7 @@ OUTPUT_SSIM     = BASE_DIR / "ssim.png"
 OUTPUT_MAE      = BASE_DIR / "mae.png"
 OUTPUT_GRAD     = BASE_DIR / "grad_magnitude.png"
 OUTPUT_LAPVAR   = BASE_DIR / "lap_variance.png"
+OUTPUT_COMBINED = BASE_DIR / "combined_score.png"
 OUTPUT_NPZ      = BASE_DIR / "metrics.npz"
 OUTPUT_TXT      = BASE_DIR / "metrics.txt"
 
@@ -401,6 +402,45 @@ def main():
     _bar_plot(mae_vals,    "MAE",                     "MAE (lower is better, ref-dependent)",                      OUTPUT_MAE,    "{:.4f}",   0.0)
     _bar_plot(grad_vals,   "Mean gradient magnitude", "Sharpness — gradient magnitude (no ref, higher = sharper)", OUTPUT_GRAD,   "{:.4f}",   0.0)
     _bar_plot(lapvar_vals, "Laplacian variance",      "Sharpness — Laplacian variance (no ref, higher = sharper)", OUTPUT_LAPVAR, "{:.6f}",   0.0)
+
+    # ── Combined score: geometric mean of normalised sharpness and accuracy ────
+    # grad_norm  ∈ [0,1], higher = sharper
+    # acc_norm   ∈ [0,1], higher = more accurate (1 - normalised MAE)
+    # combined   = sqrt(grad_norm * acc_norm)  — geometric mean penalises extremes
+    g = np.array(grad_vals, dtype=np.float64)
+    m = np.array(mae_vals,  dtype=np.float64)
+
+    g_range = g.max() - g.min()
+    m_range = m.max() - m.min()
+    grad_norm = (g - g.min()) / g_range if g_range > 0 else np.full_like(g, 0.5)
+    acc_norm  = 1.0 - ((m - m.min()) / m_range if m_range > 0 else np.full_like(m, 0.5))
+    combined  = np.sqrt(grad_norm * acc_norm)
+
+    fig, ax = plt.subplots(figsize=(figw, 4), constrained_layout=True)
+    bars = ax.bar(x, combined, color=bar_colours, edgecolor="white", linewidth=0.5)
+    ax.set_ylabel("Combined score (higher is better)")
+    ax.set_title(
+        f"Combined score — sharpness × accuracy vs {GT_NAME}\n"
+        f"geometric mean of normalised grad magnitude and normalised (1−MAE)"
+    )
+    ax.set_xticks(x)
+    ax.set_xticklabels(metric_names, rotation=45, ha="right", fontsize=8)
+    ax.set_ylim(0, 1.05)
+    ax.yaxis.grid(True, alpha=0.3)
+    ax.set_axisbelow(True)
+    for bar, v, gn, an in zip(bars, combined, grad_norm, acc_norm):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
+                f"{v:.3f}", ha="center", va="bottom", fontsize=7)
+    ax.legend(handles=legend_handles, title="Projection count", fontsize=9, framealpha=0.9)
+    plt.savefig(OUTPUT_COMBINED, dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"Saved {OUTPUT_COMBINED.name} to {OUTPUT_COMBINED}")
+
+    with open(OUTPUT_TXT, "a") as f:
+        f.write("\nCombined score (geometric mean of norm. grad and norm. accuracy vs GT)\n")
+        f.write("-" * sep + "\n")
+        for name, cs, gn, an in zip(metric_names, combined, grad_norm, acc_norm):
+            f.write(f"{name:<{col_w}}   combined={cs:.4f}   grad_norm={gn:.4f}   acc_norm={an:.4f}\n")
 
 
 if __name__ == "__main__":
