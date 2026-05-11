@@ -21,12 +21,12 @@ BASE_DIR = Path(
     "/hash_grid_23_4_23_16_2_4_128_L1"
 )
 
-GT_NAME = "1400_ac2"
+GT_NAME = "1400_ac1"
 
 COMPARE_NAMES: list[str] | None = [
     "100_ac1", "100_ac2", "100_ac3", "100_ac4", "100_ac6",
     "360_ac1", "360_ac2", "360_ac3", "360_ac4", "360_ac6",
-    "1400_ac1", "1400_ac2"
+    "1400_ac1",
 ]
 
 BINNING = 1
