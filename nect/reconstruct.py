@@ -343,6 +343,7 @@ def reconstruct_continious_scan(
     channel_order: str | None = None,
     config_override: dict | None = None,
     save_ckpt: bool = True,
+    memvstime: bool = False,
 ) -> np.ndarray | Path:
 
     logger.remove()
@@ -435,7 +436,11 @@ def reconstruct_continious_scan(
     #if mode == "dynamic":
     log = True
 
-    trainer = ContinousScanningTrainer
+    if memvstime:
+        from nect.trainers.continous_scanning_trainer_mem import ContinousScanningTrainerMem
+        trainer = ContinousScanningTrainerMem
+    else:
+        trainer = ContinousScanningTrainer
     trainer = trainer(
         config=config,
         output_directory=log_path if log else None,
