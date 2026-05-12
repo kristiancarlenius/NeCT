@@ -54,7 +54,6 @@ class ContinousScanningTrainerMem(ContinousScanningTrainer):
                     # with accumulation_steps. In return, each angle is only forwarded once.
                     y_pred = None
                     y_target = None
-                    valid_steps = 0
 
                     for ang in linspace:
                         self.projector.update_angle(ang)
@@ -90,7 +89,6 @@ class ContinousScanningTrainerMem(ContinousScanningTrainer):
                         else:
                             y_pred = y_pred + contrib
                             y_target = y_target + y / self.config.accumulation_steps
-                        valid_steps += 1
 
                     if y_pred is None or y_target is None:
                         continue

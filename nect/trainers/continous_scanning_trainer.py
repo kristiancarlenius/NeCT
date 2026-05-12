@@ -162,7 +162,6 @@ class ContinousScanningTrainer(BaseTrainer):
                     # compares quantities computed at the same set of ray geometries.
                     y_pred = None
                     y_target = None
-                    valid_steps = 0
                     cached_angles = []  # list of (points_filtered, zero_points_mask, points_shape, distances)
                     with torch.no_grad():
                         for ang in linspace:
@@ -201,7 +200,6 @@ class ContinousScanningTrainer(BaseTrainer):
                             else:
                                 y_pred += contrib
                                 y_target = y_target + y / self.config.accumulation_steps
-                            valid_steps += 1
 
                     if y_pred is None or y_target is None:
                         continue
