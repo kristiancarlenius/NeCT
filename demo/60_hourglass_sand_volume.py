@@ -63,7 +63,7 @@ FILTER_GLITCHES = True
 FILTER_SIGMA    = 500
 
 # Skip runs that already have a mae.txt (useful for resuming)
-SKIP_EXISTING = True
+SKIP_EXISTING = False
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Reload volumes from a previous run's sand_volume.npz instead of re-querying.
