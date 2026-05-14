@@ -52,6 +52,8 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         "accumulation_steps": 3,
         "continous_scanning": True,
 
-    },)
+    },
+    memvstime=True,
+    )
 
 print(reconstruction_path_dynamic, _)
