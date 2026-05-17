@@ -97,7 +97,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         "continous_scanning": True,
         
     },
-    enc_arc="mixedcubes",   # or "combinedcubes"
+    enc_arc="mixedcubes",  
     memvstime=True,
 )
 
