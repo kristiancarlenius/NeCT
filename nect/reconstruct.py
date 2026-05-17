@@ -338,6 +338,7 @@ def reconstruct_continious_scan(
     timesteps: _list | None = None,
     verbose: bool = True,
     log: bool = False,
+    enc_arc: str | None = None,
     exp_name: str | None = None,
     flip_projections: bool = False,
     channel_order: str | None = None,
@@ -349,10 +350,22 @@ def reconstruct_continious_scan(
     logger.remove()
     logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>", level="INFO" if verbose else "WARNING",)
 
-    if mode == "static":
+    if mode == "static" and enc_arc is None:
         cfg = get_static_cfg(name="hash_grid")
         cfg["model"] = "hash_grid"
-    elif mode == "dynamic":
+    elif enc_arc == "mixedcubes":
+        cfg = get_dynamic_cfg(name="mixedcubes")
+        cfg["model"] = "mixedcubes"
+    elif enc_arc == "combinedcubes":
+        cfg = get_dynamic_cfg(name="combinedcubes")
+        cfg["model"] = "combinedcubes"
+    elif enc_arc == "sexcubes":
+        cfg = get_dynamic_cfg(name="sexcubes")
+        cfg["model"] = "sexcubes"
+    elif enc_arc == "singlecube":
+        cfg = get_dynamic_cfg(name="singlecube")
+        cfg["model"] = "singlecube"
+    else:
         cfg = get_dynamic_cfg(name="quadcubes")
         cfg["model"] = "quadcubes"
 
