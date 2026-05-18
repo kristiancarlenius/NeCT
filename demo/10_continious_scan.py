@@ -69,24 +69,32 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 22,
+            "n_levels": 23,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 22,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
-        "net": MLPNetConfig(
-            otype="FullyFusedMLP",
-            activation="LeakyReLU",
-            output_activation="None",
-            n_neurons=128,
-            n_hidden_layers=4,
-            include_identity=False,
-            include_adaptive_skip=False,
-        ),
-        "accumulation_steps": 3,
+        "encoder_2d": {
+            "n_levels": 12,
+            "n_features_per_level": 4,
+            "base_resolution": 16,
+            "per_level_scale": 1.5,
+        },
+        "net": {
+            "otype": "FullyFusedMLP",
+            "activation": "LeakyReLU",
+            "output_activation": "None",
+            "n_neurons": 128,
+            "n_hidden_layers": 4,
+            "include_identity": False,
+        },
+        "tv_temporal": 1e-4,
+        "accumulation_steps": 4,
         "continous_scanning": True,
         
-    },)
+    },
+    enc_arc="mixedcubes",
+    memvstime=True,)
 
 print(reconstruction_path_dynamic, _)
