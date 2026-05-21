@@ -245,7 +245,7 @@ class ContinousScanningTrainer(BaseTrainer):
 
                     self.fabric.log_dict(
                         {
-                            "loss": loss,
+                            "loss": loss.item(),
                             "max_mem": torch.cuda.max_memory_allocated(),
                             "current_mem": int(memory_info.used),
                             "epoch": epoch,

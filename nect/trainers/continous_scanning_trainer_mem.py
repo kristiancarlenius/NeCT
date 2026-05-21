@@ -111,7 +111,7 @@ class ContinousScanningTrainerMem(ContinousScanningTrainer):
 
                     self.fabric.log_dict(
                         {
-                            "loss": loss,
+                            "loss": loss.item(),
                             "max_mem": torch.cuda.max_memory_allocated(),
                             "current_mem": int(memory_info.used),
                             "epoch": epoch,
@@ -137,5 +137,6 @@ class ContinousScanningTrainerMem(ContinousScanningTrainer):
                         self._epoch_loss_count += 1
                 self.on_angle_end()
             self.on_train_epoch_end()
+            torch.cuda.empty_cache()
         self.evaluate()
         self.save_model(last=True)
