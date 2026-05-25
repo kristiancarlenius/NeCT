@@ -75,7 +75,7 @@ def forward_project(model, config, geometry: Geometry, angle_rad: float, t: floa
     c_geom = geometry.get_c_geometry()
     nDet_h, nDet_w = geometry.nDetector
     total_pixels = nDet_h * nDet_w
-    max_dist = geometry.max_distance_traveled
+    max_dist = float(geometry.max_distance_traveled)
     dist_per_point = max_dist / POINTS_PER_RAY
 
     # Sequential pixel indices — output will be in scan order directly
@@ -97,7 +97,7 @@ def forward_project(model, config, geometry: Geometry, angle_rad: float, t: floa
             max_ray_distance_per_point=dist_per_point,
             uniform_ray_spacing=True,
             random_detector_offset=0.0,
-            device=device.index,
+            device=device.index if device.index is not None else 0,
         )
 
         with torch.no_grad():
