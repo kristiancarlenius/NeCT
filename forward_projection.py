@@ -33,7 +33,7 @@ ANGLE_IDX = 0
 TIMESTEP_OVERRIDE = None
 
 # Integration quality — more points → sharper / less noise, slower
-POINTS_PER_RAY = 5000000
+POINTS_PER_RAY = 500000
 
 # Rays processed per GPU batch (reduce if you hit OOM)
 BATCH_RAYS = 8192
