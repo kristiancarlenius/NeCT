@@ -1,17 +1,17 @@
 """
-Compare sand-volume MASE (MAE²) metrics across multiple runs, grouped by acquisition count.
+Compare sand-volume RMAE (√MAE) metrics across multiple runs, grouped by acquisition count.
 
 Run names are expected to follow the pattern: {fps}_{steps}_ac{N}[_re]
 e.g. 4fps_11000_ac2, 8fps_5500_ac6_re
 
 Outputs (all saved to OUT_DIR):
-  mase_total.png, mase_1to1.png, mase_top.png, mase_bot.png
+  rmae_total.png, rmae_1to1.png, rmae_top.png, rmae_bot.png
       One image per metric.  All {fps}_{steps} groups as lines, x = ac number.
 
-  mase_group_4fps_11000.png, mase_group_8fps_5500.png, ...
+  rmae_group_4fps_11000.png, rmae_group_8fps_5500.png, ...
       One image per {fps}_{steps} group.  All four metrics as lines, x = ac number.
 
-  mase_4fps.png, mase_8fps.png
+  rmae_4fps.png, rmae_8fps.png
       One image per fps tier (4fps / 8fps), all metrics as subplots,
       filtered to groups of that fps only.
 
@@ -43,10 +43,10 @@ RUN_RE = re.compile(r"^(\d+fps_\d+)_ac(\d+)")
 
 METRICS = ["total", "1to1", "top", "bot"]
 METRIC_TITLES = {
-    "total": "Total conservation MASE (mm⁶)",
-    "1to1":  "1:1 tracking MASE (mm⁶)",
-    "top":   "Top chamber MASE (mm⁶)",
-    "bot":   "Bottom chamber MASE (mm⁶)",
+    "total": "Total conservation RMAE (mm^1.5)",
+    "1to1":  "1:1 tracking RMAE (mm^1.5)",
+    "top":   "Top chamber RMAE (mm^1.5)",
+    "bot":   "Bottom chamber RMAE (mm^1.5)",
 }
 METRIC_SHORT = {
     "total": "Total conservation",
@@ -62,14 +62,14 @@ METRIC_COLORS = {
 }
 
 
-def parse_mase(path: Path) -> dict[str, float] | None:
-    """Read MAE values from mae.txt and return their squares (MASE = MAE²)."""
+def parse_rmae(path: Path) -> dict[str, float] | None:
+    """Read MAE values from mae.txt and return their square roots (RMAE = √MAE)."""
     text = path.read_text()
     values = re.findall(r"MAE\s*:\s*([\d.]+)", text)
     if len(values) < 4:
         print(f"  WARNING: expected 4 MAE values in {path}, found {len(values)} — skipping")
         return None
-    return {k: float(v) ** 2 for k, v in zip(METRICS, values)}
+    return {k: float(v) ** 0.5 for k, v in zip(METRICS, values)}
 
 
 def collect(base: Path) -> dict[str, dict[int, dict[str, float]]]:
@@ -84,7 +84,7 @@ def collect(base: Path) -> dict[str, dict[int, dict[str, float]]]:
             print(f"  Skipping (name doesn't match pattern): {sub.name}")
             continue
         group, ac = m.group(1), int(m.group(2))
-        metrics = parse_mase(mae_file)
+        metrics = parse_rmae(mae_file)
         if metrics is not None:
             if ac in groups[group]:
                 print(f"  WARNING: duplicate ac{ac} in group {group} — keeping first")
@@ -122,13 +122,13 @@ def plot_per_metric(groups: dict, out_dir: Path) -> None:
 
         ax.set_title(METRIC_TITLES[metric])
         ax.set_xlabel("Acquisition count (ac)")
-        ax.set_ylabel("MASE (mm⁶)")
+        ax.set_ylabel("RMAE (mm^1.5)")
         ax.set_xticks(ac_ticks)
         ax.grid(alpha=0.3)
         ax.set_ylim(bottom=0)
         ax.legend(fontsize=8)
 
-        path = out_dir / f"mase_{metric}.png"
+        path = out_dir / f"rmae_{metric}.png"
         plt.tight_layout()
         plt.savefig(path, dpi=150)
         plt.close(fig)
@@ -152,15 +152,15 @@ def plot_per_group(groups: dict, out_dir: Path) -> None:
                     color=METRIC_COLORS[metric])
             _annotate(ax, ac_nums, vals)
 
-        ax.set_title(f"{group} — MASE by acquisition count")
+        ax.set_title(f"{group} — RMAE by acquisition count")
         ax.set_xlabel("Acquisition count (ac)")
-        ax.set_ylabel("MASE (mm⁶)")
+        ax.set_ylabel("RMAE (mm^1.5)")
         ax.set_xticks(ac_ticks)
         ax.grid(alpha=0.3)
         ax.set_ylim(bottom=0)
         ax.legend(fontsize=8)
 
-        path = out_dir / f"mase_group_{group}.png"
+        path = out_dir / f"rmae_group_{group}.png"
         plt.tight_layout()
         plt.savefig(path, dpi=150)
         plt.close(fig)
@@ -192,7 +192,7 @@ def plot_per_fps(groups: dict, fps_prefix: str, out_dir: Path) -> None:
 
         ax.set_title(METRIC_TITLES[metric])
         ax.set_xlabel("Acquisition count (ac)")
-        ax.set_ylabel("MASE (mm⁶)")
+        ax.set_ylabel("RMAE (mm^1.5)")
         ax.set_xticks(ac_ticks)
         ax.grid(alpha=0.3)
         ax.set_ylim(bottom=0)
@@ -200,10 +200,10 @@ def plot_per_fps(groups: dict, fps_prefix: str, out_dir: Path) -> None:
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=len(sorted_groups),
                fontsize=9, bbox_to_anchor=(0.5, -0.02))
-    fig.suptitle(f"{fps_prefix} — MASE by acquisition count", fontsize=13)
+    fig.suptitle(f"{fps_prefix} — RMAE by acquisition count", fontsize=13)
     plt.tight_layout(rect=[0, 0.06, 1, 1])
 
-    path = out_dir / f"mase_{fps_prefix}.png"
+    path = out_dir / f"rmae_{fps_prefix}.png"
     plt.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved {path}")

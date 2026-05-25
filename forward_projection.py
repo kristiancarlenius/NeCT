@@ -15,9 +15,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from skimage.filters import threshold_otsu
 
 import nect.sampling.ct_sampling as ct_sampling
 from nect.config import get_cfg
+from nect.data import NeCTDataset
 from nect.sampling import Geometry
 
 # ─────────────────────────────────── CONFIG ───────────────────────────────────
@@ -33,17 +35,27 @@ ANGLE_IDX = 0
 TIMESTEP_OVERRIDE = None
 
 # Integration quality — more points → sharper / less noise, slower
-POINTS_PER_RAY = 250000
+POINTS_PER_RAY = 512
 
 # Rays processed per GPU batch (reduce if you hit OOM)
 BATCH_RAYS = 8192
+
+# "attenuation" : line integral (looks like the raw X-ray projection)
+# "binary"      : threshold each point → lit if any sample along the ray is
+#                 above threshold (binary MIP / ray hit test — shows structure)
+PROJECTION_MODE = "binary"
+
+# Threshold applied to the raw model output (before calibration, so in [0, 1]).
+# None → Otsu computed from a mid-volume sample before the main pass.
+# float → manual value, e.g. 0.02
+THRESHOLD = None
 
 # Optional: path to raw projections .npy file for a side-by-side comparison.
 # Set to None to show only the DRR.
 RAW_PROJ_NPY = None
 
 # Where to save the output (None = show interactively)
-SAVE_PATH = MODEL_DIR # e.g. Path("drr_angle0.png")
+SAVE_PATH = MODEL_DIR  # e.g. Path("drr_angle0.png")
 
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -70,21 +82,63 @@ def get_timestep(config, geometry: Geometry, angle_idx: int) -> float:
     return float(ts[angle_idx])
 
 
-def forward_project(model, config, geometry: Geometry, angle_rad: float, t: float | None) -> np.ndarray:
-    """Ray-march through the model at `angle_rad`, return [nDet_h, nDet_w] image."""
+def _eval_batch(model, pts: torch.Tensor, config, t: float | None) -> torch.Tensor:
+    """Evaluate model on a flat [N, 3] point tensor, returning [N, 1] float32."""
+    SUB = 5_000_000
+    chunks = []
+    for s in range(0, pts.shape[0], SUB):
+        chunk = pts[s : s + SUB]
+        if config.mode == "dynamic":
+            out = model(chunk, float(t)).float()
+        else:
+            out = model(chunk).float()
+        chunks.append(out)
+    return torch.cat(chunks)
+
+
+def _estimate_threshold(model, config, geometry: Geometry, t: float | None) -> float:
+    """Sample the mid-axial slice of the volume and return Otsu threshold."""
+    print("  Computing Otsu threshold from mid-volume sample ...")
+    nV = config.geometry.nVoxel
+    n_pts = nV[1] * nV[2]
+    y_coords = torch.linspace(0.0, 1.0, nV[1], device=device)
+    x_coords = torch.linspace(0.0, 1.0, nV[2], device=device)
+    yy, xx = torch.meshgrid(y_coords, x_coords, indexing="ij")
+    z_mid = torch.full((n_pts,), 0.5, device=device)
+    pts = torch.stack([z_mid, yy.flatten(), xx.flatten()], dim=1)
+    with torch.no_grad():
+        vals = _eval_batch(model, pts, config, t).squeeze(1).cpu().numpy()
+    thresh = float(threshold_otsu(vals))
+    print(f"  Otsu threshold (raw model output): {thresh:.5f}")
+    return thresh
+
+
+def forward_project(model, config, geometry: Geometry, angle_rad: float, t: float | None, thresh: float | None) -> np.ndarray:
+    """Ray-march through the model at `angle_rad`, return [nDet_h, nDet_w] image.
+
+    PROJECTION_MODE == "attenuation": line integral (looks like raw X-ray)
+    PROJECTION_MODE == "binary"     : 1 if any sample along the ray is above
+                                      thresh, 0 otherwise (binary hit test)
+    """
     c_geom = geometry.get_c_geometry()
     nDet_h, nDet_w = geometry.nDetector
     total_pixels = nDet_h * nDet_w
     max_dist = float(geometry.max_distance_traveled)
     dist_per_point = max_dist / POINTS_PER_RAY
 
-    # Sequential pixel indices — output will be in scan order directly
     all_indices = torch.arange(total_pixels, dtype=torch.int64, device=device)
+
+    # ray_points tensor is [n_rays, POINTS_PER_RAY, 3] — clamp batch size so
+    # the total element count stays within int32 (ct_sampling uses 32-bit indexing)
+    max_safe_rays = max(1, (2**31 - 1) // (POINTS_PER_RAY * 3))
+    batch_rays = min(BATCH_RAYS, max_safe_rays)
+    if batch_rays < BATCH_RAYS:
+        print(f"  [info] BATCH_RAYS clamped {BATCH_RAYS} → {batch_rays} to stay within int32")
 
     projection = torch.zeros(total_pixels, dtype=torch.float32)
 
-    for start in range(0, total_pixels, BATCH_RAYS):
-        end = min(start + BATCH_RAYS, total_pixels)
+    for start in range(0, total_pixels, batch_rays):
+        end = min(start + batch_rays, total_pixels)
         n_rays = end - start
 
         ray_points, distances = ct_sampling.sample(
@@ -104,27 +158,19 @@ def forward_project(model, config, geometry: Geometry, angle_rad: float, t: floa
             pts = ray_points.view(-1, 3)
             pts.clamp_(0.0, 1.0)
 
-            # Mask out zero-padded points (outside the volume)
             zero_mask = torch.all(pts == 0.0, dim=-1)
-
             atten = torch.zeros(pts.shape[0], 1, device=device, dtype=torch.float32)
             valid_pts = pts[~zero_mask]
-
             if valid_pts.shape[0] > 0:
-                # Sub-batch to avoid OOM on very large BATCH_RAYS
-                SUB = 5_000_000
-                atten_chunks = []
-                for s in range(0, valid_pts.shape[0], SUB):
-                    chunk = valid_pts[s : s + SUB]
-                    if config.mode == "dynamic":
-                        out = model(chunk, float(t)).float()
-                    else:
-                        out = model(chunk).float()
-                    atten_chunks.append(out)
-                atten[~zero_mask] = torch.cat(atten_chunks)
+                atten[~zero_mask] = _eval_batch(model, valid_pts, config, t)
 
-            atten = atten.view(n_rays, POINTS_PER_RAY)
-            y_pred = atten.sum(dim=1) * (distances / max_dist)
+            atten = atten.view(n_rays, POINTS_PER_RAY)  # [rays, pts]
+
+            if PROJECTION_MODE == "binary":
+                # 1.0 if any point along the ray is above threshold, else 0.0
+                y_pred = (atten > thresh).any(dim=1).float()
+            else:
+                y_pred = atten.sum(dim=1) * (distances / max_dist)
 
         projection[start:end] = y_pred.cpu()
 
@@ -151,9 +197,14 @@ def main():
         t = None
         print(f"Angle {ANGLE_IDX}  ({angle_deg:.1f}°)  |  static model")
 
-    print(f"Forward-projecting  ({geometry.nDetector[0]} × {geometry.nDetector[1]} px,  {POINTS_PER_RAY} pts/ray) ...")
-    drr = forward_project(model, config, geometry, angle_rad, t)
-    print(f"  DRR range: [{drr.min():.4f}, {drr.max():.4f}]")
+    thresh = None
+    if PROJECTION_MODE == "binary":
+        thresh = THRESHOLD if THRESHOLD is not None else _estimate_threshold(model, config, geometry, t)
+
+    mode_str = f"{PROJECTION_MODE}" + (f"  thresh={thresh:.5f}" if thresh is not None else "")
+    print(f"Forward-projecting  ({geometry.nDetector[0]} × {geometry.nDetector[1]} px,  {POINTS_PER_RAY} pts/ray  [{mode_str}]) ...")
+    drr = forward_project(model, config, geometry, angle_rad, t, thresh)
+    print(f"  Output range: [{drr.min():.4f}, {drr.max():.4f}]")
 
     # ── Plot ──────────────────────────────────────────────────────────────────
     has_raw = RAW_PROJ_NPY is not None
@@ -162,16 +213,20 @@ def main():
     if ncols == 1:
         axes = [axes]
 
-    vmin, vmax = float(np.percentile(drr, 1)), float(np.percentile(drr, 99))
+    if PROJECTION_MODE == "binary":
+        im0 = axes[0].imshow(drr, cmap="gray", vmin=0, vmax=1, aspect="auto", interpolation="nearest")
+    else:
+        vmin, vmax = float(np.percentile(drr, 1)), float(np.percentile(drr, 99))
+        im0 = axes[0].imshow(drr, cmap="gray", vmin=vmin, vmax=vmax, aspect="auto")
 
-    im0 = axes[0].imshow(drr, cmap="gray", vmin=vmin, vmax=vmax, aspect="auto")
-    title = f"DRR — angle {ANGLE_IDX} ({angle_deg:.1f}°)"
+    title = f"{'Binary hit' if PROJECTION_MODE == 'binary' else 'DRR'} — angle {ANGLE_IDX} ({angle_deg:.1f}°)"
     if t is not None:
         title += f"  t={t:.3f}"
     axes[0].set_title(title)
     axes[0].set_xlabel("Detector u (px)")
     axes[0].set_ylabel("Detector v (px)")
-    plt.colorbar(im0, ax=axes[0], fraction=0.03, pad=0.04)
+    if PROJECTION_MODE != "binary":
+        plt.colorbar(im0, ax=axes[0], fraction=0.03, pad=0.04)
 
     if has_raw:
         raw = np.load(RAW_PROJ_NPY)
