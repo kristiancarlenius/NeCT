@@ -53,7 +53,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def load_model(model_dir: Path):
     config = get_cfg(model_dir / "config.yaml")
     model = config.get_model()
-    ckpt_path = model_dir / "model" / "checkpoints" / "last.ckpt"
+    ckpt_path = model_dir / "checkpoints" / "last.ckpt"
     ckpt = torch.load(ckpt_path, map_location="cpu")
     model.load_state_dict(ckpt["model"])
     model = model.to(device).eval()
