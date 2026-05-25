@@ -23,7 +23,7 @@ from nect.sampling import Geometry
 # ─────────────────────────────────── CONFIG ───────────────────────────────────
 
 # Path to the run directory that contains config.yaml and model/checkpoints/
-MODEL_DIR = Path("/cluster/home/kristiac/NeCT/outputs/...")
+MODEL_DIR = Path("/cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_22_4_22_16_2_4_128_L1/4fps_2750_ac4")
 
 # Which projection angle to forward-project (0-based index into geometry.angles)
 ANGLE_IDX = 0
