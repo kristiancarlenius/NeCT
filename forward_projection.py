@@ -43,7 +43,7 @@ BATCH_RAYS = 8192
 RAW_PROJ_NPY = None
 
 # Where to save the output (None = show interactively)
-SAVE_PATH = None  # e.g. Path("drr_angle0.png")
+SAVE_PATH = MODEL_DIR # e.g. Path("drr_angle0.png")
 
 # ──────────────────────────────────────────────────────────────────────────────
 
