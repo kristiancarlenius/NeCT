@@ -1119,6 +1119,20 @@ def _str_to_act(name: str) -> nn.Module:
     }.get(name, nn.ReLU)()
 
 
+def _build_mlp(in_dim: int, network_config) -> nn.Module:
+    """Build an MLP head, using tcnn.Network for FullyFusedMLP/CutlassMLP."""
+    if network_config.otype in ("FullyFusedMLP", "CutlassMLP"):
+        return tcnn.Network(in_dim, 1, network_config.get_network_config())
+    w = network_config.n_neurons
+    layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
+    for _ in range(network_config.n_hidden_layers - 1):
+        layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
+    layers.append(nn.Linear(w, 1))
+    if network_config.output_activation != "None":
+        layers.append(_str_to_act(network_config.output_activation))
+    return nn.Sequential(*layers)
+
+
 class SexCubesKPlanes(nn.Module):
     """SexCubes encoder + K-Planes product decoder.
 
@@ -1143,15 +1157,7 @@ class SexCubesKPlanes(nn.Module):
         self.encoder = _SexEncoder(encoding_config)
         D = self.encoder.n_output_dims
         in_dim = 9 * D  # 6 raw + 3 products
-
-        w = network_config.n_neurons
-        layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
-        for _ in range(network_config.n_hidden_layers - 1):
-            layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
-        layers.append(nn.Linear(w, 1))
-        if network_config.output_activation != "None":
-            layers.append(_str_to_act(network_config.output_activation))
-        self.mlp = nn.Sequential(*layers)
+        self.mlp = _build_mlp(in_dim, network_config)
 
     def forward(self, zyx, t):
         f_zy, f_zx, f_yx, f_zt, f_yt, f_xt = self.encoder(zyx, t)
@@ -1161,7 +1167,7 @@ class SexCubesKPlanes(nn.Module):
         p2 = f_yx * f_zt   # y, x, z, t
 
         h = torch.cat([f_zy, f_zx, f_yx, f_zt, f_yt, f_xt, p0, p1, p2], dim=-1)
-        return self.mlp(h)
+        return self.mlp(h).float()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1474,15 +1480,7 @@ class CombinedCubesKPlanes(nn.Module):
         self.encoder = _CombinedEncoder(encoding_config)
         D = self.encoder.n_output_dims_2d  # == n_output_dims_3d (same config)
         in_dim = 7 * D  # 4 raw + 3 pairwise products
-
-        w = network_config.n_neurons
-        layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
-        for _ in range(network_config.n_hidden_layers - 1):
-            layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
-        layers.append(nn.Linear(w, 1))
-        if network_config.output_activation != "None":
-            layers.append(_str_to_act(network_config.output_activation))
-        self.mlp = nn.Sequential(*layers)
+        self.mlp = _build_mlp(in_dim, network_config)
 
     def forward(self, zyx, t):
         f_zt, f_yt, f_xt, f_zyx = self.encoder(zyx, t)
@@ -1492,7 +1490,7 @@ class CombinedCubesKPlanes(nn.Module):
         p_z = f_zyx * f_zt   # spatial x (z, t)
 
         h = torch.cat([f_zt, f_yt, f_xt, f_zyx, p_x, p_y, p_z], dim=-1)
-        return self.mlp(h)
+        return self.mlp(h).float()
 
 
 class _MixedEncoder(nn.Module):
@@ -1552,15 +1550,7 @@ class MixedCubesKPlanes(nn.Module):
         D2 = self.encoder.n_output_dims_2d
         D3 = self.encoder.n_output_dims_3d
         in_dim = 4 * D2 + D3  # 3 raw temporal + triple product + spatial
-
-        w = network_config.n_neurons
-        layers: list[nn.Module] = [nn.Linear(in_dim, w), _str_to_act(network_config.activation)]
-        for _ in range(network_config.n_hidden_layers - 1):
-            layers += [nn.Linear(w, w), _str_to_act(network_config.activation)]
-        layers.append(nn.Linear(w, 1))
-        if network_config.output_activation != "None":
-            layers.append(_str_to_act(network_config.output_activation))
-        self.mlp = nn.Sequential(*layers)
+        self.mlp = _build_mlp(in_dim, network_config)
 
     def forward(self, zyx, t):
         f_zt, f_yt, f_xt, f_zyx = self.encoder(zyx, t)
@@ -1568,4 +1558,4 @@ class MixedCubesKPlanes(nn.Module):
         temporal_product = f_xt * f_yt * f_zt   # (x,t) x (y,t) x (z,t) -> full 4D
 
         h = torch.cat([f_zt, f_yt, f_xt, f_zyx, temporal_product], dim=-1)
-        return self.mlp(h)
+        return self.mlp(h).float()

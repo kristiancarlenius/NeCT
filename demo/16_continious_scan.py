@@ -11,7 +11,7 @@ print(torch.cuda.get_device_name(0))
 print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"#s/"#
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -22,10 +22,10 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_optimized_100_cont.yaml"#"geometry_4fps_2750.yaml"
+geometry_file = Path(data_path) / "geometry_4fps_2750.yaml"#"geometry_optimized_100_cont.yaml"#
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-
+"""
 reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_100_cont.npy"),#"projections.npy"),
@@ -68,36 +68,43 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     mode="dynamic",
     exp_name="dynamic_continious",
     config_override={
-        "epochs": "6x",
+        "epochs": "5x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
-        "base_lr": 0.0008,
+        "base_lr": 0.001,
         "warmup": {
             "steps": 1400*20,
             "lr0": 0.001,
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 22,
+            "n_levels": 23,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 22,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
-        "net": MLPNetConfig(
-            otype="FullyFusedMLP",
-            activation="LeakyReLU",
-            output_activation="None",
-            n_neurons=128,
-            n_hidden_layers=4,
-            include_identity=False,
-            include_adaptive_skip=False,
-        ),
-        "accumulation_steps": 4,
+        "encoder_2d": {
+            "n_levels": 12,
+            "n_features_per_level": 4,
+            "base_resolution": 16,
+            "per_level_scale": 1.5,
+        },
+        "net": {
+            "otype": "FullyFusedMLP",
+            "activation": "LeakyReLU",
+            "output_activation": "None",
+            "n_neurons": 128,
+            "n_hidden_layers": 4,
+            "include_identity": False,
+        },
+        "tv_temporal": 1e-4,
+        "accumulation_steps": 3,
         "continous_scanning": True,
         
-    },)
+    },
+    enc_arc="mixedcubes",
+    memvstime=True,)
 
 print(reconstruction_path_dynamic, _)
-"""
