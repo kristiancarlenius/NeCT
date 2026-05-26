@@ -37,9 +37,14 @@ BASE_DIR = Path(
 # Directory where all PNGs are written
 OUT_DIR = Path(__file__).parent / "mae_plots"
 
+# When both a plain run and its _OLD counterpart exist for the same ac number,
+# True  → keep the _OLD version
+# False → keep the non-OLD version
+PREFER_OLD = True
+
 # ─────────────────────────────────────────────────────────────────────────────
 
-RUN_RE = re.compile(r"^(\d+fps_\d+)_ac(\d+)")
+RUN_RE = re.compile(r"^(\d+fps_\d+)_ac(\d+)(_OLD)?$")
 
 METRICS = ["total", "1to1", "top", "bot"]
 METRIC_TITLES = {
@@ -74,7 +79,8 @@ def parse_rmae(path: Path) -> dict[str, float] | None:
 
 def collect(base: Path) -> dict[str, dict[int, dict[str, float]]]:
     """Return {group: {ac: metrics}} from all subdirectories with a mae.txt."""
-    groups: dict[str, dict[int, dict]] = defaultdict(dict)
+    # First pass: gather all candidates per (group, ac)
+    candidates: dict[tuple[str, int], list[tuple[dict, bool]]] = defaultdict(list)
     for sub in sorted(base.iterdir()):
         mae_file = sub / "mae.txt"
         if not (sub.is_dir() and mae_file.exists()):
@@ -83,13 +89,24 @@ def collect(base: Path) -> dict[str, dict[int, dict[str, float]]]:
         if not m:
             print(f"  Skipping (name doesn't match pattern): {sub.name}")
             continue
-        group, ac = m.group(1), int(m.group(2))
+        group, ac, old_suffix = m.group(1), int(m.group(2)), m.group(3)
+        is_old = old_suffix is not None
         metrics = parse_rmae(mae_file)
         if metrics is not None:
-            if ac in groups[group]:
-                print(f"  WARNING: duplicate ac{ac} in group {group} — keeping first")
-            else:
-                groups[group][ac] = metrics
+            candidates[(group, ac)].append((metrics, is_old))
+
+    # Second pass: resolve duplicates using PREFER_OLD
+    groups: dict[str, dict[int, dict]] = defaultdict(dict)
+    for (group, ac), entries in candidates.items():
+        if len(entries) == 1:
+            groups[group][ac] = entries[0][0]
+        else:
+            preferred = [e for e in entries if e[1] == PREFER_OLD]
+            chosen_metrics, chosen_is_old = preferred[0] if preferred else entries[0]
+            tag = "_OLD" if chosen_is_old else "non-OLD"
+            print(f"  INFO: duplicate ac{ac} in {group} — kept {tag} (PREFER_OLD={PREFER_OLD})")
+            groups[group][ac] = chosen_metrics
+
     return dict(groups)
 
 

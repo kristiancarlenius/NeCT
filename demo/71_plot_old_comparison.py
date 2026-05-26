@@ -62,11 +62,14 @@ def collect(base: Path) -> dict[str, dict[str, dict[str, float]]]:
     all_data: dict[str, dict] = {}
 
     for sub in sorted(base.iterdir()):
-        mae_file = sub / "mae.txt"
-        if not (sub.is_dir() and mae_file.exists()):
+        if not sub.is_dir():
             continue
         m = RUN_RE.match(sub.name)
         if not m:
+            continue
+        mae_file = sub / "mae.txt"
+        if not mae_file.exists():
+            print(f"  WARNING: {sub.name} matched but has no mae.txt — run 60_ script first")
             continue
         base_name = m.group(1)   # e.g. "4fps_11000_ac3"
         is_old    = m.group(2) is not None
