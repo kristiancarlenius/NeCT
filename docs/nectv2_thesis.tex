@@ -1362,38 +1362,53 @@ The computational cost of the forward pass scales linearly with $K$, since each 
 
 The choice of $K$ for each dataset is guided empirically by the matched-pair design of the experiments, in which two configurations with the same effective sub-step angle are compared directly. If the approximation is adequate, the matched pair should produce equivalent reconstruction quality regardless of which combination of $\Delta\phi$ and $K$ was used to reach that sub-step. This empirical equivalence is a more direct validation of $K$ sufficiency than a theoretical convergence analysis, because it reflects the actual reconstruction error on real data rather than the error of the quadrature rule for an abstract smooth integrand.
 
-\subsection{Implementation in \NeCTv{}}
+\subsection{Training Step Implementation}
 \label{subsec:cont_implementation}
 
-Algorithm~\ref{alg:continuous} gives the pseudocode for the continuous-scan forward pass as implemented in \NeCTv{}. The outer loop iterates over the $K$ sub-step angles. At each sub-step, source and detector positions are recomputed for the corresponding angle, rays are marched through the volume, the network is queried at each sample point and the resulting Beer--Lambert exponential is accumulated into the running average.
+The $K$-step forward pass increases the number of network evaluations per training step by a factor of $K$. This also multiplies the activation memory, because all intermediate values needed for backpropagation must be kept alive until the loss gradient is computed. For large $K$ or large batch sizes, holding the computation graphs for all $K$ sub-steps simultaneously can exceed GPU memory capacity. \NeCTv{} provides two implementations of the training step that make opposite trade-offs between memory and compute, selected by the \texttt{memvstime} flag.
 
-\begin{algorithm}
-\caption{Continuous-Scan Forward Pass in \NeCTv{}}
-\label{alg:continuous}
+\paragraph{Time-efficient mode.}
+All $K$ sub-steps are executed in a single forward pass with gradient tracking active throughout. The predicted intensities $\hat{I}_j$ accumulate live computation graphs from all $K$ sub-steps, the loss is evaluated once, and \texttt{backward()} is called on the loss to produce all parameter gradients in one pass. This requires only $K$ forward evaluations and one backward pass, but the activation memory scales as $\mathcal{O}(K)$ because every sub-step graph must coexist until backpropagation completes. Algorithm~\ref{alg:memvstime_true} gives the pseudocode.
+
+\begin{algorithm}[htbp]
+\caption{Continuous-Scan Training Step --- Time-Efficient}
+\label{alg:memvstime_true}
 \begin{algorithmic}[1]
-\Require Swept angular interval $[\phi_s, \phi_e]$, accumulation steps $K$, projection timestamp $t_j$
-\Ensure Predicted intensities $\hat{I}_j$ for all detector pixels $j$
-\State Initialise $\hat{I}_j \gets 0$ for all $j$
-\State Compute sub-step size: $\delta\phi \gets (\phi_e - \phi_s) / K$
-\For{$k = 0, \ldots, K-1$}
-    \State $\phi_k \gets \phi_s + (k + \tfrac{1}{2})\,\delta\phi$
-    \State Recompute source position $\mathbf{o}(\phi_k)$ and detector pixel directions $\mathbf{d}_j(\phi_k)$
-    \For{each ray $j$}
-        \State Sample $P$ equidistant points $\{\mathbf{r}_p\}$ along ray $(\mathbf{o}(\phi_k),\, \mathbf{d}_j(\phi_k))$
-        \State Query network: $\muhat_p \gets f_{\boldsymbol{\theta}}(\mathbf{r}_p,\, t_j)$ for all $p$
-        \State $\hat{I}_j \gets \hat{I}_j + \dfrac{I_0}{K} \exp\!\left(-\Delta s \sum_{p=1}^{P} \muhat_p\right)$
-    \EndFor
+\Require Interval $[\phi_s, \phi_e]$, steps $K$, timestamp $t_j$, measured projection $I_j$
+\State $\hat{I}_j \gets 0$,\quad $\bar{I}_j \gets 0$,\quad $\delta\phi \gets (\phi_e - \phi_s)/K$
+\For{$k = 0,\ldots,K-1$} \hfill\Comment{gradient tracking active}
+    \State $\phi_k \gets \phi_s + (k+\tfrac{1}{2})\,\delta\phi$
+    \State Sample rays at $\phi_k$; query $f_{\boldsymbol{\theta}}$ at all sample points
+    \State $\hat{I}_j \gets \hat{I}_j + \tfrac{1}{K}\,\mathcal{R}(f_{\boldsymbol{\theta}},\,\phi_k,\,t_j)$;\quad $\bar{I}_j \gets \bar{I}_j + I_j/K$
 \EndFor
-\State \Return $\hat{I}_j$ for all $j$
+\State $\mathcal{L} \gets \mathrm{Loss}(\hat{I}_j,\,\bar{I}_j)$;\quad \textbf{backward}$(\mathcal{L})$;\quad \textbf{optimizer.step}()
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Gradient Checkpointing}
-\label{subsec:cont_checkpointing}
+\paragraph{Memory-efficient mode.}
+The training step is split into two passes. In the first pass all $K$ sub-steps are executed without gradient tracking, accumulating only the scalar predicted intensities $\hat{I}_j$ and caching the ray sample coordinates for each sub-step. The loss is then computed treating $\hat{I}_j$ as a leaf variable, giving the gradient $g = \partial\mathcal{L}/\partial\hat{I}_j$ without touching any model parameters. In the second pass each sub-step is replayed individually with gradient tracking enabled. The contribution of sub-step $k$ is scaled by $g$ and backpropagated, immediately discarding the computation graph before the next sub-step begins. Because at most one sub-step graph exists at any moment, the activation memory overhead is $\mathcal{O}(1)$ with respect to $K$. The cost is $2K$ forward evaluations instead of $K$, doubling the compute relative to time-efficient mode. Algorithm~\ref{alg:memvstime_false} gives the pseudocode.
 
-A naive implementation of the $K$-step forward pass would hold the full computation graph for all $K$ sub-steps in GPU memory simultaneously before backpropagating through the loss. For large $K$ this multiplies the activation memory by a factor of $K$ relative to the standard single-step pass, which can exceed GPU memory capacity.
+\begin{algorithm}[htbp]
+\caption{Continuous-Scan Training Step --- Memory-Efficient}
+\label{alg:memvstime_false}
+\begin{algorithmic}[1]
+\Require Interval $[\phi_s, \phi_e]$, steps $K$, timestamp $t_j$, measured projection $I_j$
+\State $\hat{I}_j \gets 0$,\quad $\bar{I}_j \gets 0$,\quad $\mathcal{C} \gets [\,]$,\quad $\delta\phi \gets (\phi_e - \phi_s)/K$
+\For{$k = 0,\ldots,K-1$} \hfill\Comment{Pass 1: no gradient tracking}
+    \State $\phi_k \gets \phi_s + (k+\tfrac{1}{2})\,\delta\phi$;\quad cache sample coordinates $\mathbf{r}^{(k)}$ in $\mathcal{C}$
+    \State \textbf{with} \texttt{no\_grad}:\quad $c_k \gets \mathcal{R}(f_{\boldsymbol{\theta}},\,\phi_k,\,t_j)$
+    \State $\hat{I}_j \gets \hat{I}_j + c_k/K$;\quad $\bar{I}_j \gets \bar{I}_j + I_j/K$
+\EndFor
+\State Treat $\hat{I}_j$ as leaf;\quad $\mathcal{L} \gets \mathrm{Loss}(\hat{I}_j,\,\bar{I}_j)$;\quad $g \gets \partial\mathcal{L}/\partial\hat{I}_j$
+\For{$k = 0,\ldots,K-1$} \hfill\Comment{Pass 2: replay with gradient tracking}
+    \State Restore $\mathbf{r}^{(k)}$ from $\mathcal{C}$;\quad $c_k \gets \mathcal{R}(f_{\boldsymbol{\theta}},\,\phi_k,\,t_j)$
+    \State \textbf{backward}$((c_k/K)\cdot g)$ \hfill\Comment{accumulate $\nabla_{\boldsymbol{\theta}}\mathcal{L}$; discard graph}
+\EndFor
+\State \textbf{optimizer.step}()
+\end{algorithmic}
+\end{algorithm}
 
-\NeCTv{} avoids this through gradient checkpointing. The forward pass is split into two phases. In the first phase, all $K$ sub-steps are executed without gradient tracking, accumulating only the final predicted intensities $\hat{I}_j$ and caching the ray geometries for each sub-step. In the second phase, the loss gradient $\partial\mathcal{L}/\partial\hat{I}_j$ is computed from the cached intensities, and each sub-step is then replayed individually with gradient tracking enabled. Parameter gradients are accumulated across the $K$ replays without ever holding more than a single sub-step in the active computation graph. This reduces the activation memory overhead from $\mathcal{O}(K)$ to $\mathcal{O}(1)$ at the cost of recomputing each sub-step once, doubling the number of forward evaluations while leaving memory consumption approximately constant.
+In practice the memory-efficient mode makes $K$ a free parameter that can be increased without GPU memory becoming the bottleneck, at the cost of longer training time per step. The time-efficient mode is preferable when $K$ is small and activation memory is not a concern.
 
 
 \subsection{Hyperparameters and Training Protocol}

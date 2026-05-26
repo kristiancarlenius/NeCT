@@ -448,64 +448,66 @@
 \newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][66][]67}}
 \newlabel{eq:continuous_forward_discrete}{{5.4}{67}{$K$-Step Midpoint Approximation}{equation.5.2.4}{}}
 \newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][67][]67}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Implementation in \textsc  {NeCTv2}{}}{67}{subsection.5.2.2}\protected@file@percent }
-\newlabel{subsec:cont_implementation}{{5.2.2}{67}{Implementation in \NeCTv {}}{subsection.5.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{67}{subsection.5.2.2}\protected@file@percent }
+\newlabel{subsec:cont_implementation}{{5.2.2}{67}{Training Step Implementation}{subsection.5.2.2}{}}
 \newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][67][]67}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Forward Pass in \textsc  {NeCTv2}{}\relax }}{68}{algorithm.1}\protected@file@percent }
-\newlabel{alg:continuous}{{1}{68}{Continuous-Scan Forward Pass in \NeCTv {}\relax }{algorithm.1}{}}
-\newlabel{alg:continuous@cref}{{[algorithm][1][]1}{[1][67][]68}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Gradient Checkpointing}{68}{subsection.5.2.3}\protected@file@percent }
-\newlabel{subsec:cont_checkpointing}{{5.2.3}{68}{Gradient Checkpointing}{subsection.5.2.3}{}}
-\newlabel{subsec:cont_checkpointing@cref}{{[subsection][3][5,2]5.2.3}{[1][67][]68}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.4}Hyperparameters and Training Protocol}{68}{subsection.5.2.4}\protected@file@percent }
-\newlabel{subsec:cont_training}{{5.2.4}{68}{Hyperparameters and Training Protocol}{subsection.5.2.4}{}}
-\newlabel{subsec:cont_training@cref}{{[subsection][4][5,2]5.2.4}{[1][68][]68}}
+\@writefile{toc}{\contentsline {paragraph}{Time-efficient mode.}{68}{section*.53}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Training Step --- Time-Efficient\relax }}{68}{algorithm.1}\protected@file@percent }
+\newlabel{alg:memvstime_true}{{1}{68}{Continuous-Scan Training Step --- Time-Efficient\relax }{algorithm.1}{}}
+\newlabel{alg:memvstime_true@cref}{{[algorithm][1][]1}{[1][68][]68}}
+\@writefile{toc}{\contentsline {paragraph}{Memory-efficient mode.}{68}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{68}{subsection.5.2.3}\protected@file@percent }
+\newlabel{subsec:cont_training}{{5.2.3}{68}{Hyperparameters and Training Protocol}{subsection.5.2.3}{}}
+\newlabel{subsec:cont_training@cref}{{[subsection][3][5,2]5.2.3}{[1][68][]68}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Continuous-Scan Training Step --- Memory-Efficient\relax }}{69}{algorithm.2}\protected@file@percent }
+\newlabel{alg:memvstime_false}{{2}{69}{Continuous-Scan Training Step --- Memory-Efficient\relax }{algorithm.2}{}}
+\newlabel{alg:memvstime_false@cref}{{[algorithm][2][]2}{[1][68][]69}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{69}{section.5.3}\protected@file@percent }
 \newlabel{sec:cont_static}{{5.3}{69}{Experiments: Static Validation}{section.5.3}{}}
 \newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][69][]69}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{69}{subsection.5.3.1}\protected@file@percent }
-\newlabel{subsec:cont_static_dataset}{{5.3.1}{69}{Dataset}{subsection.5.3.1}{}}
-\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][69][]69}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{69}{table.caption.53}\protected@file@percent }
-\newlabel{tab:static_cont_configs}{{5.1}{69}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.53}{}}
-\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][69][]69}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{70}{subsection.5.3.1}\protected@file@percent }
+\newlabel{subsec:cont_static_dataset}{{5.3.1}{70}{Dataset}{subsection.5.3.1}{}}
+\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][69][]70}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{70}{table.caption.55}\protected@file@percent }
+\newlabel{tab:static_cont_configs}{{5.1}{70}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.55}{}}
+\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][70][]70}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{70}{subsection.5.3.2}\protected@file@percent }
 \newlabel{subsec:cont_static_metrics}{{5.3.2}{70}{Evaluation Metrics}{subsection.5.3.2}{}}
 \newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][70][]70}}
-\newlabel{eq:combined_norm}{{5.5}{70}{Evaluation Metrics}{equation.5.3.5}{}}
-\newlabel{eq:combined_norm@cref}{{[equation][5][5]5.5}{[1][70][]70}}
-\newlabel{eq:combined_score}{{5.6}{70}{Evaluation Metrics}{equation.5.3.6}{}}
-\newlabel{eq:combined_score@cref}{{[equation][6][5]5.6}{[1][70][]70}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\ensuremath  {^\circ }$) and 360-projection ($\Delta \phi = 1.00\ensuremath  {^\circ }$) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }}{71}{figure.caption.54}\protected@file@percent }
-\newlabel{fig:combined_score}{{5.2}{71}{Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\degree $) and 360-projection ($\Delta \phi = 1.00\degree $) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }{figure.caption.54}{}}
-\newlabel{fig:combined_score@cref}{{[figure][2][5]5.2}{[1][70][]71}}
+\newlabel{eq:combined_norm}{{5.5}{71}{Evaluation Metrics}{equation.5.3.5}{}}
+\newlabel{eq:combined_norm@cref}{{[equation][5][5]5.5}{[1][71][]71}}
+\newlabel{eq:combined_score}{{5.6}{71}{Evaluation Metrics}{equation.5.3.6}{}}
+\newlabel{eq:combined_score@cref}{{[equation][6][5]5.6}{[1][71][]71}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{71}{subsection.5.3.3}\protected@file@percent }
 \newlabel{subsec:cont_static_results}{{5.3.3}{71}{Results}{subsection.5.3.3}{}}
-\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][70][]71}}
+\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][71][]71}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\ensuremath  {^\circ }$) and 360-projection ($\Delta \phi = 1.00\ensuremath  {^\circ }$) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }}{71}{figure.caption.56}\protected@file@percent }
+\newlabel{fig:combined_score}{{5.2}{71}{Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\degree $) and 360-projection ($\Delta \phi = 1.00\degree $) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }{figure.caption.56}{}}
+\newlabel{fig:combined_score@cref}{{[figure][2][5]5.2}{[1][71][]71}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{72}{section.5.4}\protected@file@percent }
 \newlabel{sec:cont_dynamic}{{5.4}{72}{Experiments: Dynamic Hourglass}{section.5.4}{}}
 \newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][72][]72}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{72}{subsection.5.4.1}\protected@file@percent }
 \newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{72}{Dataset}{subsection.5.4.1}{}}
 \newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][72][]72}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{72}{figure.caption.55}\protected@file@percent }
-\newlabel{fig:hourglass}{{5.3}{72}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.55}{}}
-\newlabel{fig:hourglass@cref}{{[figure][3][5]5.3}{[1][72][]72}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{73}{figure.caption.56}\protected@file@percent }
-\newlabel{fig:hourglass_in_scanner}{{5.4}{73}{The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }{figure.caption.56}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{73}{figure.caption.57}\protected@file@percent }
+\newlabel{fig:hourglass}{{5.3}{73}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.57}{}}
+\newlabel{fig:hourglass@cref}{{[figure][3][5]5.3}{[1][72][]73}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{73}{figure.caption.58}\protected@file@percent }
+\newlabel{fig:hourglass_in_scanner}{{5.4}{73}{The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }{figure.caption.58}{}}
 \newlabel{fig:hourglass_in_scanner@cref}{{[figure][4][5]5.4}{[1][72][]73}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{74}{table.caption.57}\protected@file@percent }
-\newlabel{tab:acquisition_params}{{5.2}{74}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.57}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{74}{table.caption.59}\protected@file@percent }
+\newlabel{tab:acquisition_params}{{5.2}{74}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.59}{}}
 \newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][72][]74}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath  {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath  {^\circ }; green: 1.72\ensuremath  {^\circ }; orange: 1.15\ensuremath  {^\circ }.\relax }}{74}{table.caption.58}\protected@file@percent }
-\newlabel{tab:dynamic_cont_configs}{{5.3}{74}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree \ (appears in all three rows); blue: 6.88\degree ; green: 1.72\degree ; orange: 1.15\degree .\relax }{table.caption.58}{}}
-\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][73][]74}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{74}{subsection.5.4.2}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_results}{{5.4.2}{74}{Results}{subsection.5.4.2}{}}
-\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][74][]74}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{75}{figure.caption.59}\protected@file@percent }
-\newlabel{fig:dynamic_cont_reconstruction}{{5.5}{75}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.59}{}}
-\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][5][5]5.5}{[1][74][]75}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath  {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath  {^\circ }; green: 1.72\ensuremath  {^\circ }; orange: 1.15\ensuremath  {^\circ }.\relax }}{74}{table.caption.60}\protected@file@percent }
+\newlabel{tab:dynamic_cont_configs}{{5.3}{74}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree \ (appears in all three rows); blue: 6.88\degree ; green: 1.72\degree ; orange: 1.15\degree .\relax }{table.caption.60}{}}
+\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][74][]74}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{75}{subsection.5.4.2}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_results}{{5.4.2}{75}{Results}{subsection.5.4.2}{}}
+\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][75][]75}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{75}{figure.caption.61}\protected@file@percent }
+\newlabel{fig:dynamic_cont_reconstruction}{{5.5}{75}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.61}{}}
+\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][5][5]5.5}{[1][75][]75}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{76}{section.5.5}\protected@file@percent }
 \newlabel{sec:cont_discussion}{{5.5}{76}{Discussion}{section.5.5}{}}
 \newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][76][]76}}
@@ -519,17 +521,17 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations}{77}{subsection.5.5.3}\protected@file@percent }
 \newlabel{subsec:cont_disc_limitations}{{5.5.3}{77}{Limitations}{subsection.5.5.3}{}}
 \newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][77][]77}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{78}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{79}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{6}{78}{Conclusion}{chapter.6}{}}
-\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][78][]78}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{78}{section.6.1}\protected@file@percent }
-\newlabel{sec:conclusion_summary}{{6.1}{78}{Summary of Contributions}{section.6.1}{}}
-\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][78][]78}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{78}{section.6.2}\protected@file@percent }
-\newlabel{sec:conclusion_future}{{6.2}{78}{Limitations and Future Work}{section.6.2}{}}
-\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][78][]78}}
+\newlabel{chap:conclusion}{{6}{79}{Conclusion}{chapter.6}{}}
+\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][79][]79}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{79}{section.6.1}\protected@file@percent }
+\newlabel{sec:conclusion_summary}{{6.1}{79}{Summary of Contributions}{section.6.1}{}}
+\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][79][]79}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{79}{section.6.2}\protected@file@percent }
+\newlabel{sec:conclusion_future}{{6.2}{79}{Limitations and Future Work}{section.6.2}{}}
+\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][79][]79}}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{andersen1984sart}{{1}{1984}{{Andersen and Kak}}{{}}}
@@ -567,14 +569,14 @@
 \bibcite{wang2004ssim}{{33}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
 \bibcite{withers2021ct}{{34}{2021}{{Withers et~al.}}{{}}}
 \bibcite{zha2022naf}{{35}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{83}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{85}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experimental}{{A}{83}{Supplementary Experimental Details}{appendix.A}{}}
-\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][83][]83}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{84}{appendix.B}\protected@file@percent }
+\newlabel{app:experimental}{{A}{85}{Supplementary Experimental Details}{appendix.A}{}}
+\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][85][]85}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{86}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{B}{84}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
-\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][84][]84}}
-\gdef \@abspage@last{99}
+\newlabel{app:hyperparams}{{B}{86}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
+\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][86][]86}}
+\gdef \@abspage@last{101}
