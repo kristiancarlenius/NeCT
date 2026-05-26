@@ -27,6 +27,9 @@ class ContinousScanningTrainerMem(ContinousScanningTrainer):
         self.training_time = time.perf_counter()
         nvmlInit()
         h = nvmlDeviceGetHandleByIndex(0)
+        mem_info = nvmlDeviceGetMemoryInfo(h)
+        total_gb = mem_info.total / 1024**3
+        print(f"[GPU] Total memory: {total_gb:.1f} GB")
         for epoch in self.tqdm(range(self.current_epoch, self.config.epochs), total=self.config.epochs, leave=True, desc="Epochs",):
             self._epoch_loss_sum = 0.0
             self._epoch_loss_count = 0
@@ -138,5 +141,9 @@ class ContinousScanningTrainerMem(ContinousScanningTrainer):
                 self.on_angle_end()
             self.on_train_epoch_end()
             torch.cuda.empty_cache()
+        peak_gb = torch.cuda.max_memory_allocated() / 1024**3
+        mem_info = nvmlDeviceGetMemoryInfo(h)
+        current_gb = mem_info.used / 1024**3
+        print(f"[GPU] Peak allocated: {peak_gb:.2f} GB | Current used: {current_gb:.2f} GB / {total_gb:.1f} GB")
         self.evaluate()
         self.save_model(last=True)
