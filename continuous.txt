@@ -1,0 +1,58 @@
+  1. Dataloader yields a projection
+
+  (proj, angle_start, angle_stop, timestep)
+
+  proj is the measured X-ray image. angle_start/angle_stop define the angular range the gantry swept while that projection was acquired.
+
+  ---
+  2. Sub-angle linspace
+
+  end_linspace = np.linspace(angle_start, angle_stop, accumulation_steps + 1)
+  linspace = [(end_linspace[k] + end_linspace[k+1]) / 2 for k in range(accumulation_steps)]
+
+  The angular range is divided into N midpoint sub-angles — each representing a "snapshot" within the continuous sweep.
+
+  ---
+  3. For each sub-angle — forward pass (graph built)
+
+  self.projector.update_angle(ang)
+  points, y = self.projector(batch_num=batch_num, proj=self.proj)
+
+  The projector updates its geometry to this sub-angle, then casts rays through the volume and returns:
+  - points — 3D coordinates sampled along each ray
+  - y — the measured detector value for those rays
+
+  atten_hat = self.model(points_filtered, float(timestep))
+
+  The model predicts attenuation at every 3D point. This is where the graph is built — PyTorch records every operation from points_filtered through the network to atten_hat.
+
+  contrib = torch.sum(atten_hat, dim=1) * (distances / max_distance) / accumulation_steps
+
+  Ray integral: sum attenuation along each ray, scale by step size, divide by N so the final accumulation is an average.
+
+  y_pred = y_pred + contrib        # graph from all N sub-angles accumulates here
+  y_target = y_target + y / N
+
+  y_pred now holds references to the graph from every sub-angle so far. All N graphs remain alive in VRAM simultaneously.
+
+  ---
+  4. After all sub-angles — loss
+
+  loss = self.loss_fn(y_pred_for_loss, y_target)
+
+  y_pred is the sum of contributions from all N sub-angles. y_target is the average measured detector value. The loss (e.g. MSE) compares them.
+
+  ---
+  5. Single backward through all N graphs
+
+  self.fabric.backward(loss)
+
+  PyTorch traces back through loss → y_pred → contrib_N → atten_hat_N → model, then contrib_{N-1} → atten_hat_{N-1} → model, and so on for all N sub-angles. Each sub-angle contributes its
+  gradient to the model parameters, and then its graph is freed. After this call, all N graphs are gone.
+
+  ---
+  6. Optimizer step
+
+  self.optim.step()
+
+  Model weights updated using the accumulated gradients from all N sub-angles.
