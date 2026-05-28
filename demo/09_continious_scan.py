@@ -60,6 +60,6 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         
     },
     enc_arc="mixedcubes",
-    memvstime=True,)
+    memvstime="batch",)
 
 print(reconstruction_path_dynamic, _)
