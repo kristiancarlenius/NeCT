@@ -40,7 +40,7 @@ OUT_DIR = Path(__file__).parent / "mae_plots"
 # When both a plain run and its _OLD counterpart exist for the same ac number,
 # True  → keep the _OLD version
 # False → keep the non-OLD version
-PREFER_OLD = True
+PREFER_OLD = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 
