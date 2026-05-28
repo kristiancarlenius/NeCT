@@ -771,6 +771,26 @@ class MixedCubes(nn.Module):
                 {"n_dims_to_encode": 3, **encoding_config.get_encoder_config()},  # zyx
             ],
         }
+        # Estimate allocation sizes before the TCNN call that may OOM.
+        _scale = encoding_config_2d.per_level_scale
+        _dense_bytes = sum(
+            int(encoding_config_2d.base_resolution * (_scale ** lvl)) ** 2
+            * encoding_config_2d.n_features_per_level * 2  # fp16
+            for lvl in range(encoding_config_2d.n_levels)
+        ) * 3  # three temporal planes
+        _hash_bytes = (
+            encoding_config.n_levels
+            * (2 ** encoding_config.log2_hashmap_size)
+            * encoding_config.n_features_per_level * 2  # fp16
+        )
+        print(f"[MixedCubes] dense 2D grids (3×): {_dense_bytes / 1024**2:.1f} MB")
+        print(f"[MixedCubes] hash 3D grid:         {_hash_bytes / 1024**2:.1f} MB")
+        print(f"[MixedCubes] total estimated:      {(_dense_bytes + _hash_bytes) / 1024**2:.1f} MB")
+        if torch.cuda.is_available():
+            _free, _total = torch.cuda.mem_get_info()
+            _used = torch.cuda.memory_allocated()
+            print(f"[MixedCubes] GPU free/total:       {_free/1024**3:.2f} / {_total/1024**3:.2f} GB")
+            print(f"[MixedCubes] torch allocated:      {_used/1024**3:.2f} GB")
         self.net = tcnn.NetworkWithInputEncoding(
             n_input_dims=9,
             n_output_dims=1,
