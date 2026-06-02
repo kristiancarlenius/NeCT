@@ -24,14 +24,14 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
         },
         "encoder": {
             "otype": "HashGrid",
-            "n_levels": 25,
+            "n_levels": 24,
             "n_features_per_level": 2,
-            "log2_hashmap_size": 25,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
         "encoder_2d": {
-            "n_levels": 12,
+            "n_levels": 10,
             "n_features_per_level": 4,
             "base_resolution": 16,
             "per_level_scale": 1.5,
