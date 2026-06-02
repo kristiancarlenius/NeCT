@@ -12,10 +12,10 @@ print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"
-geometry_file = Path(data_path) / "geometry_4fps_11000.yaml"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
+geometry_file = Path(data_path) / "geometry_optimized_360_cont.yaml"#"geometry_4fps_11000.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
-"""
+
 reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_360_cont.npy"),#"projections.npy"),
@@ -23,7 +23,7 @@ reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     mode="static",
     exp_name="static_continious",
     config_override={
-        "epochs": "4x",
+        "epochs": "3x",
         "checkpoint_interval": 0,
         "image_interval": 0,
         "plot_type": "XZ",
@@ -44,9 +44,10 @@ reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 1,
+        "accumulation_steps": 3,
         "continous_scanning": True,
     },
+    memvstime="batch",
 )
 """
 reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
@@ -96,3 +97,4 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
     memvstime=True,)
 
 print(reconstruction_path_dynamic, _)
+"""

@@ -55,10 +55,11 @@ reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "accumulation_steps": 4,
+        "accumulation_steps": 8,
         "continous_scanning": True,
     },
-    memvstime="batch",)
+    memvstime="batch",
+)
 
 """
 
