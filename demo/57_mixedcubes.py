@@ -43,7 +43,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "n_hidden_layers": 4,
             "include_identity": False,
         },
-        "tv_temporal": 1e-4,
+        "tv_spatial": 1e-4,
     },
     enc_arc="mixedcubes",
 )

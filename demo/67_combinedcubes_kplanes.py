@@ -40,7 +40,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             include_identity=False,
             include_adaptive_skip=False,
         ),
-        "tv_temporal": 1e-4,
+        "tv_spatial": 1e-4,
     },
     enc_arc="combinedcubes_kplanes",
 )

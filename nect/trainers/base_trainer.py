@@ -712,12 +712,29 @@ class BaseTrainer:
 
                         if (self.config.mode == "dynamic" and self.current_projection > self.config.warmup.steps and self.config.tv_temporal > 0):
                             t_float = float(timestep)
-                            t_perturbed = min(1.0, t_float + 0.02)
+                            t_step = 1.0 / max(1, self.dataset.num_timesteps - 1)
+                            t_perturbed = min(1.0, t_float + t_step)
                             tv_grid = torch.rand(500, 3, device=self.fabric.device)
                             f_t = self.model(tv_grid, t_float)
                             f_tp = self.model(tv_grid, t_perturbed)
                             temporal_tv_loss = self.config.tv_temporal * torch.mean(torch.abs(f_tp - f_t))
                             loss += temporal_tv_loss
+
+                        if (self.config.mode == "dynamic" and self.current_projection > self.config.warmup.steps and self.config.tv_spatial > 0):
+                            t_float = float(timestep)
+                            rand_zyx = np.random.rand(3) * 0.8
+                            z, y, x = torch.meshgrid([
+                                    torch.linspace(rand_zyx[0], rand_zyx[0] + 0.2, steps=50, device=self.fabric.device),
+                                    torch.linspace(rand_zyx[1], rand_zyx[1] + 0.2, steps=50, device=self.fabric.device),
+                                    torch.linspace(rand_zyx[2], rand_zyx[2] + 0.2, steps=50, device=self.fabric.device),
+                                    ],
+                                indexing="ij",
+                            )
+                            grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).view(3, -1).t()
+                            atten_hat = self.model(grid, t_float).squeeze(-1)
+                            atten_hat = atten_hat.view(50, 50, 50)
+                            tv_loss = total_variation_3d(atten_hat, weight=self.config.tv_spatial)
+                            loss += tv_loss
 
                         self.fabric.backward(loss)
                         if self.config.clip_grad_value is not None:

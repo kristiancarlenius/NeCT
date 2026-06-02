@@ -370,6 +370,7 @@ class Config:
     damp_multi: Optional[list[float]] = None 
     tv: float = 0.0
     tv_temporal: float = 0.0
+    tv_spatial: float = 0.0
     n_levels_temporal: Optional[int] = None
     sample_outside: int = 0
     accumulation_steps: int | None = None
