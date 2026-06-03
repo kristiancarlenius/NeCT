@@ -115,7 +115,7 @@ def filter_glitches(arr: np.ndarray, t_axis: np.ndarray, sigma: float, label: st
     clean[bad] = truth[bad]
 
     bad_proj = t_axis[bad]
-    print(f"\n  {label}: {bad.sum()} point(s) replaced")
+    print(f"\n  {label}: {bad.sum()} point(s) flagged for removal")
     if bad.any():
         print(f"    Projection indices: {bad_proj.astype(int).tolist()}")
         if len(bad_proj) >= 2:
@@ -318,9 +318,20 @@ def process_run(run_dir: Path) -> None:
 
     if FILTER_GLITCHES:
         print(f"Glitch filter (sigma={FILTER_SIGMA}):")
-        top_vols_clean, _, top_linear   = filter_glitches(top_vols_mm3,   t_axis, FILTER_SIGMA, "Top chamber")
-        bot_vols_clean, _, bot_linear   = filter_glitches(bot_vols_mm3,   t_axis, FILTER_SIGMA, "Bottom chamber")
-        _,              _, total_linear = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
+        _, top_bad,  top_linear   = filter_glitches(top_vols_mm3,   t_axis, FILTER_SIGMA, "Top chamber")
+        _, bot_bad,  bot_linear   = filter_glitches(bot_vols_mm3,   t_axis, FILTER_SIGMA, "Bottom chamber")
+        _,       _, total_linear  = filter_glitches(total_vols_mm3, t_axis, FILTER_SIGMA, "Total")
+
+        bad  = top_bad | bot_bad
+        keep = ~bad
+        if bad.any():
+            print(f"  Dropping {bad.sum()} timestep(s) (combined top+bot mask)")
+        t_axis         = t_axis[keep]
+        top_vols_clean = top_vols_mm3[keep]
+        bot_vols_clean = bot_vols_mm3[keep]
+        top_linear     = top_linear[keep]
+        bot_linear     = bot_linear[keep]
+        total_linear   = total_linear[keep]
 
     total_clean = top_vols_clean + bot_vols_clean
 

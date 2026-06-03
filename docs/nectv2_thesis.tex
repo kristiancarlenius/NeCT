@@ -854,7 +854,7 @@ $F = 2$ is surprisingly competitive with $F = 4$ in the epoch plot, reaching a v
     \label{fig:sexcubes_reconstruction}
 \end{figure}
 
-The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes}, HexPlane \citep{cao2023hexplane}, and related plane-decomposition methods for dynamic novel-view synthesis \citep{park2023temporal}.
+The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
 
 The cost of this design is that each encoder captures only pairwise coordinate interactions. Reconstructing the attenuation at $(x, y, z, t)$ from six 2D plane projections is analogous to recovering a 4D function from its six 2D marginals, which is formally underdetermined without additional coupling assumptions. The MLP must infer the missing higher-order interactions from the pairwise features alone, which is a harder integration task than in the 3D encoder case where each encoder already encodes three-way interactions.
 
@@ -1011,30 +1011,6 @@ Figures~\ref{fig:combinedcubes_reconstruction} and~\ref{fig:combinedcubes_qualit
 
 Across CombinedCubes configurations, decoder depth has a modest and inconsistent effect. The best-performing configuration at the 24-hour mark uses 4 hidden layers, while the best epoch-500 result comes from a 6-layer configuration. This is in contrast to QuadCubes, where decoder depth has negligible effect on any metric. The difference is plausible. CombinedCubes separates the spatial and temporal encoders more cleanly than QuadCubes, so the MLP receives less redundant information and may occasionally benefit from slightly more capacity to integrate it. However, 4 hidden layers are sufficient for the strongest results in practice, and increasing to 6 does not reliably improve performance.
 
-\subsubsection{CombinedCubes with K-Planes Products}
-\label{subsubsec:combinedcubes_kplanes}
-
-The standard CombinedCubes decoder concatenates the four encoder outputs and passes them to the MLP as independent feature streams. An alternative, inspired by the K-Planes representation \citep{fridovichkeil2023kplanes}, augments this input with element-wise products of the spatial and temporal features. Because all four CombinedCubes encoders share the same configuration and therefore produce feature vectors of the same dimension $D$, three pairwise cross-products are well-defined. The MLP input becomes:
-%
-\begin{equation}
-    \mathbf{h} = \bigl[
-        \mathbf{f}_{zt},\;
-        \mathbf{f}_{yt},\;
-        \mathbf{f}_{xt},\;
-        \mathbf{f}_{xyz},\;
-        \mathbf{f}_{xyz} \odot \mathbf{f}_{xt},\;
-        \mathbf{f}_{xyz} \odot \mathbf{f}_{yt},\;
-        \mathbf{f}_{xyz} \odot \mathbf{f}_{zt}
-    \bigr] \in \mathbb{R}^{7D},
-    \label{eq:combinedcubes_kplanes}
-\end{equation}
-%
-where $\odot$ denotes element-wise multiplication. Each pairwise product $\mathbf{f}_{xyz} \odot \mathbf{f}_{xt}$ is large only when both the spatial encoder activates strongly at a given location and the $(x,t)$ encoder activates strongly at the corresponding temporal coordinate. The product therefore gives the MLP explicit access to joint spatial-temporal selectivity. It can detect whether a particular pore is undergoing change at a particular time, rather than relying on the MLP to infer this from the concatenated features alone.
-
-The total input dimension increases from $4D$ to $7D$, a 75\% increase in MLP input size. Because the MLP is orders of magnitude smaller than the encoders, this overhead is modest in absolute terms.
-
-\todo{Insert PSNR/SSIM/MAE results for CombinedCubes with K-Planes products versus standard CombinedCubes. Report training time overhead from the larger MLP input.}
-
 \subsection{\MixedCubes}
 \label{subsec:mixedcubes}
 
@@ -1088,34 +1064,12 @@ Figures~\ref{fig:mixedcubes_epoch} and \ref{fig:mixedcubes_time} show that \Mixe
 
 As with CombinedCubes, the effect of decoder depth in \MixedCubes{} is modest and configuration-dependent. The best-performing \MixedCubes{} configurations use 4 hidden layers, and increasing to 6 does not consistently improve results. The same reasoning applies. The cleaner separation between spatial and temporal encoders means the MLP receives less redundant information than in QuadCubes, but 4 hidden layers are sufficient to integrate it effectively.
 
-\subsubsection{\MixedCubes{} with K-Planes Triple Product}
-\label{subsubsec:mixedcubes_kplanes}
-
-In \MixedCubes{} the three dense temporal encoders and the hash spatial encoder may produce feature vectors of different dimensions ($D_{2d}$ and $D_{3d}$ respectively), since they use different grid types and configurations. Element-wise products between the spatial and temporal features are therefore not generally well-defined. Instead, the K-Planes product is computed exclusively within the temporal feature space as a triple product of the three 2D temporal encoder outputs:
-%
-\begin{equation}
-    \mathbf{h} = \bigl[
-        \mathbf{f}_{zt},\;
-        \mathbf{f}_{yt},\;
-        \mathbf{f}_{xt},\;
-        \mathbf{f}_{xyz},\;
-        \mathbf{f}_{xt} \odot \mathbf{f}_{yt} \odot \mathbf{f}_{zt}
-    \bigr] \in \mathbb{R}^{4 D_{2d} + D_{3d}},
-    \label{eq:mixedcubes_kplanes}
-\end{equation}
-%
-where $\mathbf{f}_{xt} \odot \mathbf{f}_{yt} \odot \mathbf{f}_{zt}$ is the element-wise triple product of the three temporal feature vectors, each of dimension $D_{2d}$. This product is large only when all three temporal plane features activate simultaneously, which happens precisely when the query point $(x, y, z, t)$ falls in a region where all three planes agree, making it strongly selective in the full 4D space. The triple product therefore gives the MLP a single compact signal indicating where a change is occurring without the ambiguity present in any individual plane feature. The total input dimension is $4 D_{2d} + D_{3d}$, the same as the standard \MixedCubes{} input, since the triple product replaces no features but adds one term of size $D_{2d}$.
-
-\todo{Insert PSNR/SSIM/MAE results for \MixedCubes{} with K-Planes triple product versus standard \MixedCubes{}. Report whether the added selectivity improves reconstruction of fine temporal events.}
-
 \subsection{Architecture and Problem Structure}
 \label{subsec:asymmetry_synthesis}
 
 The non-uniform sizing experiments confirm the spatial-temporal asymmetry hypothesis. Redirecting hashmap capacity from temporal to spatial encoders improves quality on all three metrics at substantially lower VRAM. Temporal-heavy configurations, by contrast, perform well below the baseline despite comparable memory budgets. Increasing temporal encoder capacity within the QuadCubes architecture returns far less quality per byte than the same increase applied to the spatial encoder.
 
 CombinedCubes takes this finding to its structural conclusion. By replacing the three temporal 3D encoders with collision-free 2D encoders, it simultaneously reduces memory by 67\%, reduces training time by approximately 30\%, and achieves better reconstruction quality across all metrics. The best CombinedCubes configuration at 24\,h ($+1.39$\,dB, 18.3\,GB) outperforms the baseline at less than half the VRAM. \MixedCubes{} takes this a step further by replacing the hashed 2D temporal encoders with fully dense grids, guaranteeing an exact coordinate-to-feature correspondence and yielding the best 24-hour result across all architectures ($+1.84$\,dB, 22.1\,GB). Decoder depth has a modest and configuration-dependent effect in both architectures. The best results use 4 hidden layers, though some 6-layer configurations achieve higher quality at epoch convergence. Four layers are sufficient for the strongest 24-hour results, and the architectural separation does not impose a fundamental additional burden on the decoder.
-
-The K-Planes product variants augment both architectures by passing element-wise feature products to the MLP alongside the raw encoder outputs, restoring some of the multi-way coordinate selectivity that separated encoders do not provide directly. For CombinedCubes, three pairwise spatial-temporal products are feasible because all encoders share the same feature dimension. For \MixedCubes{}, the triple temporal product is used instead, providing strong 4D selectivity within the temporal feature space without requiring dimension compatibility between the dense temporal and hash spatial encoders.
 
 The third design principle follows from this. The encoder architecture should reflect the asymmetry between the spatial and temporal components of the problem. The spatial encoder benefits from high-dimensional encoding with adequate hashmap size, while the temporal encoders benefit from low-dimensional, collision-free encoding suited to the lower-frequency temporal signal.
 
