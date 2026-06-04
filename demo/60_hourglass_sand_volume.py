@@ -144,14 +144,13 @@ def query_volume(
 ) -> np.ndarray:
     z_h, y_w, x_w = len(z_lin), len(y_lin), len(x_lin)
     output = torch.zeros((z_h, y_w, x_w), device="cpu", dtype=torch.float32)
-    t_tensor = torch.tensor(t, device=device)
     for ii, z_ in enumerate(z_lin):
         z, y, x = torch.meshgrid(
             [z_.unsqueeze(0), y_lin, x_lin],
             indexing="ij",
         )
         grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t().to(device)
-        output[ii] = model(grid, t_tensor).view(y_w, x_w).cpu()
+        output[ii] = model(grid, float(t)).view(y_w, x_w).cpu()
     return output.numpy()
 
 
@@ -337,8 +336,6 @@ def process_run(run_dir: Path) -> None:
 
     # ── Error metrics ─────────────────────────────────────────────────────────
     total_truth = float(total_clean.mean())
-    top_truth   = total_truth - bot_vols_clean
-    bot_truth   = total_truth - top_vols_clean
 
     mae_total = float(np.mean(np.abs(total_clean - total_truth)))
     mse_total = float(np.mean((total_clean - total_truth) ** 2))
@@ -349,10 +346,17 @@ def process_run(run_dir: Path) -> None:
     mae_1to1 = float(np.mean(np.abs(residual_1to1)))
     mse_1to1 = float(np.mean(residual_1to1 ** 2))
 
-    mae_top = float(np.mean(np.abs(top_vols_clean - top_truth)))
-    mse_top = float(np.mean((top_vols_clean - top_truth) ** 2))
-    mae_bot = float(np.mean(np.abs(bot_vols_clean - bot_truth)))
-    mse_bot = float(np.mean((bot_vols_clean - bot_truth) ** 2))
+    # Deviation of each chamber from its own linear trend.
+    # (The conservation-derived truth top_truth = total_truth - bot reduces to
+    #  mae_top == mae_bot == mae_total by algebra, so it carries no extra info.)
+    t_idx = np.arange(len(top_vols_clean), dtype=float)
+    top_trend = np.polyval(np.polyfit(t_idx, top_vols_clean, 1), t_idx)
+    bot_trend = np.polyval(np.polyfit(t_idx, bot_vols_clean, 1), t_idx)
+
+    mae_top = float(np.mean(np.abs(top_vols_clean - top_trend)))
+    mse_top = float(np.mean((top_vols_clean - top_trend) ** 2))
+    mae_bot = float(np.mean(np.abs(bot_vols_clean - bot_trend)))
+    mse_bot = float(np.mean((bot_vols_clean - bot_trend) ** 2))
 
     # ── Plot ──────────────────────────────────────────────────────────────────
     fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
@@ -400,11 +404,11 @@ def process_run(run_dir: Path) -> None:
         f.write(f"  MAE : {mae_1to1:.4f} mm³\n")
         f.write(f"  MSE : {mse_1to1:.4f} mm⁶\n\n")
 
-        f.write("Top chamber vs. conservation-derived truth:\n")
+        f.write("Top chamber vs. linear trend:\n")
         f.write(f"  MAE : {mae_top:.4f} mm³\n")
         f.write(f"  MSE : {mse_top:.4f} mm⁶\n\n")
 
-        f.write("Bottom chamber vs. conservation-derived truth:\n")
+        f.write("Bottom chamber vs. linear trend:\n")
         f.write(f"  MAE : {mae_bot:.4f} mm³\n")
         f.write(f"  MSE : {mse_bot:.4f} mm⁶\n")
     print(f"Conservation metrics saved to {mae_path}")

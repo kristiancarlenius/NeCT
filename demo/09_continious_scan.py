@@ -55,7 +55,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             "include_identity": False,
         },
         "tv_spatial": 1e-4,
-        "accumulation_steps": 6,
+        "accumulation_steps": 2,
         "continous_scanning": True,
         
     },
