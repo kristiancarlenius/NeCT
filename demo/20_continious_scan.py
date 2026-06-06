@@ -80,7 +80,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
             "max_resolution_factor": 2,
         },
         "encoder_2d": {
-            "n_levels": 12,
+            "n_levels": 11,
             "n_features_per_level": 4,
             "base_resolution": 16,
             "per_level_scale": 1.5,
