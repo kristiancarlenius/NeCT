@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scans/"#_dyn/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"#s/"#
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -16,10 +16,10 @@ with open(tmp_config_file, "w") as f:
     yaml.safe_dump(config, f)
 nect.export_dataset_to_npy(tmp_config_file, Path(data_path) / "projections.npy")
 """
-geometry_file = Path(data_path) / "geometry_optimized_100_cont.yaml"#"geometry_8fps_5500.yaml"
+geometry_file = Path(data_path) / "geometry_8fps_5500.yaml"#"geometry_optimized_100_cont.yaml"#
 geometry = nect.Geometry.from_yaml(geometry_file)
 
-
+"""
 reconstruction_path_static, output_path = nect.reconstruct_continious_scan(
     geometry=geometry,
     projections=str(Path(data_path) / "proj_100_cont.npy"),#"projections.npy"),
@@ -99,8 +99,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct_continious_scan(
         
     },
     enc_arc="mixedcubes",  
-    memvstime=True,
+    memvstime="batch",
 )
 
 print(reconstruction_path_dynamic, _)
-"""

@@ -160,7 +160,7 @@ def plot_per_group(groups: dict, out_dir: Path) -> None:
         ac_nums = sorted(ac_data)
 
         fig, ax = plt.subplots(figsize=(8, 5))
-        for metric in METRICS:
+        for metric in PLOT_METRICS:
             vals = [ac_data[ac][metric] for ac in ac_nums]
             ax.plot(ac_nums, vals, marker="o",
                     label=METRIC_SHORT[metric],
@@ -194,10 +194,9 @@ def plot_per_fps(groups: dict, fps_prefix: str, out_dir: Path) -> None:
     colors = plt.cm.tab10(np.linspace(0, 1, len(sorted_groups)))
     ac_ticks = all_ac_ticks(subset)
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharey=False)
-    axes = axes.flatten()
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharey=False)
 
-    for ax, metric in zip(axes, METRICS):
+    for ax, metric in zip(axes, PLOT_METRICS):
         for group, color in zip(sorted_groups, colors):
             ac_data = subset[group]
             ac_nums = sorted(ac_data)
@@ -234,7 +233,7 @@ def main():
     for group in sorted(groups):
         for ac in sorted(groups[group]):
             m = groups[group][ac]
-            print(f"  {group}_ac{ac}: total={m['total']:.2f}  1to1={m['1to1']:.2f}  "
+            print(f"  {group}_ac{ac}: total={m['total']:.2f}  "
                   f"top={m['top']:.2f}  bot={m['bot']:.2f}  mm³")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)

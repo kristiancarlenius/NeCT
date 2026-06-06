@@ -36,9 +36,9 @@ OUT_DIR = Path(__file__).parent / "mae_plots"
 RUN_RE = re.compile(r"^(\d+fps_\d+_ac\d+)(_OLD)?$")
 
 METRICS = ["total", "1to1", "top", "bot"]
+PLOT_METRICS = ["total", "top", "bot"]
 METRIC_TITLES = {
     "total": "Total conservation",
-    "1to1":  "1:1 tracking",
     "top":   "Top chamber",
     "bot":   "Bottom chamber",
 }
@@ -105,10 +105,9 @@ def plot_fps_tier(pairs: dict, fps_prefix: str, out_dir: Path) -> None:
     labels = sorted(subset)                  # sorted base names
     x = np.arange(len(labels))
 
-    fig, axes = plt.subplots(2, 2, figsize=(max(10, len(labels) * 1.5), 8), sharey=False)
-    axes = axes.flatten()
+    fig, axes = plt.subplots(1, 3, figsize=(max(10, len(labels) * 1.5), 5), sharey=False)
 
-    for ax, metric in zip(axes, METRICS):
+    for ax, metric in zip(axes, PLOT_METRICS):
         new_vals = [subset[lbl]["new"][metric] for lbl in labels]
         old_vals = [subset[lbl]["old"][metric] for lbl in labels]
 
