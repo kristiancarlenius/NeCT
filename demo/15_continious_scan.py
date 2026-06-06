@@ -12,7 +12,7 @@ print(torch.cuda.current_device())
 print(torch.cuda.is_available())
 
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scandyn/"#s/"#_
+data_path = "/cluster/home/kristiac/NeCT/Datasets/continious_scan_dyn/"#s/"#
 geometry_file = Path(data_path) / "geometry_4fps_11000.yaml"#"geometry_optimized_360_cont.yaml"#
 geometry = nect.Geometry.from_yaml(geometry_file)
 """
