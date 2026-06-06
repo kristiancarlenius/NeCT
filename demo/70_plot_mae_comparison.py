@@ -5,7 +5,7 @@ Run names are expected to follow the pattern: {fps}_{steps}_ac{N}[_re]
 e.g. 4fps_11000_ac2, 8fps_5500_ac6_re
 
 Outputs (all saved to OUT_DIR):
-  mae_total.png, mae_1to1.png, mae_top.png, mae_bot.png
+  mae_total.png, mae_top.png, mae_bot.png
       One image per metric.  All {fps}_{steps} groups as lines, x = ac number.
 
   mae_group_4fps_11000.png, mae_group_8fps_5500.png, ...
@@ -47,21 +47,19 @@ PREFER_OLD = False
 RUN_RE = re.compile(r"^(\d+fps_\d+)_ac(\d+)(_OLD)?$")
 
 METRICS = ["total", "1to1", "top", "bot"]
+PLOT_METRICS = ["total", "top", "bot"]
 METRIC_TITLES = {
     "total": "Total conservation MAE (mm³)",
-    "1to1":  "1:1 tracking MAE (mm³)",
     "top":   "Top chamber MAE (mm³)",
     "bot":   "Bottom chamber MAE (mm³)",
 }
 METRIC_SHORT = {
     "total": "Total conservation",
-    "1to1":  "1:1 tracking",
     "top":   "Top chamber",
     "bot":   "Bottom chamber",
 }
 METRIC_COLORS = {
     "total": "mediumpurple",
-    "1to1":  "darkorange",
     "top":   "steelblue",
     "bot":   "firebrick",
 }
@@ -128,7 +126,7 @@ def plot_per_metric(groups: dict, out_dir: Path) -> None:
     colors = plt.cm.tab10(np.linspace(0, 1, len(sorted_groups)))
     ac_ticks = all_ac_ticks(groups)
 
-    for metric in METRICS:
+    for metric in PLOT_METRICS:
         fig, ax = plt.subplots(figsize=(8, 5))
         for group, color in zip(sorted_groups, colors):
             ac_data = groups[group]
