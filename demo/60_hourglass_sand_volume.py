@@ -19,6 +19,7 @@ Usage:
     Set SKIP_EXISTING = True to resume an interrupted batch run.
 """
 
+import gc
 import re
 from pathlib import Path
 
@@ -426,7 +427,9 @@ def main():
             process_run(run_dir)
         except Exception as e:
             print(f"ERROR processing {run_dir.name}: {e}")
-            continue
+        finally:
+            gc.collect()
+            torch.cuda.empty_cache()
 
 
 if __name__ == "__main__":
