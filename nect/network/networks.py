@@ -786,11 +786,6 @@ class MixedCubes(nn.Module):
         print(f"[MixedCubes] dense 2D grids (3×): {_dense_bytes / 1024**2:.1f} MB")
         print(f"[MixedCubes] hash 3D grid:         {_hash_bytes / 1024**2:.1f} MB")
         print(f"[MixedCubes] total estimated:      {(_dense_bytes + _hash_bytes) / 1024**2:.1f} MB")
-        if torch.cuda.is_available():
-            _free, _total = torch.cuda.mem_get_info()
-            _used = torch.cuda.memory_allocated()
-            print(f"[MixedCubes] GPU free/total:       {_free/1024**3:.2f} / {_total/1024**3:.2f} GB")
-            print(f"[MixedCubes] torch allocated:      {_used/1024**3:.2f} GB")
         self.net = tcnn.NetworkWithInputEncoding(
             n_input_dims=9,
             n_output_dims=1,
