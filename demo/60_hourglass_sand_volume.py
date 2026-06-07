@@ -426,6 +426,8 @@ def main():
         try:
             process_run(run_dir)
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"ERROR processing {run_dir.name}: {e}")
         finally:
             gc.collect()
