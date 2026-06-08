@@ -350,7 +350,7 @@ def main():
         print("No CUDA device found — Tier 3b requires GPU.  Exiting.")
         return
 
-    device = torch.device("cuda")
+    device = torch.device("cuda:0")
 
     if MODEL_DIRS is not None:
         candidates = [(BASE_DIR / d, d) for d in MODEL_DIRS]
