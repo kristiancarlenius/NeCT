@@ -4,7 +4,7 @@ import nect
 import torch
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer_extra/part_1/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer_extra/part_1"
 geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
 
