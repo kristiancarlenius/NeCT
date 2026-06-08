@@ -187,6 +187,11 @@ def _bar_layout(n_groups: int):
     return offsets, bar_width
 
 
+def _display(s: str) -> str:
+    """Translate internal group/fps names to display labels for plots."""
+    return s.replace("8fps", "2fps")
+
+
 def all_ac_ticks(groups):
     return sorted({ac for g in groups.values() for ac in g})
 
@@ -204,7 +209,7 @@ def plot_per_metric(groups: dict, out_dir: Path) -> None:
             ac_data = groups[group]
             ac_nums = sorted(ac_data)
             vals = [ac_data[ac][metric] for ac in ac_nums]
-            ax.plot(ac_nums, vals, marker="o", label=group, color=color)
+            ax.plot(ac_nums, vals, marker="o", label=_display(group), color=color)
             _annotate_line(ax, ac_nums, vals)
 
         ax.set_title(METRIC_TITLES[metric])
@@ -237,7 +242,7 @@ def plot_per_group(groups: dict, out_dir: Path) -> None:
                     color=METRIC_COLORS[metric])
             _annotate_line(ax, ac_nums, vals)
 
-        ax.set_title(f"{group} — MAE by acquisition count")
+        ax.set_title(f"{_display(group)} — MAE by acquisition count")
         ax.set_xlabel("Acquisition count (ac)")
         ax.set_ylabel("MAE (mm³)")
         ax.set_xticks(ac_ticks)
@@ -269,7 +274,7 @@ def plot_per_fps(groups: dict, fps_prefix: str, out_dir: Path) -> None:
             ac_data = subset[group]
             ac_nums = sorted(ac_data)
             vals = [ac_data[ac][metric] for ac in ac_nums]
-            ax.plot(ac_nums, vals, marker="o", label=group, color=color)
+            ax.plot(ac_nums, vals, marker="o", label=_display(group), color=color)
             _annotate_line(ax, ac_nums, vals)
 
         ax.set_title(METRIC_TITLES[metric])
@@ -282,7 +287,7 @@ def plot_per_fps(groups: dict, fps_prefix: str, out_dir: Path) -> None:
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=len(sorted_groups),
                fontsize=9, bbox_to_anchor=(0.5, -0.02))
-    fig.suptitle(f"{fps_prefix} — MAE by acquisition count", fontsize=13)
+    fig.suptitle(f"{_display(fps_prefix)} — MAE by acquisition count", fontsize=13)
     plt.tight_layout(rect=[0, 0.06, 1, 1])
 
     path = out_dir / f"mae_{fps_prefix}.png"
@@ -307,7 +312,7 @@ def plot_per_metric_bar(groups: dict, out_dir: Path) -> None:
             ac_data = groups[group]
             xs   = [ac + offsets[gi] for ac in ac_ticks if ac in ac_data]
             vals = [ac_data[ac][metric] for ac in ac_ticks if ac in ac_data]
-            ax.bar(xs, vals, width=bw, label=group, color=color, alpha=0.85)
+            ax.bar(xs, vals, width=bw, label=_display(group), color=color, alpha=0.85)
             for x, v in zip(xs, vals):
                 ax.text(x, v, f"{v:.0f}", ha="center", va="bottom", fontsize=7)
 
@@ -345,7 +350,7 @@ def plot_per_group_bar(groups: dict, out_dir: Path) -> None:
             for x, v in zip(xs, vals):
                 ax.text(x, v, f"{v:.0f}", ha="center", va="bottom", fontsize=7)
 
-        ax.set_title(f"{group} — MAE by acquisition count")
+        ax.set_title(f"{_display(group)} — MAE by acquisition count")
         ax.set_xlabel("Acquisition count (ac)")
         ax.set_ylabel("MAE (mm³)")
         ax.set_xticks(ac_nums)
@@ -380,7 +385,7 @@ def plot_per_fps_bar(groups: dict, fps_prefix: str, out_dir: Path) -> None:
             ac_data = subset[group]
             xs   = [ac + offsets[gi] for ac in ac_ticks if ac in ac_data]
             vals = [ac_data[ac][metric] for ac in ac_ticks if ac in ac_data]
-            ax.bar(xs, vals, width=bw, label=group, color=color, alpha=0.85)
+            ax.bar(xs, vals, width=bw, label=_display(group), color=color, alpha=0.85)
             for x, v in zip(xs, vals):
                 ax.text(x, v, f"{v:.0f}", ha="center", va="bottom", fontsize=7)
 
@@ -395,11 +400,54 @@ def plot_per_fps_bar(groups: dict, fps_prefix: str, out_dir: Path) -> None:
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=n_groups,
                fontsize=9, bbox_to_anchor=(0.5, -0.02))
-    fig.suptitle(f"{fps_prefix} — MAE by acquisition count", fontsize=13)
+    fig.suptitle(f"{_display(fps_prefix)} — MAE by acquisition count", fontsize=13)
     plt.tight_layout(rect=[0, 0.06, 1, 1])
 
     path = out_dir / f"mae_{fps_prefix}_bar.png"
     plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Saved {path}")
+
+
+def plot_subangle_precision(out_dir: Path) -> None:
+    """
+    Plot sub-angle resolution (∆ϕ / K) vs accumulation steps K for each scan
+    configuration.  Shows how many degrees each sub-step covers as K increases.
+
+    Scan configurations (all 800 projections):
+        2750°  → ∆ϕ = 3.44° / proj
+        5500°  → ∆ϕ = 6.88° / proj
+        11000° → ∆ϕ = 13.75° / proj
+    """
+    CONFIGS = [
+        ("2750°  (∆ϕ=3.44°)",  3.4375),
+        ("5500°  (∆ϕ=6.88°)",  6.875),
+        ("11000° (∆ϕ=13.75°)", 13.75),
+    ]
+    K_VALUES = [1, 2, 3, 4, 6]
+    colors = ["steelblue", "darkorange", "firebrick"]
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+
+    for (label, delta_phi), color in zip(CONFIGS, colors):
+        sub_angles = [delta_phi / k for k in K_VALUES]
+        ax.plot(K_VALUES, sub_angles, marker="o", label=label, color=color)
+        for k, s in zip(K_VALUES, sub_angles):
+            ax.annotate(f"{s:.2f}°", (k, s),
+                        textcoords="offset points", xytext=(0, 7),
+                        ha="center", fontsize=8)
+
+    ax.set_title("Sub-angle resolution vs accumulation steps K")
+    ax.set_xlabel("Accumulation steps K")
+    ax.set_ylabel("Sub-angle width ∆ϕ / K  (degrees)")
+    ax.set_xticks(K_VALUES)
+    ax.grid(alpha=0.3)
+    ax.set_ylim(bottom=0)
+    ax.legend(title="Scan config", fontsize=9)
+
+    path = out_dir / "subangle_precision.png"
+    plt.tight_layout()
+    plt.savefig(path, dpi=150)
     plt.close(fig)
     print(f"Saved {path}")
 
@@ -427,6 +475,7 @@ def main():
     plot_per_group_bar(groups, OUT_DIR)
     plot_per_fps_bar(groups, "4fps", OUT_DIR)
     plot_per_fps_bar(groups, "8fps", OUT_DIR)
+    plot_subangle_precision(OUT_DIR)
     print(f"\nAll plots written to {OUT_DIR}/")
 
 
