@@ -18,7 +18,9 @@ Usage:
 """
 
 import re
+import sys
 from collections import defaultdict
+from io import StringIO
 from pathlib import Path
 
 import numpy as np
@@ -34,6 +36,8 @@ PREFER_OLD = False
 
 USE_NPZ = True
 FILTER_SIGMA = 30
+
+OUT_DIR = Path(__file__).parent / "mae_plots"
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -226,5 +230,28 @@ def main():
     print(f"{'='*65}")
 
 
+class _Tee:
+    """Write to both stdout and a StringIO buffer simultaneously."""
+    def __init__(self):
+        self._buf = StringIO()
+    def write(self, s):
+        sys.stdout.write(s)
+        self._buf.write(s)
+    def flush(self):
+        sys.stdout.flush()
+    def getvalue(self):
+        return self._buf.getvalue()
+
+
 if __name__ == "__main__":
-    main()
+    tee = _Tee()
+    old_stdout = sys.stdout
+    sys.stdout = tee
+    try:
+        main()
+    finally:
+        sys.stdout = old_stdout
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = OUT_DIR / "soundness_report.txt"
+    out_path.write_text(tee.getvalue())
+    print(f"Report saved to {out_path}")
