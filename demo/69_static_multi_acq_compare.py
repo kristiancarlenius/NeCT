@@ -35,9 +35,7 @@ CROP_Z = (0.10, 0.90)
 CROP_Y = (0.10, 0.75)
 CROP_X = (0.25, 0.75)
 
-SLICE_Z = 0.5
-SLICE_Y = 0.5
-SLICE_X = 0.5
+N_SLICES = 6  # number of evenly spaced XY slices along Z
 
 MASK_RADIUS_FRAC = 0.45
 
@@ -167,10 +165,6 @@ def main():
     else:
         names = COMPARE_NAMES
 
-    zi = int(SLICE_Z * nz)
-    yi = int(SLICE_Y * ny)
-    xi = int(SLICE_X * nx)
-
     if MASK_RADIUS_FRAC > 0.0:
         cy_c, cx_c = ny / 2.0, nx / 2.0
         radius = MASK_RADIUS_FRAC * min(ny, nx)
@@ -178,6 +172,11 @@ def main():
         mask_2d = ((yy - cy_c) ** 2 + (xx - cx_c) ** 2) <= radius ** 2
     else:
         mask_2d = np.ones((ny, nx), dtype=bool)
+
+    # Evenly spaced Z indices for the N_SLICES XY slices
+    z_indices = [int(round((i + 1) / (N_SLICES + 1) * nz)) for i in range(N_SLICES)]
+    z_indices = [min(max(z, 0), nz - 1) for z in z_indices]
+    z_fracs   = [(zi_val / nz) * (CROP_Z[1] - CROP_Z[0]) + CROP_Z[0] for zi_val in z_indices]
 
     def process(vol: np.ndarray):
         step = max(1, nz // 150)
@@ -197,9 +196,10 @@ def main():
                 vol[z0:z1] = s
         else:
             vol[:] = 0.0
-        return vol, vol[zi].copy(), vol[:, yi, :].copy(), vol[:, :, xi].copy()
+        xy_slices = [vol[z].copy() for z in z_indices]
+        return vol, xy_slices
 
-    def sharpness_metrics(xy: np.ndarray, xz: np.ndarray, yz: np.ndarray) -> tuple[float, float]:
+    def sharpness_metrics(xy_slices: list[np.ndarray]) -> tuple[float, float]:
         def _interior(s: np.ndarray) -> np.ndarray:
             return binary_erosion(s > 0, iterations=2)
 
@@ -215,8 +215,8 @@ def main():
             m = _interior(s)
             return float(np.var(laplace2d(s)[m])) if m.any() else 0.0
 
-        mean_grad = (_grad(xy) + _grad(xz) + _grad(yz)) / 3
-        lap_var   = (_lapvar(xy) + _lapvar(xz) + _lapvar(yz)) / 3
+        mean_grad = float(np.mean([_grad(s) for s in xy_slices]))
+        lap_var   = float(np.mean([_lapvar(s) for s in xy_slices]))
         return mean_grad, lap_var
 
     def compute_metrics_streamed(gt_vol, vol):
@@ -261,11 +261,11 @@ def main():
         path=_mmap_path("gt.mmap"),
     )
     del model; torch.cuda.empty_cache()
-    gt_vol, gt_xy, gt_xz, gt_yz = process(gt_vol)
-    gt_grad, gt_lapvar = sharpness_metrics(gt_xy, gt_xz, gt_yz)
+    gt_vol, gt_xy_slices = process(gt_vol)
+    gt_grad, gt_lapvar = sharpness_metrics(gt_xy_slices)
     print(f"  GT sharpness — grad: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}")
 
-    slices: dict[str, tuple] = {GT_NAME: (gt_xy, gt_xz, gt_yz)}
+    slices: dict[str, list[np.ndarray]] = {GT_NAME: gt_xy_slices}
 
     metric_names: list[str] = []
     psnr_vals:    list[float] = []
@@ -290,16 +290,16 @@ def main():
         )
         del model; torch.cuda.empty_cache()
 
-        vol, xy, xz, yz = process(raw)
+        vol, xy_slices = process(raw)
         del raw
 
-        slices[name] = (xy, xz, yz)
+        slices[name] = xy_slices
         metric_names.append(name)
         psnr, ssim, mae = compute_metrics_streamed(gt_vol, vol)
         psnr_vals.append(psnr)
         ssim_vals.append(ssim)
         mae_vals.append(mae)
-        mg, lv = sharpness_metrics(xy, xz, yz)
+        mg, lv = sharpness_metrics(xy_slices)
         grad_vals.append(mg)
         lapvar_vals.append(lv)
         valid_names.append(name)
@@ -310,20 +310,19 @@ def main():
         print("No models found — check BASE_DIR and COMPARE_NAMES.")
         return
 
-    n_cols = 3
-    fig, axes = plt.subplots(n_models, n_cols, figsize=(4 * n_cols, 3 * n_models))
+    n_cols = N_SLICES
+    fig, axes = plt.subplots(n_models, n_cols, figsize=(3 * n_cols, 3 * n_models))
     if n_models == 1:
         axes = axes[np.newaxis, :]
 
-    col_titles = [f"XY  (z={zi})", f"XZ  (y={yi})", f"YZ  (x={xi})"]
+    col_titles = [f"XY  z={zf:.2f}" for zf in z_fracs]
     for j, title in enumerate(col_titles):
         axes[0, j].set_title(title, fontsize=9)
 
-    for i, (name, (xy, xz, yz)) in enumerate(slices.items()):
+    for i, (name, xy_slices) in enumerate(slices.items()):
         kw = dict(cmap="gray", vmin=0, vmax=1, aspect="auto", interpolation="nearest")
-        axes[i, 0].imshow(xy, **kw)
-        axes[i, 1].imshow(xz, **kw)
-        axes[i, 2].imshow(yz, **kw)
+        for j, sl in enumerate(xy_slices):
+            axes[i, j].imshow(sl, **kw)
         axes[i, 0].set_ylabel(name, fontsize=7, rotation=0, labelpad=60, va="center")
         for j in range(n_cols):
             axes[i, j].set_xticks([])
