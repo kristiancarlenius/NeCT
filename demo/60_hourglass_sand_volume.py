@@ -61,7 +61,7 @@ NECK_Z_VOXEL = 370
 
 # ── Glitch filtering ──────────────────────────────────────────────────────────
 FILTER_GLITCHES = True
-FILTER_SIGMA    = 20
+FILTER_SIGMA    = 10
 
 # Skip runs that already have a mae.txt (useful for resuming)
 SKIP_EXISTING = True #
