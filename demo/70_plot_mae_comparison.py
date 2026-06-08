@@ -409,47 +409,57 @@ def plot_per_fps_bar(groups: dict, fps_prefix: str, out_dir: Path) -> None:
     print(f"Saved {path}")
 
 
-def plot_subangle_precision(out_dir: Path) -> None:
+_GROUP_RE = re.compile(r"^(\d+)fps_(\d+)$")
+_N_PROJ = 800  # all scans use 800 projections
+
+
+def plot_subangle_vs_mae(groups: dict, out_dir: Path) -> None:
     """
-    Plot sub-angle resolution (∆ϕ / K) vs accumulation steps K for each scan
-    configuration.  Shows how many degrees each sub-step covers as K increases.
+    X-axis: sub-angle width ∆ϕ/K (degrees) = total_degrees / N_PROJ / ac
+    Y-axis: MAE for each metric
+    One line per (fps, total_degrees) group — ac values become the data points.
 
-    Scan configurations (all 800 projections):
-        2750°  → ∆ϕ = 3.44° / proj
-        5500°  → ∆ϕ = 6.88° / proj
-        11000° → ∆ϕ = 13.75° / proj
+    Smaller sub-angle = larger K = more accumulation steps.
+    A downward trend left→right means more accumulation steps improve precision.
     """
-    CONFIGS = [
-        ("2750°  (∆ϕ=3.44°)",  3.4375),
-        ("5500°  (∆ϕ=6.88°)",  6.875),
-        ("11000° (∆ϕ=13.75°)", 13.75),
-    ]
-    K_VALUES = [1, 2, 3, 4, 6]
-    colors = ["steelblue", "darkorange", "firebrick"]
+    sorted_groups = sorted(groups)
+    colors = plt.cm.tab10(np.linspace(0, 1, len(sorted_groups)))
 
-    fig, ax = plt.subplots(figsize=(7, 5))
+    for metric in PLOT_METRICS:
+        fig, ax = plt.subplots(figsize=(9, 5))
 
-    for (label, delta_phi), color in zip(CONFIGS, colors):
-        sub_angles = [delta_phi / k for k in K_VALUES]
-        ax.plot(K_VALUES, sub_angles, marker="o", label=label, color=color)
-        for k, s in zip(K_VALUES, sub_angles):
-            ax.annotate(f"{s:.2f}°", (k, s),
-                        textcoords="offset points", xytext=(0, 7),
-                        ha="center", fontsize=8)
+        for group, color in zip(sorted_groups, colors):
+            m = _GROUP_RE.match(group)
+            if not m:
+                continue
+            total_deg = int(m.group(2))
+            delta_phi = total_deg / _N_PROJ  # degrees per projection arc
 
-    ax.set_title("Sub-angle resolution vs accumulation steps K")
-    ax.set_xlabel("Accumulation steps K")
-    ax.set_ylabel("Sub-angle width ∆ϕ / K  (degrees)")
-    ax.set_xticks(K_VALUES)
-    ax.grid(alpha=0.3)
-    ax.set_ylim(bottom=0)
-    ax.legend(title="Scan config", fontsize=9)
+            ac_data = groups[group]
+            ac_nums = sorted(ac_data)
+            sub_angles = [delta_phi / ac for ac in ac_nums]
+            mae_vals   = [ac_data[ac][metric] for ac in ac_nums]
 
-    path = out_dir / "subangle_precision.png"
-    plt.tight_layout()
-    plt.savefig(path, dpi=150)
-    plt.close(fig)
-    print(f"Saved {path}")
+            ax.plot(sub_angles, mae_vals, marker="o",
+                    label=_display(group), color=color)
+            for sa, mae_v, ac in zip(sub_angles, mae_vals, ac_nums):
+                ax.annotate(f"K={ac}", (sa, mae_v),
+                            textcoords="offset points", xytext=(0, 6),
+                            ha="center", fontsize=7, color=color)
+
+        ax.set_title(f"MAE vs sub-angle width — {METRIC_TITLES[metric]}")
+        ax.set_xlabel("Sub-angle width ∆ϕ/K  (degrees per accumulation step)  ←  more precise")
+        ax.set_ylabel("MAE (mm³)")
+        ax.invert_xaxis()   # smaller sub-angle (higher K) on the right = "more precise"
+        ax.grid(alpha=0.3)
+        ax.set_ylim(bottom=0)
+        ax.legend(fontsize=8)
+
+        path = out_dir / f"subangle_vs_mae_{metric}.png"
+        plt.tight_layout()
+        plt.savefig(path, dpi=150)
+        plt.close(fig)
+        print(f"Saved {path}")
 
 
 def main():
@@ -475,7 +485,7 @@ def main():
     plot_per_group_bar(groups, OUT_DIR)
     plot_per_fps_bar(groups, "4fps", OUT_DIR)
     plot_per_fps_bar(groups, "8fps", OUT_DIR)
-    plot_subangle_precision(OUT_DIR)
+    plot_subangle_vs_mae(groups, OUT_DIR)
     print(f"\nAll plots written to {OUT_DIR}/")
 
 

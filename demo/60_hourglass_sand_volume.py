@@ -61,14 +61,14 @@ NECK_Z_VOXEL = 370
 
 # ── Glitch filtering ──────────────────────────────────────────────────────────
 FILTER_GLITCHES = True
-FILTER_SIGMA    = 60
+FILTER_SIGMA    = 20
 
 # Skip runs that already have a mae.txt (useful for resuming)
 SKIP_EXISTING = True #
 
 # ── Plot-only mode ────────────────────────────────────────────────────────────
 # Reload volumes from a previous run's sand_volume.npz instead of re-querying.
-PLOT_ONLY = False
+PLOT_ONLY = True
 
 # ─────────────────────────────────────────────────────────────────────────────
 
