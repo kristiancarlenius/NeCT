@@ -37,7 +37,7 @@ from nect.sampling import Geometry
 
 BASE_DIR = Path(
     "/cluster/home/kristiac/NeCT/outputs/dynamic_continious"
-    "/mixedcubes_18_2_23_16_2_4_128_L1"#"/quadcubes_22_4_22_16_2_4_128_L1"
+    "/quadcubes_22_4_22_16_2_4_128_L1"#"/mixedcubes_18_2_23_16_2_4_128_L1"#
 )
 
 # Per-fps attenuation thresholds for sand segmentation

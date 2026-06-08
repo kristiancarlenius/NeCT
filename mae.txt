@@ -1,0 +1,20 @@
+Sand volume conservation metrics
+==================================================
+N_TIMESTEPS=800  BINNING=1
+Truth total (mean): 51677.53 mm³
+
+Total conservation (total should be constant):
+  MAE : 118.8607 mm³
+  MSE : 58875.3146 mm⁶
+
+1:1 tracking (Δtop = −Δbot, residual = Δtop + Δbot):
+  MAE : 126.2378 mm³
+  MSE : 59856.3722 mm⁶
+
+Top chamber vs. linear trend:
+  MAE : 49.5939 mm³
+  MSE : 4457.2934 mm⁶
+
+Bottom chamber vs. linear trend:
+  MAE : 73.7748 mm³
+  MSE : 36222.9078 mm⁶
