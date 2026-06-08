@@ -2,9 +2,11 @@
 Reconstruction precision evaluation — three tiers, no ground truth needed.
 
 Tier 1  (no GPU, from sand_volume.npz):
-    cv_total    — σ(V_total) / μ(V_total)            lower  = better
-    flow_r      — Pearson r(−ΔV_top, ΔV_bot)         higher = better  (max 1.0)
-    mono_rate   — fraction of steps where ΔV_top < 0 higher = better  (max 1.0)
+    delta_mono  — fraction of steps where (V_top−V_bot) decreases  higher = better (max 1.0)
+    delta_snr   — flow signal / noise: range(trend) / std(residual) higher = better
+
+    Both use the DIFFERENTIAL signal V_top−V_bot, which cancels the common-mode
+    total-volume oscillations that dominated the previous metrics.
 
 Tier 2  (no GPU, from sand_volume.npz, ac ≥ 2 only):
     boundary_jump — mean |V(t_k+) − V(t_k−)| at each acquisition-period seam
@@ -101,20 +103,21 @@ def compute_volume_metrics(run_dir: Path, ac: int) -> dict | None:
 
     top   = top_raw[keep]
     bot   = bot_raw[keep]
-    total = top + bot
 
-    # ── Tier 1 ───────────────────────────────────────────────────────────────
+    # ── Tier 1: differential signal metrics ──────────────────────────────────
+    # delta_V = V_top − V_bot cancels common-mode total-volume oscillations.
+    # For a correct hourglass reconstruction delta_V decreases monotonically.
 
-    cv_total = float(np.std(total) / (np.mean(total) + 1e-9))
+    delta_V = top - bot
+    d_delta = np.diff(delta_V)
 
-    d_top = np.diff(top)
-    d_bot = np.diff(bot)
-    if np.std(d_top) > 0 and np.std(d_bot) > 0:
-        flow_r = float(np.corrcoef(-d_top, d_bot)[0, 1])
-    else:
-        flow_r = float("nan")
+    delta_mono = float(np.mean(d_delta < 0))
 
-    mono_rate = float(np.mean(d_top < 0))
+    t_idx  = np.arange(len(delta_V), dtype=float)
+    trend  = np.polyval(np.polyfit(t_idx, delta_V, 1), t_idx)
+    signal_range = float(np.abs(trend[-1] - trend[0]))
+    noise_std    = float(np.std(delta_V - trend))
+    delta_snr    = signal_range / (noise_std + 1e-9)
 
     # ── Tier 2: acquisition-boundary jump ────────────────────────────────────
     boundary_jump = float("nan")
@@ -135,9 +138,8 @@ def compute_volume_metrics(run_dir: Path, ac: int) -> dict | None:
             boundary_jump = float(np.mean(jumps))
 
     return {
-        "cv_total":      cv_total,
-        "flow_r":        flow_r,
-        "mono_rate":     mono_rate,
+        "delta_mono":    delta_mono,
+        "delta_snr":     delta_snr,
         "boundary_jump": boundary_jump,
     }
 
@@ -315,10 +317,9 @@ def _write_run_metrics(
     lines = [f"Precision metrics — {label}", "=" * 52, ""]
     if vol:
         lines += [
-            "Tier 1 — volume signal quality (no GPU):",
-            f"  cv_total      = {vol['cv_total']:.6f}   lower  = better",
-            f"  flow_r        = {vol['flow_r']:.4f}     higher = better  (max 1.0)",
-            f"  mono_rate     = {vol['mono_rate']:.4f}     higher = better  (max 1.0)",
+            "Tier 1 — differential flow signal quality (no GPU):",
+            f"  delta_mono    = {vol['delta_mono']:.4f}     higher = better  (max 1.0)",
+            f"  delta_snr     = {vol['delta_snr']:.2f}       higher = better",
             "",
             "Tier 2 — inter-acquisition consistency (no GPU):",
         ]
@@ -344,23 +345,22 @@ def _write_run_metrics(
 
 
 def _print_summary(rows: list) -> None:
-    hdr = (f"{'run':<30}  {'cv_total':>9}  {'flow_r':>7}  {'mono':>5}"
+    hdr = (f"{'run':<30}  {'delta_mono':>10}  {'delta_snr':>9}"
            f"  {'bdry_jump':>10}  {'final_loss':>10}  {'reproj_rmse':>12}")
     print("\n" + "=" * len(hdr))
     print("PRECISION SUMMARY")
     print(hdr)
     print("-" * len(hdr))
     for label, vol, loss, rmse in rows:
-        cv   = f"{vol['cv_total']:.4f}"      if vol                                    else "   N/A"
-        r    = f"{vol['flow_r']:.3f}"        if vol                                    else "  N/A"
-        mono = f"{vol['mono_rate']:.3f}"     if vol                                    else " N/A"
-        bj   = f"{vol['boundary_jump']:.1f}" if vol and not math.isnan(vol['boundary_jump']) else "       N/A"
-        fl   = f"{loss:.5f}"                 if loss is not None                       else "       N/A"
-        rr   = f"{rmse:.5f}"                 if rmse is not None                       else "          N/A"
-        print(f"{label:<30}  {cv:>9}  {r:>7}  {mono:>5}  {bj:>10}  {fl:>10}  {rr:>12}")
+        dm = f"{vol['delta_mono']:.4f}"      if vol                                             else "       N/A"
+        ds = f"{vol['delta_snr']:.2f}"       if vol                                             else "      N/A"
+        bj = f"{vol['boundary_jump']:.1f}"   if vol and not math.isnan(vol['boundary_jump'])    else "       N/A"
+        fl = f"{loss:.5f}"                   if loss is not None                                else "       N/A"
+        rr = f"{rmse:.5f}"                   if rmse is not None                                else "          N/A"
+        print(f"{label:<30}  {dm:>10}  {ds:>9}  {bj:>10}  {fl:>10}  {rr:>12}")
     print("=" * len(hdr))
     print()
-    print("Ideal: cv_total↓  flow_r↑  mono_rate↑  boundary_jump↓  final_loss↓  reproj_rmse↓")
+    print("Ideal: delta_mono↑  delta_snr↑  boundary_jump↓  final_loss↓  reproj_rmse↓")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -410,8 +410,8 @@ def main():
 
         if vol:
             bj_str = f"{vol['boundary_jump']:.1f}" if not math.isnan(vol['boundary_jump']) else "N/A"
-            print(f"   Tier 1 : cv={vol['cv_total']:.4f}  flow_r={vol['flow_r']:.3f}"
-                  f"  mono={vol['mono_rate']:.3f}  boundary_jump={bj_str}")
+            print(f"   Tier 1 : delta_mono={vol['delta_mono']:.4f}  delta_snr={vol['delta_snr']:.2f}"
+                  f"  boundary_jump={bj_str}")
         if loss is not None:
             print(f"   Tier 3a: final_loss={loss:.6f}")
 
