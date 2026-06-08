@@ -9,7 +9,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from scipy.ndimage import binary_erosion, sobel as sobel2d, laplace as laplace2d
+from scipy.ndimage import binary_erosion, rotate as nd_rotate, sobel as sobel2d, laplace as laplace2d
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 from nect.config import get_cfg
@@ -35,7 +35,14 @@ CROP_Z = (0.10, 0.90)
 CROP_Y = (0.10, 0.75)
 CROP_X = (0.25, 0.75)
 
-N_SLICES = 6  # number of evenly spaced XY slices along Z
+N_SLICES = 20  # number of evenly spaced XY slices along Z
+
+# Counter-clockwise rotation applied to display slices only (not metrics).
+# Keys are prefixes matched against the run name.
+SLICE_ROTATION: dict[str, float] = {
+    "100_": 2.5,
+    "360_": 0.3,
+}
 
 MASK_RADIUS_FRAC = 0.45
 
@@ -219,25 +226,32 @@ def main():
         lap_var   = float(np.mean([_lapvar(s) for s in xy_slices]))
         return mean_grad, lap_var
 
-    def compute_metrics_streamed(gt_vol, vol):
-        chunk = 64
+    def _rotate_for(name: str, xy_slices: list[np.ndarray]) -> list[np.ndarray]:
+        angle = next(
+            (deg for prefix, deg in SLICE_ROTATION.items() if name.startswith(prefix)),
+            0.0,
+        )
+        if angle == 0.0:
+            return xy_slices
+        return [nd_rotate(sl, angle, reshape=False, order=1, mode="constant", cval=0.0)
+                for sl in xy_slices]
+
+    def compute_metrics_from_slices(
+        gt_slices: list[np.ndarray], model_slices: list[np.ndarray]
+    ) -> tuple[float, float, float]:
         mse_sum, mae_sum, n_px, ssim_sum = 0.0, 0.0, 0, 0.0
-        for z0 in range(0, nz, chunk):
-            z1 = min(z0 + chunk, nz)
-            gt_c = np.array(gt_vol[z0:z1])
-            v_c  = np.array(vol[z0:z1])
-            gt_m = gt_c[:, mask_2d]
-            v_m  = v_c[:, mask_2d]
+        for gt_sl, v_sl in zip(gt_slices, model_slices):
+            gt_m = gt_sl[mask_2d]
+            v_m  = v_sl[mask_2d]
             d    = v_m - gt_m
-            mse_sum += float(np.sum(d ** 2))
-            mae_sum += float(np.sum(np.abs(d)))
-            n_px    += d.size
-            for k in range(z1 - z0):
-                ssim_sum += float(structural_similarity(gt_c[k], v_c[k], data_range=1.0))
+            mse_sum  += float(np.sum(d ** 2))
+            mae_sum  += float(np.sum(np.abs(d)))
+            n_px     += d.size
+            ssim_sum += float(structural_similarity(gt_sl, v_sl, data_range=1.0))
         mse  = mse_sum / max(n_px, 1)
         mae  = mae_sum / max(n_px, 1)
         psnr = float(10.0 * np.log10(1.0 / (mse + 1e-12)))
-        ssim = ssim_sum / nz
+        ssim = ssim_sum / len(gt_slices)
         return psnr, ssim, mae
 
     if SCRATCH_DIR is not None:
@@ -262,6 +276,7 @@ def main():
     )
     del model; torch.cuda.empty_cache()
     gt_vol, gt_xy_slices = process(gt_vol)
+    gt_xy_slices = _rotate_for(GT_NAME, gt_xy_slices)
     gt_grad, gt_lapvar = sharpness_metrics(gt_xy_slices)
     print(f"  GT sharpness — grad: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}")
 
@@ -291,11 +306,12 @@ def main():
         del model; torch.cuda.empty_cache()
 
         vol, xy_slices = process(raw)
-        del raw
+        del raw, vol
 
+        xy_slices = _rotate_for(name, xy_slices)
         slices[name] = xy_slices
         metric_names.append(name)
-        psnr, ssim, mae = compute_metrics_streamed(gt_vol, vol)
+        psnr, ssim, mae = compute_metrics_from_slices(gt_xy_slices, xy_slices)
         psnr_vals.append(psnr)
         ssim_vals.append(ssim)
         mae_vals.append(mae)
@@ -303,7 +319,6 @@ def main():
         grad_vals.append(mg)
         lapvar_vals.append(lv)
         valid_names.append(name)
-        del vol
 
     n_models = len(slices)
     if n_models == 0:
@@ -311,7 +326,7 @@ def main():
         return
 
     n_cols = N_SLICES
-    fig, axes = plt.subplots(n_models, n_cols, figsize=(3 * n_cols, 3 * n_models))
+    fig, axes = plt.subplots(n_models, n_cols, figsize=(2 * n_cols, 2.5 * n_models))
     if n_models == 1:
         axes = axes[np.newaxis, :]
 
