@@ -5,7 +5,7 @@ import nect
 import torch 
 from nect.config import MLPNetConfig
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer_extra/part_1/"
 """
 config_file = Path(data_path) / "config.yaml"
 with open(config_file, "r") as f:
@@ -25,7 +25,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
     projections=str(Path(data_path) / "projections.npy"),
     quality="high",
     mode="dynamic",
-    exp_name="sizediff",
+    exp_name="sizediff_part_1",
     config_override={
         "epochs": "8x",
         "checkpoint_interval": 0,
@@ -40,7 +40,7 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "otype": "HashGrid",
             "n_levels": 20,
             "n_features_per_level": 4,
-            "log2_hashmap_size": 22,
+            "log2_hashmap_size": 23,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
