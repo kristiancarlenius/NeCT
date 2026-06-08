@@ -1,0 +1,150 @@
+Base dir : /cluster/home/kristiac/NeCT/outputs/dynamic_continious/quadcubes_22_4_22_16_2_4_128_L1
+Source   : sand_volume.npz (recomputed)
+Sigma    : 30
+Loaded   : 30 run(s) in 6 group(s)
+
+  4fps_11000: ac = [1, 2, 3, 4, 6]
+  4fps_2750: ac = [1, 2, 3, 4, 6]
+  4fps_5500: ac = [1, 2, 3, 4, 6]
+  8fps_11000: ac = [1, 2, 3, 4, 6]
+  8fps_2750: ac = [1, 2, 3, 4, 6]
+  8fps_5500: ac = [1, 2, 3, 4, 6]
+
+=================================================================
+CHECK 1 — AC MONOTONICITY
+  Expect: MAE decreases as ac count increases
+=================================================================
+
+  [total]
+    FAIL  4fps_11000: ac1=80.5  ac2=81.8  ac3=102.8  ac4=46.2  ac6=62.9
+          ↑ ac1=80.5 → ac2=81.8  (+1.3)
+          ↑ ac2=81.8 → ac3=102.8  (+21.0)
+          ↑ ac4=46.2 → ac6=62.9  (+16.7)
+    FAIL  4fps_2750: ac1=138.9  ac2=86.9  ac3=123.1  ac4=105.2  ac6=114.2
+          ↑ ac2=86.9 → ac3=123.1  (+36.2)
+          ↑ ac4=105.2 → ac6=114.2  (+9.0)
+    FAIL  4fps_5500: ac1=141.3  ac2=164.2  ac3=156.2  ac4=220.7  ac6=174.3
+          ↑ ac1=141.3 → ac2=164.2  (+22.8)
+          ↑ ac3=156.2 → ac4=220.7  (+64.4)
+    FAIL  8fps_11000: ac1=221.1  ac2=92.0  ac3=140.3  ac4=163.7  ac6=109.1
+          ↑ ac2=92.0 → ac3=140.3  (+48.3)
+          ↑ ac3=140.3 → ac4=163.7  (+23.5)
+    FAIL  8fps_2750: ac1=227.2  ac2=150.7  ac3=142.3  ac4=86.3  ac6=98.2
+          ↑ ac4=86.3 → ac6=98.2  (+12.0)
+    FAIL  8fps_5500: ac1=208.9  ac2=208.9  ac3=198.9  ac4=186.9  ac6=149.9
+          ↑ ac1=208.9 → ac2=208.9  (+0.1)
+
+  [top]
+    FAIL  4fps_11000: ac1=42.0  ac2=35.8  ac3=47.8  ac4=21.7  ac6=30.4
+          ↑ ac2=35.8 → ac3=47.8  (+12.0)
+          ↑ ac4=21.7 → ac6=30.4  (+8.7)
+    FAIL  4fps_2750: ac1=51.2  ac2=41.6  ac3=44.5  ac4=40.3  ac6=48.3
+          ↑ ac2=41.6 → ac3=44.5  (+2.9)
+          ↑ ac4=40.3 → ac6=48.3  (+8.0)
+    FAIL  4fps_5500: ac1=64.2  ac2=44.2  ac3=76.3  ac4=87.9  ac6=71.0
+          ↑ ac2=44.2 → ac3=76.3  (+32.1)
+          ↑ ac3=76.3 → ac4=87.9  (+11.6)
+    FAIL  8fps_11000: ac1=117.2  ac2=39.7  ac3=51.6  ac4=65.6  ac6=43.0
+          ↑ ac2=39.7 → ac3=51.6  (+11.8)
+          ↑ ac3=51.6 → ac4=65.6  (+14.1)
+    FAIL  8fps_2750: ac1=118.2  ac2=57.1  ac3=85.3  ac4=43.8  ac6=40.4
+          ↑ ac2=57.1 → ac3=85.3  (+28.2)
+    FAIL  8fps_5500: ac1=40.6  ac2=30.2  ac3=38.6  ac4=48.9  ac6=23.9
+          ↑ ac2=30.2 → ac3=38.6  (+8.4)
+          ↑ ac3=38.6 → ac4=48.9  (+10.3)
+
+  [bot]
+    FAIL  4fps_11000: ac1=40.2  ac2=42.5  ac3=58.1  ac4=23.2  ac6=34.0
+          ↑ ac1=40.2 → ac2=42.5  (+2.3)
+          ↑ ac2=42.5 → ac3=58.1  (+15.5)
+          ↑ ac4=23.2 → ac6=34.0  (+10.8)
+    FAIL  4fps_2750: ac1=97.2  ac2=58.5  ac3=81.4  ac4=56.7  ac6=83.8
+          ↑ ac2=58.5 → ac3=81.4  (+22.9)
+          ↑ ac4=56.7 → ac6=83.8  (+27.1)
+    FAIL  4fps_5500: ac1=65.2  ac2=52.0  ac3=41.2  ac4=128.7  ac6=61.5
+          ↑ ac3=41.2 → ac4=128.7  (+87.5)
+    FAIL  8fps_11000: ac1=123.5  ac2=43.2  ac3=74.5  ac4=90.8  ac6=58.9
+          ↑ ac2=43.2 → ac3=74.5  (+31.3)
+          ↑ ac3=74.5 → ac4=90.8  (+16.3)
+    FAIL  8fps_2750: ac1=127.1  ac2=86.8  ac3=80.3  ac4=51.5  ac6=62.1
+          ↑ ac4=51.5 → ac6=62.1  (+10.6)
+    FAIL  8fps_5500: ac1=64.3  ac2=54.3  ac3=62.6  ac4=71.8  ac6=34.3
+          ↑ ac2=54.3 → ac3=62.6  (+8.3)
+          ↑ ac3=62.6 → ac4=71.8  (+9.2)
+
+=================================================================
+CHECK 2 — STEPS ORDERING
+  Expect: MAE(fewer steps) < MAE(more steps)
+=================================================================
+
+  [total]
+    FAIL  4fps ac1: 2750steps=138.9  5500steps=141.3  11000steps=80.5
+          ↓ 5500steps=141.3 → 11000steps=80.5  (-60.9, expected ↑)
+    FAIL  4fps ac2: 2750steps=86.9  5500steps=164.2  11000steps=81.8
+          ↓ 5500steps=164.2 → 11000steps=81.8  (-82.4, expected ↑)
+    FAIL  4fps ac3: 2750steps=123.1  5500steps=156.2  11000steps=102.8
+          ↓ 5500steps=156.2 → 11000steps=102.8  (-53.5, expected ↑)
+    FAIL  4fps ac4: 2750steps=105.2  5500steps=220.7  11000steps=46.2
+          ↓ 5500steps=220.7 → 11000steps=46.2  (-174.5, expected ↑)
+    FAIL  4fps ac6: 2750steps=114.2  5500steps=174.3  11000steps=62.9
+          ↓ 5500steps=174.3 → 11000steps=62.9  (-111.4, expected ↑)
+    FAIL  8fps ac1: 2750steps=227.2  5500steps=208.9  11000steps=221.1
+          ↓ 2750steps=227.2 → 5500steps=208.9  (-18.4, expected ↑)
+    FAIL  8fps ac2: 2750steps=150.7  5500steps=208.9  11000steps=92.0
+          ↓ 5500steps=208.9 → 11000steps=92.0  (-117.0, expected ↑)
+    FAIL  8fps ac3: 2750steps=142.3  5500steps=198.9  11000steps=140.3
+          ↓ 5500steps=198.9 → 11000steps=140.3  (-58.6, expected ↑)
+    FAIL  8fps ac4: 2750steps=86.3  5500steps=186.9  11000steps=163.7
+          ↓ 5500steps=186.9 → 11000steps=163.7  (-23.2, expected ↑)
+    FAIL  8fps ac6: 2750steps=98.2  5500steps=149.9  11000steps=109.1
+          ↓ 5500steps=149.9 → 11000steps=109.1  (-40.8, expected ↑)
+
+  [top]
+    FAIL  4fps ac1: 2750steps=51.2  5500steps=64.2  11000steps=42.0
+          ↓ 5500steps=64.2 → 11000steps=42.0  (-22.2, expected ↑)
+    FAIL  4fps ac2: 2750steps=41.6  5500steps=44.2  11000steps=35.8
+          ↓ 5500steps=44.2 → 11000steps=35.8  (-8.4, expected ↑)
+    FAIL  4fps ac3: 2750steps=44.5  5500steps=76.3  11000steps=47.8
+          ↓ 5500steps=76.3 → 11000steps=47.8  (-28.5, expected ↑)
+    FAIL  4fps ac4: 2750steps=40.3  5500steps=87.9  11000steps=21.7
+          ↓ 5500steps=87.9 → 11000steps=21.7  (-66.3, expected ↑)
+    FAIL  4fps ac6: 2750steps=48.3  5500steps=71.0  11000steps=30.4
+          ↓ 5500steps=71.0 → 11000steps=30.4  (-40.6, expected ↑)
+    FAIL  8fps ac1: 2750steps=118.2  5500steps=40.6  11000steps=117.2
+          ↓ 2750steps=118.2 → 5500steps=40.6  (-77.6, expected ↑)
+    FAIL  8fps ac2: 2750steps=57.1  5500steps=30.2  11000steps=39.7
+          ↓ 2750steps=57.1 → 5500steps=30.2  (-26.8, expected ↑)
+    FAIL  8fps ac3: 2750steps=85.3  5500steps=38.6  11000steps=51.6
+          ↓ 2750steps=85.3 → 5500steps=38.6  (-46.7, expected ↑)
+    PASS  8fps ac4: 2750steps=43.8  5500steps=48.9  11000steps=65.6
+    FAIL  8fps ac6: 2750steps=40.4  5500steps=23.9  11000steps=43.0
+          ↓ 2750steps=40.4 → 5500steps=23.9  (-16.5, expected ↑)
+
+  [bot]
+    FAIL  4fps ac1: 2750steps=97.2  5500steps=65.2  11000steps=40.2
+          ↓ 2750steps=97.2 → 5500steps=65.2  (-31.9, expected ↑)
+          ↓ 5500steps=65.2 → 11000steps=40.2  (-25.0, expected ↑)
+    FAIL  4fps ac2: 2750steps=58.5  5500steps=52.0  11000steps=42.5
+          ↓ 2750steps=58.5 → 5500steps=52.0  (-6.4, expected ↑)
+          ↓ 5500steps=52.0 → 11000steps=42.5  (-9.5, expected ↑)
+    FAIL  4fps ac3: 2750steps=81.4  5500steps=41.2  11000steps=58.1
+          ↓ 2750steps=81.4 → 5500steps=41.2  (-40.2, expected ↑)
+    FAIL  4fps ac4: 2750steps=56.7  5500steps=128.7  11000steps=23.2
+          ↓ 5500steps=128.7 → 11000steps=23.2  (-105.6, expected ↑)
+    FAIL  4fps ac6: 2750steps=83.8  5500steps=61.5  11000steps=34.0
+          ↓ 2750steps=83.8 → 5500steps=61.5  (-22.3, expected ↑)
+          ↓ 5500steps=61.5 → 11000steps=34.0  (-27.5, expected ↑)
+    FAIL  8fps ac1: 2750steps=127.1  5500steps=64.3  11000steps=123.5
+          ↓ 2750steps=127.1 → 5500steps=64.3  (-62.8, expected ↑)
+    FAIL  8fps ac2: 2750steps=86.8  5500steps=54.3  11000steps=43.2
+          ↓ 2750steps=86.8 → 5500steps=54.3  (-32.5, expected ↑)
+          ↓ 5500steps=54.3 → 11000steps=43.2  (-11.1, expected ↑)
+    FAIL  8fps ac3: 2750steps=80.3  5500steps=62.6  11000steps=74.5
+          ↓ 2750steps=80.3 → 5500steps=62.6  (-17.7, expected ↑)
+    PASS  8fps ac4: 2750steps=51.5  5500steps=71.8  11000steps=90.8
+    FAIL  8fps ac6: 2750steps=62.1  5500steps=34.3  11000steps=58.9
+          ↓ 2750steps=62.1 → 5500steps=34.3  (-27.8, expected ↑)
+
+=================================================================
+SUMMARY: 2 PASS  /  46 FAIL  (issues found)
+=================================================================

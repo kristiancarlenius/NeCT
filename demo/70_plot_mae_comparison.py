@@ -47,7 +47,7 @@ PREFER_OLD = False
 USE_NPZ = True
 
 # Glitch-filter sigma (only used when USE_NPZ=True)
-FILTER_SIGMA = 300
+FILTER_SIGMA = 10
 
 # ─────────────────────────────────────────────────────────────────────────────
 
