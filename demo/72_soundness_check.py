@@ -232,20 +232,21 @@ def main():
 
 class _Tee:
     """Write to both stdout and a StringIO buffer simultaneously."""
-    def __init__(self):
+    def __init__(self, real_stdout):
+        self._real = real_stdout
         self._buf = StringIO()
     def write(self, s):
-        sys.stdout.write(s)
+        self._real.write(s)
         self._buf.write(s)
     def flush(self):
-        sys.stdout.flush()
+        self._real.flush()
     def getvalue(self):
         return self._buf.getvalue()
 
 
 if __name__ == "__main__":
-    tee = _Tee()
     old_stdout = sys.stdout
+    tee = _Tee(old_stdout)
     sys.stdout = tee
     try:
         main()
