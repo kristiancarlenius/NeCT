@@ -264,7 +264,8 @@ def compute_reproj_rmse(run_dir: Path, device) -> float | None:
                 processed = torch.zeros(
                     (n_rays * ppr, 1), dtype=torch.float32, device=device
                 )
-                processed[~zero_mask] = atten if atten.dim() == 2 else atten.unsqueeze(-1)
+                src = (atten if atten.dim() == 2 else atten.unsqueeze(-1)).float()
+                processed[~zero_mask] = src
                 y_pred = processed.view(n_rays, ppr).sum(dim=1) * (
                     projector.distances / geometry.max_distance_traveled
                 )
