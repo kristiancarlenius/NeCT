@@ -218,14 +218,12 @@ def plot_psnr_epoch(models, top2, filename, title):
 
 
 def _cap_time_series(entries):
-    """Cap all (label, pts) series to the shortest one: same end-time and same point count."""
+    """Cap all (label, pts) series to the same number of points as the shortest one."""
     valid = [(lab, pts) for lab, pts in entries if pts]
     if not valid:
         return valid
-    min_last_time = min(pts[-1][0] for _, pts in valid)
-    trimmed = [(lab, [p for p in pts if p[0] <= min_last_time]) for lab, pts in valid]
-    min_count = min(len(pts) for _, pts in trimmed if pts)
-    return [(lab, pts[:min_count]) for lab, pts in trimmed]
+    min_count = min(len(pts) for _, pts in valid)
+    return [(lab, pts[:min_count]) for lab, pts in valid]
 
 
 def plot_psnr_time(models, top2, filename, title):
