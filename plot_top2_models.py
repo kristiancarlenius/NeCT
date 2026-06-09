@@ -160,7 +160,11 @@ def load_config(cfg_dir, ref, crops):
 
 
 def collect_top2(crops, ref):
-    """Return {model: [(cfg_label, data), (cfg_label, data)]} — top-2 by final PSNR."""
+    """Return {model: [(cfg_label, data), (cfg_label, data)]} — top-2 by final time PSNR.
+
+    Requires epoch_psnr, time_psnr, and vram_gb so every selected config
+    appears in all three plots.
+    """
     result = {}
     for model in ALL_MODELS:
         model_dir = SIZEDIFF / model
@@ -171,10 +175,9 @@ def collect_top2(crops, ref):
             if not cfg_dir.is_dir():
                 continue
             data = load_config(cfg_dir, ref, crops)
-            if not data["epoch_psnr"]:
+            if not data["epoch_psnr"] or not data["time_psnr"] or data["vram_gb"] is None:
                 continue
-            score = (data["time_psnr"][-1][1] if data["time_psnr"]
-                     else data["epoch_psnr"][-1][1])
+            score = data["time_psnr"][-1][1]
             scored.append((score, cfg_dir.name, data))
         scored.sort(reverse=True)
         if scored:
@@ -183,6 +186,33 @@ def collect_top2(crops, ref):
                 print(f"  {MODEL_DISPLAY[model]:22s} #{rank}  {name}  "
                       f"PSNR={scored[rank-1][0]:.2f} dB")
     return result
+
+
+def collect_family_smallest(model, n, top2, crops, ref):
+    """Return up to n configs from a model family sorted by hash-table size (smallest first).
+
+    Configs already selected as top-2 and configs missing time or vram data are skipped.
+    Returns list of (cfg_label, data).
+    """
+    model_dir = SIZEDIFF / model
+    if not model_dir.exists():
+        return []
+    top2_labels = {label for label, _ in top2.get(model, [])}
+    candidates = []
+    for cfg_dir in sorted(model_dir.iterdir()):
+        if not cfg_dir.is_dir() or cfg_dir.name in top2_labels:
+            continue
+        data = load_config(cfg_dir, ref, crops)
+        if not data["time_psnr"] or data["vram_gb"] is None:
+            continue
+        parts = cfg_dir.name.split("_")
+        try:
+            size = int(parts[0]) * int(parts[1]) * (2 ** int(parts[2]))
+        except (IndexError, ValueError):
+            continue
+        candidates.append((size, cfg_dir.name, data))
+    candidates.sort()
+    return [(name, data) for _, name, data in candidates[:n]]
 
 
 # ── plot functions ────────────────────────────────────────────────────────────
@@ -274,7 +304,11 @@ def _psnr_at(time_psnr, target_h):
     return min(time_psnr, key=lambda p: abs(p[0] - target_h))[1]
 
 
-def plot_vram(models, top2, filename, title):
+def plot_vram(models, top2, filename, title, ref_configs=None):
+    """Scatter: x = VRAM, y = PSNR at 24 h.
+
+    ref_configs: optional list of (label, data) to add as grey reference points.
+    """
     fig, ax = plt.subplots(figsize=(9, 5))
 
     seen_models = set()
@@ -298,12 +332,30 @@ def plot_vram(models, top2, filename, title):
                         fontsize=6.5, color=color)
             any_point = True
 
+    # reference points (smallest configs per family, triangle marker)
+    seen_ref_models = set()
+    if ref_configs:
+        for model, cfg_label, data in ref_configs:
+            vram = data["vram_gb"]
+            psnr = _psnr_at(data["time_psnr"], TARGET_H)
+            if vram is None or psnr is None:
+                continue
+            color = FAMILY_COLORS.get(model, "#888888")
+            display = MODEL_DISPLAY.get(model, model)
+            legend_label = f"{display} (small)" if model not in seen_ref_models else None
+            seen_ref_models.add(model)
+            ax.scatter(vram, psnr, color=color, marker="^",
+                       s=60, zorder=2, alpha=0.7, label=legend_label)
+            ax.annotate(cfg_label, (vram, psnr),
+                        textcoords="offset points", xytext=(5, 3),
+                        fontsize=6.0, color=color)
+            any_point = True
+
     if not any_point:
         print(f"  No VRAM/time data for {filename} — skipping.")
         plt.close(fig)
         return
 
-    x_min = ax.get_xlim()[0]
     x_max = max(ax.get_xlim()[1], max(v for _, v in GPU_LINES) * 1.08)
     for gpu_name, gpu_gb in GPU_LINES:
         ax.axvline(gpu_gb, color="dimgray", linewidth=0.9,
@@ -321,9 +373,11 @@ def plot_vram(models, top2, filename, title):
     from matplotlib.lines import Line2D
     rank_handles = [
         Line2D([0], [0], marker="o", color="gray", linestyle="none",
-               markersize=7, label="rank-1 config"),
+               markersize=7, label="rank-1 config (●)"),
         Line2D([0], [0], marker="s", color="gray", linestyle="none",
-               markersize=7, label="rank-2 config"),
+               markersize=7, label="rank-2 config (■)"),
+        Line2D([0], [0], marker="^", color="gray", linestyle="none",
+               markersize=7, label="smaller configs (▲)"),
     ]
     h, l = ax.get_legend_handles_labels()
     ax.legend(h + rank_handles, l + [r.get_label() for r in rank_handles],
@@ -346,13 +400,27 @@ def main():
     print("\nCollecting top-2 configs per model ...")
     top2 = collect_top2(crops, ref)
 
+    print("\nCollecting smallest reference configs per family ...")
+    combined_small  = collect_family_smallest("combinedcube", 5, top2, crops, ref)
+    mixed_small     = collect_family_smallest("mixedcubes",   5, top2, crops, ref)
+    quad_small      = collect_family_smallest("quadcubes",    1, top2, crops, ref)
+    ref_configs = (
+        [("combinedcube", l, d) for l, d in combined_small] +
+        [("mixedcubes",   l, d) for l, d in mixed_small]    +
+        [("quadcubes",    l, d) for l, d in quad_small]
+    )
+    print(f"  combinedcube small: {[l for l, _ in combined_small]}")
+    print(f"  mixedcubes small:   {[l for l, _ in mixed_small]}")
+    print(f"  quadcubes small:    {[l for l, _ in quad_small]}")
+
     print("\nGenerating all-models plots ...")
     plot_psnr_epoch(ALL_MODELS, top2, "all_psnr_epoch.png",
                     "PSNR vs Epoch — all models (top-2 configs each)")
     plot_psnr_time(ALL_MODELS, top2, "all_psnr_time.png",
                    "PSNR vs Time — all models (top-2 configs each)")
     plot_vram(ALL_MODELS, top2, "all_vram.png",
-              "PSNR at 24 h vs VRAM — all models (top-2 configs each)")
+              "PSNR at 24 h vs VRAM — all models (top-2 configs each)",
+              ref_configs=ref_configs)
 
     print("\nGenerating quad-only plots ...")
     plot_psnr_epoch(QUAD_MODELS, top2, "quad_psnr_epoch.png",
