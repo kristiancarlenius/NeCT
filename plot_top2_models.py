@@ -1,0 +1,371 @@
+#!/usr/bin/env python3
+"""Produce 6 PNGs comparing the top-2 configs from each model family.
+
+All-models set  (5 families × top-2 configs):
+  results/all_psnr_epoch.png
+  results/all_psnr_time.png
+  results/all_vram.png
+
+Quad-only set  (quadcubes / large_spatial / large_temporal):
+  results/quad_psnr_epoch.png
+  results/quad_psnr_time.png
+  results/quad_vram.png
+"""
+
+from pathlib import Path
+import json
+import re
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from PIL import Image
+
+ROOT       = Path(__file__).parent
+SIZEDIFF   = ROOT / "sizediff"
+CROPS_FILE = ROOT / "crops.json"
+PERFECT    = SIZEDIFF / "perfect" / "0525_1400.png"
+RESULTS    = ROOT / "results"
+RESULTS.mkdir(exist_ok=True)
+
+ALL_MODELS = [
+    "combinedcube",
+    "mixedcubes",
+    "quadcubes",
+    "quadcubes_large_spatial",
+    "quadcubes_large_temporal",
+]
+
+QUAD_MODELS = [
+    "quadcubes",
+    "quadcubes_large_spatial",
+    "quadcubes_large_temporal",
+]
+
+MODEL_DISPLAY = {
+    "combinedcube":             "CombinedCube",
+    "mixedcubes":               "MixedCubes",
+    "quadcubes":                "QuadCubes",
+    "quadcubes_large_spatial":  "Large Spatial",
+    "quadcubes_large_temporal": "Large Temporal",
+}
+
+# One color per family; solid = rank-1 config, dashed = rank-2 config
+FAMILY_COLORS = {
+    "combinedcube":             "#2ca02c",
+    "mixedcubes":               "#ff7f0e",
+    "quadcubes":                "#1f77b4",
+    "quadcubes_large_spatial":  "#9467bd",
+    "quadcubes_large_temporal": "#d62728",
+}
+
+GPU_LINES = [
+    ("A100 40 GB", 40),
+    ("5090 32 GB", 32),
+    ("4090 24 GB", 24),
+    ("5080 16 GB", 16),
+    ("5070 12 GB", 12),
+    ("3070  8 GB",  8),
+]
+
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+def load_crops():
+    with open(CROPS_FILE) as f:
+        return json.load(f)["crops"]
+
+
+def load_gray(path):
+    return np.array(Image.open(path).convert("L"), dtype=np.float32)
+
+
+def compute_psnr(ref, cand, crops):
+    mse_vals = []
+    for c in crops:
+        r = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        q = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        if r.std() > 0 and q.std() > 0:
+            q = (q - q.mean()) / q.std() * r.std() + r.mean()
+        mse_vals.append(float(np.mean((r - q) ** 2)))
+    mse = float(np.mean(mse_vals))
+    return 10.0 * np.log10(255.0 ** 2 / mse) if mse > 0 else float("inf")
+
+
+def parse_epoch_times(path):
+    result = {}
+    with open(path) as f:
+        for line in f:
+            em = re.search(r"epoch=(\d+)", line)
+            tm = re.search(r"time=([\d.]+)s", line)
+            if em and tm:
+                result[int(em.group(1))] = float(tm.group(1))
+    return result
+
+
+def nearest_time(epoch_time_map, epoch):
+    if epoch in epoch_time_map:
+        return epoch_time_map[epoch]
+    return epoch_time_map[min(epoch_time_map, key=lambda k: abs(k - epoch))]
+
+
+def parse_vram_gb(path):
+    with open(path) as f:
+        for line in f:
+            if "Peak reserved" in line:
+                m = re.search(r"([\d.]+)\s*GB", line)
+                if m:
+                    return float(m.group(1))
+    return None
+
+
+def epoch_from_name(name):
+    m = re.match(r"(\d+)_", name)
+    return int(m.group(1)) if m else None
+
+
+# ── data loading ──────────────────────────────────────────────────────────────
+
+def load_config(cfg_dir, ref, crops):
+    losses_file = cfg_dir / "epoch_losses.txt"
+    vram_file   = cfg_dir / "vram.txt"
+    epoch_dir   = cfg_dir / "epoch"
+    time_dir    = cfg_dir / "time"
+
+    epoch_time_map = parse_epoch_times(losses_file) if losses_file.exists() else {}
+    vram_gb = parse_vram_gb(vram_file) if vram_file.exists() else None
+
+    epoch_psnr, time_psnr = [], []
+
+    if epoch_dir.exists():
+        for img_path in sorted(epoch_dir.glob("*_1400.png")):
+            ep = epoch_from_name(img_path.name)
+            if ep is None:
+                continue
+            epoch_psnr.append((ep, compute_psnr(ref, load_gray(img_path), crops)))
+
+    if time_dir.exists() and epoch_time_map:
+        for img_path in sorted(time_dir.glob("*_1400.png")):
+            ep = epoch_from_name(img_path.name)
+            if ep is None:
+                continue
+            t_h = nearest_time(epoch_time_map, ep) / 3600.0
+            time_psnr.append((t_h, compute_psnr(ref, load_gray(img_path), crops)))
+
+    return {
+        "epoch_psnr": sorted(epoch_psnr),
+        "time_psnr":  sorted(time_psnr),
+        "vram_gb":    vram_gb,
+    }
+
+
+def collect_top2(crops, ref):
+    """Return {model: [(cfg_label, data), (cfg_label, data)]} — top-2 by final PSNR."""
+    result = {}
+    for model in ALL_MODELS:
+        model_dir = SIZEDIFF / model
+        if not model_dir.exists():
+            continue
+        scored = []
+        for cfg_dir in sorted(model_dir.iterdir()):
+            if not cfg_dir.is_dir():
+                continue
+            data = load_config(cfg_dir, ref, crops)
+            if not data["epoch_psnr"]:
+                continue
+            score = (data["time_psnr"][-1][1] if data["time_psnr"]
+                     else data["epoch_psnr"][-1][1])
+            scored.append((score, cfg_dir.name, data))
+        scored.sort(reverse=True)
+        if scored:
+            result[model] = [(name, data) for _, name, data in scored[:2]]
+            for rank, (_, name, _) in enumerate(scored[:2], 1):
+                print(f"  {MODEL_DISPLAY[model]:22s} #{rank}  {name}  "
+                      f"PSNR={scored[rank-1][0]:.2f} dB")
+    return result
+
+
+# ── plot functions ────────────────────────────────────────────────────────────
+
+LINESTYLES = ["-", "--"]  # rank-1 solid, rank-2 dashed
+
+
+def plot_psnr_epoch(models, top2, filename, title):
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for model in models:
+        if model not in top2:
+            continue
+        color = FAMILY_COLORS[model]
+        display = MODEL_DISPLAY[model]
+        for rank, (cfg_label, data) in enumerate(top2[model]):
+            pts = data["epoch_psnr"]
+            if not pts:
+                continue
+            xs, ys = zip(*pts)
+            ax.plot(xs, ys, color=color, linewidth=1.8,
+                    linestyle=LINESTYLES[rank], marker="o", markersize=3,
+                    label=f"{display} — {cfg_label}")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("PSNR (dB)")
+    ax.set_title(title)
+    ax.legend(fontsize=7.5, loc="lower right")
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    out = RESULTS / filename
+    fig.savefig(out, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Saved → {out}")
+
+
+def _cap_time_series(entries):
+    """Cap all (label, pts) series to the shortest one: same end-time and same point count."""
+    valid = [(lab, pts) for lab, pts in entries if pts]
+    if not valid:
+        return valid
+    min_last_time = min(pts[-1][0] for _, pts in valid)
+    trimmed = [(lab, [p for p in pts if p[0] <= min_last_time]) for lab, pts in valid]
+    min_count = min(len(pts) for _, pts in trimmed if pts)
+    return [(lab, pts[:min_count]) for lab, pts in trimmed]
+
+
+def plot_psnr_time(models, top2, filename, title):
+    # collect all series first so we can cap them together
+    entries = []  # (color, linestyle, label_str, pts)
+    for model in models:
+        if model not in top2:
+            continue
+        color = FAMILY_COLORS[model]
+        display = MODEL_DISPLAY[model]
+        for rank, (cfg_label, data) in enumerate(top2[model]):
+            entries.append((color, LINESTYLES[rank],
+                            f"{display} — {cfg_label}",
+                            data["time_psnr"]))
+
+    # cap: stop when first series runs out, same number of points for all
+    labeled = _cap_time_series([(e[2], e[3]) for e in entries])
+    capped = {lab: pts for lab, pts in labeled}
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for color, ls, label, _ in entries:
+        pts = capped.get(label)
+        if not pts:
+            continue
+        xs, ys = zip(*pts)
+        ax.plot(xs, ys, color=color, linewidth=1.8, linestyle=ls,
+                marker="o", markersize=3, label=label)
+    ax.set_xlabel("Wall-clock time (hours)")
+    ax.set_ylabel("PSNR (dB)")
+    ax.set_title(title)
+    ax.legend(fontsize=7.5, loc="lower right")
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    out = RESULTS / filename
+    fig.savefig(out, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Saved → {out}")
+
+
+TARGET_H = 24.0  # hours — PSNR evaluated at this wall-clock time
+
+RANK_MARKERS = ["o", "s"]  # rank-1 circle, rank-2 square
+
+
+def _psnr_at(time_psnr, target_h):
+    if not time_psnr:
+        return None
+    return min(time_psnr, key=lambda p: abs(p[0] - target_h))[1]
+
+
+def plot_vram(models, top2, filename, title):
+    fig, ax = plt.subplots(figsize=(9, 5))
+
+    seen_models = set()
+    any_point = False
+    for model in models:
+        if model not in top2:
+            continue
+        color = FAMILY_COLORS[model]
+        display = MODEL_DISPLAY[model]
+        for rank, (cfg_label, data) in enumerate(top2[model]):
+            vram = data["vram_gb"]
+            psnr = _psnr_at(data["time_psnr"], TARGET_H)
+            if vram is None or psnr is None:
+                continue
+            legend_label = display if model not in seen_models else None
+            seen_models.add(model)
+            ax.scatter(vram, psnr, color=color, marker=RANK_MARKERS[rank],
+                       s=80, zorder=3, label=legend_label)
+            ax.annotate(cfg_label, (vram, psnr),
+                        textcoords="offset points", xytext=(5, 3),
+                        fontsize=6.5, color=color)
+            any_point = True
+
+    if not any_point:
+        print(f"  No VRAM/time data for {filename} — skipping.")
+        plt.close(fig)
+        return
+
+    x_min = ax.get_xlim()[0]
+    x_max = max(ax.get_xlim()[1], max(v for _, v in GPU_LINES) * 1.08)
+    for gpu_name, gpu_gb in GPU_LINES:
+        ax.axvline(gpu_gb, color="dimgray", linewidth=0.9,
+                   linestyle="--", alpha=0.7)
+        ax.text(gpu_gb, ax.get_ylim()[0], gpu_name,
+                ha="center", va="bottom", fontsize=6.5,
+                color="dimgray", rotation=90)
+
+    ax.set_xlabel("Peak Reserved VRAM (GB)")
+    ax.set_ylabel(f"PSNR (dB) at ~{TARGET_H:.0f} h")
+    ax.set_title(title)
+    ax.set_xlim(left=0, right=x_max)
+    ax.grid(True, alpha=0.3)
+
+    from matplotlib.lines import Line2D
+    rank_handles = [
+        Line2D([0], [0], marker="o", color="gray", linestyle="none",
+               markersize=7, label="rank-1 config"),
+        Line2D([0], [0], marker="s", color="gray", linestyle="none",
+               markersize=7, label="rank-2 config"),
+    ]
+    h, l = ax.get_legend_handles_labels()
+    ax.legend(h + rank_handles, l + [r.get_label() for r in rank_handles],
+              fontsize=8, loc="lower right")
+
+    fig.tight_layout()
+    out = RESULTS / filename
+    fig.savefig(out, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Saved → {out}")
+
+
+# ── main ──────────────────────────────────────────────────────────────────────
+
+def main():
+    print("Loading crops and reference image ...")
+    crops = load_crops()
+    ref   = load_gray(PERFECT)
+
+    print("\nCollecting top-2 configs per model ...")
+    top2 = collect_top2(crops, ref)
+
+    print("\nGenerating all-models plots ...")
+    plot_psnr_epoch(ALL_MODELS, top2, "all_psnr_epoch.png",
+                    "PSNR vs Epoch — all models (top-2 configs each)")
+    plot_psnr_time(ALL_MODELS, top2, "all_psnr_time.png",
+                   "PSNR vs Time — all models (top-2 configs each)")
+    plot_vram(ALL_MODELS, top2, "all_vram.png",
+              "PSNR at 24 h vs VRAM — all models (top-2 configs each)")
+
+    print("\nGenerating quad-only plots ...")
+    plot_psnr_epoch(QUAD_MODELS, top2, "quad_psnr_epoch.png",
+                    "PSNR vs Epoch — QuadCubes variants (top-2 configs each)")
+    plot_psnr_time(QUAD_MODELS, top2, "quad_psnr_time.png",
+                   "PSNR vs Time — QuadCubes variants (top-2 configs each)")
+    plot_vram(QUAD_MODELS, top2, "quad_vram.png",
+              "PSNR at 24 h vs VRAM — QuadCubes variants (top-2 configs each)")
+
+    print("\nDone. Results in", RESULTS)
+
+
+if __name__ == "__main__":
+    main()
