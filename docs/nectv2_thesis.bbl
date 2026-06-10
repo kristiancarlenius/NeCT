@@ -1,4 +1,4 @@
-\begin{thebibliography}{34}
+\begin{thebibliography}{35}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -177,6 +177,13 @@ Vinod Nair and Geoffrey~E. Hinton.
 \newblock Rectified linear units improve restricted {Boltzmann} machines.
 \newblock In \emph{Proceedings of the 27th International Conference on Machine
   Learning (ICML)}, pages 807--814, 2010.
+
+\bibitem[Park et~al.(2023)]{park2023temporal}
+Sungheon Park et~al.
+\newblock Temporal interpolation is all you need for dynamic neural radiance
+  fields.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 4212--4221, 2023.
 
 \bibitem[Patwari et~al.(2023)]{patwari2023hallucination}
 Mayank Patwari et~al.

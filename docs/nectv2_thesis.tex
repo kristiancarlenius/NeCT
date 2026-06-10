@@ -90,7 +90,16 @@ The second part extends the NeCT forward model to continuous rotation scanning, 
 
 \cleardoublepage
 \chapter*{Acknowledgements}
-\todo{Acknowledgements.}
+
+This thesis would not have been possible without the support and guidance of several people.
+
+I am grateful to my main supervisor, Ole Jakob Mengshoel, for his consistent direction throughout the project, for pointing me toward much of the relevant literature, and for his thoughtful feedback at every stage of the work.
+
+My secondary supervisor, Dag Werner Breiby, contributed essential physics knowledge and a practical perspective on problem solving that kept the work grounded in the physical realities of CT acquisition.
+
+Anders Kristoffersen and Colin Pryme, through our collaboration with Equinor, provided the experimental datasets used in this thesis and offered valuable feedback during our regular meetings.
+
+Finally, Giacomo Luani provided hands-on guidance in implementation, participated in numerous technical discussions, and generated the hourglass dataset used in the dynamic experiments.
 
 \cleardoublepage
 \tableofcontents
@@ -112,7 +121,7 @@ A conventional micro-CT scan of a rock sample takes on the order of one hour to 
 \section{Background and Motivation}
 \label{sec:intro_background}
 
-The standard approach to four-dimensional CT, denoted 4D-CT for the three spatial dimensions plus one temporal dimension, is to acquire a sequence of independent full three-dimensional scans and reconstruct each independently. The temporal resolution of this approach is bounded below by the time required to complete one full $360\degree$ rotation of the sample, which for laboratory instruments is governed by the photon flux of the X-ray source, the required signal-to-noise ratio per projection, and the number of angular positions needed for an artefact-free reconstruction. None of these constraints are easily relaxed without compromising spatial resolution or introducing reconstruction artefacts.
+The naive approach to four-dimensional CT, denoted 4D-CT for the three spatial dimensions plus one temporal dimension, is to acquire a sequence of independent full three-dimensional scans and reconstruct each independently. The temporal resolution of this approach is bounded below by the time required to complete one full $360\degree$ rotation of the sample, which for laboratory instruments is governed by the photon flux of the X-ray source, the required signal-to-noise ratio per projection, and the number of angular positions needed for an artefact-free reconstruction. None of these constraints are easily relaxed without compromising spatial resolution or introducing reconstruction artefacts.
 
 Reducing the number of projections per time step allows more time steps to be packed into a fixed total acquisition time, but with fewer projections the harder an accurate reconstruction becomes. Classical reconstruction algorithms such as the Feldkamp--Davis--Kress (FDK) algorithm and iterative methods with total variation regularisation handle sparse-view data poorly. FDK produces severe streak artefacts when the Shannon--Nyquist sampling criterion is not met, while total variation regularisation suppresses streaks at the cost of contrast reduction and loss of fine features. Neither algorithm uses information from other time steps to improve a given frame, so the temporal and spatial resolution trade-off is handled entirely within each independent reconstruction.
 
@@ -124,20 +133,20 @@ Neural Computed Tomography (NeCT), introduced by \citet{friis2025nect}, is the f
 
 The NeCT paper established the viability of the approach through experiments on both synthetic dynamic datasets and a real imbibition experiment on Bentheimer sandstone, demonstrating that individual pore-filling events and salt dissolution processes on timescales of 10 to 30 seconds could be directly observed with laboratory equipment. However, the paper treated the encoder configuration as a fixed design choice and evaluated the model under a single maximally large configuration, measuring reconstruction quality as the primary outcome without considering computational cost.
 
-Because NeCT trains from scratch on every new scan, the cost of a single reconstruction is the full training cost, repeated every time a new dataset is analysed. The configuration adopted in the original paper requires approximately 45\,GB of GPU memory and approximately 40 hours of training on a single A100 GPU. A researcher who needs reconstructions from ten independent imbibition experiments must therefore provision 400 hours of high-end GPU time, with no option to amortise that cost across datasets. This restricts NeCT to facilities with access to the most expensive research-grade hardware and makes it impractical for any workflow that requires rapid feedback, such as adjusting experimental conditions mid-scan based on a preliminary reconstruction. Reducing the training time and memory footprint of NeCT is therefore not a secondary engineering concern but the primary barrier to its routine adoption in laboratory settings.
+Because NeCT trains from scratch on every new scan, the cost of a single reconstruction is the full training cost, repeated every time a new dataset is analysed. The configuration adopted in the original paper requires approximately 45\,GB of GPU memory and approximately 40 hours of training on a single A100 GPU \citep{friis2025nect}. A researcher who needs reconstructions from ten independent imbibition experiments must therefore acquire 400 hours of high-end GPU time, with no option to amortise that cost across datasets. This restricts NeCT to facilities with access to the most expensive research-grade hardware and makes it impractical for any workflow that requires rapid feedback, such as adjusting experimental conditions mid-scan based on a preliminary reconstruction. Reducing the training time and memory footprint of NeCT is therefore not a secondary engineering concern but the primary barrier to its routine adoption in laboratory settings.
 
-This thesis builds directly on NeCT with two aims. The first is reducing the training time and memory cost of each reconstruction, and the second is extending the method to a new class of scan geometry. It investigates three questions the original paper left open. First, whether the encoder architecture is the right structural choice, and whether alternative designs can improve quality or reduce cost. Second, whether the encoder configuration can be reduced in size without a proportional loss of reconstruction quality, identifying the smallest and fastest configuration that remains competitive. Third, whether the NeCT forward model can be extended to handle continuously acquired data in which the sample rotates without stopping between exposures, enabling information-denser acquisitions.
+This thesis builds directly on NeCT with two aims. The first is reducing the training time and memory cost of each reconstruction, and the second is extending the method to a new class of scan geometry. It investigates three questions the original paper left open. First, whether the encoder architecture is the optimal structural choice, and whether alternative designs can improve reconstruction precision or reduce model size. Second, whether the encoder configuration can be reduced in size without a proportional loss of reconstruction quality, identifying the smallest and fastest configuration that remains competitive. Third, whether the NeCT forward model can be extended to handle continuously acquired data in which the sample rotates without stopping between exposures, enabling information-denser acquisitions.
 
 \section{Research Objectives}
 \label{sec:intro_objectives}
 
 The work presented in this thesis is organised around three concrete research objectives.
 
-The first objective is to evaluate alternative encoder architectures for the 4D hash encoding problem. NeCT's QuadCubes design uses four 3D multiresolution hash encoders covering all four possible 3-element subsets of the space-time coordinates. This is one point in a larger design space bounded by a single larger 4D encoder on one side and six smaller 2D encoders covering all coordinate pairs on the other. This thesis evaluates several alternative architectures across this design space, including variations in encoder dimensionality, decoder architecture, and the use of dense encoders for the temporal dimensions.
+The first objective is to evaluate alternative encoder architectures for the 4D hash encoding problem. NeCT's QuadCubes design uses four 3D multiresolution hash encoders covering all four possible 3-element subsets of the space-time coordinates. The design is symmetric in that all four encoders share the same configuration and collectively cover the coordinate space without preference for any particular triplet. This is one point in a larger design space, bounded by a single 4D encoder on one side and six 2D encoders covering all coordinate pairs on the other. This thesis evaluates several alternative architectures across this design space, including variations in encoder dimensionality, decoder architecture, and the use of dense grids for the temporal dimensions.
 
 The second objective is to characterise the relationship between encoder capacity and reconstruction quality in the NeCT QuadCubes architecture. The NeCT paper used the largest feasible configuration and trained for as long as possible, treating quality as the only optimisation target. Because NeCT trains from scratch for every new scan, training time is reconstruction time, and there is no pre-trained model to fall back on. Every hour saved in training translates directly into a faster reconstruction turnaround for the experimenter. This thesis asks whether configurations substantially cheaper in memory and training time can still achieve competitive reconstruction quality. Understanding this frontier is a prerequisite for using NeCT on hardware that is more widely accessible than an A100 or H100 GPU, and for workflows where reconstructions must be available quickly enough to guide ongoing experiments.
 
-The third objective is to extend the NeCT forward model to continuous rotation scanning, in which the detector shutter remains open throughout the acquisition and each recorded projection integrates the sample over an angular interval rather than capturing it at a single angle. This mode of operation can increase the information collected per unit time relative to step-and-shoot scanning, at the cost of producing geometrically blurred projections. The thesis derives the modified Beer--Lambert forward model that accounts for this integration and evaluates whether it correctly compensates for the blurring and whether it enables the reconstruction of processes that occur within a single inter-projection interval.
+The third objective is to extend the NeCT forward model to continuous rotation scanning, in which the sample rotates continuously and each projection is recorded while the sample sweeps through an angular interval, so that the detector integrates the transmitted intensity over a range of angles rather than capturing it at a single fixed orientation. This mode of operation can increase the information collected per unit time relative to step-and-shoot scanning, at the cost of producing geometrically blurred projections. The thesis derives the modified Beer--Lambert forward model that accounts for this integration and evaluates whether it correctly compensates for the blurring and whether it enables the reconstruction of processes that occur within a single inter-projection interval.
 
 \section{Thesis Structure}
 \label{sec:intro_structure}
@@ -162,34 +171,34 @@ Chapter~\ref{chap:conclusion} summarises the contributions and findings of the t
 \subsection{Physical Principles}
 \label{subsec:ct_physics}
 
-X-ray computed tomography reconstructs the three-dimensional internal structure of an object from a set of its two-dimensional projections. The physical quantity being reconstructed is the linear attenuation coefficient $\mu(\mathbf{r})$, a material-dependent scalar field defined at every point $\mathbf{r} = (x, y, z)$ in the object that describes how strongly the local material absorbs or scatters X-ray photons. Its SI unit is \si{\per\metre} and it depends on both the material density and the photon energy. In attenuation-contrast CT the contrast between different materials arises entirely from differences in $\mu$.
+X-ray computed tomography reconstructs the three-dimensional internal structure of an object from a set of its two-dimensional projections. The physical quantity being reconstructed is the linear attenuation coefficient $\mu(\mathbf{r})$, a material-dependent scalar field defined at every point $\mathbf{r} = (x, y, z)$ in the object that describes how strongly the local material absorbs or scatters X-ray photons. The SI unit of $\mu$ is \si{\per\metre} and it depends on both the material density and the photon energy. In attenuation-contrast CT the contrast between different materials arises entirely from differences in $\mu$.
 
 When a monochromatic X-ray beam of initial intensity $I_0$ travels through a heterogeneous material along a straight ray path, the transmitted intensity $I$ is governed by Beer--Lambert's law:
 %
 \begin{equation}
-    I = I_0 \exp\!\left(-\int_{\mathrm{ray}} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t\right),
+    I = I_0 \exp\!\left(-\int_{\mathrm{ray}} \mu\!\left(\mathbf{r}(s)\right) \mathrm{d}s\right),
     \label{eq:beer_lambert}
 \end{equation}
 %
-where the integral is taken along the parameterised ray path $\mathbf{r}(t) = \mathbf{o} + t\,\mathbf{d}$, with $\mathbf{o}$ the source position and $\mathbf{d}$ a unit direction vector. Taking the negative logarithm of the transmitted-to-incident intensity ratio gives the line integral of $\mu$ along the ray, also called the projection value $p$:
+where the integral is taken along the parameterised ray path $\mathbf{r}(s) = \mathbf{o} + s\,\mathbf{d}$, with $\mathbf{o}$ the source position, $\mathbf{d}$ a unit direction vector, and $s$ the arc-length parameter along the ray. The symbol $t$ is reserved for time throughout this thesis. Taking the negative logarithm of the transmitted-to-incident intensity ratio gives the line integral of $\mu$ along the ray, also called the projection value $p$:
 %
 \begin{equation}
-    p = -\ln\!\left(\frac{I}{I_0}\right) = \int_{\mathrm{ray}} \mu\!\left(\mathbf{r}(t)\right) \mathrm{d}t.
+    p = -\ln\!\left(\frac{I}{I_0}\right) = \int_{\mathrm{ray}} \mu\!\left(\mathbf{r}(s)\right) \mathrm{d}s.
     \label{eq:projection_value}
 \end{equation}
 %
 CT reconstruction is the inverse problem of recovering $\mu(\mathbf{r})$ from a finite set of such projection values. Beer--Lambert's law assumes the X-ray beam is effectively monochromatic and that scattering is negligible, both of which are standard assumptions in laboratory micro-CT analysis \citep{kak2001principles}.
 
-In cone-beam CT (CBCT), a point X-ray source illuminates the entire sample simultaneously and the transmitted intensities are recorded on a flat 2D area detector. This is the geometry of standard laboratory micro-CT instruments. A single projection, also called a radiograph, is the 2D image $\{I_j\}$ recorded by the detector at one angular position of the rotating sample, where $j$ indexes the detector pixels. As the sample rotates, successive projections sweep a full $360\degree$ arc, and the complete set of projections forms the sinogram.
+In cone-beam CT (CBCT), a point X-ray source illuminates the entire sample simultaneously with a divergent cone-shaped beam. The transmitted intensities are recorded on a flat 2D area detector. This is the geometry of standard laboratory micro-CT instruments. A single projection, also called a radiograph, is the 2D image $\{I_j\}$ recorded by the detector at one angular position of the rotating sample, where $j$ indexes the detector pixels. As the sample rotates, successive projections sweep a full $360\degree$ arc, and the complete set of projections forms the sinogram.
 
 In practice the continuous Beer--Lambert integral is approximated by a discrete sum over $K$ sample points along the ray:
 %
 \begin{equation}
-    p_j \approx \sum_{k=1}^{K} \mu\!\left(\mathbf{r}_k\right) \Delta t,
+    p_j \approx \sum_{k=1}^{K} \mu\!\left(\mathbf{r}_k\right) \Delta s,
     \label{eq:discrete_projection}
 \end{equation}
 %
-where $\Delta t$ is the sampling step size. CT reconstruction then amounts to inverting the system of equations $\{p_j = \mathcal{A}\mu\}$, where $\mathcal{A}$ is the forward projection operator. The system is highly underdetermined when the number of projections is small relative to the number of voxels, making the inverse problem ill-posed and requiring regularisation or prior information for a stable solution.
+where $\Delta s$ is the sampling step size. CT reconstruction then amounts to inverting the system of equations $\{p_j = \mathcal{A}\mu\}$, where $\mathcal{A}$ is the forward projection operator. The system is highly underdetermined when the number of projections is small relative to the number of voxels, making the inverse problem ill-posed and requiring regularisation or prior information for a stable solution.
 
 \subsection{Classical Reconstruction Algorithms}
 \label{subsec:ct_algorithms}
@@ -317,7 +326,7 @@ The sinusoidal positional encoding popularised by NeRF \citep{mildenhall2021nerf
 %
 where $L$ is the number of frequency octaves. \citet{tancik2020fourier} showed using NTK theory that this encoding transforms the effective kernel into a stationary one with a tunable bandwidth, directly addressing spectral bias. An alternative is to use random Fourier features $\gamma(\mathbf{x}) = [\sin(\mathbf{B}\mathbf{x}),\, \cos(\mathbf{B}\mathbf{x})]$, where each row of $\mathbf{B}$ is sampled from a Gaussian $\mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$ with bandwidth $\sigma$ chosen to match the signal's frequency content.
 
-Both sinusoidal encodings and random Fourier features are fixed and not updated during training. A more capable alternative is to learn the encoding jointly with the MLP. The multiresolution hash encoding of \citet{mueller2022instant} pursues this by storing trainable feature vectors in a set of hash tables indexed by the input coordinates at multiple spatial resolutions. This shifts much of the representational work from the MLP to the encoding tables, allowing a smaller and faster MLP to achieve equal or better reconstruction quality. The hash encoding is described in detail in \cref{subsubsec:hash_encoding}.
+Both sinusoidal encodings and random Fourier features are fixed and not updated during training. A more capable alternative is to learn the encoding jointly with the MLP. The multiresolution hash encoding of \citet{mueller2022instant} pursues joint encoder and MLP training by storing trainable feature vectors in a set of hash tables indexed by the input coordinates at multiple spatial resolutions. The hash encoding shifts much of the representational work from the MLP to the encoding tables, allowing a smaller and faster MLP to achieve equal or better reconstruction quality. The hash encoding is described in detail in \cref{subsubsec:hash_encoding}.
 
 \subsection{Neural Radiance Fields (NeRF)}
 \label{subsec:nerf}
@@ -384,7 +393,7 @@ NeRF is trained by minimising the squared photometric error between the rendered
 \subsection{Multiresolution Hash Encoding}
 \label{subsubsec:hash_encoding}
 
-The sinusoidal positional encoding resolves the spectral bias problem but places all of the representational work on the MLP. Every gradient step updates every weight in the network, and convergence is slow regardless of how well the encoding lifts the input coordinates. The multiresolution hash encoding of \citet{mueller2022instant} addresses this by distributing the work between the MLP and a set of small trainable lookup tables, allowing the MLP itself to be made much smaller. The result is a speedup of several orders of magnitude over sinusoidal-encoded NeRF at equal or better reconstruction quality \citep{mueller2022instant}.
+The sinusoidal positional encoding defined in \cref{eq:sinusoidal_encoding} resolves the spectral bias problem but places all of the representational work on the MLP. Every gradient step updates every weight in the network, and convergence is slow regardless of how well the encoding lifts the input coordinates. The multiresolution hash encoding of \citet{mueller2022instant} addresses this by distributing the work between the MLP and a set of small trainable lookup tables, allowing the MLP itself to be made much smaller. The result is a speedup of several orders of magnitude over sinusoidal-encoded NeRF at equal or better reconstruction quality \citep{mueller2022instant}.
 
 The encoding maintains $L$ independent levels, each corresponding to a different spatial resolution. At each level $\ell$ a grid of resolution $N_\ell$ is defined, where the resolutions grow as a geometric progression between a coarsest resolution $N_\mathrm{min}$ and a finest resolution $N_\mathrm{max}$:
 %
@@ -400,16 +409,15 @@ Each level stores up to $T$ trainable feature vectors of dimension $F$, arranged
 Given an input coordinate $\mathbf{x} \in \mathbb{R}^d$, the encoding proceeds independently at each level $\ell$. The coordinate is scaled by that level's grid resolution to identify the enclosing voxel, and the $2^d$ integer corner vertices of that voxel are determined. Each corner is mapped to an array index via either the dense mapping at coarse levels or the hash function at fine levels, and the corresponding $F$-dimensional feature vectors are retrieved. These $2^d$ feature vectors are then linearly interpolated according to the fractional position of $\mathbf{x}$ within its enclosing voxel, using trilinear interpolation in 3D or the 4D analogue in space-time. The interpolated $F$-dimensional vector is the output of level $\ell$. The outputs from all $L$ levels are concatenated to form the full encoded representation $\mathbf{y} \in \mathbb{R}^{L \cdot F}$, which is then passed to the MLP:
 %
 \begin{equation}
-    \hat{\mu}(\mathbf{x}) = \mathrm{MLP}_\Phi\!\left(
-        \mathbf{y}(\mathbf{x};\, \theta)
-    \right),
-    \qquad
-    \mathbf{y} = \left[\,
-        \mathrm{interp}_0(\mathbf{x};\, \theta_0),\;
-        \mathrm{interp}_1(\mathbf{x};\, \theta_1),\;
+\begin{aligned}
+    \hat{\mu}(\mathbf{x}) &= \mathrm{MLP}_\Phi\!\left(\mathbf{y}(\mathbf{x};\, \boldsymbol{\theta})\right), \\[4pt]
+    \mathbf{y}(\mathbf{x};\, \boldsymbol{\theta}) &= \left[\,
+        \mathrm{interp}_0(\mathbf{x};\, \boldsymbol{\theta}_0),\;
+        \mathrm{interp}_1(\mathbf{x};\, \boldsymbol{\theta}_1),\;
         \ldots,\;
-        \mathrm{interp}_{L-1}(\mathbf{x};\, \theta_{L-1})
+        \mathrm{interp}_{L-1}(\mathbf{x};\, \boldsymbol{\theta}_{L-1})
     \,\right].
+\end{aligned}
     \label{eq:hash_forward}
 \end{equation}
 %
@@ -419,7 +427,7 @@ At fine resolution levels, multiple grid vertices inevitably map to the same has
 
 Because hash table lookups are $\mathcal{O}(1)$ with no control-flow branching, all $L$ levels can be evaluated in parallel on a GPU. The small MLP that follows requires far fewer floating-point operations than the large MLP needed by sinusoidal encodings. Together these properties enable training to convergence in seconds rather than hours on a single GPU, a speedup of roughly two to three orders of magnitude over the original NeRF implementation \citep{mueller2022instant}.
 
-The first application of multiresolution hash encoding to CT reconstruction was Neural Attenuation Fields (NAF) by \citet{zha2022naf}. Earlier INR-based approaches to CT, such as NeRP \citep{shen2022nerp}, used sinusoidal encodings rather than hash grids and required a high-quality prior scan for regularisation. NAF demonstrated that the hash encoding's advantages in speed and quality transfer directly from NeRF to CT without such priors. NAF parameterises the 3D attenuation coefficient field $\mu(\mathbf{x})$ as a hash-encoded MLP and trains the network by minimising the discrepancy between simulated and measured cone-beam projections using Beer--Lambert's law as the forward model, with no external training data required. NAF showed that the hash encoding's advantages transfer directly from NeRF to CT and outperform both sinusoidal-encoded INRs and iterative algorithms at a fraction of the computational cost \citep{zha2022naf}.
+The first application of multiresolution hash encoding to CT reconstruction was Neural Attenuation Fields (NAF) by \citet{zha2022naf}. Earlier INR-based approaches to CT, such as NeRP \citep{shen2022nerp}, used sinusoidal encodings rather than hash grids and required a high-quality prior scan for regularisation. NAF parameterises the 3D attenuation coefficient field $\mu(\mathbf{x})$ as a hash-encoded MLP and trains the network by minimising the discrepancy between simulated and measured cone-beam projections using Beer--Lambert's law as the forward model, with no external training data required. NAF outperforms both sinusoidal-encoded INRs and iterative algorithms at a fraction of the computational cost \citep{zha2022naf}.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{NeCT: Neural Computed Tomography}
@@ -428,7 +436,7 @@ The first application of multiresolution hash encoding to CT reconstruction was 
 
 \NeCT{} (Neural Computed Tomography) \citep{friis2025nect} is, to the best of the authors' knowledge, the first fully INR-based algorithm for holistic time-resolved 4D-CT reconstruction. It unifies the physical forward model of cone-beam CT with the representational power of hash-encoded implicit neural representations, treating the entire dynamic experiment, all projections from all time steps, as a single joint optimisation problem. The output is a continuous function $\muhat(\mathbf{r}, t)$, the estimated attenuation coefficient at any spatial coordinate $\mathbf{r}$ and any time $t$ within the duration of the scan, from which volumetric images at arbitrary time points can be decoded by a forward pass through the network.
 
-\NeCT{} consists of two architecturally related but distinct models. A static 3D model for sparse-view single-frame CT reconstruction serves as the spatial backbone, and a dynamic 4D model called \emph{NeCT QuadCubes} extends this to time-resolved reconstruction. Both share the same training loop and loss function, differing in the structure of the hash encoding and whether the time coordinate $t$ is included as an input.
+\NeCT{} consists of two architecturally related but distinct models. A static 3D model for sparse-view single-frame CT reconstruction serves as the spatial backbone, and a dynamic 4D model called \emph{NeCT QuadCubes} extends the static approach to time-resolved reconstruction. Both share the same training loop and loss function, differing in the structure of the hash encoding and whether the time coordinate $t$ is included as an input.
 
 \subsection{NeCT Pipeline Overview}
 \label{subsec:nect_pipeline}
@@ -442,7 +450,7 @@ The first application of multiresolution hash encoding to CT reconstruction was 
 
 The NeCT pipeline operates as a differentiable physics simulation. It takes the measured detector images as supervision and adjusts the network weights until the network's predictions are consistent with every recorded projection. The same four-step loop repeats for every training batch.
 
-At the start of each step, a batch of $B$ rays is sampled from the full set of recorded projections. Each ray $\mathbf{r}_j(t) = \mathbf{o}_j + t\,\mathbf{d}_j$ is defined by its source position $\mathbf{o}_j$ and unit direction $\mathbf{d}_j$, determined by the cone-beam geometry of the instrument and the angular position of the projection from which the ray originates. In the dynamic model, each ray also carries a timestamp $t_j$ corresponding to the acquisition time of its projection. The measured intensity $I_j$ at the corresponding detector pixel is retrieved as the supervision target.
+At each training step, a batch of $B$ rays is sampled from the full set of recorded projections. Each ray $\mathbf{r}_j(s) = \mathbf{o}_j + s\,\mathbf{d}_j$ is defined by its source position $\mathbf{o}_j$ and unit direction $\mathbf{d}_j$, determined by the cone-beam geometry of the instrument and the angular position of the projection from which the ray originates. In the dynamic model, each ray also carries a timestamp $t_j$ corresponding to the acquisition time of its projection. The measured intensity $I_j$ at the corresponding detector pixel is retrieved as the supervision target.
 
 Each ray is then marched through the object volume by sampling $K$ equidistant points $\{\mathbf{r}_k\}_{k=1}^{K}$ along the ray within the sample bounding volume. NeCT uses an adaptive scheme in which $K$ increases linearly from $K_\mathrm{init} = 100$ to $K_\mathrm{max} = 1.5 \times \max(N_\mathrm{detector})$ over the first $30\%$ of training, where $\max(N_\mathrm{detector})$ is the number of pixels along the longest detector axis \citep{friis2025nect}. Starting with fewer points reduces computational cost in the early stages when the network is still poorly initialised, and progressively increasing the count ensures the final reconstruction is sampled finely enough to resolve sub-voxel features.
 
@@ -534,13 +542,14 @@ Simulations using synthetic 4D datasets generated with PoreSpy \citep{gostick201
 \subsection{Hybrid Golden-Section Sampling}
 \label{subsec:hybrid_golden}
 
-A practical limitation of the pure golden-angle scheme described in \cref{subsec:4dct} is that consecutive projections are separated by $137.51\degree$, requiring the sample stage to travel through a large angle between exposures. In laboratory instruments this large step is time-consuming and can cause vibration. The hybrid golden-section scheme, introduced by \citet{friis2025nect}, addresses this. Within each full $360\degree$ revolution a fixed number of equidistant projections are collected, but the starting angle of each revolution is offset from the previous one by the golden angle. This preserves rapid continuous rotation within each revolution while ensuring that successive revolutions are angularly offset, so that projections from different time points together cover the angular space as uniformly as possible.
+A practical limitation of the pure golden-angle scheme described in \cref{subsec:4dct} is that consecutive projections are separated by $137.51\degree$, requiring the sample stage to travel through a large angle between exposures. During this motor movement no projections are collected, so a significant fraction of the total scan time contributes no measurement information. The hybrid golden-section scheme, introduced by \citet{friis2025nect}, addresses this. Within each full $360\degree$ revolution a fixed number of equidistant projections are collected, but the starting angle of each revolution is offset from the previous one by the golden angle. This preserves rapid continuous rotation within each revolution while ensuring that successive revolutions are angularly offset, so that projections from different time points together cover the angular space as uniformly as possible.
 
 This scheme provides progressive angular completeness, meaning that at any point in the experiment the projections collected so far are nearly optimally distributed in angle. For the spatial encoder \texttt{xyz}, this ensures gradient updates arrive from many different projection directions simultaneously rather than from a narrow angular range. For the temporal encoders, the golden offset means each new revolution contributes projections at angles that are maximally distinct from those of all previous revolutions, allowing the model to distinguish the attenuation field at one time from the field at neighbouring times.
 
 In the Bentheimer sandstone experiment, 1\,400 projections were distributed across 14 revolutions of 100 projections each, with the golden offset applied between revolutions and alternating rotation direction to avoid tangling the inlet supply lines \citep{friis2025nect}. The entire 40-minute imbibition experiment was represented by a single QuadCubes model, decoded at arbitrary times to produce a continuous 3D movie of the brine invasion process.
 
 % ═════════════════════════════════════════════════════════════════════════════
+
 \part{Encoder Optimisation}
 \label{part:encoder_optimisation}
 % ═════════════════════════════════════════════════════════════════════════════
@@ -854,7 +863,7 @@ $F = 2$ is surprisingly competitive with $F = 4$ in the epoch plot, reaching a v
     \label{fig:sexcubes_reconstruction}
 \end{figure}
 
-The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
+The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes}, HexPlane \citep{cao2023hexplane}, and related plane-decomposition methods for dynamic neural radiance fields \citep{park2023temporal}.
 
 The cost of this design is that each encoder captures only pairwise coordinate interactions. Reconstructing the attenuation at $(x, y, z, t)$ from six 2D plane projections is analogous to recovering a 4D function from its six 2D marginals, which is formally underdetermined without additional coupling assumptions. The MLP must infer the missing higher-order interactions from the pairwise features alone, which is a harder integration task than in the 3D encoder case where each encoder already encodes three-way interactions.
 
@@ -1536,9 +1545,32 @@ No voxel-level ground truth is available for the hourglass dataset, because the 
     \label{fig:dynamic_cont_reconstruction}
 \end{figure}
 
-Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass at three time points from dataset 1, demonstrating that the continuous-scan forward model successfully captures the dynamic process of sand redistribution between the two chambers.
+Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass at three time points from dataset 1, demonstrating that the forward model produces coherent 4D reconstructions that track the sand redistribution between chambers over time.
 
-\todo{Insert dynamic experiment results: reconstruction slices at $K=1$ and highest $K$ across the three $\Delta\phi$ values (same frame rate) to show how correction benefit scales with angular step; quality curves as a function of $K$ for all six datasets; matched-pair comparisons from Table~\ref{tab:dynamic_cont_configs}; and a comparison of the two frame rates at matched $\Delta\phi$ to isolate the effect of temporal resolution on sand-front tracking.}
+Figures~\ref{fig:mae_4fps} and \ref{fig:mae_2fps} show the MAE of the reconstructed sand volume trajectory for all datasets at 4\,fps and 2\,fps respectively, plotted as a function of $K$. Figure~\ref{fig:subangle_result} aggregates all thirty reconstructions on a single axis of effective sub-step size versus MAE.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{continous_fail/mae_4fps.png}
+    \caption{Volume MAE for the three 4\,fps datasets ($\Delta\phi = 3.44\degree$, $6.88\degree$, $13.75\degree$) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.}
+    \label{fig:mae_4fps}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{continous_fail/mae_8fps.png}
+    \caption{Volume MAE for the three 2\,fps datasets ($\Delta\phi = 3.44\degree$, $6.88\degree$, $13.75\degree$) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.}
+    \label{fig:mae_2fps}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{continous_fail/subangle_vs_mae_total.png}
+    \caption{Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta\phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.}
+    \label{fig:subangle_result}
+\end{figure}
+
+The results show no correlation between accumulation steps, angular step size, frame rate, and reconstruction quality. Increasing $K$ from 1 to 6 produces no consistent improvement in volume MAE for any of the six datasets, and the matched-pair comparisons across different angular steps yield no evidence that a higher $K$ compensates for a larger $\Delta\phi$.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -1549,20 +1581,31 @@ Figure~\ref{fig:dynamic_cont_reconstruction} shows the reconstructed hourglass a
 \subsection{Validity of the Forward Model}
 \label{subsec:cont_disc_model}
 
-The static results show that the correction benefit scales clearly with angular step size. For the 100-projection configuration ($\Delta\phi = 3.60\degree$) the uncorrected $K = 1$ reconstruction receives a combined score of 0.165, indicating severe angular blur. Increasing $K$ improves quality monotonically, reaching 0.500 at $K = 6$. For the 360-projection configuration ($\Delta\phi = 1.00\degree$) the uncorrected score is already 0.492 and rises to 0.647 at $K = 6$. The fact that 100 projections at $K = 6$ (combined score 0.500, effective sub-step $0.60\degree$) nearly matches 360 projections at $K = 1$ (0.492, $1.00\degree$) is consistent with the Shannon--Nyquist theorem applied to angular sampling. Reconstruction quality is governed by the effective sub-step size $\Delta\phi / K$, and the $K$-step correction makes a coarser acquisition largely interchangeable with a finer native acquisition at the same effective angular resolution.
+The static results confirm that the $K$-step correction provides a genuine benefit when angular blur is the limiting factor. For the 100-projection configuration ($\Delta\phi = 3.60\degree$) the improvement from $K = 1$ to $K = 6$ is substantial, with the combined score rising from 0.165 to 0.500, confirming that angular blur at this step size is severe and that sub-step averaging recovers a large fraction of the lost information. For the 360-projection configuration ($\Delta\phi = 1.00\degree$), however, the benefit is marginal. The score at $K = 1$ is already 0.492 and rises to 0.647 at $K = 6$, but the improvement per additional sub-step diminishes rapidly after $K = 2$, suggesting that at $1\degree$ the angular drag is not the primary source of error in the reconstruction. The correction is approaching the limit of what sub-step averaging can recover for this projection count.
 
-The approximation error of the midpoint rule scales as $\mathcal{O}((\Delta\phi/K)^2)$, meaning it shrinks by a factor of four each time $K$ is doubled. The monotonic improvement with $K$ and the absence of any quality decline at large $K$ confirm that the correction does not introduce new artefacts. The practical implication is that a larger $K$ is warranted for coarser acquisitions while a smaller $K$ is sufficient for finer ones.
+Importantly, the 100-projection configuration at $K = 6$ (combined score 0.500, effective sub-step $0.60\degree$) does not match the 360-projection configuration at $K = 1$ (0.492, $1.00\degree$). Although the scores are numerically close, the 100-projection reconstruction never reaches comparable spatial quality to the 360-projection reconstruction at any value of $K$ tested. This indicates that the Nyquist-motivated hypothesis that sub-step precision determines quality independently of projection count does not fully hold in practice. The total number of projections also matters, because a denser native angular sampling provides more independent views of the sample regardless of how finely each projection's swept interval is divided. The $K$-step correction addresses the angular smear within each projection but cannot recover the additional spatial information that additional projections would provide.
 
-\subsection{Continuous Scanning for Dynamic Imaging}
+The approximation error of the midpoint rule scales as $\mathcal{O}((\Delta\phi/K)^2)$, meaning it shrinks by a factor of four each time $K$ is doubled. The monotonic improvement with $K$ for the 100-projection case and the absence of any quality decline at large $K$ confirm that the correction does not introduce new artefacts. The benefit is real, but bounded.
+
+\subsection{Dynamic Experiment and Sample Geometry}
 \label{subsec:cont_disc_dynamic}
 
-The central motivation for continuous scanning in dynamic experiments is not acquisition speed but temporal continuity. A step-and-shoot scanner must decelerate and hold the sample stationary for every projection, introducing mechanical delays that set a floor on the time between projections. In continuous rotation this floor is removed. The detector collects data throughout the rotation and the time between projections is limited only by detector readout speed. For processes such as sand flow in the hourglass, which evolves continuously during the scan, this matters because the sample does not pause while the motor stops.
+The hourglass dynamic experiment produced a negative result: no meaningful correlation was found between accumulation steps $K$, angular step size $\Delta\phi$, frame rate, and reconstruction quality as measured by the volume MAE metric. This outcome is informative rather than simply a failure, and the most probable explanation lies in the geometric properties of the hourglass sample.
 
-The cost of continuous acquisition is that each projection integrates over a finite angular interval rather than a single angle, introducing geometric blur that grows with $\Delta\phi$. The $K$-step forward model corrects for this by approximating the angular integral, at the cost of increasing the number of network evaluations per projection by a factor of $K$. Since training time scales linearly with $K$, this is a direct trade-off between reconstruction accuracy and reconstruction speed. The results will establish what value of $K$ is sufficient for each angular step size, and whether the matched-pair design confirms that the corrected model fully compensates for the coarser native sampling.
+Angular blur degrades reconstruction quality when the sample has fine directional structure that is visible from some angles but not others. The blur integrates over a range of angles, effectively averaging projection views that carry different structural information. For a sample such as the Bentheimer sandstone, which contains sharp pore boundaries whose projection varies strongly with angle, this averaging causes real information loss. The hourglass, by contrast, is largely angularly isotropic from the scanner's perspective. Sand is a dense granular medium with near-circular cross-section, and the overall geometry of the two chambers is cylindrically symmetric around the rotation axis. A projection of the hourglass at any angle carries essentially the same structural information as a projection at a nearby angle. Averaging over a wide angular interval therefore does not meaningfully degrade the information content of each projection, and the $K$-step correction has nothing to recover. The model reconstructs the sand distribution accurately regardless of $K$ because the projections are informative regardless of angular smear.
 
-The frame-rate comparison between datasets with the same $\Delta\phi$ but different acquisition speeds tests a separate question, namely whether higher temporal resolution yields visibly improved tracking of the sand front, independent of the angular blur correction.
+This interpretation suggests that the practical benefit of the continuous-scan forward model is sample-dependent. Samples with strong directional features, such as fine stratification, crack networks, or elongated pores aligned with the rotation plane, are the primary candidates for meaningful improvement. Isotropic or angularly symmetric samples are unlikely to benefit from the correction, and using the hourglass as a test case for the forward model was ill-suited to revealing the benefit that the static sandstone experiment successfully demonstrated. A more appropriate dynamic test would use a sample with directional structure that evolves over time, such as a rock undergoing anisotropic fracture propagation or a layered sample experiencing differential dissolution.
 
-\todo{Insert dynamic experiment results and analysis here once training is complete, including the matched-pair comparisons and the frame-rate comparison.}
+The frame-rate comparison across matched $\Delta\phi$ datasets also shows no significant effect on the volume MAE. This is consistent with the geometric explanation: if the forward model correction does not affect quality for this sample, then neither does the temporal sampling density, because both are attempting to resolve information that the sample geometry makes uniformly accessible.
+
+\subsection{Limitations}
+\label{subsec:cont_disc_limitations}
+
+The current implementation assumes constant angular velocity throughout the scan and computes per-projection angular intervals from a single global $\omega$. For instruments that support variable-speed rotation, or that alternate rotation direction between revolutions as in the dynamic NeCT experiments of \citet{friis2025nect}, the forward model would need to accept per-projection angular intervals $[\phi_s^{(j)}, \phi_e^{(j)}]$ rather than computing them globally. This extension is straightforward in principle and requires only a change to the data loading pipeline.
+
+The model also assumes that the attenuation field is static within each projection's exposure interval, so that the angular averaging integral is over geometry only and not over a simultaneously evolving sample. For the hourglass at the frame rates used here, the sand front moves slowly relative to the exposure time and this assumption is well satisfied. For faster dynamic processes, such as fluid flow in a high-permeability sample or mechanical deformation under rapid loading, intra-exposure motion could become significant and would require a more general forward model that integrates over both angle and sample state simultaneously.
+
+The hourglass results also highlight a fundamental limitation of the volume MAE metric for evaluating the angular blur correction: the metric is insensitive to the correction when the sample is angularly isotropic. A metric that directly measures projection residuals, or that evaluates reconstruction quality on a sample with known directional structure, would be more appropriate for validating the forward model in a dynamic setting. The static sandstone experiment, which uses PSNR-independent metrics against a high-quality reference scan, is a better-controlled test of the forward model itself.
 
 \subsection{Limitations}
 \label{subsec:cont_disc_limitations}
@@ -1578,13 +1621,35 @@ Finally, the approach is applicable beyond the sandstone and hourglass experimen
 \label{chap:conclusion}
 % ═════════════════════════════════════════════════════════════════════════════
 
+This thesis set out to address two practical barriers to the wider adoption of NeCT. The first is the high computational cost of each reconstruction, which restricts the method to the most expensive research-grade hardware. The second is the reliance on a step-and-shoot acquisition protocol that leaves a significant fraction of available scan time unused. The two parts of the thesis address these barriers through a systematic investigation of the encoder design space and through a new forward model for continuous rotation scanning.
+
 \section{Summary of Contributions}
 \label{sec:conclusion_summary}
-\todo{Recap.}
+
+\textbf{Encoder capacity sweeps.} Systematic sweeps of the three hash encoder capacity parameters in NeCT QuadCubes identified three governing design principles. Hashmap size is the dominant driver of both model size and reconstruction quality, with a clear quality threshold around $\log_2 T = 21$ below which reconstruction degrades sharply. The number of resolution levels primarily controls training speed rather than asymptotic quality, and reducing from the baseline $L = 23$ to $L = 18$ saves approximately one quarter of per-epoch training time with no quality penalty. Features per level can be halved from $F = 4$ to $F = 2$ with no measurable quality loss. The original NeCT baseline configuration is far from optimal along any axis of cost.
+
+\textbf{Spatial-temporal asymmetry.} Non-uniform capacity experiments confirmed a structural inefficiency in the QuadCubes baseline. The three temporal encoders receive the same hashmap capacity as the spatial encoder despite encoding a lower-frequency signal that does not require it. Redistributing capacity toward the spatial encoder while reducing temporal encoder size yields both better quality and lower memory consumption at any fixed training budget.
+
+\textbf{CombinedCubes architecture.} Replacing the three temporal 3D hash encoders with collision-free 2D hash encoders reduces encoder memory by approximately 67\% and training time by approximately 30\% relative to the baseline, while improving reconstruction quality. The architectural change exploits the spatial-temporal asymmetry directly.
+
+\textbf{\MixedCubes{} architecture.} Replacing the hashed 2D temporal encoders with fully dense 2D grids eliminates hash collisions in the temporal encoders and achieves the best reconstruction quality of any architecture tested. The best \MixedCubes{} configuration achieves 37.73\,dB PSNR at 24 hours of training at 22.1\,GB GPU memory, compared to the NeCT baseline's 35.89\,dB at 44.8\,GB, a gain of 1.84\,dB at half the memory. A lightweight \MixedCubes{} variant matches baseline quality at 5.1\,GB, approximately 11\% of the original memory requirement, making NeCT accessible on consumer GPUs for the first time.
+
+\textbf{Continuous-scan forward model.} The NeCT Beer--Lambert forward model was extended to account for continuous rotation during each exposure. A $K$-step midpoint approximation is derived that converges to the true angular integral with error scaling as $\mathcal{O}((\Delta\phi / K)^2)$. Two training step implementations are provided: a time-efficient mode with $\mathcal{O}(K)$ activation memory and a memory-efficient gradient checkpointing mode with $\mathcal{O}(1)$ memory overhead.
+
+\textbf{Static validation of the forward model.} Experiments on a static Bentheimer sandstone sample confirmed that the $K$-step correction recovers reconstruction quality lost to angular blur for coarse acquisitions. The combined score for the 100-projection configuration improves from 0.165 at $K = 1$ to 0.500 at $K = 6$. For the 360-projection configuration the benefit is present but marginal, indicating that at $1\degree$ angular step the blur is not the dominant source of error. The total projection count matters independently of sub-step precision, so the correction is most useful when the acquisition is genuinely coarse.
+
+\textbf{Dynamic experiment and sample geometry.} The hourglass dynamic experiment showed no correlation between accumulation steps, angular step size, frame rate, and reconstruction quality. This result is attributed to the angular isotropy of the hourglass: its cylindrically symmetric cross-section means projections carry equivalent structural information from any angle, so angular blur does not degrade the information content of each projection and the correction has nothing to recover. This finding clarifies the scope of the continuous-scan correction. It is most beneficial for samples with fine directional structure, not for angularly symmetric ones.
 
 \section{Limitations and Future Work}
 \label{sec:conclusion_future}
-\todo{}
+
+The continuous-scan forward model was tested in isolation from the encoder improvements, with all continuous-scan experiments using the original NeCT baseline encoder. Combining the two contributions is a natural next step. Applying the \MixedCubes{} architecture and reduced capacity settings to the continuous-scan training pipeline would allow the faster per-epoch training of \MixedCubes{} to compound with the higher effective projection density of continuous scanning, potentially enabling high-quality 4D reconstructions at substantially lower total training time than either improvement achieves independently.
+
+The dynamic continuous-scan experiment would benefit from a test dataset with directional structure. A rock sample undergoing anisotropic fracture propagation, a layered material experiencing differential dissolution, or a fibrous medium deforming under load would provide angular contrast that the hourglass lacked, and would allow the correction benefit demonstrated in the static experiment to be observed in a dynamic context as well.
+
+The model currently assumes constant angular velocity within each projection's exposure interval. Extending the forward model to accept per-projection angular intervals rather than a global $\omega$ is a minor implementation change and would broaden applicability to instruments that vary rotation speed or use alternating-direction acquisition schemes.
+
+Finally, reconstruction time remains on the order of hours on a single GPU. Possible directions for further reduction include exploiting multiple GPUs through data-parallel training, reducing the number of training iterations needed through better initialisation strategies, and investigating whether the dense temporal grids in \MixedCubes{} can be further compressed without quality loss by reducing the grid resolution at the coarsest levels.
 
 % ─── Bibliography ────────────────────────────────────────────────────────────
 \cleardoublepage

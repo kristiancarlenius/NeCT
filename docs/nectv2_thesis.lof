@@ -1,7 +1,7 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }}{13}{figure.caption.6}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }}{14}{figure.caption.6}%
 \contentsline {figure}{\numberline {2.2}{\ignorespaces The NeCT training pipeline. Rays are sampled from recorded projections, marched through the hash-encoded network to predict attenuation values, integrated via the discretised Beer--Lambert law to produce predicted detector intensities, and compared to the measured intensities by the L1 loss. Gradients are backpropagated to update the network weights.\relax }}{17}{figure.caption.8}%
 \contentsline {figure}{\numberline {2.3}{\ignorespaces Network block for static reconstruction model using one encoder and MLP.\relax }}{18}{figure.caption.9}%
 \contentsline {figure}{\numberline {2.4}{\ignorespaces The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders concatenating the feature vectors are decoded by a shared MLP.\relax }}{20}{figure.caption.10}%
@@ -41,6 +41,9 @@
 \contentsline {figure}{\numberline {5.3}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{72}{figure.caption.55}%
 \contentsline {figure}{\numberline {5.4}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner.\relax }}{72}{figure.caption.56}%
 \contentsline {figure}{\numberline {5.5}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{74}{figure.caption.59}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\ensuremath {^\circ }$, $6.88\ensuremath {^\circ }$, $13.75\ensuremath {^\circ }$) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }}{75}{figure.caption.60}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\ensuremath {^\circ }$, $6.88\ensuremath {^\circ }$, $13.75\ensuremath {^\circ }$) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }}{75}{figure.caption.61}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }}{76}{figure.caption.62}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
