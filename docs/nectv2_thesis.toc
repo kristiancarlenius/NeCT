@@ -32,7 +32,7 @@
 \contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{33}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{33}{subsection.3.4.1}%
 \contentsline {subsection}{\numberline {3.4.2}Features Per Level}{35}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}SexCubes}{38}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.3}HexCubes}{38}{subsection.3.4.3}%
 \contentsline {subsubsection}{MLP Decoder Depth}{38}{section*.27}%
 \contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{40}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{40}{section.3.5}%
