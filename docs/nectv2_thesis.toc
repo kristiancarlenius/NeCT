@@ -67,15 +67,15 @@
 \contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{69}{subsection.5.3.2}%
 \contentsline {subsection}{\numberline {5.3.3}Results}{70}{subsection.5.3.3}%
 \contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{71}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Dataset}{71}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Results}{74}{subsection.5.4.2}%
-\contentsline {section}{\numberline {5.5}Discussion}{76}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{76}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{77}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Limitations}{78}{subsection.5.5.3}%
-\contentsline {subsection}{\numberline {5.5.4}Limitations}{78}{subsection.5.5.4}%
-\contentsline {chapter}{\numberline {6}Conclusion}{80}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{80}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{81}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{87}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{88}{appendix.B}%
+\contentsline {subsection}{\numberline {5.4.1}Dataset}{72}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Results}{75}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{77}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{77}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{78}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Limitations}{79}{subsection.5.5.3}%
+\contentsline {subsection}{\numberline {5.5.4}Limitations}{79}{subsection.5.5.4}%
+\contentsline {chapter}{\numberline {6}Conclusion}{81}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{81}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{82}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{89}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{90}{appendix.B}%

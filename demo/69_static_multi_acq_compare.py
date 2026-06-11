@@ -9,6 +9,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from PIL import Image
 from scipy.ndimage import binary_erosion, rotate as nd_rotate, shift as nd_shift, sobel as sobel2d, laplace as laplace2d
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
@@ -55,6 +56,7 @@ MASK_RADIUS_FRAC = 0.45
 SCRATCH_DIR: Path | None = BASE_DIR / ".tmp"
 
 OUTPUT_PNG      = BASE_DIR / "comparison.png"
+OUTPUT_SLICES   = BASE_DIR / "slices"
 OUTPUT_PSNR     = BASE_DIR / "psnr.png"
 OUTPUT_SSIM     = BASE_DIR / "ssim.png"
 OUTPUT_MAE      = BASE_DIR / "mae.png"
@@ -364,6 +366,16 @@ def main():
     plt.savefig(OUTPUT_PNG, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Saved comparison to {OUTPUT_PNG}")
+
+    OUTPUT_SLICES.mkdir(parents=True, exist_ok=True)
+    for name, xy_slices in slices.items():
+        safe_name = name.replace("/", "_")
+        for j, sl in enumerate(xy_slices):
+            zf = z_fracs[j]
+            out = OUTPUT_SLICES / f"{safe_name}_z{zf:.2f}.png"
+            img_u8 = (np.clip(sl, 0.0, 1.0) * 255).astype(np.uint8)
+            Image.fromarray(img_u8, mode="L").save(out)
+    print(f"Saved individual slices to {OUTPUT_SLICES}/")
 
     if not metric_names:
         print("No comparison models found — skipping metrics.")
