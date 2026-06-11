@@ -47,7 +47,7 @@ SLICE_ROTATION: dict[str, float] = {
 # Pixel shift applied to display slices only (not metrics): (rows_down, cols_right).
 # Negative = up/left.
 SLICE_SHIFT: dict[str, tuple[float, float]] = {
-    "100_": (3, -9),
+    "100_": (5, -12),
 }
 
 MASK_RADIUS_FRAC = 0.45
