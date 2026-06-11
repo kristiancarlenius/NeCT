@@ -368,12 +368,16 @@ def main():
     print(f"Saved comparison to {OUTPUT_PNG}")
 
     OUTPUT_SLICES.mkdir(parents=True, exist_ok=True)
+    mask_rows = np.where(mask_2d.any(axis=1))[0]
+    mask_cols = np.where(mask_2d.any(axis=0))[0]
+    r0, r1 = int(mask_rows[0]), int(mask_rows[-1]) + 1
+    c0, c1 = int(mask_cols[0]), int(mask_cols[-1]) + 1
     for name, xy_slices in slices.items():
         safe_name = name.replace("/", "_")
         for j, sl in enumerate(xy_slices):
             zf = z_fracs[j]
             out = OUTPUT_SLICES / f"{safe_name}_z{zf:.2f}.png"
-            img_u8 = (np.clip(sl, 0.0, 1.0) * 255).astype(np.uint8)
+            img_u8 = (np.clip(sl[r0:r1, c0:c1], 0.0, 1.0) * 255).astype(np.uint8)
             Image.fromarray(img_u8, mode="L").save(out)
     print(f"Saved individual slices to {OUTPUT_SLICES}/")
 

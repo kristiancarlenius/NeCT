@@ -1448,7 +1448,129 @@ It should also be noted that because this is a static sample, continuous scannin
 
 For the 360-projection configuration ($\Delta\phi = 1.00\degree$), the $K = 1$ score of 0.593 is already high, and the improvement from increasing $K$ is small. The score rises to 0.649 at $K = 2$, then 0.672 at $K = 3$, 0.697 at $K = 4$, and 0.708 at $K = 6$, a total gain of 0.115 points. The largest single step is again from $K = 1$ to $K = 2$ (0.056 points), with each subsequent step contributing less. At $1\degree$ per projection the angular sweep is already small enough that the forward model mismatch at $K = 1$ is not the dominant source of error, and additional sub-steps return diminishing benefit. Both curves increase monotonically with no decline at higher $K$, confirming that the correction does not introduce new artefacts.
 
-\todo{Insert reconstruction slices at $K=1$ and $K=6$ versus ground truth for both projection counts, and the matched-pair comparison table.}
+Figures~\ref{fig:static_slices_100} and \ref{fig:static_slices_360} show representative reconstruction slices for each projection count and each accumulation step, paired with the 1400-projection step-and-shoot ground truth.
+
+For the 100-projection configuration the angular blur is clearly visible at $K = 1$. Pore boundaries are smeared and high-attenuation grain edges lose their sharpness relative to the ground truth. The improvement with increasing $K$ is visible in the progressive recovery of edge definition, though the reconstructions remain noticeably softer than the ground truth throughout. The gain is most apparent at the high-intensity regions, where individual grains and their boundaries become progressively better defined as $K$ increases.
+
+For the 360-projection configuration the difference at $K = 1$ is far less pronounced, and the improvement with increasing $K$ is difficult to see in the bulk of the reconstruction. Focusing on the high-intensity regions makes the change more apparent: the sharpest grain edges tighten slightly with each accumulation step, and fine pore boundaries that appear marginally diffuse at $K = 1$ become slightly crisper at $K = 6$. The overall structure is well recovered at all $K$ values, consistent with the combined score results showing only a modest gain across the full range.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/100_ac1.png}
+        \caption{100-proj, $K=1$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/100_ac2.png}
+        \caption{100-proj, $K=2$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/100_ac3.png}
+        \caption{100-proj, $K=3$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/100_ac4.png}
+        \caption{100-proj, $K=4$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/100_ac6.png}
+        \caption{100-proj, $K=6$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \caption{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta\phi = 3.60\degree$). Each row shows the continuous-scan reconstruction at accumulation steps $K \in \{1, 2, 3, 4, 6\}$ (left) alongside the 1400-projection step-and-shoot ground truth (right). The improvement in edge sharpness and pore fidelity with increasing $K$ is visible in the coarser acquisition.}
+    \label{fig:static_slices_100}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/360_ac1.png}
+        \caption{360-proj, $K=1$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/360_ac2.png}
+        \caption{360-proj, $K=2$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/360_ac3.png}
+        \caption{360-proj, $K=3$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/360_ac4.png}
+        \caption{360-proj, $K=4$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/360_ac6.png}
+        \caption{360-proj, $K=6$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{images/1400_ac1.png}
+        \caption{Ground truth (1400-proj, $K=1$)}
+    \end{subfigure}
+    \caption{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta\phi = 1.00\degree$). Each row shows the continuous-scan reconstruction at accumulation steps $K \in \{1, 2, 3, 4, 6\}$ (left) alongside the 1400-projection step-and-shoot ground truth (right). The improvement in edge sharpness and pore fidelity with increasing $K$ is visible in the coarser acquisition.}
+    \label{fig:static_slices_360}
+\end{figure}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Experiments: Dynamic Hourglass}
