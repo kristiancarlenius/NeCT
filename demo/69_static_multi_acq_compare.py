@@ -40,8 +40,8 @@ N_SLICES = 10  # number of evenly spaced XY slices along Z
 # Counter-clockwise rotation applied to display slices only (not metrics).
 # Keys are prefixes matched against the run name.
 SLICE_ROTATION: dict[str, float] = {
-    "100_": 6.5,
-    "360_": 1.0,
+    "100_": 8,
+    "360_": 1.3,
 }
 
 MASK_RADIUS_FRAC = 0.45
