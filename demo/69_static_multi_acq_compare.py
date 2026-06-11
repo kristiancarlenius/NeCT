@@ -35,13 +35,13 @@ CROP_Z = (0.10, 0.90)
 CROP_Y = (0.10, 0.75)
 CROP_X = (0.25, 0.75)
 
-N_SLICES = 20  # number of evenly spaced XY slices along Z
+N_SLICES = 10  # number of evenly spaced XY slices along Z
 
 # Counter-clockwise rotation applied to display slices only (not metrics).
 # Keys are prefixes matched against the run name.
 SLICE_ROTATION: dict[str, float] = {
-    "100_": 2.5,
-    "360_": 0.3,
+    "100_": 5,
+    "360_": 0.8,
 }
 
 MASK_RADIUS_FRAC = 0.45
