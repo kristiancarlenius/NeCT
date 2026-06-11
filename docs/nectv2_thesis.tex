@@ -153,11 +153,16 @@ The third objective is to extend the NeCT forward model to continuous rotation s
 
 Chapter~\ref{chap:background} develops the theoretical background. It opens with X-ray CT from first principles, covering Beer--Lambert's law, cone-beam geometry, classical reconstruction algorithms, and the challenges of 4D-CT and sparse-view acquisition. The second half covers the machine learning tools used to address these problems, including the multilayer perceptron, convolutional and attention-based image-to-image architectures, implicit neural representations, Neural Radiance Fields, and the multiresolution hash encoding. The chapter concludes with a detailed description of NeCT, including the static 3D model, the dynamic QuadCubes model, the training pipeline, and the hybrid golden-section sampling scheme.
 
-Part~\ref{part:encoder_optimisation} addresses the first and second research objectives through an investigation of the NeCT encoder that treats architectural structure and capacity as interrelated rather than independent questions. Chapter~\ref{chap:encoder_design} is the core of this investigation. It establishes a theoretical framework based on three governing phenomena (collision rate, frequency coverage, and spatial-temporal asymmetry) and then quantifies each through a systematic parameter sweep within QuadCubes before demonstrating its extreme form through a corresponding alternative architecture. The SingleCube, HexCubes, and CombinedCubes architectures emerge naturally from this structure. Chapter~\ref{chap:encoder_comparison} brings all findings together in a unified comparison of the best configurations against the original NeCT baseline.
+Part~\ref{part:background} develops the theoretical foundations. Part~\ref{part:encoder_optimisation} addresses the first and second research objectives through an investigation of the NeCT encoder that treats architectural structure and capacity as interrelated rather than independent questions. Chapter~\ref{chap:encoder_design} is the core of this investigation. It establishes a theoretical framework based on three governing phenomena (collision rate, frequency coverage, and spatial-temporal asymmetry) and then quantifies each through a systematic parameter sweep within QuadCubes before demonstrating its extreme form through a corresponding alternative architecture. The SingleCube, HexCubes, and CombinedCubes architectures emerge naturally from this structure. Chapter~\ref{chap:encoder_comparison} brings all findings together in a unified comparison of the best configurations against the original NeCT baseline.
 
 Chapter~\ref{chap:continuous} addresses the third research objective. It explains the physical difference between step-and-shoot and continuous rotation scanning, derives the $K$-step averaged forward model, and presents experimental results on both a static validation dataset and a dynamic dataset.
 
 Chapter~\ref{chap:conclusion} summarises the contributions and findings of the thesis and identifies directions for future work.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\part{Background}
+\label{part:background}
+% ═════════════════════════════════════════════════════════════════════════════
 
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Background}
@@ -1454,122 +1459,64 @@ For the 100-projection configuration the angular blur is clearly visible at $K =
 
 For the 360-projection configuration the difference at $K = 1$ is far less pronounced, and the improvement with increasing $K$ is difficult to see in the bulk of the reconstruction. Focusing on the high-intensity regions makes the change more apparent: the sharpest grain edges tighten slightly with each accumulation step, and fine pore boundaries that appear marginally diffuse at $K = 1$ become slightly crisper at $K = 6$. The overall structure is well recovered at all $K$ values, consistent with the combined score results showing only a modest gain across the full range.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/100_ac1.png}
-        \caption{100-proj, $K=1$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/100_ac2.png}
-        \caption{100-proj, $K=2$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/100_ac3.png}
-        \caption{100-proj, $K=3$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/100_ac4.png}
-        \caption{100-proj, $K=4$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/100_ac6.png}
-        \caption{100-proj, $K=6$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \caption{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta\phi = 3.60\degree$). Each row shows the continuous-scan reconstruction at accumulation steps $K \in \{1, 2, 3, 4, 6\}$ (left) alongside the 1400-projection step-and-shoot ground truth (right). The improvement in edge sharpness and pore fidelity with increasing $K$ is visible in the coarser acquisition.}
-    \label{fig:static_slices_100}
+\begin{tabular}{r@{\hspace{6pt}}cc}
+& \textbf{100-proj} & \textbf{Ground truth (1400-proj, $K=1$)} \\[4pt]
+\toprule
+\addlinespace[4pt]
+\texttt{Accumulation steps = 1} &
+\includegraphics[width=0.34\textwidth]{100_ac1.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 2} &
+\includegraphics[width=0.34\textwidth]{100_ac2.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 3} &
+\includegraphics[width=0.34\textwidth]{100_ac3.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 4} &
+\includegraphics[width=0.34\textwidth]{100_ac4.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 6} &
+\includegraphics[width=0.34\textwidth]{100_ac6.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\end{tabular}
+\caption{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta\phi = 3.60\degree$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.}
+\label{fig:static_slices_100}
 \end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/360_ac1.png}
-        \caption{360-proj, $K=1$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/360_ac2.png}
-        \caption{360-proj, $K=2$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/360_ac3.png}
-        \caption{360-proj, $K=3$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/360_ac4.png}
-        \caption{360-proj, $K=4$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \vspace{0.5em}
-
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/360_ac6.png}
-        \caption{360-proj, $K=6$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{images/1400_ac1.png}
-        \caption{Ground truth (1400-proj, $K=1$)}
-    \end{subfigure}
-    \caption{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta\phi = 1.00\degree$). Each row shows the continuous-scan reconstruction at accumulation steps $K \in \{1, 2, 3, 4, 6\}$ (left) alongside the 1400-projection step-and-shoot ground truth (right). The improvement in edge sharpness and pore fidelity with increasing $K$ is visible in the coarser acquisition.}
-    \label{fig:static_slices_360}
+\begin{figure}[H]
+\centering
+\begin{tabular}{r@{\hspace{6pt}}cc}
+& \textbf{360-proj} & \textbf{Ground truth (1400-proj, $K=1$)} \\[4pt]
+\toprule
+\addlinespace[4pt]
+\texttt{Accumulation steps = 1} &
+\includegraphics[width=0.34\textwidth]{360_ac1.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 2} &
+\includegraphics[width=0.34\textwidth]{360_ac2.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 3} &
+\includegraphics[width=0.34\textwidth]{360_ac3.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 4} &
+\includegraphics[width=0.34\textwidth]{360_ac4.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\addlinespace[2pt]
+\texttt{Accumulation steps = 6} &
+\includegraphics[width=0.34\textwidth]{360_ac6.png} &
+\includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
+\end{tabular}
+\caption{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta\phi = 1.00\degree$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.}
+\label{fig:static_slices_360}
 \end{figure}
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -1731,16 +1678,9 @@ The current implementation assumes constant angular velocity throughout the scan
 
 The model also assumes that the attenuation field is static within each projection's exposure interval, so that the angular averaging integral is over geometry only and not over a simultaneously evolving sample. For the hourglass at the frame rates used here, the sand front moves slowly relative to the exposure time and this assumption is well satisfied. For faster dynamic processes, such as fluid flow in a high-permeability sample or mechanical deformation under rapid loading, intra-exposure motion could become significant and would require a more general forward model that integrates over both angle and sample state simultaneously.
 
-The hourglass results also highlight a fundamental limitation of the volume MAE metric for evaluating the angular blur correction: the metric is insensitive to the correction when the sample is angularly isotropic. A metric that directly measures projection residuals, or that evaluates reconstruction quality on a sample with known directional structure, would be more appropriate for validating the forward model in a dynamic setting. The static sandstone experiment, which uses PSNR-independent metrics against a high-quality reference scan, is a better-controlled test of the forward model itself.
+The hourglass results also highlight a fundamental limitation of the volume MAE metric for evaluating the angular blur correction: the metric is insensitive to the correction when the sample is angularly isotropic. A metric that directly measures projection residuals, or that evaluates reconstruction quality on a sample with known directional structure, would be more appropriate for validating the forward model in a dynamic setting. The static sandstone experiment, which uses sharpness and MAE metrics against a high-quality reference scan, is a better-controlled test of the forward model itself.
 
-\subsection{Limitations}
-\label{subsec:cont_disc_limitations}
-
-The current implementation assumes constant angular velocity throughout the scan and computes per-projection angular intervals from a single global $\omega$. For instruments that support variable-speed rotation, or that alternate rotation direction between revolutions as in the dynamic NeCT experiments of \citet{friis2025nect}, the forward model would need to accept per-projection angular intervals $[\phi_s^{(j)}, \phi_e^{(j)}]$ rather than computing them globally. This extension is straightforward in principle and requires only a change to the data loading pipeline.
-
-The model also assumes that the attenuation field is static within each projection's exposure interval, so that the angular averaging integral is over geometry only and not over a simultaneously evolving sample. For the hourglass at the frame rates used here, the sand front moves slowly relative to the exposure time and this assumption is well satisfied. For faster dynamic processes, such as fluid flow in a high-permeability sample or mechanical deformation under rapid loading, intra-exposure motion could become significant and would require a more general forward model that integrates over both angle and sample state simultaneously.
-
-Finally, the approach is applicable beyond the sandstone and hourglass experiments used here. Any dynamic CT application in which the sample undergoes continuous change and the scanner operates in fly-scan mode is a potential candidate, including in-situ mechanical testing and certain industrial inspection workflows. The degree of benefit from the forward model correction will depend on the angular step size per projection, which varies widely across instrument types and acquisition protocols.
+The approach is applicable beyond the sandstone and hourglass experiments used here. Any dynamic CT application in which the sample undergoes continuous change and the scanner operates in fly-scan mode is a potential candidate, including in-situ mechanical testing and certain industrial inspection workflows. The degree of benefit from the forward model correction will depend on the angular step size per projection, which varies widely across instrument types and acquisition protocols.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \chapter{Conclusion}

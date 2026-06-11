@@ -3,79 +3,79 @@
 \contentsline {section}{\numberline {1.1}Background and Motivation}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Research Objectives}{3}{section.1.2}%
 \contentsline {section}{\numberline {1.3}Thesis Structure}{4}{section.1.3}%
-\contentsline {chapter}{\numberline {2}Background}{6}{chapter.2}%
-\contentsline {section}{\numberline {2.1}X-ray Computed Tomography}{6}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}Physical Principles}{6}{subsection.2.1.1}%
-\contentsline {subsection}{\numberline {2.1.2}Classical Reconstruction Algorithms}{7}{subsection.2.1.2}%
-\contentsline {subsection}{\numberline {2.1.3}4D-CT and Dynamic Imaging}{8}{subsection.2.1.3}%
-\contentsline {section}{\numberline {2.2}Neural Networks}{9}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Convolutional Neural Networks and Image-to-Image Architectures}{10}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Implicit Neural Representations}{11}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Neural Radiance Fields (NeRF)}{13}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Multiresolution Hash Encoding}{15}{subsection.2.4.2}%
-\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{16}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{17}{subsection.2.5.1}%
-\contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{18}{subsection.2.5.2}%
-\contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{19}{subsection.2.5.3}%
-\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{21}{subsection.2.5.4}%
-\contentsline {part}{I\hspace {1em}Encoder Optimisation}{22}{part.1}%
-\contentsline {chapter}{\numberline {3}Encoder Design}{24}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Theory}{24}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}Capacity Parameters}{24}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Collision Rate and Encoder Dimensionality}{25}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.1.3}The Spatial-Temporal Asymmetry}{26}{subsection.3.1.3}%
-\contentsline {section}{\numberline {3.2}Experimental Setup}{27}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Collision Rate and Hashmap Size}{29}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{29}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}SingleCube}{31}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}Precision and Collision Load}{32}{subsection.3.3.3}%
-\contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{33}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{33}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{35}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}HexCubes}{38}{subsection.3.4.3}%
-\contentsline {subsubsection}{MLP Decoder Depth}{38}{section*.27}%
-\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{40}{subsection.3.4.4}%
-\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{40}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{41}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{44}{subsection.3.5.2}%
-\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{48}{subsection.3.5.3}%
-\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{51}{subsection.3.5.4}%
-\contentsline {chapter}{\numberline {4}Encoder Comparison}{53}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Candidate Configurations}{53}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Unified Comparison}{54}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Discussion}{59}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{59}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{59}{subsection.4.3.2}%
-\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{60}{section*.47}%
-\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{60}{section*.48}%
-\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{60}{section*.49}%
-\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{60}{subsection.4.3.3}%
-\contentsline {part}{II\hspace {1em}Continuous Scanning}{62}{part.2}%
-\contentsline {chapter}{\numberline {5}Continuous Scanning}{63}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Theory}{63}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{63}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{64}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{65}{subsection.5.1.3}%
-\contentsline {section}{\numberline {5.2}Method}{66}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{66}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{66}{subsection.5.2.2}%
-\contentsline {paragraph}{Time-efficient mode.}{67}{section*.51}%
-\contentsline {paragraph}{Memory-efficient mode.}{67}{section*.52}%
-\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{67}{subsection.5.2.3}%
-\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{68}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Dataset}{69}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{69}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Results}{70}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{72}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Dataset}{72}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Results}{77}{subsection.5.4.2}%
-\contentsline {section}{\numberline {5.5}Discussion}{79}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{79}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{80}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Limitations}{81}{subsection.5.5.3}%
-\contentsline {subsection}{\numberline {5.5.4}Limitations}{81}{subsection.5.5.4}%
-\contentsline {chapter}{\numberline {6}Conclusion}{83}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{83}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{84}{section.6.2}%
+\contentsline {part}{I\hspace {1em}Background}{6}{part.1}%
+\contentsline {chapter}{\numberline {2}Background}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}X-ray Computed Tomography}{7}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Physical Principles}{7}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Classical Reconstruction Algorithms}{8}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}4D-CT and Dynamic Imaging}{9}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Neural Networks}{10}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Convolutional Neural Networks and Image-to-Image Architectures}{11}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Implicit Neural Representations}{12}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Neural Radiance Fields (NeRF)}{14}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Multiresolution Hash Encoding}{16}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{17}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{18}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{19}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{20}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{22}{subsection.2.5.4}%
+\contentsline {part}{II\hspace {1em}Encoder Optimisation}{23}{part.2}%
+\contentsline {chapter}{\numberline {3}Encoder Design}{25}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Theory}{25}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Capacity Parameters}{25}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Collision Rate and Encoder Dimensionality}{26}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}The Spatial-Temporal Asymmetry}{27}{subsection.3.1.3}%
+\contentsline {section}{\numberline {3.2}Experimental Setup}{28}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Collision Rate and Hashmap Size}{30}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{30}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}SingleCube}{32}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Precision and Collision Load}{33}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{34}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{34}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{36}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}HexCubes}{39}{subsection.3.4.3}%
+\contentsline {subsubsection}{MLP Decoder Depth}{39}{section*.27}%
+\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{41}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{41}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{42}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{45}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{49}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{52}{subsection.3.5.4}%
+\contentsline {chapter}{\numberline {4}Encoder Comparison}{54}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Candidate Configurations}{54}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Unified Comparison}{55}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Discussion}{60}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{60}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{60}{subsection.4.3.2}%
+\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{61}{section*.47}%
+\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{61}{section*.48}%
+\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{61}{section*.49}%
+\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{61}{subsection.4.3.3}%
+\contentsline {part}{III\hspace {1em}Continuous Scanning}{63}{part.3}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{64}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Theory}{64}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{64}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{65}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{66}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Method}{67}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{67}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{67}{subsection.5.2.2}%
+\contentsline {paragraph}{Time-efficient mode.}{68}{section*.51}%
+\contentsline {paragraph}{Memory-efficient mode.}{68}{section*.52}%
+\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{68}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{69}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Dataset}{70}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{70}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Results}{71}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{76}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Dataset}{76}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Results}{79}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{80}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{80}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{82}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Limitations}{83}{subsection.5.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{84}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{84}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{85}{section.6.2}%
 \contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{91}{appendix.A}%
 \contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{92}{appendix.B}%
