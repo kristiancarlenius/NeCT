@@ -40,14 +40,14 @@ N_SLICES = 10  # number of evenly spaced XY slices along Z
 # Counter-clockwise rotation applied to display slices only (not metrics).
 # Keys are prefixes matched against the run name.
 SLICE_ROTATION: dict[str, float] = {
-    "100_": 8,
+    "100_": 7,
     "360_": 1.6,
 }
 
 # Pixel shift applied to display slices only (not metrics): (rows_down, cols_right).
 # Negative = up/left.
 SLICE_SHIFT: dict[str, tuple[float, float]] = {
-    "100_": (5, -12),
+    "100_": (5, -16),
 }
 
 MASK_RADIUS_FRAC = 0.45
@@ -445,7 +445,7 @@ def main():
     m_range = m.max() - m.min()
     grad_norm = (g - g.min()) / g_range if g_range > 0 else np.full_like(g, 0.5)
     acc_norm  = 1.0 - ((m - m.min()) / m_range if m_range > 0 else np.full_like(m, 0.5))
-    combined  = (grad_norm + acc_norm) / 2.0
+    combined  = (grad_norm*0.4 + acc_norm*0.6)
 
     fig, ax = plt.subplots(figsize=(figw, 4), constrained_layout=True)
     bars = ax.bar(x, combined, color=bar_colours, edgecolor="white", linewidth=0.5)
