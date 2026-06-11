@@ -9,7 +9,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from scipy.ndimage import binary_erosion, rotate as nd_rotate, sobel as sobel2d, laplace as laplace2d
+from scipy.ndimage import binary_erosion, rotate as nd_rotate, shift as nd_shift, sobel as sobel2d, laplace as laplace2d
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 from nect.config import get_cfg
@@ -41,7 +41,13 @@ N_SLICES = 10  # number of evenly spaced XY slices along Z
 # Keys are prefixes matched against the run name.
 SLICE_ROTATION: dict[str, float] = {
     "100_": 8,
-    "360_": 1.3,
+    "360_": 1.6,
+}
+
+# Pixel shift applied to display slices only (not metrics): (rows_down, cols_right).
+# Negative = up/left.
+SLICE_SHIFT: dict[str, tuple[float, float]] = {
+    "100_": (3, -9),
 }
 
 MASK_RADIUS_FRAC = 0.45
@@ -236,6 +242,16 @@ def main():
         return [nd_rotate(sl, angle, reshape=False, order=1, mode="constant", cval=0.0)
                 for sl in xy_slices]
 
+    def _shift_for(name: str, xy_slices: list[np.ndarray]) -> list[np.ndarray]:
+        shift = next(
+            (s for prefix, s in SLICE_SHIFT.items() if name.startswith(prefix)),
+            None,
+        )
+        if shift is None:
+            return xy_slices
+        return [nd_shift(sl, shift, order=1, mode="constant", cval=0.0)
+                for sl in xy_slices]
+
     def compute_metrics_from_slices(
         gt_slices: list[np.ndarray], model_slices: list[np.ndarray]
     ) -> tuple[float, float, float]:
@@ -276,7 +292,7 @@ def main():
     )
     del model; torch.cuda.empty_cache()
     gt_vol, gt_xy_slices = process(gt_vol)
-    gt_xy_slices = _rotate_for(GT_NAME, gt_xy_slices)
+    gt_xy_slices = _shift_for(GT_NAME, _rotate_for(GT_NAME, gt_xy_slices))
     gt_grad, gt_lapvar = sharpness_metrics(gt_xy_slices)
     print(f"  GT sharpness — grad: {gt_grad:.4f}  lap_var: {gt_lapvar:.6f}")
 
@@ -308,7 +324,7 @@ def main():
         vol, xy_slices = process(raw)
         del raw, vol
 
-        xy_slices = _rotate_for(name, xy_slices)
+        xy_slices = _shift_for(name, _rotate_for(name, xy_slices))
         slices[name] = xy_slices
         metric_names.append(name)
         psnr, ssim, mae = compute_metrics_from_slices(gt_xy_slices, xy_slices)
