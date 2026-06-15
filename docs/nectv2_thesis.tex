@@ -727,7 +727,14 @@ Figures~\ref{fig:epoch_hashmap}, \ref{fig:time_hashmap}, and \ref{fig:vram_hashm
 
 The hashmap sweep operates entirely within the 3D QuadCubes encoder regime, where the baseline collision rate at $\log_2 T = 23$ is approximately 128 vertices per entry at the finest level, which is moderate and manageable. SingleCube extends the same encoder dimension to 4D with the same hashmap size, immediately increasing the finest-level collision rate to $N_\mathrm{max}^4 / T = 2^{17} \approx 131\,000$ vertices per entry. This is more than a thousand times the collision load of the baseline 3D encoders, and it occurs at every level that operates in the hashed regime.
 
-The SingleCube architecture consists of a single 4D multiresolution hash encoder taking $(x, y, z, t)$ as input, which is conceptually the natural extension of the static NAF model from three to four dimensions. Rather than splitting the 4D space into overlapping 3D subproblems as QuadCubes does, it asks the encoder to represent the full space-time field directly.
+The SingleCube architecture consists of a single 4D multiresolution hash encoder taking $(x, y, z, t)$ as input, which is conceptually the natural extension of the static NAF model from three to four dimensions. Rather than splitting the 4D space into overlapping 3D subproblems as QuadCubes does, it asks the encoder to represent the full space-time field directly. Figure~\ref{fig:singlecube_architecture} shows the architecture.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.70\textwidth]{arc_diagram/singlecube_arc_diagram.png}
+    \caption{The SingleCube architecture. A single 4D multiresolution hash encoder takes the full space-time coordinate $(x, y, z, t)$ as input and passes the concatenated multi-level features to a shared MLP decoder.}
+    \label{fig:singlecube_architecture}
+\end{figure}
 
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
@@ -840,6 +847,13 @@ $F = 2$ is surprisingly competitive with $F = 4$ in the epoch plot, reaching a v
 
 \subsection{HexCubes}
 \label{subsec:sexcubes}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.80\textwidth]{arc_diagram/hexcubes_arc_diagram.png}
+    \caption{The HexCubes architecture. Six 2D multiresolution hash encoders cover all six possible coordinate pairs from the four space-time dimensions. The concatenated features are decoded by a shared MLP.}
+    \label{fig:hexcubes_architecture}
+\end{figure}
 
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}
@@ -959,7 +973,16 @@ Temporal-heavy configurations tell the opposite story across both the epoch and 
 
 The non-uniform sizing experiments test the asymmetry hypothesis within the constraint that all encoders must have the same dimensionality. CombinedCubes removes that constraint and asks what the minimum viable temporal encoder is, given that temporal encoders appear to benefit from less capacity. The answer, following from the collision analysis in \cref{subsec:collision_dim_theory}, is a collision-free 2D encoder at $\log_2 T = 20$.
 
-CombinedCubes uses one 3D spatial encoder for \texttt{xyz} and three 2D temporal encoders for the space-time pairs \texttt{xt}, \texttt{yt}, and \texttt{zt}:
+CombinedCubes uses one 3D spatial encoder for \texttt{xyz} and three 2D temporal encoders for the space-time pairs \texttt{xt}, \texttt{yt}, and \texttt{zt}. Figure~\ref{fig:combinedcubes_architecture} shows the architecture.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.80\textwidth]{arc_diagram/combinedcubes_arc_diagram.png}
+    \caption{The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt{xyz} and three 2D hash encoders cover the space-time pairs \texttt{xt}, \texttt{yt}, and \texttt{zt}. Features from all four encoders are concatenated and decoded by a shared MLP.}
+    \label{fig:combinedcubes_architecture}
+\end{figure}
+
+The encoder decomposition is expressed as:
 %
 \begin{equation}
     \muhat(\mathbf{r}, t) = \mathrm{MLP}_\Phi\!\Bigl(
@@ -1027,6 +1050,13 @@ Across CombinedCubes configurations, decoder depth has a modest and inconsistent
 
 \subsection{\MixedCubes}
 \label{subsec:mixedcubes}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.80\textwidth]{arc_diagram/mixedcubes_arc_diagram.png}
+    \caption{The \MixedCubes{} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt{xyz} and three fully dense 2D grids cover the space-time pairs \texttt{xt}, \texttt{yt}, and \texttt{zt}. The dense temporal grids are collision-free by construction. Features from all four encoders are concatenated and decoded by a shared MLP.}
+    \label{fig:mixedcubes_architecture}
+\end{figure}
 
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2cm}{-2cm}

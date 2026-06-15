@@ -32,50 +32,50 @@
 \contentsline {subsection}{\numberline {3.3.3}Precision and Collision Load}{33}{subsection.3.3.3}%
 \contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{34}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{34}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{36}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}HexCubes}{39}{subsection.3.4.3}%
-\contentsline {subsubsection}{MLP Decoder Depth}{39}{section*.27}%
-\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{41}{subsection.3.4.4}%
-\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{41}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{42}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{37}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}HexCubes}{40}{subsection.3.4.3}%
+\contentsline {subsubsection}{MLP Decoder Depth}{42}{section*.29}%
+\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{42}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{43}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{43}{subsection.3.5.1}%
 \contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{45}{subsection.3.5.2}%
-\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{49}{subsection.3.5.3}%
-\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{52}{subsection.3.5.4}%
-\contentsline {chapter}{\numberline {4}Encoder Comparison}{54}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Candidate Configurations}{54}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Unified Comparison}{55}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Discussion}{60}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{60}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{60}{subsection.4.3.2}%
-\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{61}{section*.47}%
-\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{61}{section*.48}%
-\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{61}{section*.49}%
-\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{61}{subsection.4.3.3}%
-\contentsline {part}{III\hspace {1em}Continuous Scanning}{63}{part.3}%
-\contentsline {chapter}{\numberline {5}Continuous Scanning}{64}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Theory}{64}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{64}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{65}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{66}{subsection.5.1.3}%
-\contentsline {section}{\numberline {5.2}Method}{67}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{67}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{68}{subsection.5.2.2}%
-\contentsline {paragraph}{Time-efficient mode.}{68}{section*.51}%
-\contentsline {paragraph}{Memory-efficient mode.}{68}{section*.52}%
-\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{69}{subsection.5.2.3}%
-\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{70}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Dataset}{70}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{70}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Results}{71}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{76}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Dataset}{76}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Results}{79}{subsection.5.4.2}%
-\contentsline {section}{\numberline {5.5}Discussion}{80}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{80}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{82}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Limitations}{83}{subsection.5.5.3}%
-\contentsline {chapter}{\numberline {6}Conclusion}{84}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary of Contributions}{84}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitations and Future Work}{85}{section.6.2}%
-\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{91}{appendix.A}%
-\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{92}{appendix.B}%
+\contentsline {subsection}{\numberline {3.5.3}\textsc {MixedCubes}}{51}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{55}{subsection.3.5.4}%
+\contentsline {chapter}{\numberline {4}Encoder Comparison}{57}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Candidate Configurations}{57}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Unified Comparison}{58}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Discussion}{63}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{63}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{63}{subsection.4.3.2}%
+\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{64}{section*.51}%
+\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{64}{section*.52}%
+\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{64}{section*.53}%
+\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{64}{subsection.4.3.3}%
+\contentsline {part}{III\hspace {1em}Continuous Scanning}{66}{part.3}%
+\contentsline {chapter}{\numberline {5}Continuous Scanning}{67}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Theory}{67}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{67}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{68}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{69}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Method}{70}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{70}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{71}{subsection.5.2.2}%
+\contentsline {paragraph}{Time-efficient mode.}{71}{section*.55}%
+\contentsline {paragraph}{Memory-efficient mode.}{71}{section*.56}%
+\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{72}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{73}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Dataset}{73}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{73}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Results}{74}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{79}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Dataset}{79}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Results}{82}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Discussion}{83}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{83}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{85}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Limitations}{86}{subsection.5.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{87}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{87}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitations and Future Work}{88}{section.6.2}%
+\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{95}{appendix.A}%
+\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{96}{appendix.B}%

@@ -1319,6 +1319,11 @@ INPUT ./images//hashmap23_plots/hashmap23_vram_psnr.png
 INPUT images//hashmap23_plots/hashmap23_vram_psnr.png
 INPUT ./images//hashmap23_plots/hashmap23_vram_psnr.png
 INPUT ./images//hashmap23_plots/hashmap23_vram_psnr.png
+INPUT ./images//arc_diagram/singlecube_arc_diagram.png
+INPUT ./images//arc_diagram/singlecube_arc_diagram.png
+INPUT images//arc_diagram/singlecube_arc_diagram.png
+INPUT ./images//arc_diagram/singlecube_arc_diagram.png
+INPUT ./images//arc_diagram/singlecube_arc_diagram.png
 INPUT ./images//compairson.png
 INPUT ./images//compairson.png
 INPUT images//compairson.png
@@ -1360,6 +1365,11 @@ INPUT ./images//features_plots/features_vram_psnr.png
 INPUT images//features_plots/features_vram_psnr.png
 INPUT ./images//features_plots/features_vram_psnr.png
 INPUT ./images//features_plots/features_vram_psnr.png
+INPUT ./images//arc_diagram/hexcubes_arc_diagram.png
+INPUT ./images//arc_diagram/hexcubes_arc_diagram.png
+INPUT images//arc_diagram/hexcubes_arc_diagram.png
+INPUT ./images//arc_diagram/hexcubes_arc_diagram.png
+INPUT ./images//arc_diagram/hexcubes_arc_diagram.png
 INPUT ./images//compairson.png
 INPUT ./images//compairson.png
 INPUT images//compairson.png
@@ -1399,6 +1409,11 @@ INPUT ./images//psnr_arc/quadcubes_large_temporal_time_psnr.png
 INPUT images//psnr_arc/quadcubes_large_temporal_time_psnr.png
 INPUT ./images//psnr_arc/quadcubes_large_temporal_time_psnr.png
 INPUT ./images//psnr_arc/quadcubes_large_temporal_time_psnr.png
+INPUT ./images//arc_diagram/combinedcubes_arc_diagram.png
+INPUT ./images//arc_diagram/combinedcubes_arc_diagram.png
+INPUT images//arc_diagram/combinedcubes_arc_diagram.png
+INPUT ./images//arc_diagram/combinedcubes_arc_diagram.png
+INPUT ./images//arc_diagram/combinedcubes_arc_diagram.png
 INPUT ./images//combinedcube_150epoch.png
 INPUT ./images//combinedcube_150epoch.png
 INPUT images//combinedcube_150epoch.png
@@ -1425,6 +1440,11 @@ INPUT images//psnr_arc/combinedcube_time_psnr.png
 INPUT ./images//psnr_arc/combinedcube_time_psnr.png
 INPUT ./images//psnr_arc/combinedcube_time_psnr.png
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
+INPUT ./images//arc_diagram/mixedcubes_arc_diagram.png
+INPUT ./images//arc_diagram/mixedcubes_arc_diagram.png
+INPUT images//arc_diagram/mixedcubes_arc_diagram.png
+INPUT ./images//arc_diagram/mixedcubes_arc_diagram.png
+INPUT ./images//arc_diagram/mixedcubes_arc_diagram.png
 INPUT ./images//compairson.png
 INPUT ./images//compairson.png
 INPUT images//compairson.png
