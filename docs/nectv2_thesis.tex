@@ -135,7 +135,7 @@ The NeCT paper established the viability of the approach through experiments on 
 
 Because NeCT trains from scratch on every new scan, the cost of a single reconstruction is the full training cost, repeated every time a new dataset is analysed. The configuration adopted in the original paper requires approximately 45\,GB of GPU memory and approximately 40 hours of training on a single A100 GPU \citep{friis2025nect}. A researcher who needs reconstructions from ten independent imbibition experiments must therefore acquire 400 hours of high-end GPU time, with no option to amortise that cost across datasets. This restricts NeCT to facilities with access to the most expensive research-grade hardware and makes it impractical for any workflow that requires rapid feedback, such as adjusting experimental conditions mid-scan based on a preliminary reconstruction. Reducing the training time and memory footprint of NeCT is therefore not a secondary engineering concern but the primary barrier to its routine adoption in laboratory settings.
 
-This thesis builds directly on NeCT with two aims. The first is reducing the training time and memory cost of each reconstruction, and the second is extending the method to a new class of scan geometry. It investigates three questions the original paper left open. First, whether the encoder architecture is the optimal structural choice, and whether alternative designs can improve reconstruction precision or reduce model size. Second, whether the encoder configuration can be reduced in size without a proportional loss of reconstruction quality, identifying the smallest and fastest configuration that remains competitive. Third, whether the NeCT forward model can be extended to handle continuously acquired data in which the sample rotates without stopping between exposures, enabling information-denser acquisitions.
+This thesis builds directly on NeCT with three objectives, corresponding to the three questions the original paper left open. First, whether the encoder architecture is the optimal structural choice and whether alternative designs can improve reconstruction precision or reduce model size. Second, whether the encoder configuration can be reduced in size without a proportional loss of reconstruction quality, identifying the smallest and fastest configuration that remains competitive. Third, whether the NeCT forward model can be extended to handle continuously acquired data in which the sample rotates without stopping between exposures, enabling information-denser acquisitions.
 
 \section{Research Objectives}
 \label{sec:intro_objectives}
@@ -158,6 +158,8 @@ Part~\ref{part:background} develops the theoretical foundations. Part~\ref{part:
 Chapter~\ref{chap:continuous} addresses the third research objective. It explains the physical difference between step-and-shoot and continuous rotation scanning, derives the $K$-step averaged forward model, and presents experimental results on both a static validation dataset and a dynamic dataset.
 
 Chapter~\ref{chap:conclusion} summarises the contributions and findings of the thesis and identifies directions for future work.
+
+\todo{Add a high-level overview figure to the Introduction showing the two parts of the thesis (encoder optimisation and continuous scanning) and their relationship to the NeCT baseline. The figure should make the structure of contributions immediately clear to a reader scanning the chapter.}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \part{Background}
@@ -350,7 +352,7 @@ where $\mathbf{x} = (x, y, z) \in \mathbb{R}^3$ is a spatial location, $\mathbf{
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{nerf.png}
-    \caption{The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.}
+    \caption{The NeRF pipeline \citep{mildenhall2021nerf}. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.}
     \label{fig:nerf_pipeline}
 \end{figure}
 
@@ -379,7 +381,7 @@ NeRF is trained by minimising the squared photometric error between the rendered
 
 \begin{table}[h]
     \centering
-    \caption{Structural analogy between NeRF and attenuation-contrast CT.}
+    \caption{Structural analogy between NeRF \citep{mildenhall2021nerf} and attenuation-contrast CT.}
     \label{tab:nerf_ct_analogy}
     \begin{tabular}{lll}
         \toprule
@@ -398,9 +400,11 @@ NeRF is trained by minimising the squared photometric error between the rendered
 \subsection{Multiresolution Hash Encoding}
 \label{subsubsec:hash_encoding}
 
-The sinusoidal positional encoding defined in \cref{eq:sinusoidal_encoding} resolves the spectral bias problem but places all of the representational work on the MLP. Every gradient step updates every weight in the network, and convergence is slow regardless of how well the encoding lifts the input coordinates. The multiresolution hash encoding of \citet{mueller2022instant} addresses this by distributing the work between the MLP and a set of small trainable lookup tables, allowing the MLP itself to be made much smaller. The result is a speedup of several orders of magnitude over sinusoidal-encoded NeRF at equal or better reconstruction quality \citep{mueller2022instant}.
+A hash table is a data structure that maps keys to values in $\mathcal{O}(1)$ time using a hash function. Given a key $k$, the hash function $h(k)$ computes a table index, and the corresponding value is retrieved directly. When two keys map to the same index, a collision occurs. Unlike classical hash tables, which resolve collisions through chaining or probing, the multiresolution hash encoding of \citet{mueller2022instant} handles collisions implicitly during training, as described below.
 
-The encoding maintains $L$ independent levels, each corresponding to a different spatial resolution. At each level $\ell$ a grid of resolution $N_\ell$ is defined, where the resolutions grow as a geometric progression between a coarsest resolution $N_\mathrm{min}$ and a finest resolution $N_\mathrm{max}$:
+The multiresolution component extends this idea across $L$ independent spatial scales. At each level $\ell$ a regular grid covers the input domain at a different resolution, so that coarse levels capture low-frequency global structure and fine levels capture high-frequency local detail. Using multiple scales simultaneously allows the encoding to represent signals across a wide frequency range without requiring an extremely fine single-resolution grid.
+
+Combining hash tables and multiresolution grids gives the multiresolution hash encoding. The encoding maintains $L$ independent levels, each at a different spatial resolution. At coarse levels, where the grid has fewer than $T$ vertices, each vertex maps to a unique table entry (a 1:1 dense mapping). At fine levels, where the number of grid vertices exceeds $T$, the entries are indexed by a spatial hash function $h : \mathbb{Z}^d \to \mathbb{Z}_T$. The total number of trainable encoding parameters is bounded by $T \cdot L \cdot F$, where $F$ is the feature dimension per entry. The resolutions grow as a geometric progression between a coarsest resolution $N_\mathrm{min}$ and a finest resolution $N_\mathrm{max}$:
 %
 \begin{equation}
     N_\ell = \left\lfloor N_\mathrm{min} \cdot b^\ell \right\rfloor,
@@ -489,7 +493,7 @@ Because the hash table entries are updated only for the small subset of grid ver
 
 The static \NeCT{} model represents the attenuation coefficient as a continuous function of spatial coordinates only, $\muhat : \mathbb{R}^3 \to \mathbb{R}$, implemented as a hash-encoded MLP. It is architecturally derived from NAF \citep{zha2022naf} with a refined encoder configuration and training protocol.
 
-The input spatial coordinate $\mathbf{r} = (x, y, z)$ is passed through a single 3D multiresolution hash encoder. The encoder uses a hashmap with $T = 2^{23}$ entries, $L = 23$ resolution levels, a base resolution of $N_\mathrm{min} = 16$, a growth factor of $b = 2$, and $F = 4$ features per entry \citep{friis2025nect}. The MLP has 4 hidden layers each with 128 neurons and Leaky ReLU activations, with a single linear output neuron producing the scalar $\muhat(\mathbf{r})$. The finest grid resolution $N_\mathrm{max}$ is calibrated to the detector resolution of the specific CT scan so that the finest hash grid voxels correspond approximately to the physical voxel size.
+The input spatial coordinate $\mathbf{r} = (x, y, z)$ is passed through a single 3D multiresolution hash encoder (Figure~\ref{fig:static_nect}). The encoder uses a hashmap with $T = 2^{23}$ entries, $L = 23$ resolution levels, a base resolution of $N_\mathrm{min} = 16$, a growth factor of $b = 2$, and $F = 4$ features per entry \citep{friis2025nect}. The MLP has 4 hidden layers each with 128 neurons and Leaky ReLU activations, with a single linear output neuron producing the scalar $\muhat(\mathbf{r})$. The finest grid resolution $N_\mathrm{max}$ is calibrated to the detector resolution of the specific CT scan so that the finest hash grid voxels correspond approximately to the physical voxel size.
 
 NeCT was benchmarked using peak signal-to-noise ratio (PSNR) and the structural similarity index measure (SSIM) \citep{wang2004ssim} on eleven standard 3D CT datasets from the Open SciVis Datasets project \citep{klacansky2017openscivis}. PSNR is defined as:
 %
@@ -547,6 +551,8 @@ Simulations using synthetic 4D datasets generated with PoreSpy \citep{gostick201
 \subsection{Hybrid Golden-Section Sampling}
 \label{subsec:hybrid_golden}
 
+\todo{Add a figure illustrating the hybrid golden-section sampling scheme: show the sample stage, the angular positions of successive revolutions, and how the golden offset distributes projections across revolutions. A comic-strip style with one panel per revolution showing the evolving angular coverage would work well.}
+
 A practical limitation of the pure golden-angle scheme described in \cref{subsec:4dct} is that consecutive projections are separated by $137.51\degree$, requiring the sample stage to travel through a large angle between exposures. During this motor movement no projections are collected, so a significant fraction of the total scan time contributes no measurement information. The hybrid golden-section scheme, introduced by \citet{friis2025nect}, addresses this. Within each full $360\degree$ revolution a fixed number of equidistant projections are collected, but the starting angle of each revolution is offset from the previous one by the golden angle. This preserves rapid continuous rotation within each revolution while ensuring that successive revolutions are angularly offset, so that projections from different time points together cover the angular space as uniformly as possible.
 
 This scheme provides progressive angular completeness, meaning that at any point in the experiment the projections collected so far are nearly optimally distributed in angle. For the spatial encoder \texttt{xyz}, this ensures gradient updates arrive from many different projection directions simultaneously rather than from a narrow angular range. For the temporal encoders, the golden offset means each new revolution contributes projections at angles that are maximally distinct from those of all previous revolutions, allowing the model to distinguish the attenuation field at one time from the field at neighbouring times.
@@ -559,7 +565,7 @@ In the Bentheimer sandstone experiment, 1\,400 projections were distributed acro
 \label{part:encoder_optimisation}
 % ═════════════════════════════════════════════════════════════════════════════
 
-The NeCT QuadCubes architecture encodes a four-dimensional attenuation field using a set of multiresolution hash grids. In the original paper, the encoder was fixed at the largest practically feasible configuration, with neither its structural design nor its capacity optimised for training time or VRAM consumption. This part investigates both, with the goal of identifying the architecture and parameter settings that maximally reduce training time and memory footprint while preserving reconstruction quality.
+The NeCT QuadCubes architecture encodes a four-dimensional attenuation field using a set of multiresolution hash grids. In the original paper, the encoder was fixed at the largest practically feasible configuration, with neither its structural design nor its capacity optimised for training time or VRAM consumption. This part investigates both, with the goal of identifying the architecture and parameter settings that substantially reduce training time and memory footprint while preserving reconstruction quality.
 
 The investigation is structured around three governing phenomena. Hash collision rate, controlled primarily by the hashmap size and increasing with encoder dimensionality, sets the ceiling on reconstruction quality per model parameter and is the dominant driver of model size. The number of resolution levels controls the frequency range the encoder covers simultaneously and determines, primarily, how fast the model converges within a fixed wall-clock budget, since levels have a much smaller effect on memory than on per-epoch computation time. Finally, an asymmetry between the spatial and temporal roles of the four coordinates means that the optimal encoder allocates capacity unequally between the spatial and temporal components, with consequences both for how parameters are distributed within a fixed architecture and for what the right architecture is in the first place.
 
