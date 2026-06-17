@@ -2,11 +2,11 @@
 Synthetic bead continuous reconstruction experiment.
 
 Each run combines two axes:
-  --degree  angular window (1, 4, 8, 12):
+  --degree  angular window (1, 4, 8, 12, 24):
             how many consecutive projections are treated as from the same timestep,
             emulating what the scanner "sees" when it cannot resolve motion within
             that angular window. degree=1 means no mashing (original dynamic data).
-  --ac      accumulation steps (1, 2, 3, 4, 6, 8):
+  --ac      accumulation steps (1, 2, 3, 4, 6, 8, 12):
             sub-angle resolution that the reconstruction attempts within each window.
 
 Usage (called from slurm via python -m demo.synthetic_bead):
@@ -41,9 +41,9 @@ def mash_timesteps(timesteps: list, mash_n: int) -> list:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--degree", type=int, required=True, choices=[1, 4, 8, 12],
+    parser.add_argument("--degree", type=int, required=True, choices=[1, 4, 8, 12, 24],
                         help="Angular window: how many projections are merged per frame")
-    parser.add_argument("--ac", type=int, required=True, choices=[1, 2, 3, 4, 6, 8],
+    parser.add_argument("--ac", type=int, required=True, choices=[1, 2, 3, 4, 6, 8, 12],
                         help="Accumulation steps (sub-angle resolution)")
     args = parser.parse_args()
 
