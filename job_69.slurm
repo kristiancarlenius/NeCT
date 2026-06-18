@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=job_69
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_69.txt
-#SBATCH --time=75:00:00
+#SBATCH --time=15:00:00
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:a100:1
 #SBATCH --constraint="gpu80g"
@@ -18,10 +18,6 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "synthetic_bead degree=1 (no mashing) — ac 1,2,3,4,6,8"
+echo "synthetic_bead degree=1 ac=1"
 source nect_a100/bin/activate
 python -m demo.synthetic_bead --degree 1 --ac 1
-python -m demo.synthetic_bead --degree 1 --ac 2
-python -m demo.synthetic_bead --degree 1 --ac 3
-python -m demo.synthetic_bead --degree 1 --ac 4
-

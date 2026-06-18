@@ -3,8 +3,8 @@
 #SBATCH --account=share-ie-idi
 #SBATCH --mem=180GB
 #SBATCH --nodes=1
-#SBATCH --job-name=job_72
-#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_72.txt
+#SBATCH --job-name=job_75
+#SBATCH --output=/cluster/home/kristiac/NeCT/run_log_75.txt
 #SBATCH --time=15:00:00
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:a100:1
@@ -18,6 +18,6 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "synthetic_bead degree=1 ac=4"
+echo "synthetic_bead degree=4 ac=3"
 source nect_a100/bin/activate
-python -m demo.synthetic_bead --degree 1 --ac 4
+python -m demo.synthetic_bead --degree 4 --ac 3
