@@ -73,7 +73,7 @@ def main() -> None:
         mode="dynamic",
         exp_name=exp_name,
         config_override={
-            "epochs": 100,
+            "epochs": 250,
             "checkpoint_interval": 0,
             "image_interval": 0,
             "plot_type": "XZ",
@@ -84,14 +84,14 @@ def main() -> None:
             },
             "encoder": {
                 "otype": "HashGrid",
-                "n_levels": 18,
-                "n_features_per_level": 2,
+                "n_levels": 20,
+                "n_features_per_level": 4,
                 "log2_hashmap_size": 22,
                 "base_resolution": 16,
                 "max_resolution_factor": 2,
             },
             "encoder_2d": {
-                "n_levels": 11,
+                "n_levels": 12,
                 "n_features_per_level": 4,
                 "base_resolution": 16,
                 "per_level_scale": 1.5,
