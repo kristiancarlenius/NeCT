@@ -73,7 +73,7 @@ def main() -> None:
         mode="dynamic",
         exp_name=exp_name,
         config_override={
-            "epochs": "180000",
+            "epochs": 100,
             "checkpoint_interval": 0,
             "image_interval": 0,
             "plot_type": "XZ",
