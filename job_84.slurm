@@ -8,7 +8,7 @@
 #SBATCH --time=15:00:00
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:a100:1
-#SBATCH --constraint="gpu80g"
+#SBATCH --constraint="a100|gpu80g"
 #SBATCH --ntasks-per-node=4
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
