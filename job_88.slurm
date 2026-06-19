@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=job_88
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_88.txt
-#SBATCH --time=15:00:00
+#SBATCH --time=25:00:00
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:a100:1
 #SBATCH --constraint="a100|gpu80g"
