@@ -95,9 +95,9 @@ class ContinousScanningTrainerBatch(ContinousScanningTrainer):
                     for p0 in range(0, all_points.size(0), points_per_batch):
                         chunk = all_points[p0:p0 + points_per_batch]
                         if self.config.mode == "dynamic":
-                            atten_hat = self.model(chunk, float(timestep)).squeeze(0)
+                            atten_hat = self.model(chunk, float(timestep))
                         else:
-                            atten_hat = self.model(chunk).squeeze(0)
+                            atten_hat = self.model(chunk)
                         atten_hats.append(atten_hat)
                     all_atten_hat = torch.cat(atten_hats)
 
