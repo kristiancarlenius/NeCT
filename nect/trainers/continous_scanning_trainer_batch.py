@@ -7,7 +7,6 @@ from typing import cast
 
 import numpy as np
 import torch
-import torch.utils.checkpoint as cp
 import torch.utils.data
 from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlInit
 
@@ -17,17 +16,19 @@ from nect.trainers.continous_scanning_trainer import ContinousScanningTrainer
 
 class ContinousScanningTrainerBatch(ContinousScanningTrainer):
     """
-    Continuous scanning trainer that collects all sub-angle points upfront,
-    runs a single batched forward pass over all of them, then does a single backward.
+    Continuous scanning trainer using the 2-pass gradient approach.
 
-    Compared to ContinousScanningTrainerMem:
-    - Same number of forward passes (N) and backwards (1)
-    - One large matrix multiply instead of N small ones → better GPU utilisation
-    - Graph memory is the same order (total activations = N × points_per_sub_angle)
+    Pass 1 (no_grad): run all sub-angles to accumulate y_pred/y_target and compute
+    dL/dy_pred.  Only one sub-angle's activations are live at a time, so peak GPU
+    memory is O(1) w.r.t. accumulation_steps instead of O(ac) for a single big batch.
 
-    Compared to ContinousScanningTrainer (2-pass):
-    - Half the forward passes (N vs 2N), far fewer backwards (1 vs N)
-    - Higher peak memory (all activations in one graph vs one sub-angle at a time)
+    Pass 2 (with grad): replay each sub-angle using cached projector outputs and
+    backprop with the pre-computed gradient signal via fabric.backward((contrib *
+    grad_y_pred).sum()).  Gradients accumulate across sub-angles before optim.step().
+
+    Compared to ContinousScanningTrainer:
+    - Same number of forward/backward passes
+    - Distances are cloned so projector mutation between sub-angles is safe
     """
 
     def fit(self):
@@ -62,73 +63,64 @@ class ContinousScanningTrainerBatch(ContinousScanningTrainer):
                     end_linspace = np.linspace(float(angle_start.detach().cpu()), float(angle_stop.detach().cpu()), self.config.accumulation_steps + 1, endpoint=True)
                     linspace = [(end_linspace[k] + end_linspace[k + 1]) / 2 for k in range(self.config.accumulation_steps)]
                     points_per_batch = 5000000
-
-                    # Phase 1: collect points and metadata for all sub-angles without model calls.
-                    # distances must be cloned since projector state is mutated each update_angle.
-                    collected = []
-                    for ang in linspace:
-                        self.projector.update_angle(ang)
-                        points, y = self.projector(batch_num=batch_num, proj=self.proj)
-                        if points is None or y is None:
-                            collected.append(None)
-                            continue
-                        zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
-                        points_shape = points.size()
-                        if points_shape[1] == 0:
-                            self.logger.warning("No points in the batch")
-                            collected.append(None)
-                            continue
-                        points_filtered = points.view(-1, 3)[~zero_points_mask]
-                        if points_filtered.size(0) == 0:
-                            collected.append(None)
-                            continue
-                        collected.append((points_filtered, zero_points_mask, points_shape, self.projector.distances.clone(), y))
-
-                    valid = [(idx, c) for idx, c in enumerate(collected) if c is not None]
-                    if not valid:
-                        continue
-
-                    # Phase 2: single batched forward pass over all sub-angle points.
-                    all_points = torch.cat([c[0] for _, c in valid])
-                    split_sizes = [c[0].size(0) for _, c in valid]
-
-                    atten_hats = []
                     ts = float(timestep)
-                    for p0 in range(0, all_points.size(0), points_per_batch):
-                        chunk = all_points[p0:p0 + points_per_batch]
-                        if self.config.mode == "dynamic":
-                            atten_hat = cp.checkpoint(lambda x, _ts=ts: self.model(x, _ts), chunk, use_reentrant=True)
-                        else:
-                            atten_hat = cp.checkpoint(self.model, chunk, use_reentrant=True)
-                        atten_hats.append(atten_hat)
-                    all_atten_hat = torch.cat(atten_hats)
 
-                    # Phase 3: split outputs back per sub-angle and accumulate y_pred / y_target.
-                    split_outputs = torch.split(all_atten_hat, split_sizes)
+                    # Phase 1: accumulate y_pred and y_target without computation graphs.
+                    # Cache (points_filtered, zero_points_mask, points_shape, distances) for Phase 2.
+                    # Distances are cloned because projector.distances is mutated each update_angle().
+                    collected = []
                     y_pred = None
                     y_target = None
+                    with torch.no_grad():
+                        for ang in linspace:
+                            self.projector.update_angle(ang)
+                            points, y = self.projector(batch_num=batch_num, proj=self.proj)
+                            if points is None or y is None:
+                                collected.append(None)
+                                continue
+                            zero_points_mask = torch.all(points.view(-1, 3) == 0, dim=-1)
+                            points_shape = points.size()
+                            if points_shape[1] == 0:
+                                self.logger.warning("No points in the batch")
+                                collected.append(None)
+                                continue
+                            points_filtered = points.view(-1, 3)[~zero_points_mask]
+                            if points_filtered.size(0) == 0:
+                                collected.append(None)
+                                continue
+                            distances = self.projector.distances.clone()
+                            collected.append((points_filtered, zero_points_mask, points_shape, distances))
 
-                    for (_, cached), atten_hat_sub in zip(valid, split_outputs):
-                        points_filtered, zero_points_mask, points_shape, distances, y = cached
-                        processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device).view(-1, 1)
-                        processed_tensor[~zero_points_mask] = atten_hat_sub
-                        atten_hat_grid = processed_tensor.view(points_shape[0], points_shape[1])
-                        contrib = torch.sum(atten_hat_grid, dim=1) * (distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+                            atten_hats = []
+                            for p0 in range(0, points_filtered.size(0), points_per_batch):
+                                chunk = points_filtered[p0:p0 + points_per_batch]
+                                if self.config.mode == "dynamic":
+                                    atten_hats.append(self.model(chunk, ts))
+                                else:
+                                    atten_hats.append(self.model(chunk))
+                            atten_hat = torch.cat(atten_hats)
 
-                        if y_pred is None:
-                            y_pred = contrib
-                            y_target = y / self.config.accumulation_steps
-                        else:
-                            y_pred = y_pred + contrib
-                            y_target = y_target + y / self.config.accumulation_steps
+                            processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device).view(-1, 1)
+                            processed_tensor[~zero_points_mask] = atten_hat
+                            atten_hat_grid = processed_tensor.view(points_shape[0], points_shape[1])
+                            contrib = torch.sum(atten_hat_grid, dim=1) * (distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+
+                            if y_pred is None:
+                                y_pred = contrib
+                                y_target = y / self.config.accumulation_steps
+                            else:
+                                y_pred = y_pred + contrib
+                                y_target = y_target + y / self.config.accumulation_steps
 
                     if y_pred is None or y_target is None:
                         continue
 
+                    # Treat y_pred as a leaf to compute dL/dy_pred without touching model params.
+                    y_pred_leaf = y_pred.requires_grad_(True)
                     if self.config.add_poisson:
-                        y_pred_for_loss = (y_pred + torch.poisson(y_pred.detach() * 1e5) / 1e5) / 2
+                        y_pred_for_loss = (y_pred_leaf + torch.poisson(y_pred_leaf.detach() * 1e5) / 1e5) / 2
                     else:
-                        y_pred_for_loss = y_pred
+                        y_pred_for_loss = y_pred_leaf
 
                     if self.config.s3im and self.current_projection > self.config.warmup.steps:
                         loss = 0
@@ -139,7 +131,30 @@ class ContinousScanningTrainerBatch(ContinousScanningTrainer):
                     else:
                         loss = self.loss_fn(y_pred_for_loss, y_target)
 
-                    self.fabric.backward(loss)
+                    loss.backward()
+                    grad_y_pred = y_pred_leaf.grad.detach()
+
+                    # Phase 2: replay each sub-angle using cached projector outputs.
+                    # Only one computation graph is alive at a time → O(1) peak memory w.r.t. ac.
+                    for cached in collected:
+                        if cached is None:
+                            continue
+                        points_filtered, zero_points_mask, points_shape, distances = cached
+                        atten_hats = []
+                        for p0 in range(0, points_filtered.size(0), points_per_batch):
+                            chunk = points_filtered[p0:p0 + points_per_batch]
+                            if self.config.mode == "dynamic":
+                                atten_hats.append(self.model(chunk, ts))
+                            else:
+                                atten_hats.append(self.model(chunk))
+                        atten_hat = torch.cat(atten_hats)
+
+                        processed_tensor = torch.zeros((points_shape[0], points_shape[1], 1), dtype=torch.float32, device=self.fabric.device).view(-1, 1)
+                        processed_tensor[~zero_points_mask] = atten_hat
+                        atten_hat_grid = processed_tensor.view(points_shape[0], points_shape[1])
+                        contrib = torch.sum(atten_hat_grid, dim=1) * (distances / self.geometry.max_distance_traveled) / self.config.accumulation_steps
+
+                        self.fabric.backward((contrib * grad_y_pred).sum())
 
                     self.fabric.log_dict(
                         {
