@@ -7,6 +7,7 @@ from typing import cast
 
 import numpy as np
 import torch
+import torch.utils.checkpoint as cp
 import torch.utils.data
 from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlInit
 
@@ -92,12 +93,13 @@ class ContinousScanningTrainerBatch(ContinousScanningTrainer):
                     split_sizes = [c[0].size(0) for _, c in valid]
 
                     atten_hats = []
+                    ts = float(timestep)
                     for p0 in range(0, all_points.size(0), points_per_batch):
                         chunk = all_points[p0:p0 + points_per_batch]
                         if self.config.mode == "dynamic":
-                            atten_hat = self.model(chunk, float(timestep))
+                            atten_hat = cp.checkpoint(lambda x, _ts=ts: self.model(x, _ts), chunk, use_reentrant=True)
                         else:
-                            atten_hat = self.model(chunk)
+                            atten_hat = cp.checkpoint(self.model, chunk, use_reentrant=True)
                         atten_hats.append(atten_hat)
                     all_atten_hat = torch.cat(atten_hats)
 
