@@ -1,16 +1,16 @@
 # Fdb version 3
-["bibtex nectv2_thesis"] 1782159513 "nectv2_thesis.aux" "nectv2_thesis.bbl" "nectv2_thesis" 1782161966
+["bibtex nectv2_thesis"] 1782162458 "nectv2_thesis.aux" "nectv2_thesis.bbl" "nectv2_thesis" 1782162503
   "/usr/share/texlive/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "nectv2_thesis.aux" 1782161965 81394 868ade9005150c1ff7b63fec0f4435f6 "pdflatex"
+  "nectv2_thesis.aux" 1782162503 81814 40a50705f3ebe403859da280ecb0eee4 "pdflatex"
   "references.bib" 1781106729 16892 0ed518d0d34dfcaac89bcb17f5700493 ""
   (generated)
   "nectv2_thesis.bbl"
   "nectv2_thesis.blg"
-["pdflatex"] 1782161963 "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" "nectv2_thesis.pdf" "nectv2_thesis" 1782161966
+["pdflatex"] 1782162501 "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" "nectv2_thesis.pdf" "nectv2_thesis" 1782162503
   "/etc/texmf/web2c/texmf.cnf" 1774852620 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/user/.texlive2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1775314457 4379193 d3ec2c2f0cda6fae3aba5b46e03b26ba ""
   "/home/user/.texlive2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1775314013 1405646 30759ac9d2d05d038c966fe66344f7af ""
-  "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" 1782161963 206776 beb61a28b3bdca871e8551ee0e01b7fd ""
+  "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" 1782162500 207026 d3252640e213d51898782763bc3ae501 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1200.tfm" 1136768653 3584 f80ddd985bd00e29e9a6047ebd9d4781 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -313,7 +313,9 @@
   "images//features_plots/features_time_psnr.png" 1777697786 92590 42efedf11c5580e97a15de8c1d68ac0f ""
   "images//features_plots/features_vram_psnr.png" 1777697786 57734 506516a127c24bb182906785a54420c3 ""
   "images//fig_golden_section.pdf" 1782159198 36883 7469ec15221b282453b48a5700668014 ""
-  "images//fig_three_phenomena.pdf" 1782161901 47090 f269ef7e1d249461697312ad2135aae1 ""
+  "images//fig_phenomena_A.pdf" 1782162437 22613 9544b7bd4bc88c6b6b9a486c02fc643d ""
+  "images//fig_phenomena_B.pdf" 1782162437 28689 62b58ec1eee07d54e38a73aadaadd98d ""
+  "images//fig_phenomena_C.pdf" 1782162437 28814 09abc140892cc59d1bb81fb172e1bfae ""
   "images//hashmap23_plots/hashmap23_epoch_psnr.png" 1777693222 115678 e50cde8986c26314c2acc8a1d415ff2f ""
   "images//hashmap23_plots/hashmap23_time_psnr.png" 1777693222 97233 db98ad69bf3a9646941a0f36eb6c3304 ""
   "images//hashmap23_plots/hashmap23_vram_psnr.png" 1777693222 62422 5e84a3c063f5b39598cd0677f66e339b ""
@@ -351,13 +353,13 @@
   "images//singlecube.png" 1778524958 183392 ee8de56d2f715f5f4426130b2d324edb ""
   "images//static_nect.png" 1775915744 20117 ec06d49e0f77b79fb0cf4d4e6a0a8f3c ""
   "images//thesis_overview.pdf" 1782159194 42133 e015ec86089a122a5ff0eaefef6b2d93 ""
-  "nectv2_thesis.aux" 1782161965 81394 868ade9005150c1ff7b63fec0f4435f6 "pdflatex"
-  "nectv2_thesis.bbl" 1782159513 12193 7d7cc452d84a795461fe4b86b2baee28 "bibtex nectv2_thesis"
-  "nectv2_thesis.lof" 1782161965 18941 b2e1d4481476c5a8f1080e56fdc44689 "pdflatex"
-  "nectv2_thesis.lot" 1782161965 2263 6bc4c690ed701fd10946a1327be83321 "pdflatex"
-  "nectv2_thesis.out" 1782161965 13373 b4a061998d66d66b71821217426a032f "pdflatex"
-  "nectv2_thesis.tex" 1782161963 206776 beb61a28b3bdca871e8551ee0e01b7fd ""
-  "nectv2_thesis.toc" 1782161965 7128 10a2756c65f5e2f214a0b3eafbef3c79 "pdflatex"
+  "nectv2_thesis.aux" 1782162503 81814 40a50705f3ebe403859da280ecb0eee4 "pdflatex"
+  "nectv2_thesis.bbl" 1782162458 12193 7d7cc452d84a795461fe4b86b2baee28 "bibtex nectv2_thesis"
+  "nectv2_thesis.lof" 1782162503 19048 cd47106925c62527fb08c9da795db638 "pdflatex"
+  "nectv2_thesis.lot" 1782162503 2263 7e0eb1695c5a198dd5904710bf570370 "pdflatex"
+  "nectv2_thesis.out" 1782162503 13373 b4a061998d66d66b71821217426a032f "pdflatex"
+  "nectv2_thesis.tex" 1782162500 207026 d3252640e213d51898782763bc3ae501 ""
+  "nectv2_thesis.toc" 1782162503 7129 fe0f082d87407e75857985006364a4ee "pdflatex"
   (generated)
   "nectv2_thesis.aux"
   "nectv2_thesis.lof"

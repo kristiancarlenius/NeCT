@@ -584,9 +584,21 @@ Second, we vary the number of resolution levels, which controls the frequency ra
 Third, we study asymmetric NeCT architectures that reflect the different roles of the spatial and temporal coordinates. An asymmetry between the spatial and temporal components means that the best encoder allocates capacity unequally, with consequences both for how parameters are distributed within a fixed architecture and for what the right architecture is in the first place.
 
 \begin{figure}[htbp]
-    \hspace*{-2.5cm}\includegraphics[width=1.0\textwidth]{fig_three_phenomena.pdf}
-    \caption{The three governing phenomena of hash-encoded neural CT. \textbf{(A) Hash collision rate:} multiple feature-grid vertices mapping to the same hash-table cell corrupt each other's gradients. Low dimensionality ($d=2$) with a large table ($T=2^{20}$) yields near collision-free encoding; raising the input dimension to $d=3$ with the same $T$ produces $2^{10}$ collisions per cell on average. \textbf{(B) Frequency coverage:} each resolution level captures a distinct spatial frequency band. Increasing the number of levels from $L=4$ to $L=8$ extends coverage to finer detail (visible in the reconstruction thumbnails) at the cost of slower training. \textbf{(C) Spatial-temporal asymmetry:} the QuadCubes baseline allocates equal capacity to all four 3-D sub-encoders (\texttt{xyz}, \texttt{xyt}, \texttt{xzt}, \texttt{yzt}). CombinedCubes instead devotes a large, high-resolution hash grid to the static spatial encoder \texttt{xyz} (which must resolve sharp pore boundaries) and smaller grids to the three temporal encoders (which need only track the slowly evolving fluid front).}
-    \label{fig:three_phenomena}
+    \hspace*{-2cm}\includegraphics[width=1.3\textwidth]{fig_phenomena_A.pdf}
+    \caption{\textbf{Hash collision rate.} Multiple feature-grid vertices mapping to the same hash-table cell corrupt each other's gradients. Low dimensionality ($d=2$) with a large table ($T=2^{20}$) yields near collision-free encoding; raising the input dimension to $d=3$ with the same $T$ produces $2^{10}$ collisions per cell on average.}
+    \label{fig:phenomena_collision}
+\end{figure}
+
+\begin{figure}[htbp]
+    \hspace*{-2.5cm}\includegraphics[width=1.3\textwidth]{fig_phenomena_B.pdf}
+    \caption{\textbf{Frequency coverage.} Each resolution level captures a distinct spatial frequency band. Increasing the number of levels from $L=4$ to $L=8$ extends coverage to finer detail (visible in the reconstruction thumbnails) at the cost of slower training.}
+    \label{fig:phenomena_freq}
+\end{figure}
+
+\begin{figure}[htbp]
+    \hspace*{-2cm}\includegraphics[width=1.3\textwidth]{fig_phenomena_C.pdf}
+    \caption{\textbf{Spatial-temporal asymmetry.} The QuadCubes baseline allocates equal capacity to all four 3-D sub-encoders (\texttt{xyz}, \texttt{xyt}, \texttt{xzt}, \texttt{yzt}). CombinedCubes instead devotes a large, high-resolution hash grid to the static spatial encoder \texttt{xyz} (which must resolve sharp pore boundaries) and smaller grids to the three temporal encoders (which need only track the slowly evolving fluid front).}
+    \label{fig:phenomena_asymmetry}
 \end{figure}
 
 Chapter~\ref{chap:encoder_design} works through these phenomena in sequence. For each, the chapter first characterises it quantitatively through a systematic parameter sweep within the NeCT QuadCubes architecture, then examines an alternative architecture that either pushes the phenomenon to a catastrophic extreme, exposing the cost of getting it wrong, or resolves it in a principled way. Hashmap size and collision rate are paired with SingleCube. Level count and coordinate coupling are paired with the HexCubes family. The spatial-temporal capacity asymmetry is paired with CombinedCubes. Chapter~\ref{chap:encoder_comparison} places all findings into a head-to-head comparison against the QuadCubes baseline.
