@@ -217,9 +217,12 @@ def generate_for_step(delta_deg: int, n_total_osc: int) -> None:
     n_proj      = n_per_rot * N_ROTATIONS
     timesteps   = np.linspace(0.0, 1.0, n_proj, dtype=np.float32)
 
-    # Angles at the START of each projection's interval (sequential, wrapping each rotation)
+    # Angles at the START of each projection's interval (monotonically increasing).
+    # Must NOT wrap modulo 2π: the trainer infers the interval as
+    # angles[i+1] - angles[i], so a wrap-around (0 - ~2π ≈ -2π) would corrupt
+    # the K-step sub-angles at every rotation boundary.
     angles = np.array(
-        [(i % n_per_rot) * delta_rad for i in range(n_proj)],
+        [i * delta_rad for i in range(n_proj)],
         dtype=np.float64,
     )
 
