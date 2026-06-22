@@ -2,7 +2,7 @@
 """
 Generate Figure 3: Three governing phenomena.
 
-Three side-by-side schematic panels:
+Three vertically stacked panels:
   A  Hash Collision Rate
   B  Frequency Coverage
   C  Spatial-Temporal Asymmetry
@@ -36,10 +36,10 @@ BG       = "#F7F8FA"
 WHITE    = "#FFFFFF"
 
 # ── Figure / GridSpec ─────────────────────────────────────────────────────────
-fig = plt.figure(figsize=(18, 8.5), facecolor=BG)
-gs  = GridSpec(1, 3, left=0.02, right=0.99, bottom=0.03, top=0.91,
-               wspace=0.06, figure=fig)
-axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
+fig = plt.figure(figsize=(12, 24), facecolor=BG)
+gs  = GridSpec(3, 1, left=0.02, right=0.99, bottom=0.01, top=0.97,
+               hspace=0.0, figure=fig)
+axes = [fig.add_subplot(gs[i, 0]) for i in range(3)]
 
 for ax in axes:
     ax.set_xlim(0, 10)
@@ -51,8 +51,7 @@ for ax in axes:
                             facecolor=WHITE, edgecolor="#D5DBDB",
                             linewidth=1.2, zorder=0, clip_on=False))
 
-fig.suptitle("Three governing phenomena of hash-encoded neural CT",
-             fontsize=13, fontweight="bold", color=NAVY, y=0.97)
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

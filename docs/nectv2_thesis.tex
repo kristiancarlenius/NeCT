@@ -159,7 +159,11 @@ Chapter~\ref{chap:continuous} addresses the third research objective. It explain
 
 Chapter~\ref{chap:conclusion} summarises the contributions and findings of the thesis and identifies directions for future work.
 
-\todo{Add a high-level overview figure to the Introduction showing the two parts of the thesis (encoder optimisation and continuous scanning) and their relationship to the NeCT baseline. The figure should make the structure of contributions immediately clear to a reader scanning the chapter.}
+\begin{figure}[htbp]
+    \hspace*{-2.5cm}\includegraphics[width=1.4\textwidth]{thesis_overview.pdf}
+    \caption{Overview of the two contributions of this thesis. NeCT QuadCubes serves as the shared baseline. Part~I (Encoder Optimisation) reduces peak VRAM by 60\% and improves reconstruction quality by 1.84\,dB through architecture search, culminating in MixedCubes. Part~II (Continuous Scanning) extends the NeCT forward model to handle angular-integration blur arising from fly-scan acquisition.}
+    \label{fig:thesis_overview}
+\end{figure}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \part{Background}
@@ -551,7 +555,11 @@ Simulations using synthetic 4D datasets generated with PoreSpy \citep{gostick201
 \subsection{Hybrid Golden-Section Sampling}
 \label{subsec:hybrid_golden}
 
-\todo{Add a figure illustrating the hybrid golden-section sampling scheme: show the sample stage, the angular positions of successive revolutions, and how the golden offset distributes projections across revolutions. A comic-strip style with one panel per revolution showing the evolving angular coverage would work well.}
+\begin{figure}[htbp]
+    \hspace*{-2cm}\includegraphics[width=1.3\textwidth]{fig_golden_section.pdf}
+    \caption{Hybrid golden-section angle sampling across three revolutions. Each panel shows a top-down view of one full $360\degree$ revolution; dots mark projection angles. Revolution~1 places 10 equidistant projections at $0\degree, 36\degree, \ldots, 324\degree$. Each subsequent revolution starts at an additional golden-angle offset ($\varphi_0 \approx 137.5\degree$), so new projections land between existing ones. The combined 30-projection set (rightmost panel) achieves near-uniform angular coverage. The timing strip (top) contrasts step-and-shoot acquisition, which wastes time on motor settling between exposures, with continuous-scan acquisition, which devotes the full revolution time to exposure.}
+    \label{fig:golden_section}
+\end{figure}
 
 A practical limitation of the pure golden-angle scheme described in \cref{subsec:4dct} is that consecutive projections are separated by $137.51\degree$, requiring the sample stage to travel through a large angle between exposures. During this motor movement no projections are collected, so a significant fraction of the total scan time contributes no measurement information. The hybrid golden-section scheme, introduced by \citet{friis2025nect}, addresses this. Within each full $360\degree$ revolution a fixed number of equidistant projections are collected, but the starting angle of each revolution is offset from the previous one by the golden angle. This preserves rapid continuous rotation within each revolution while ensuring that successive revolutions are angularly offset, so that projections from different time points together cover the angular space as uniformly as possible.
 
@@ -575,7 +583,11 @@ Second, we vary the number of resolution levels, which controls the frequency ra
 
 Third, we study asymmetric NeCT architectures that reflect the different roles of the spatial and temporal coordinates. An asymmetry between the spatial and temporal components means that the best encoder allocates capacity unequally, with consequences both for how parameters are distributed within a fixed architecture and for what the right architecture is in the first place.
 
-\todo{Add a figure here illustrating the three governing phenomena: collision rate, frequency coverage, and spatial-temporal asymmetry. Each panel should show the key variable being manipulated and its effect on the encoder.}
+\begin{figure}[htbp]
+    \hspace*{-2.5cm}\includegraphics[width=1.0\textwidth]{fig_three_phenomena.pdf}
+    \caption{The three governing phenomena of hash-encoded neural CT. \textbf{(A) Hash collision rate:} multiple feature-grid vertices mapping to the same hash-table cell corrupt each other's gradients. Low dimensionality ($d=2$) with a large table ($T=2^{20}$) yields near collision-free encoding; raising the input dimension to $d=3$ with the same $T$ produces $2^{10}$ collisions per cell on average. \textbf{(B) Frequency coverage:} each resolution level captures a distinct spatial frequency band. Increasing the number of levels from $L=4$ to $L=8$ extends coverage to finer detail (visible in the reconstruction thumbnails) at the cost of slower training. \textbf{(C) Spatial-temporal asymmetry:} the QuadCubes baseline allocates equal capacity to all four 3-D sub-encoders (\texttt{xyz}, \texttt{xyt}, \texttt{xzt}, \texttt{yzt}). CombinedCubes instead devotes a large, high-resolution hash grid to the static spatial encoder \texttt{xyz} (which must resolve sharp pore boundaries) and smaller grids to the three temporal encoders (which need only track the slowly evolving fluid front).}
+    \label{fig:three_phenomena}
+\end{figure}
 
 Chapter~\ref{chap:encoder_design} works through these phenomena in sequence. For each, the chapter first characterises it quantitatively through a systematic parameter sweep within the NeCT QuadCubes architecture, then examines an alternative architecture that either pushes the phenomenon to a catastrophic extreme, exposing the cost of getting it wrong, or resolves it in a principled way. Hashmap size and collision rate are paired with SingleCube. Level count and coordinate coupling are paired with the HexCubes family. The spatial-temporal capacity asymmetry is paired with CombinedCubes. Chapter~\ref{chap:encoder_comparison} places all findings into a head-to-head comparison against the QuadCubes baseline.
 
