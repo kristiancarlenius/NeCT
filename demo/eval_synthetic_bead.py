@@ -114,6 +114,7 @@ def load_trainer(config_path: Path, ckpt_path: Path):
         output_directory=None,   # no output; no checkpoint saving
         save_ckpt=False,
         save_last=False,
+        log=False,
         verbose=False,
     )
 

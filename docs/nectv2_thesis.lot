@@ -3,7 +3,7 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF \citep {mildenhall2021nerf} and attenuation-contrast CT.\relax }}{15}{table.caption.7}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }}{30}{table.caption.15}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }}{31}{table.caption.15}%
 \contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes. Peak training VRAM is listed for each configuration.\relax }}{44}{table.caption.30}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {4.1}{\ignorespaces Comparison of the QuadCubes baseline against spatial-heavy QuadCubes, CombinedCubes, and \textsc {MixedCubes}{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset. \leavevmode {\color {red}\textbf {[TODO: Should use more than one dataset.]}}\relax }}{59}{table.caption.44}%
