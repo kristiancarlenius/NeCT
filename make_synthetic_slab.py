@@ -60,7 +60,7 @@ from nect.sampling.geometry import Geometry
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-OUT_DIR = Path("dataset/synthetic_slab")
+OUT_DIR = Path("Datasets/synthetic_slab")
 
 ANGULAR_STEPS_DEG = [4, 8, 12, 24]   # degrees per projection (continuous-scan interval)
 N_ROTATIONS       = 3                  # full rotations per acquisition

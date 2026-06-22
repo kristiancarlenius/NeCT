@@ -66,7 +66,7 @@ from nect.sampling.geometry import Geometry
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-OUT_DIR = Path("dataset/synthetic_bead_ga")
+OUT_DIR = Path("Datasets/synthetic_bead_ga")
 
 N_ROTATIONS    = 5      # full gantry rotations
 N_PER_ROTATION = 360    # projections per rotation (1 per degree)
