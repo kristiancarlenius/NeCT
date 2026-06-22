@@ -18,6 +18,6 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "synthetic_bead degree=8 ac=6"
+echo "synthetic_slab degree=8 ac=6"
 source nect_a100/bin/activate
-python -m demo.synthetic_bead --degree 8 --ac 6
+python -m demo.synthetic_slab --degree 8 --ac 6
