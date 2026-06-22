@@ -16,7 +16,4 @@ echo "The job ID is $SLURM_JOB_ID"
 echo "The job was run on these nodes: $SLURM_JOB_NODELIST"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 source nect_a100/bin/activate
-python -m demo.eval_synthetic_bead \
-    --outputs-dir /cluster/home/kristiac/NeCT/outputs \
-    --gt-dir /cluster/home/kristiac/NeCT/Datasets/synthetic_bead_ga \
-    --out-dir /cluster/home/kristiac/NeCT/results/synthetic_bead_eval
+python -m demo.eval_synthetic_bead --outputs-dir /cluster/home/kristiac/NeCT/outputs --gt-dir /cluster/home/kristiac/NeCT/Datasets/synthetic_bead_ga --out-dir /cluster/home/kristiac/NeCT/results/synthetic_bead_eval
