@@ -1,7 +1,7 @@
 from pathlib import Path
 import nect
 
-data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer/"
+data_path = "/cluster/home/kristiac/NeCT/Datasets/bentheimer_extra/part_1/"
 
 geometry_file = Path(data_path) / "geometry.yaml"
 geometry = nect.Geometry.from_yaml(geometry_file)
@@ -26,12 +26,12 @@ reconstruction_path_dynamic, _ = nect.reconstruct(
             "otype": "HashGrid",
             "n_levels": 24,
             "n_features_per_level": 2,
-            "log2_hashmap_size": 23,
+            "log2_hashmap_size": 24,
             "base_resolution": 16,
             "max_resolution_factor": 2,
         },
         "encoder_2d": {
-            "n_levels": 10,
+            "n_levels": 12,
             "n_features_per_level": 4,
             "base_resolution": 16,
             "per_level_scale": 1.5,
