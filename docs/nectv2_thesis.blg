@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: nectv2_thesis.aux
 The style file: plainnat.bst
 Database file #1: references.bib
-You've used 35 entries,
+You've used 34 entries,
             2773 wiz_defined-function locations,
-            824 strings with 12385 characters,
-and the built_in function-call counts, 19782 in all, are:
-= -- 1826
-> -- 1163
-< -- 29
-+ -- 392
-- -- 357
-* -- 1641
-:= -- 2949
-add.period$ -- 129
-call.type$ -- 35
-change.case$ -- 218
-chr.to.int$ -- 35
-cite$ -- 70
-duplicate$ -- 857
-empty$ -- 1548
-format.name$ -- 409
-if$ -- 4217
+            820 strings with 12261 characters,
+and the built_in function-call counts, 19184 in all, are:
+= -- 1766
+> -- 1143
+< -- 27
++ -- 385
+- -- 351
+* -- 1607
+:= -- 2872
+add.period$ -- 126
+call.type$ -- 34
+change.case$ -- 214
+chr.to.int$ -- 34
+cite$ -- 68
+duplicate$ -- 823
+empty$ -- 1492
+format.name$ -- 401
+if$ -- 4076
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 35
-newline$ -- 206
-num.names$ -- 140
-pop$ -- 417
+missing$ -- 34
+newline$ -- 201
+num.names$ -- 136
+pop$ -- 405
 preamble$ -- 1
-purify$ -- 184
+purify$ -- 181
 quote$ -- 0
-skip$ -- 715
+skip$ -- 684
 stack$ -- 0
-substring$ -- 970
-swap$ -- 158
-text.length$ -- 14
+substring$ -- 928
+swap$ -- 145
+text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 380
+type$ -- 369
 warning$ -- 0
-while$ -- 175
+while$ -- 169
 width$ -- 0
-write$ -- 510
+write$ -- 497
