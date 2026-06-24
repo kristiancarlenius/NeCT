@@ -1,14 +1,14 @@
 #!/bin/sh
 #SBATCH --partition=GPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
 #SBATCH --account=share-ie-idi # READ THIS TO FIND YOUR ACCOUNT: https://www.hpc.ntnu.no/idun/getting-started-on-idun/accounting/
-#SBATCH --mem=80GB # Total memory you need. Most DL jobs should do fine with 64GB.
+#SBATCH --mem=200GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=job_57 # Set this to whatever you want
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_57.txt # The output file. 
 #SBATCH --time=60:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:a100:1
-#SBATCH --constraint="a100|gpu80g"
+#SBATCH --constraint="gpu80g"
 #SBATCH --ntasks-per-node=4 #CPU cores
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
@@ -18,6 +18,6 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-echo "mixedcubes n_levels=25"
+echo "mixedcubes "
 source nect_a100/bin/activate
 python -m demo.57_mixedcubes
