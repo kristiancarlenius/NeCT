@@ -1002,6 +1002,35 @@ A particularly striking result is that the smaller spatial-heavy configuration (
 
 Temporal-heavy configurations tell the opposite story across both the epoch and the time plots. Despite consuming 34--37\,GB, the two temporal-heavy variants plateau well below the uniform baseline and show no sign of closing the gap with additional training. At 24\,h the larger temporal-heavy config (36.5\,GB) reaches only 34.46\,dB and the smaller (34.4\,GB) reaches 31.68\,dB. The epoch curves diverge early and maintain a stable offset, ruling out the possibility that the temporal-heavy models simply need more time. The quality deficit is structural. Additional hashmap capacity in the temporal encoders cannot represent spatial information the 2D temporal planes do not encode, and the MLP cannot recover spatial precision that the encoders never captured. Hashmap capacity allocated to the temporal encoders returns less quality per byte than the same capacity allocated to the spatial encoder, and increasing temporal capacity beyond the baseline allocation reduces reconstruction quality.
 
+Figures~\ref{fig:quads_epoch}, \ref{fig:quads_time}, and \ref{fig:quads_vram} bring all four QuadCubes groups together in a single view. The pattern is unambiguous. In both the epoch and the wall-clock time plots, the two spatial-heavy configurations sit above the baseline and the smaller uniform configuration, while the two temporal-heavy configurations sit well below them. The VRAM-versus-quality plot makes the directional asymmetry concrete: moving budget from temporal to spatial encoders moves a configuration up and to the left on the Pareto plane (better quality, less memory), while moving budget to temporal encoders moves it down and to the right (worse quality, more memory). The baseline is not at the Pareto frontier even within the QuadCubes family. A smaller uniform configuration (22.1\,GB, \texttt{22\_4\_22\_4\_128}) matches the baseline quality at half the VRAM, and spatial-heavy reallocation without any change to the total parameter count produces a clear quality gain. The temporal encoders in the original QuadCubes design are over-provisioned, and correcting this within the QuadCubes architecture is already sufficient to surpass the baseline. CombinedCubes takes this structural insight further by redesigning the temporal encoders from the ground up rather than merely scaling them back.
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-2.5cm}{-2.5cm}
+    \centering
+    \includegraphics[width=1.1\textwidth]{top2/quad_psnr_epoch.png}
+    \end{adjustwidth}
+    \caption{PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt{23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt{22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.}
+    \label{fig:quads_epoch}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-2.5cm}{-2.5cm}
+    \centering
+    \includegraphics[width=1.1\textwidth]{top2/quad_psnr_time.png}
+    \end{adjustwidth}
+    \caption{PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.}
+    \label{fig:quads_time}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-2.5cm}{-2.5cm}
+    \centering
+    \includegraphics[width=1.1\textwidth]{top2/quad_vram.png}
+    \end{adjustwidth}
+    \caption{PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.}
+    \label{fig:quads_vram}
+\end{figure}
+
 
 \subsection{CombinedCubes}
 \label{subsec:combinedcubes}

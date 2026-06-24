@@ -355,7 +355,7 @@ def plot_vram_efficiency(all_data, metric):
     for gpu_name, gpu_gb in GPU_LINES:
         ax.axvline(gpu_gb, color="dimgray", linewidth=0.9, linestyle="--", alpha=0.7)
         ax.text(gpu_gb, ax.get_ylim()[0], gpu_name,
-                ha="center", va="bottom", fontsize=6.5, color="dimgray", rotation=90)
+                ha="center", va="bottom", fontsize=9, color="black", rotation=90)
     ax.set_xlim(left=0, right=x_max)
 
     ax.set_xlabel("Peak Reserved VRAM (GB)")
