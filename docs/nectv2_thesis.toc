@@ -1,8 +1,8 @@
 \babel@toc {english}{}\relax 
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Background and Motivation}{1}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Research Objectives}{3}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Thesis Structure}{4}{section.1.3}%
+\contentsline {section}{\numberline {1.2}Research Objectives}{4}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Thesis Structure}{5}{section.1.3}%
 \contentsline {chapter}{\numberline {2}Background}{7}{chapter.2}%
 \contentsline {section}{\numberline {2.1}X-ray Computed Tomography}{7}{section.2.1}%
 \contentsline {subsection}{\numberline {2.1.1}Physical Principles}{7}{subsection.2.1.1}%
@@ -32,7 +32,7 @@
 \contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{38}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{38}{subsection.3.4.1}%
 \contentsline {subsection}{\numberline {3.4.2}Features Per Level}{41}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}SexCubes}{44}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.3}HexCubes}{44}{subsection.3.4.3}%
 \contentsline {subsubsection}{MLP Decoder Depth}{46}{section*.34}%
 \contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{46}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{47}{section.3.5}%

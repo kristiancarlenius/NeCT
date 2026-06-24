@@ -20,6 +20,8 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \babel@aux{english}{}
 \citation{friis2025nect}
+\citation{gan2020application}
+\citation{gan2020application}
 \@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -30,15 +32,15 @@
 \newlabel{sec:intro_background@cref}{{[section][1][1]1.1}{[1][1][]1}}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {section}{\numberline {1.2}Research Objectives}{3}{section.1.2}\protected@file@percent }
-\newlabel{sec:intro_objectives}{{1.2}{3}{Research Objectives}{section.1.2}{}}
-\newlabel{sec:intro_objectives@cref}{{[section][2][1]1.2}{[1][3][]3}}
-\@writefile{toc}{\contentsline {section}{\numberline {1.3}Thesis Structure}{4}{section.1.3}\protected@file@percent }
-\newlabel{sec:intro_structure}{{1.3}{4}{Thesis Structure}{section.1.3}{}}
-\newlabel{sec:intro_structure@cref}{{[section][3][1]1.3}{[1][4][]4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces High-level overview of the two contributions of this thesis. The NeCT QuadCubes configuration serves as the shared starting point. Part~\ref  {part:encoder_optimisation} investigates the encoder design space, reducing peak training VRAM by approximately 60\,\% and improving reconstruction quality by 1.84\,dB PSNR, with the \textsc  {MixedCubes}{} architecture as the best-performing result. Part~\ref  {part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.\relax }}{6}{figure.caption.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Research Objectives}{4}{section.1.2}\protected@file@percent }
+\newlabel{sec:intro_objectives}{{1.2}{4}{Research Objectives}{section.1.2}{}}
+\newlabel{sec:intro_objectives@cref}{{[section][2][1]1.2}{[1][3][]4}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Thesis Structure}{5}{section.1.3}\protected@file@percent }
+\newlabel{sec:intro_structure}{{1.3}{5}{Thesis Structure}{section.1.3}{}}
+\newlabel{sec:intro_structure@cref}{{[section][3][1]1.3}{[1][4][]5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces Overview of the two contributions of this thesis relative to the NeCT QuadCubes baseline (44.8\,GB, 35.89\,dB PSNR at 24\,h). Part~\ref  {part:encoder_optimisation} investigates the encoder design space, with CombinedCubes reducing VRAM by 45.8\,\% (24.3\,GB) at $+1.29$\,dB and \textsc  {MixedCubes}{} reducing VRAM by 50.7\,\% (22.1\,GB) at $+1.84$\,dB. Part~\ref  {part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.\relax }}{6}{figure.caption.5}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:thesis_overview}{{1.1}{6}{High-level overview of the two contributions of this thesis. The NeCT QuadCubes configuration serves as the shared starting point. Part~\ref {part:encoder_optimisation} investigates the encoder design space, reducing peak training VRAM by approximately 60\,\% and improving reconstruction quality by 1.84\,dB PSNR, with the \MixedCubes {} architecture as the best-performing result. Part~\ref {part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.\relax }{figure.caption.5}{}}
+\newlabel{fig:thesis_overview}{{1.1}{6}{Overview of the two contributions of this thesis relative to the NeCT QuadCubes baseline (44.8\,GB, 35.89\,dB PSNR at 24\,h). Part~\ref {part:encoder_optimisation} investigates the encoder design space, with CombinedCubes reducing VRAM by 45.8\,\% (24.3\,GB) at $+1.29$\,dB and \MixedCubes {} reducing VRAM by 50.7\,\% (22.1\,GB) at $+1.84$\,dB. Part~\ref {part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.\relax }{figure.caption.5}{}}
 \newlabel{fig:thesis_overview@cref}{{[figure][1][1]1.1}{[1][5][]6}}
 \citation{kak2001principles}
 \@writefile{toc}{\contentsline {chapter}{\numberline {2}Background}{7}{chapter.2}\protected@file@percent }
@@ -67,7 +69,7 @@
 \newlabel{subsec:ct_algorithms}{{2.1.2}{8}{Classical Reconstruction Algorithms}{subsection.2.1.2}{}}
 \newlabel{subsec:ct_algorithms@cref}{{[subsection][2][2,1]2.1.2}{[1][8][]8}}
 \citation{kak2001principles}
-\citation{withers2021ct}
+\citation{withers2021ct,gan2020application}
 \citation{chen2008piccs,myers2011dynamic}
 \citation{goethals2022dynamic}
 \citation{goethals2025dyrect}
@@ -197,13 +199,13 @@
 \citation{peksa2015bentheimer}
 \citation{friis2025nect}
 \citation{friis2025nect}
+\citation{friis2025nect}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{22}{subsection.2.5.4}\protected@file@percent }
 \newlabel{subsec:hybrid_golden}{{2.5.4}{22}{Hybrid Golden-Section Sampling}{subsection.2.5.4}{}}
 \newlabel{subsec:hybrid_golden@cref}{{[subsection][4][2,5]2.5.4}{[1][22][]22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\ensuremath  {^\circ }$ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\ensuremath  {^\circ }$. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\ensuremath  {^\circ }$), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }}{22}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:golden_section}{{2.5}{22}{Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\degree $ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\degree $. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\degree $), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }{figure.caption.12}{}}
-\newlabel{fig:golden_section@cref}{{[figure][5][2]2.5}{[1][22][]22}}
-\citation{friis2025nect}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\ensuremath  {^\circ }$ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\ensuremath  {^\circ }$. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\ensuremath  {^\circ }$), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }}{23}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:golden_section}{{2.5}{23}{Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\degree $ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\degree $. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\degree $), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }{figure.caption.12}{}}
+\newlabel{fig:golden_section@cref}{{[figure][5][2]2.5}{[1][22][]23}}
 \@writefile{toc}{\contentsline {part}{I\hspace  {1em}Encoder Optimisation}{24}{part.1}\protected@file@percent }
 \newlabel{part:encoder_optimisation}{{I}{25}{Encoder Optimisation}{part.1}{}}
 \newlabel{part:encoder_optimisation@cref}{{[part][1][]I}{[1][25][]25}}
@@ -307,14 +309,14 @@
 \newlabel{fig:vram_features@cref}{{[figure][11][3]3.11}{[1][41][]43}}
 \citation{fridovichkeil2023kplanes}
 \citation{cao2023hexplane}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}SexCubes}{44}{subsection.3.4.3}\protected@file@percent }
-\newlabel{subsec:sexcubes}{{3.4.3}{44}{SexCubes}{subsection.3.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}HexCubes}{44}{subsection.3.4.3}\protected@file@percent }
+\newlabel{subsec:sexcubes}{{3.4.3}{44}{HexCubes}{subsection.3.4.3}{}}
 \newlabel{subsec:sexcubes@cref}{{[subsection][3][3,4]3.4.3}{[1][44][]44}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.12}{\ignorespaces The HexCubes architecture. Six 2D multiresolution hash encoders cover all six coordinate pairs from the four space-time dimensions ($xy$, $xz$, $yz$, $xt$, $yt$, $zt$). Features from all six encoders are concatenated and decoded by a shared MLP. Each individual encoder is collision-free at practical 2D resolutions, but the MLP must infer three- and four-way coordinate interactions from pairwise features alone.\relax }}{44}{figure.caption.32}\protected@file@percent }
 \newlabel{fig:hexcubes_architecture}{{3.12}{44}{The HexCubes architecture. Six 2D multiresolution hash encoders cover all six coordinate pairs from the four space-time dimensions ($xy$, $xz$, $yz$, $xt$, $yt$, $zt$). Features from all six encoders are concatenated and decoded by a shared MLP. Each individual encoder is collision-free at practical 2D resolutions, but the MLP must infer three- and four-way coordinate interactions from pairwise features alone.\relax }{figure.caption.32}{}}
 \newlabel{fig:hexcubes_architecture@cref}{{[figure][12][3]3.12}{[1][44][]44}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }}{45}{figure.caption.33}\protected@file@percent }
-\newlabel{fig:sexcubes_reconstruction}{{3.13}{45}{Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }{figure.caption.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }}{45}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:sexcubes_reconstruction}{{3.13}{45}{Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }{figure.caption.33}{}}
 \newlabel{fig:sexcubes_reconstruction@cref}{{[figure][13][3]3.13}{[1][44][]45}}
 \@writefile{toc}{\contentsline {subsubsection}{MLP Decoder Depth}{46}{section*.34}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{46}{subsection.3.4.4}\protected@file@percent }
@@ -322,7 +324,7 @@
 \newlabel{subsec:levels_synthesis@cref}{{[subsection][4][3,4]3.4.4}{[1][46][]46}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{47}{section.3.5}\protected@file@percent }
 \newlabel{sec:spatial_temporal_asym}{{3.5}{47}{Spatial-Temporal Asymmetry}{section.3.5}{}}
-\newlabel{sec:spatial_temporal_asym@cref}{{[section][5][3]3.5}{[1][47][]47}}
+\newlabel{sec:spatial_temporal_asym@cref}{{[section][5][3]3.5}{[1][46][]47}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{47}{subsection.3.5.1}\protected@file@percent }
 \newlabel{subsec:nonuniform_sizing}{{3.5.1}{47}{Non-Uniform Sizing in QuadCubes}{subsection.3.5.1}{}}
 \newlabel{subsec:nonuniform_sizing@cref}{{[subsection][1][3,5]3.5.1}{[1][47][]47}}
@@ -343,7 +345,7 @@
 \newlabel{fig:temporal_heavy_time@cref}{{[figure][17][3]3.17}{[1][47][]50}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{51}{subsection.3.5.2}\protected@file@percent }
 \newlabel{subsec:combinedcubes}{{3.5.2}{51}{CombinedCubes}{subsection.3.5.2}{}}
-\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][51][]51}}
+\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][50][]51}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt  {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }}{51}{figure.caption.40}\protected@file@percent }
 \newlabel{fig:combinedcubes_architecture}{{3.18}{51}{The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }{figure.caption.40}{}}
 \newlabel{fig:combinedcubes_architecture@cref}{{[figure][18][3]3.18}{[1][51][]51}}
@@ -391,8 +393,8 @@
 \@writefile{toc}{\contentsline {section}{\numberline {4.2}Unified Comparison}{63}{section.4.2}\protected@file@percent }
 \newlabel{sec:comp_results}{{4.2}{63}{Unified Comparison}{section.4.2}{}}
 \newlabel{sec:comp_results@cref}{{[section][2][4]4.2}{[1][63][]63}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \textsc  {MixedCubes}{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset. \leavevmode {\color  {red}\textbf  {[TODO: Should use more than one dataset.]}}\relax }}{63}{table.caption.49}\protected@file@percent }
-\newlabel{tab:full_comparison}{{4.1}{63}{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes {} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset. \todo {Should use more than one dataset.}\relax }{table.caption.49}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \textsc  {MixedCubes}{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.\relax }}{63}{table.caption.49}\protected@file@percent }
+\newlabel{tab:full_comparison}{{4.1}{63}{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes {} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.\relax }{table.caption.49}{}}
 \newlabel{tab:full_comparison@cref}{{[table][1][4]4.1}{[1][63][]63}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt  {23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt  {22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt  {21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.\relax }}{64}{figure.caption.50}\protected@file@percent }
 \newlabel{fig:quadcubes_all_epoch}{{4.1}{64}{PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt {23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt {22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt {21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.\relax }{figure.caption.50}{}}
@@ -573,32 +575,33 @@
 \bibcite{feldkamp1984}{{6}{1984}{{Feldkamp et~al.}}{{Feldkamp, Davis, and Kress}}}
 \bibcite{fridovichkeil2023kplanes}{{7}{2023}{{Fridovich-Keil et~al.}}{{Fridovich-Keil, Meanti, Warburg, Recht, and Kanazawa}}}
 \bibcite{friis2025nect}{{8}{2025}{{Friis et~al.}}{{Friis, Nese, Luani, Pryme, Rennan, Chattopadhyay, Kristoffersen, Mengshoel, and Breiby}}}
-\bibcite{goethals2025dyrect}{{9}{2025}{{Goethals et~al.}}{{Goethals, Bultreys, Berg, Boone, and Aelterman}}}
-\bibcite{goethals2022dynamic}{{10}{2022}{{Goethals et~al.}}{{}}}
-\bibcite{gordon1970algebraic}{{11}{1970}{{Gordon et~al.}}{{Gordon, Bender, and Herman}}}
-\bibcite{gostick2019porespy}{{12}{2019}{{Gostick et~al.}}{{}}}
-\bibcite{hornik1989multilayer}{{13}{1989}{{Hornik et~al.}}{{Hornik, Stinchcombe, and White}}}
-\bibcite{kajiya1984ray}{{14}{1984}{{Kajiya and Von~Herzen}}{{}}}
-\bibcite{kak2001principles}{{15}{2001}{{Kak and Slaney}}{{}}}
-\bibcite{kingma2015adam}{{16}{2015}{{Kingma and Ba}}{{}}}
-\bibcite{klacansky2017openscivis}{{17}{2017}{{Klacansky}}{{}}}
-\bibcite{kohler2004golden}{{18}{2004}{{Kohler}}{{}}}
-\bibcite{lecun1998gradient}{{19}{1998}{{LeCun et~al.}}{{LeCun, Bottou, Bengio, and Haffner}}}
-\bibcite{mildenhall2021nerf}{{20}{2021}{{Mildenhall et~al.}}{{Mildenhall, Srinivasan, Tancik, Barron, Ramamoorthi, and Ng}}}
-\bibcite{mueller2022instant}{{21}{2022}{{M{\"u}ller et~al.}}{{M{\"u}ller, Evans, Schied, and Keller}}}
-\bibcite{myers2011dynamic}{{22}{2011}{{Myers et~al.}}{{Myers, Kingston, Varslot, Turner, and Sheppard}}}
-\bibcite{nair2010rectified}{{23}{2010}{{Nair and Hinton}}{{}}}
-\bibcite{patwari2023hallucination}{{24}{2023}{{Patwari et~al.}}{{}}}
-\bibcite{peksa2015bentheimer}{{25}{2015}{{Peksa et~al.}}{{Peksa, Wolf, and Zitha}}}
-\bibcite{radon1917}{{26}{1917}{{Radon}}{{}}}
-\bibcite{rahaman2019spectral}{{27}{2019}{{Rahaman et~al.}}{{Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht, Bengio, and Courville}}}
-\bibcite{rumelhart1986backprop}{{28}{1986}{{Rumelhart et~al.}}{{Rumelhart, Hinton, and Williams}}}
-\bibcite{shen2022nerp}{{29}{2022}{{Shen et~al.}}{{Shen, Pauly, and Xing}}}
-\bibcite{sitzmann2020siren}{{30}{2020}{{Sitzmann et~al.}}{{Sitzmann, Martel, Bergman, Lindell, and Wetzstein}}}
-\bibcite{tancik2020fourier}{{31}{2020}{{Tancik et~al.}}{{Tancik, Srinivasan, Mildenhall, Fridovich-Keil, Raghavan, Singhal, Ramamoorthi, Barron, and Ng}}}
-\bibcite{wang2004ssim}{{32}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
-\bibcite{withers2021ct}{{33}{2021}{{Withers et~al.}}{{}}}
-\bibcite{zha2022naf}{{34}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
+\bibcite{gan2020application}{{9}{2020}{{Gan et~al.}}{{Gan, Zhang, Miao, Oladyshkin, Cheng, Wang, Shu, Su, and Li}}}
+\bibcite{goethals2025dyrect}{{10}{2025}{{Goethals et~al.}}{{Goethals, Bultreys, Berg, Boone, and Aelterman}}}
+\bibcite{goethals2022dynamic}{{11}{2022}{{Goethals et~al.}}{{}}}
+\bibcite{gordon1970algebraic}{{12}{1970}{{Gordon et~al.}}{{Gordon, Bender, and Herman}}}
+\bibcite{gostick2019porespy}{{13}{2019}{{Gostick et~al.}}{{}}}
+\bibcite{hornik1989multilayer}{{14}{1989}{{Hornik et~al.}}{{Hornik, Stinchcombe, and White}}}
+\bibcite{kajiya1984ray}{{15}{1984}{{Kajiya and Von~Herzen}}{{}}}
+\bibcite{kak2001principles}{{16}{2001}{{Kak and Slaney}}{{}}}
+\bibcite{kingma2015adam}{{17}{2015}{{Kingma and Ba}}{{}}}
+\bibcite{klacansky2017openscivis}{{18}{2017}{{Klacansky}}{{}}}
+\bibcite{kohler2004golden}{{19}{2004}{{Kohler}}{{}}}
+\bibcite{lecun1998gradient}{{20}{1998}{{LeCun et~al.}}{{LeCun, Bottou, Bengio, and Haffner}}}
+\bibcite{mildenhall2021nerf}{{21}{2021}{{Mildenhall et~al.}}{{Mildenhall, Srinivasan, Tancik, Barron, Ramamoorthi, and Ng}}}
+\bibcite{mueller2022instant}{{22}{2022}{{M{\"u}ller et~al.}}{{M{\"u}ller, Evans, Schied, and Keller}}}
+\bibcite{myers2011dynamic}{{23}{2011}{{Myers et~al.}}{{Myers, Kingston, Varslot, Turner, and Sheppard}}}
+\bibcite{nair2010rectified}{{24}{2010}{{Nair and Hinton}}{{}}}
+\bibcite{patwari2023hallucination}{{25}{2023}{{Patwari et~al.}}{{}}}
+\bibcite{peksa2015bentheimer}{{26}{2015}{{Peksa et~al.}}{{Peksa, Wolf, and Zitha}}}
+\bibcite{radon1917}{{27}{1917}{{Radon}}{{}}}
+\bibcite{rahaman2019spectral}{{28}{2019}{{Rahaman et~al.}}{{Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht, Bengio, and Courville}}}
+\bibcite{rumelhart1986backprop}{{29}{1986}{{Rumelhart et~al.}}{{Rumelhart, Hinton, and Williams}}}
+\bibcite{shen2022nerp}{{30}{2022}{{Shen et~al.}}{{Shen, Pauly, and Xing}}}
+\bibcite{sitzmann2020siren}{{31}{2020}{{Sitzmann et~al.}}{{Sitzmann, Martel, Bergman, Lindell, and Wetzstein}}}
+\bibcite{tancik2020fourier}{{32}{2020}{{Tancik et~al.}}{{Tancik, Srinivasan, Mildenhall, Fridovich-Keil, Raghavan, Singhal, Ramamoorthi, Barron, and Ng}}}
+\bibcite{wang2004ssim}{{33}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
+\bibcite{withers2021ct}{{34}{2021}{{Withers et~al.}}{{}}}
+\bibcite{zha2022naf}{{35}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{101}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}

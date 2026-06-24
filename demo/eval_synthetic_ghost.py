@@ -255,7 +255,7 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
             print(f"    [WARN] create_volume returned None at t={t:.1f}", flush=True)
             continue
 
-        recon = vol.float().cpu().numpy()
+        recon = vol.float().cpu().numpy() * trainer.geometry.max_distance_traveled
         gt    = gt_volumes[i]
         m     = compute_metrics(recon, gt)
         m["timestep"] = float(t)

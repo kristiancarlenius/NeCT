@@ -23,7 +23,7 @@ OUT_DIR = Path(__file__).parent.parent / "images"
 OUT_DIR.mkdir(exist_ok=True)
 
 # ── Figure dimensions (data units ≈ inches) ───────────────────────────────────
-FW, FH = 14.0, 9.0
+FW, FH = 12.0, 9.0
 
 # ── Color palette ─────────────────────────────────────────────────────────────
 BG      = "#F4F6F8"
@@ -48,9 +48,9 @@ fig.patch.set_facecolor(BG)
 ax.set_facecolor(BG)
 
 # ── Layout constants ──────────────────────────────────────────────────────────
-LEFT_X,  RIGHT_X  = 3.5,  10.5
-LW,  LH           = 5.0,  0.85   # left box width / height
-RW,  RH           = 5.0,  1.05   # right box width / height
+LEFT_X,  RIGHT_X  = 3.0,  9.0
+LW,  LH           = 4.2,  0.85   # left box width / height
+RW,  RH           = 4.2,  1.05   # right box width / height
 ARND = "round,pad=0.12"
 
 # Y positions (measured from bottom of figure)
@@ -82,7 +82,7 @@ def fancy_box(cx, cy, w, h, color, alpha=1.0, zorder=3):
     ax.add_patch(p)
 
 
-def box_text(cx, cy, line1, line2="", size1=11, size2=9.5, color=WHITE, zorder=5):
+def box_text(cx, cy, line1, line2="", size1=13, size2=11.5, color=WHITE, zorder=5):
     if line2:
         ax.text(cx, cy + 0.12, line1, ha="center", va="center",
                 fontsize=size1, color=color, fontweight="bold", zorder=zorder)
@@ -101,7 +101,7 @@ def arrow_down(x, y_top, y_bot, color=NAVY, lw=2.2):
     )
 
 
-def annot(x, y, txt, color=RED, size=9, ha="left"):
+def annot(x, y, txt, color=RED, size=11, ha="left"):
     ax.text(x, y, txt, ha=ha, va="center",
             fontsize=size, color=color, fontstyle="italic",
             fontweight="bold", zorder=6)
@@ -126,15 +126,15 @@ title_strip = FancyBboxPatch(
 ax.add_patch(title_strip)
 ax.text(FW / 2, (TITLE_BOT + TITLE_TOP) / 2,
         "NeCTv2: Optimizing Implicit Neural Representations for Discrete and Continuous 4D-CT",
-        ha="center", va="center", fontsize=11.5, color=WHITE,
+        ha="center", va="center", fontsize=13.5, color=WHITE,
         fontweight="bold", zorder=5)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Root node
 # ─────────────────────────────────────────────────────────────────────────────
-fancy_box(FW / 2, ROOT_CY, 4.0, 0.72, NAVY, zorder=4)
+fancy_box(FW / 2, ROOT_CY, 3.5, 0.72, NAVY, zorder=4)
 ax.text(FW / 2, ROOT_CY, "NeCT  QuadCubes",
-        ha="center", va="center", fontsize=13, color=WHITE,
+        ha="center", va="center", fontsize=15, color=WHITE,
         fontweight="bold", zorder=5)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -161,11 +161,11 @@ arrow_down(RIGHT_X, HEADER_Y + 0.35, HEADER_Y + 0.1, color=NAVY)
 # 5. Branch headers
 # ─────────────────────────────────────────────────────────────────────────────
 ax.text(LEFT_X, HEADER_Y, "Part I — Encoder Optimisation",
-        ha="center", va="center", fontsize=12, color=BLUE,
+        ha="center", va="center", fontsize=14, color=BLUE,
         fontweight="bold", zorder=5)
 
 ax.text(RIGHT_X, HEADER_Y, "Part II — Continuous Scanning",
-        ha="center", va="center", fontsize=12, color=ORANGE,
+        ha="center", va="center", fontsize=14, color=ORANGE,
         fontweight="bold", zorder=5)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -182,19 +182,19 @@ box_text(LEFT_X, L_BOX1_CY,
 b1_bot = L_BOX1_CY - LH / 2        # 4.775
 b2_top = L_BOX2_CY + LH / 2        # 4.175
 arrow_down(LEFT_X, b1_bot, b2_top, color=BLUE)
-annot(LEFT_X + 0.25, (b1_bot + b2_top) / 2, "−60% VRAM", color=RED)
+annot(LEFT_X + 0.25, (b1_bot + b2_top) / 2, "−45.8% VRAM", color=RED)
 
 # Box 2 — CombinedCubes
 fancy_box(LEFT_X, L_BOX2_CY, LW, LH, BLUE_LT)
 box_text(LEFT_X, L_BOX2_CY,
          "CombinedCubes",
-         "18.3 GB  ·  37.28 dB")
+         "24.3 GB  ·  37.18 dB")
 
 # Arrow 2  (box2 bottom → box3 top)
 b2_bot = L_BOX2_CY - LH / 2        # 3.325
 b3_top = L_BOX3_CY + LH / 2        # 2.725
 arrow_down(LEFT_X, b2_bot, b3_top, color=BLUE_LT)
-annot(LEFT_X + 0.25, (b2_bot + b3_top) / 2, "+1.84 dB vs baseline", color=RED)
+annot(LEFT_X + 0.25, (b2_bot + b3_top) / 2, "+1.84 dB vs baseline", color=RED, size=10)
 
 # Box 3 — MixedCubes (highlight)
 fancy_box(LEFT_X, L_BOX3_CY, LW, LH, BLUE_HL)
@@ -224,10 +224,10 @@ for angle in [25, 65, 105, 145, 185]:
 ax.plot(ICON_X, R_BOX1_CY, "o", color=WHITE, ms=5, zorder=7)
 
 ax.text(TEXT_X, R_BOX1_CY + 0.13, "Step-and-shoot",
-        ha="center", va="center", fontsize=11, color=WHITE,
+        ha="center", va="center", fontsize=13, color=WHITE,
         fontweight="bold", zorder=5)
 ax.text(TEXT_X, R_BOX1_CY - 0.22, "discrete angle acquisition",
-        ha="center", va="center", fontsize=9, color=WHITE,
+        ha="center", va="center", fontsize=11, color=WHITE,
         alpha=0.88, zorder=5)
 
 # Arrow (box1 bottom → box2 top)
@@ -235,7 +235,7 @@ rb1_bot = R_BOX1_CY - RH / 2       # 4.425
 rb2_top = R_BOX2_CY + RH / 2       # 3.575
 arrow_down(RIGHT_X, rb1_bot, rb2_top, color=ORANGE)
 annot(RIGHT_X + 0.25, (rb1_bot + rb2_top) / 2,
-      "corrects angular\nintegration blur", color=RED, size=8.5)
+      "corrects angular\nintegration blur", color=RED, size=10)
 
 # ── Box 2: Fly-scan + K-step ─────────────────────────────────────────────────
 fancy_box(RIGHT_X, R_BOX2_CY, RW, RH, ORANGE2)
@@ -259,10 +259,10 @@ ax.annotate(
 )
 
 ax.text(TEXT_X, R_BOX2_CY + 0.13, "Fly-scan + K-step correction",
-        ha="center", va="center", fontsize=11, color=WHITE,
+        ha="center", va="center", fontsize=13, color=WHITE,
         fontweight="bold", zorder=5)
 ax.text(TEXT_X, R_BOX2_CY - 0.22, "continuous-angle acquisition",
-        ha="center", va="center", fontsize=9, color=WHITE,
+        ha="center", va="center", fontsize=11, color=WHITE,
         alpha=0.88, zorder=5)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -277,7 +277,7 @@ footer = FancyBboxPatch(
 ax.add_patch(footer)
 ax.text(FW / 2, (FOOTER_BOT + FOOTER_TOP) / 2,
         "Faster reconstructions  ·  Lower hardware requirements  ·  New acquisition mode for 4D-CT",
-        ha="center", va="center", fontsize=11, color=WHITE,
+        ha="center", va="center", fontsize=13, color=WHITE,
         fontweight="bold", zorder=5)
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -33,7 +33,7 @@ WHITE  = "#FFFFFF"
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
 
-def make_ax(figsize=(12, 8)):
+def make_ax(figsize=(10, 8)):
     fig = plt.figure(figsize=figsize, facecolor=BG)
     ax  = fig.add_axes([0.02, 0.02, 0.97, 0.95])
     ax.set_xlim(0, 10)
@@ -47,9 +47,9 @@ def make_ax(figsize=(12, 8)):
 
 
 def panel_label(ax, letter, title):
-    ax.text(0.4, 9.65, letter, fontsize=16, fontweight="bold",
+    ax.text(0.4, 9.65, letter, fontsize=18, fontweight="bold",
             color=NAVY, va="top", zorder=10)
-    ax.text(5.0, 9.65, title, fontsize=11.5, fontweight="bold",
+    ax.text(5.0, 9.65, title, fontsize=14, fontweight="bold",
             ha="center", va="top", color=NAVY, zorder=10)
 
 
@@ -99,7 +99,7 @@ for i in range(N_CELLS):
         lw=2.0 if i == COLL_IDX else 1.2, label=str(i), label_size=8)
 
 ax.text(5.0, TABLE_Y0 - 0.35, "Hash table  (T = 8 cells shown)",
-        ha="center", va="top", fontsize=8, color=MGRAY, style="italic")
+        ha="center", va="top", fontsize=10, color=MGRAY, style="italic")
 
 cell_cx  = TABLE_X0 + COLL_IDX * CELL_W + CELL_W / 2
 cell_top = TABLE_Y0 + CELL_H
@@ -111,20 +111,20 @@ for sx, sy, lbl, c in [
 ]:
     arrow(ax, sx, sy, cell_cx, cell_top, color=c, lw=2.0)
     ax.text(sx, sy + 0.15, lbl, ha="center", va="bottom",
-            fontsize=9, color=c, fontweight="bold")
+            fontsize=11, color=c, fontweight="bold")
 
 
 def _mini_collision(ax, cx, n_arrows, fc_box, label1, label2, lc):
     bw, bh = 1.6, 0.9
     bx, by = cx - bw / 2, 2.2
-    box(ax, bx, by, bw, bh, fc_box, lw=1.5, label="hash\ncell", label_size=7.5)
+    box(ax, bx, by, bw, bh, fc_box, lw=1.5, label="hash\ncell", label_size=9.5)
     src_xs = [cx] if n_arrows == 1 else np.linspace(cx - 1.5, cx + 1.5, n_arrows)
     for sx in src_xs:
         arrow(ax, sx, by + bh + 1.6, cx, by + bh, color="#555555", lw=1.3, ms=9)
     ax.text(cx, by - 0.25, label1, ha="center", va="top",
-            fontsize=8.5, fontweight="bold", color=NAVY)
+            fontsize=10.5, fontweight="bold", color=NAVY)
     ax.text(cx, by - 0.72, label2, ha="center", va="top",
-            fontsize=8.5, color=lc, fontweight="bold")
+            fontsize=10.5, color=lc, fontweight="bold")
 
 
 _mini_collision(ax, cx=2.5, n_arrows=1, fc_box="#D5F5E3",
@@ -178,11 +178,11 @@ def _draw_level_stack(ax, x0, x1, y_top, n_levels, col_label):
             lbl = ("Level 0\n(coarsest)" if i == 0
                    else f"Level {n_levels - 1}\n(finest)")
             ax.text(x0 - 0.15, y + lh / 2, lbl,
-                    ha="right", va="center", fontsize=6.5, color=NAVY,
+                    ha="right", va="center", fontsize=8.5, color=NAVY,
                     multialignment="center")
 
     ax.text((x0 + x1) / 2, y_top + 0.22, col_label,
-            ha="center", va="bottom", fontsize=11, fontweight="bold", color=NAVY)
+            ha="center", va="bottom", fontsize=13, fontweight="bold", color=NAVY)
 
     thumb_y0 = y_top - stack_h - 0.15
     thumb_h  = 2.2
@@ -193,7 +193,7 @@ def _draw_level_stack(ax, x0, x1, y_top, n_levels, col_label):
                             facecolor="none", edgecolor=DGRAY, linewidth=1.0, zorder=3))
     sharpness = "blurry pores" if n_levels <= 4 else "sharper pores"
     ax.text((x0 + x1) / 2, thumb_y1 - 0.15, sharpness,
-            ha="center", va="top", fontsize=7.5, color=DGRAY, style="italic")
+            ha="center", va="top", fontsize=9.5, color=DGRAY, style="italic")
 
 
 _draw_level_stack(ax, x0=0.5, x1=4.2, y_top=8.8, n_levels=4, col_label="L = 4")
@@ -201,7 +201,7 @@ _draw_level_stack(ax, x0=5.8, x1=9.5, y_top=8.8, n_levels=8, col_label="L = 8")
 
 ax.text(5.0, 0.05,
         "More levels  →  finer frequency coverage  →  slower training",
-        ha="center", va="bottom", fontsize=8.5, color=NAVY, style="italic")
+        ha="center", va="bottom", fontsize=10.5, color=NAVY, style="italic")
 
 save(fig, "fig_phenomena_B")
 
@@ -218,18 +218,18 @@ CX_L   = 2.5
 CX_R   = 7.5
 TOP_Y  = 8.2
 
-for i, (lbl, fc) in enumerate([("xyz", "#2980B9"), ("xyt", "#7FB3D3"),
-                                ("xzt", "#7FB3D3"), ("yzt", "#7FB3D3")]):
+for i, (lbl, fc) in enumerate([("xyz", "#2980B9"), ("xyt", "#E67E22"),
+                                ("xzt", "#27AE60"), ("yzt", "#8E44AD")]):
     row, col = divmod(i, 2)
     bx = CX_L - BW - GAP / 2 + col * (BW + GAP)
     by = TOP_Y - BH - row * (BH + GAP)
-    box(ax, bx, by, BW, BH, fc, lw=1.5, label=lbl, label_color=WHITE, label_size=10)
+    box(ax, bx, by, BW, BH, fc, lw=1.5, label=lbl, label_color=WHITE, label_size=12)
 
 ax.text(CX_L, TOP_Y + 0.25, "QuadCubes baseline",
-        ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=NAVY)
+        ha="center", va="bottom", fontsize=11.5, fontweight="bold", color=NAVY)
 ax.text(CX_L, TOP_Y - 2 * BH - GAP - 0.35,
         "uniform capacity\nfor all sub-spaces",
-        ha="center", va="top", fontsize=8, color=MGRAY, multialignment="center")
+        ha="center", va="top", fontsize=10, color=MGRAY, multialignment="center")
 
 XYZ_W, XYZ_H = 3.8, 2.2
 TMP_W, TMP_H = 1.15, 1.4
@@ -238,30 +238,34 @@ TMP_GAP      = 0.18
 xyz_x = CX_R - XYZ_W / 2
 xyz_y = TOP_Y - XYZ_H
 box(ax, xyz_x, xyz_y, XYZ_W, XYZ_H, "#1A5276", lw=2.0,
-    label="xyz", label_color=WHITE, label_size=13)
+    label="xyz", label_color=WHITE, label_size=15)
 
 tmp_total = 3 * TMP_W + 2 * TMP_GAP
 tmp_x0    = CX_R - tmp_total / 2
 TMP_Y     = xyz_y - TMP_H - 0.45
-for j, lbl in enumerate(["xyt", "xzt", "yzt"]):
+for j, (lbl, fc_tmp, lc_tmp) in enumerate([
+        ("xyt", "#F5CBA7", "#784212"),
+        ("xzt", "#A9DFBF", "#1E8449"),
+        ("yzt", "#D7BDE2", "#6C3483"),
+]):
     box(ax, tmp_x0 + j * (TMP_W + TMP_GAP), TMP_Y, TMP_W, TMP_H,
-        "#AED6F1", lw=1.3, label=lbl, label_color=NAVY, label_size=9)
+        fc_tmp, lw=1.3, label=lbl, label_color=lc_tmp, label_size=11)
 
 ax.text(CX_R, TOP_Y + 0.25, "CombinedCubes",
-        ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=NAVY)
+        ha="center", va="bottom", fontsize=11.5, fontweight="bold", color=NAVY)
 ax.text(CX_R, xyz_y - 0.05, "sharp static\npore boundaries",
-        ha="center", va="top", fontsize=7.5, color="#1A5276",
+        ha="center", va="top", fontsize=9.5, color="#1A5276",
         multialignment="center", style="italic")
 ax.text(CX_R, TMP_Y - 0.18, "slowly evolving\nfluid front",
-        ha="center", va="top", fontsize=7.5, color="#2471A3",
+        ha="center", va="top", fontsize=9.5, color="#6C4A00",
         multialignment="center", style="italic")
 
 ax.text(CX_L, 1.35, "xyz needs more capacity:\nsharp, static boundaries",
-        ha="center", va="center", fontsize=8, color=DGRAY,
+        ha="center", va="center", fontsize=10, color=DGRAY,
         multialignment="center",
         bbox=dict(boxstyle="round,pad=0.3", facecolor=LGRAY, edgecolor="none"))
 ax.text(CX_R, 1.35, "temporal encoders need less:\nslowly evolving fluid front",
-        ha="center", va="center", fontsize=8, color=DGRAY,
+        ha="center", va="center", fontsize=10, color=DGRAY,
         multialignment="center",
         bbox=dict(boxstyle="round,pad=0.3", facecolor=LGRAY, edgecolor="none"))
 

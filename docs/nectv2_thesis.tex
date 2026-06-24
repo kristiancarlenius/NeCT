@@ -83,7 +83,7 @@
 \begin{abstract}
 Neural Computed Tomography (NeCT) reconstructs four-dimensional attenuation fields from sparse X-ray projections by fitting a hash-encoded implicit neural representation to the measured data using the known physics of the CT forward model. Because the network is trained from scratch for every new scan, the training time is the reconstruction time. The original NeCT implementation required approximately 45\,GB of GPU memory and 40 hours of training per dataset, restricting the method to high-end research hardware and making rapid turnaround impractical.
 
-This thesis addresses two limitations of the original NeCT. The first part investigates the encoder design space, identifying three governing design principles through systematic parameter sweeps and architectural experiments. Hashmap size is the dominant driver of both model size and reconstruction quality. The number of resolution levels controls training time rather than quality, and reducing it is the primary lever for faster reconstructions. The original baseline over-provisions the temporal encoders relative to the spatial encoder, a structural inefficiency that can be corrected at the architectural level. The proposed \MixedCubes{} architecture, which replaces the temporal hash encoders with collision-free dense grids and the spatial encoder remains a high-capacity 3D hash grid, achieves higher reconstruction quality than the original NeCT baseline while using half the GPU memory and training in less time. A lightweight variant matches baseline quality at approximately 11\,\% of the original memory requirement, making NeCT accessible on consumer hardware for the first time.
+This thesis addresses two limitations of the original NeCT. The first part investigates the encoder design space, identifying three governing design principles through systematic parameter sweeps and architectural experiments. Hashmap size is the dominant driver of both model size and reconstruction quality. The number of resolution levels controls training time rather than quality, and reducing it is the primary lever for faster reconstructions. The original baseline over-provisions the temporal encoders relative to the spatial encoder, a structural inefficiency that can be corrected at the architectural level. The proposed \MixedCubes{} architecture, which replaces the temporal hash encoders with collision-free dense grids and the spatial encoder remains a high-capacity 3D hash grid, achieves higher reconstruction quality than the original NeCT baseline while using half the GPU memory and training in less time. A lightweight variant matches baseline quality at approximately 11\,\% of the original memory requirement, making \NeCTv{} accessible for all CUDA-compatible consumer GPUs for the first time.
 
 The second part extends the NeCT forward model to continuous rotation scanning, in which the sample rotates throughout each exposure rather than stopping between projections. A $K$-step midpoint approximation of the resulting angular integral is derived and evaluated on static and dynamic datasets. Continuous scanning enables denser angular sampling within the same acquisition time, and the corrected forward model recovers reconstruction quality lost to angular blur. For dynamic experiments, continuous scanning allows the detector to collect data throughout the rotation without interruption, capturing fast-evolving events that would be missed or blurred in step-and-shoot acquisitions. The corrected forward model, combined with sub-step angular averaging, enables accurate reconstruction from projections acquired during constant sample motion, making continuous scanning a practical mode for 4D-CT of processes that cannot pause between exposures.
 \end{abstract}
@@ -114,7 +114,7 @@ Finally, Giacomo Luani provided hands-on guidance in implementation, participate
 \label{chap:introduction}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Understanding processes that unfold inside materials is one of the persistent challenges in both natural sciences and engineering. In geosciences, questions about how fluids move through rock pores, how minerals dissolve and precipitate under changing chemical conditions, and how rock deforms under mechanical stress all require direct observation of the three-dimensional internal structure as it changes over time. X-ray computed tomography has become the principal tool for this kind of observation, enabling non-destructive imaging of an internal structure at resolutions down to the micrometre scale. What remains difficult is time.
+Understanding processes that unfold inside materials is one of the persistent challenges in both natural sciences and engineering. In geosciences, questions about how fluids move through rock pores, how minerals dissolve and precipitate under changing chemical conditions, and how rock deforms under mechanical stress all require direct observation of the three-dimensional internal structure as it changes over time. X-ray computed tomography has become the principal tool for this kind of observation, enabling non-destructive imaging of an internal structure at resolutions down to the micrometre scale. The method is central to research in geologic CO$_2$ utilisation and storage, where understanding how injected CO$_2$ displaces brine, reacts with minerals, and migrates through caprocks is essential for safe long-term storage assessment \citep{gan2020application}. A critical review of CT applications in this field identifies limited real-time imaging capacity as one of the key barriers to progress, precisely because the relevant processes unfold on timescales that conventional sequential scanning cannot resolve \citep{gan2020application}. What remains difficult is time.
 
 A conventional micro-CT scan of a rock sample takes on the order of one hour to acquire a single three-dimensional image. For a process such as brine displacing oil in a pore network, or a salt grain dissolving as a fluid front advances, the relevant events may unfold on timescales of seconds. The gap between what is physically happening and what direct imaging can resolve in time is many orders of magnitude. Bridging this gap requires smarter acquisition schemes, smarter reconstruction algorithms, or both.
 
@@ -153,7 +153,7 @@ The third objective is to extend the NeCT forward model to continuous rotation s
 
 Chapter~\ref{chap:background} develops the theoretical background. It opens with X-ray CT from first principles, covering Beer--Lambert's law, cone-beam geometry, classical reconstruction algorithms, and the challenges of 4D-CT and sparse-view acquisition. The second half covers the machine learning tools used to address these problems, including the multilayer perceptron, convolutional and attention-based image-to-image architectures, implicit neural representations, Neural Radiance Fields, and the multiresolution hash encoding. The chapter concludes with a detailed description of NeCT, including the static 3D model, the dynamic QuadCubes model, the training pipeline, and the hybrid golden-section sampling scheme.
 
-Part~\ref{part:encoder_optimisation} addresses the first and second research objectives through an investigation of the NeCT encoder that treats architectural structure and capacity as interrelated rather than independent questions. Chapter~\ref{chap:encoder_design} is the core of this investigation. It establishes a theoretical framework based on three governing phenomena (collision rate, frequency coverage, and spatial-temporal asymmetry) and then quantifies each through a systematic parameter sweep within QuadCubes before demonstrating its extreme form through a corresponding alternative architecture. The SingleCube, SexCubes, and CombinedCubes architectures emerge naturally from this structure. Chapter~\ref{chap:encoder_comparison} brings all findings together in a unified comparison of the best configurations against the original NeCT baseline.
+Part~\ref{part:encoder_optimisation} addresses the first and second research objectives through an investigation of the NeCT encoder that treats architectural structure and capacity as interrelated rather than independent questions. Chapter~\ref{chap:encoder_design} is the core of this investigation. It establishes a theoretical framework based on three governing phenomena (collision rate, frequency coverage, and spatial-temporal asymmetry) and then quantifies each through a systematic parameter sweep within QuadCubes before demonstrating its extreme form through a corresponding alternative architecture. The SingleCube, HexCubes, and CombinedCubes architectures emerge naturally from this structure. Chapter~\ref{chap:encoder_comparison} brings all findings together in a unified comparison of the best configurations against the original NeCT baseline.
 
 Chapter~\ref{chap:continuous} addresses the third research objective. It explains the physical difference between step-and-shoot and continuous rotation scanning, derives the $K$-step averaged forward model, and presents experimental results on both a static validation dataset and a dynamic dataset.
 
@@ -161,7 +161,7 @@ Chapter~\ref{chap:conclusion} summarises the contributions and findings of the t
 
 \begin{figure}[htbp]
     \hspace*{-2.5cm}\includegraphics[width=1.4\textwidth]{thesis_overview.pdf}
-    \caption{High-level overview of the two contributions of this thesis. The NeCT QuadCubes configuration serves as the shared starting point. Part~\ref{part:encoder_optimisation} investigates the encoder design space, reducing peak training VRAM by approximately 60\,\% and improving reconstruction quality by 1.84\,dB PSNR, with the \MixedCubes{} architecture as the best-performing result. Part~\ref{part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.}
+    \caption{Overview of the two contributions of this thesis relative to the NeCT QuadCubes baseline (44.8\,GB, 35.89\,dB PSNR at 24\,h). Part~\ref{part:encoder_optimisation} investigates the encoder design space, with CombinedCubes reducing VRAM by 45.8\,\% (24.3\,GB) at $+1.29$\,dB and \MixedCubes{} reducing VRAM by 50.7\,\% (22.1\,GB) at $+1.84$\,dB. Part~\ref{part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.}
     \label{fig:thesis_overview}
 \end{figure}
 
@@ -228,7 +228,7 @@ Both FDK and OS-SART-TV were designed for static 3D CT. Neither algorithm can us
 \subsection{4D-CT and Dynamic Imaging}
 \label{subsec:4dct}
 
-4D-CT denotes acquisition and reconstruction of CT data from a sample that evolves over time, producing a time-resolved sequence of 3D images. In geosciences, 4D-CT is applied to study mechanical deformation of rocks, multiphase fluid flow, CO$_2$ mineralisation, and reactive dissolution \citep{withers2021ct}. The central challenge is achieving sufficient temporal resolution to capture the process of interest while maintaining the spatial resolution needed to observe pore-scale phenomena.
+4D-CT denotes acquisition and reconstruction of CT data from a sample that evolves over time, producing a time-resolved sequence of 3D images. In geosciences, 4D-CT is applied to study mechanical deformation of rocks, multiphase fluid flow, CO$_2$ mineralisation, and reactive dissolution \citep{withers2021ct, gan2020application}. The central challenge is achieving sufficient temporal resolution to capture the process of interest while maintaining the spatial resolution needed to observe pore-scale phenomena.
 
 The temporal resolution of a conventional 4D-CT scan is limited by the time required to collect enough angular projections for a 3D reconstruction. In sequential scanning a full $360\degree$ rotation is completed before moving to the next time step, giving a temporal resolution on the order of one hour for laboratory micro-CT. Reducing this requires fewer projections per time step, which degrades reconstruction quality. Several mitigation strategies exist, including incorporating prior information from a high-quality static scan \citep{chen2008piccs, myers2011dynamic}, penalising the temporal derivative of $\mu$ to enforce smooth evolution \citep{goethals2022dynamic}, representing the object as a continuous function of time fit to all projections simultaneously \citep{goethals2025dyrect}, and parameterising the field as an INR as in NeCT \citep{friis2025nect}.
 
@@ -654,7 +654,7 @@ The experimental setup described here applies to all encoder experiments in Part
 
 \subsection*{Dataset}
 
-All experiments use the Bentheimer sandstone dataset from the original NeCT paper \citep{friis2025nect}, consisting of 1\,400 projections acquired across 14 golden-offset revolutions during a 40-minute brine imbibition experiment. The ground truth against which all reconstructions are evaluated is a standard NeCT reconstruction trained for 86 hours, representing the quality ceiling achievable with unlimited compute on this dataset. Using a single fixed dataset allows all configurations to be compared under identical conditions. \todo{Should use more than one dataset for comparison.}
+All experiments use the Bentheimer sandstone dataset from the original NeCT paper \citep{friis2025nect}, consisting of 1\,400 projections acquired across 14 golden-offset revolutions during a 40-minute brine imbibition experiment. The ground truth against which all reconstructions are evaluated is a standard NeCT reconstruction trained for 86 hours, representing the quality ceiling achievable with unlimited compute on this dataset. Using a single fixed dataset allows all configurations to be compared under identical conditions.
 
 \subsection*{Evaluation Metrics}
 
@@ -800,7 +800,7 @@ For a 3D encoder at micro-CT resolutions, $\log_2 T = 23$ is at or near the qual
 \label{sec:levels_and_coupling}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Having established that hashmap size is the primary driver of model size and quality, this section examines the number of levels, which the theory predicts should primarily affect training time rather than model size, through its control of per-step computation cost and frequency coverage. The SexCubes architecture then illustrates what happens when frequency coverage is ample and collision rates are low, but the encoder can represent only pairwise coordinate interactions, a situation that places an unusually heavy burden on the decoder.
+Having established that hashmap size is the primary driver of model size and quality, this section examines the number of levels, which the theory predicts should primarily affect training time rather than model size, through its control of per-step computation cost and frequency coverage. The HexCubes architecture then illustrates what happens when frequency coverage is ample and collision rates are low, but the encoder can represent only pairwise coordinate interactions, a situation that places an unusually heavy burden on the decoder.
 
 \subsection{Number of Levels Sweep in QuadCubes}
 \label{subsec:levels_sweep}
@@ -878,7 +878,7 @@ $F = 2$ is surprisingly competitive with $F = 4$ in the epoch plot, reaching a v
 
 However, this result does not transfer to the split-encoder architectures evaluated in the later sections. In CombinedCubes and \MixedCubes{}, configurations with $F = 2$ on the temporal encoders consistently underperform relative to $F = 4$ equivalents at comparable VRAM, and in some cases fall below the QuadCubes baseline entirely. The difference is structural. In the uniform QuadCubes setting, $F = 2$ removes redundant capacity from already over-provisioned encoders. In the split-encoder setting, the temporal encoders are small and targeted, and halving $F$ removes capacity that the encoder genuinely needs. The practical implication is that $F = 2$ is beneficial as a reduction within the QuadCubes family, but $F = 4$ should be retained when switching to the split-encoder architectures.
 
-\subsection{SexCubes}
+\subsection{HexCubes}
 \label{subsec:sexcubes}
 
 \begin{figure}[htbp]
@@ -898,37 +898,37 @@ However, this result does not transfer to the split-encoder architectures evalua
     \hspace{0.1cm}
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{sexcubes_128_4.png}
-        \caption{SexCubes, 4 hidden layers}
+        \caption{HexCubes, 4 hidden layers}
     \end{subfigure}
     \hspace{0.1cm}
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{sexcubes_128_7.png}
-        \caption{SexCubes, 7 hidden layers}
+        \caption{HexCubes, 7 hidden layers}
     \end{subfigure}
     \hspace{0.1cm}
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{sexcubes_128_16.png}
-        \caption{SexCubes, 16 hidden layers}
+        \caption{HexCubes, 16 hidden layers}
     \end{subfigure}
     \end{adjustwidth}
-    \caption{Reconstruction comparison between QuadCubes and SexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.}
+    \caption{Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.}
     \label{fig:sexcubes_reconstruction}
 \end{figure}
 
-The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. SexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
+The level sweep established that reducing $L$ saves training time at the cost of frequency coverage. HexCubes takes a different approach to the time problem. Rather than reducing the number of levels, it replaces the four 3D encoders of QuadCubes with six 2D encoders, one for each possible pair of the four coordinates $\{x, y, z, t\}$. This reduces collision load considerably. A 2D encoder with $\log_2 T = 20$ is collision-free at resolutions up to $1024 \times 1024$, and memory falls to approximately 768\,MB for six encoders, roughly one eighth the baseline. The architecture follows the approach of K-Planes \citep{fridovichkeil2023kplanes} and HexPlane \citep{cao2023hexplane} for dynamic novel-view synthesis.
 
 The cost of this design is that each encoder captures only pairwise coordinate interactions. Reconstructing the attenuation at $(x, y, z, t)$ from six 2D plane projections is analogous to recovering a 4D function from its six 2D marginals, which is formally underdetermined without additional coupling assumptions. The MLP must infer the missing higher-order interactions from the pairwise features alone, which is a harder integration task than in the 3D encoder case where each encoder already encodes three-way interactions.
 
 \subsubsection{MLP Decoder Depth}
 
-Figure~\ref{fig:sexcubes_reconstruction} shows the reconstruction quality as a function of decoder depth. At 4 hidden layers the output is unrecognisable. At 7 layers clear structural patterns appear and the reconstruction becomes recognisable. Increasing depth to 16 layers, however, produces a worse result than 7 layers rather than a better one. Without regularisation such as dropout, a deeper MLP in this setting overfits to noise in the pairwise feature inputs rather than learning to integrate them into coherent spatial structure. The 2D encoders provide only marginal information per coordinate pair, and a very deep decoder amplifies inconsistencies in those features rather than resolving them. This non-monotonic behaviour with depth shows that the fundamental limitation of SexCubes is not insufficient decoder capacity but insufficient encoder information. The missing three-way and four-way coordinate interactions cannot be recovered by any MLP, regardless of depth, because they were never encoded in the first place.
+Figure~\ref{fig:sexcubes_reconstruction} shows the reconstruction quality as a function of decoder depth. At 4 hidden layers the output is unrecognisable. At 7 layers clear structural patterns appear and the reconstruction becomes recognisable. Increasing depth to 16 layers, however, produces a worse result than 7 layers rather than a better one. Without regularisation such as dropout, a deeper MLP in this setting overfits to noise in the pairwise feature inputs rather than learning to integrate them into coherent spatial structure. The 2D encoders provide only marginal information per coordinate pair, and a very deep decoder amplifies inconsistencies in those features rather than resolving them. This non-monotonic behaviour with depth shows that the fundamental limitation of HexCubes is not insufficient decoder capacity but insufficient encoder information. The missing three-way and four-way coordinate interactions cannot be recovered by any MLP, regardless of depth, because they were never encoded in the first place.
 
 \subsection{Precision and Training Time}
 \label{subsec:levels_synthesis}
 
 The level sweep established that reducing $L$ is the primary lever for improving quality per unit of training time, since each removed level reduces per-step computation without proportionally reducing model size or quality ceiling. The equalised-time comparison confirms this. Configurations with fewer levels and smaller hashmaps can complete more training iterations within the same wall-clock budget and thereby achieve better reconstructions than the over-provisioned baseline.
 
-SexCubes demonstrates the limit of this reasoning. Collision-free 2D encoders with low per-step cost achieve ample frequency coverage but fail to encode the higher-order coordinate interactions that the MLP needs to reconstruct 3D spatial structure. Increasing decoder depth can partially compensate, but the improvement saturates well below the QuadCubes reference, as a deeper MLP cannot recover coordinate interactions that the encoders never captured. The second design principle follows from this. The encoder dimensionality must be high enough to capture the coordinate interactions that the reconstruction problem requires, and the number of levels should be tuned to the training time budget rather than maximised.
+HexCubes demonstrates the limit of this reasoning. Collision-free 2D encoders with low per-step cost achieve ample frequency coverage but fail to encode the higher-order coordinate interactions that the MLP needs to reconstruct 3D spatial structure. Increasing decoder depth can partially compensate, but the improvement saturates well below the QuadCubes reference, as a deeper MLP cannot recover coordinate interactions that the encoders never captured. The second design principle follows from this. The encoder dimensionality must be high enough to capture the coordinate interactions that the reconstruction problem requires, and the number of levels should be tuned to the training time budget rather than maximised.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Spatial-Temporal Asymmetry}
@@ -1165,7 +1165,7 @@ The third design principle follows from this. The encoder architecture should re
 \label{chap:encoder_comparison}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Chapter~\ref{chap:encoder_design} established three design principles for the NeCT encoder, each derived from the interplay between a capacity parameter and its corresponding architectural extreme. The hashmap size governs precision per parameter through collision load, and SingleCube demonstrates the catastrophic case. The number of levels governs precision per training hour through frequency coverage and per-step cost, and SexCubes demonstrates the failure mode of sacrificing coordinate coupling to achieve collision-free low-dimensional encoders. The spatial-temporal asymmetry means the optimal encoder treats the spatial and temporal components differently, as confirmed by the non-uniform sizing experiments, the CombinedCubes results, and the \MixedCubes{} results.
+Chapter~\ref{chap:encoder_design} established three design principles for the NeCT encoder, each derived from the interplay between a capacity parameter and its corresponding architectural extreme. The hashmap size governs precision per parameter through collision load, and SingleCube demonstrates the catastrophic case. The number of levels governs precision per training hour through frequency coverage and per-step cost, and HexCubes demonstrates the failure mode of sacrificing coordinate coupling to achieve collision-free low-dimensional encoders. The spatial-temporal asymmetry means the optimal encoder treats the spatial and temporal components differently, as confirmed by the non-uniform sizing experiments, the CombinedCubes results, and the \MixedCubes{} results.
 
 The practical question that follows is which configuration should be recommended for practical 4D-CT reconstruction. Four configurations spanning the key design choices explored in Chapter~\ref{chap:encoder_design} are compared against each other and against the original NeCT baseline on a common footing.
 
@@ -1189,7 +1189,7 @@ Table~\ref{tab:full_comparison} summarises reconstruction quality, peak GPU memo
 \begin{table}[h]
     \begin{adjustwidth}{-2cm}{0cm}
     \centering
-    \caption{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset. \todo{Should use more than one dataset.}}
+    \caption{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.}
     \label{tab:full_comparison}
     \begin{tabular}{llllll}
         \toprule
@@ -1533,7 +1533,6 @@ For the 100-projection configuration the angular blur is clearly visible at $K =
 For the 360-projection configuration the difference at $K = 1$ is far less pronounced, and the improvement with increasing $K$ is difficult to see in the bulk of the reconstruction. Focusing on the high-intensity regions makes the change more apparent: the sharpest grain edges tighten slightly with each accumulation step, and fine pore boundaries that appear marginally diffuse at $K = 1$ become slightly crisper at $K = 6$. The overall structure is well recovered at all $K$ values, consistent with the combined score results showing only a modest gain across the full range.
 
 \begin{figure}[H]
-    \begin{adjustwidth}{-1.2cm}{0cm}
     \centering
 \begin{tabular}{r@{\hspace{6pt}}cc}
 & \textbf{100-proj} & \textbf{Ground truth (1400-proj, $K=1$)} \\[4pt]
@@ -1559,7 +1558,6 @@ For the 360-projection configuration the difference at $K = 1$ is far less prono
 \includegraphics[width=0.34\textwidth]{100_ac6.png} &
 \includegraphics[width=0.34\textwidth]{1400_ac1.png} \\
 \end{tabular}
-\end{adjustwidth}
 \caption{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta\phi = 3.60\degree$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.}
 \label{fig:static_slices_100}
 \end{figure}

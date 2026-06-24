@@ -60,7 +60,7 @@ def to_xy(angles_deg: list[float]):
 
 
 # ── Figure / GridSpec ─────────────────────────────────────────────────────────
-fig = plt.figure(figsize=(16, 9), facecolor=BG)
+fig = plt.figure(figsize=(13, 9), facecolor=BG)
 fig.patch.set_facecolor(BG)
 
 gs = GridSpec(
@@ -77,7 +77,7 @@ timing_ax = fig.add_subplot(gs[0, :])
 time_ax   = fig.add_subplot(gs[2, :])
 
 fig.suptitle("Hybrid golden-section angle sampling",
-             fontsize=14, fontweight="bold", color="#1C2833", y=0.98)
+             fontsize=17, fontweight="bold", color="#1C2833", y=0.98)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -132,7 +132,7 @@ def draw_panel(ax, dot_sets, title, title_color="#222222"):
 
     # Panel title (multiline)
     ax.text(0.5, 1.04, title, ha="center", va="bottom",
-            transform=ax.transAxes, fontsize=10, color=title_color,
+            transform=ax.transAxes, fontsize=12.5, color=title_color,
             fontweight="bold", multialignment="center")
 
 
@@ -187,7 +187,7 @@ leg_handles = [
     mpatches.Patch(facecolor=C3, label="Rev 3"),
 ]
 panel_ax[3].legend(handles=leg_handles, loc="lower center",
-                   fontsize=8.5, frameon=True, framealpha=0.85,
+                   fontsize=11, frameon=True, framealpha=0.85,
                    edgecolor="#CCCCCC", ncol=3,
                    bbox_to_anchor=(0.5, -0.02))
 
@@ -233,28 +233,28 @@ cx_exp  = 0.05 + 0.90 * EXP_FRAC / 2
 cx_dead = 0.05 + 0.90 * EXP_FRAC + 0.90 * DEAD_FRAC / 2
 
 timing_ax.text(cx_exp,  SS_Y + SS_H / 2, "Exposure",
-               ha="center", va="center", fontsize=7.5,
+               ha="center", va="center", fontsize=9.5,
                color="white", fontweight="bold")
 timing_ax.text(cx_dead, SS_Y + SS_H / 2, "Motor\nsettling",
-               ha="center", va="center", fontsize=6.5,
+               ha="center", va="center", fontsize=8.5,
                color="#555555", multialignment="center")
 timing_ax.text(cx_exp,  CS_Y + CS_H / 2, "Exposure only",
-               ha="center", va="center", fontsize=7.5,
+               ha="center", va="center", fontsize=9.5,
                color="white", fontweight="bold")
 
 # Row labels
 timing_ax.text(-0.05, SS_Y + SS_H / 2, "Step-and-shoot:",
-               ha="right", va="center", fontsize=9,
+               ha="right", va="center", fontsize=11.5,
                color="#333333", fontweight="bold")
 timing_ax.text(-0.05, CS_Y + CS_H / 2, "Continuous scan:",
-               ha="right", va="center", fontsize=9,
+               ha="right", va="center", fontsize=11.5,
                color="#333333", fontweight="bold")
 
 # Legend
 leg2 = [mpatches.Patch(facecolor="#7F8C8D", alpha=0.82, label="Exposure time"),
         mpatches.Patch(facecolor=C_DEAD,    alpha=0.82, label="Motor settling (dead time)")]
 timing_ax.legend(handles=leg2, loc="upper right",
-                 fontsize=8, frameon=False,
+                 fontsize=10, frameon=False,
                  handlelength=1.0, handleheight=0.75,
                  bbox_to_anchor=(1.0, 1.35))
 
@@ -283,10 +283,10 @@ tick_labels = [r"$t = 0$", r"$t = T$", r"$t = 2T$", r"$t = 3T$"]
 for x, lbl in zip(tick_pos, tick_labels):
     time_ax.plot([x, x], [0.33, 0.67], "-", color="#2C3E50", lw=2.0)
     time_ax.text(x, 0.12, lbl, ha="center", va="top",
-                 fontsize=10.5, color="#2C3E50")
+                 fontsize=13, color="#2C3E50")
 
 time_ax.text(4.30, 0.5, "time", ha="left", va="center",
-             fontsize=10, color="#2C3E50", style="italic")
+             fontsize=13, color="#2C3E50", style="italic")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

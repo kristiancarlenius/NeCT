@@ -1,4 +1,4 @@
-\begin{thebibliography}{34}
+\begin{thebibliography}{35}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -65,6 +65,16 @@ Henrik Friis, H{\aa}kon Nese, Giacomo Luani, Colin Pryme, Lars Rennan, Basab
   multiphase flow in porous media.
 \newblock \emph{Communications Physics}, 8:\penalty0 339, 2025.
 \newblock \doi{10.1038/s42005-025-02249-0}.
+
+\bibitem[Gan et~al.(2020)Gan, Zhang, Miao, Oladyshkin, Cheng, Wang, Shu, Su,
+  and Li]{gan2020application}
+Manguang Gan, Liwei Zhang, Xiuxiu Miao, Sergey Oladyshkin, Xiaowei Cheng, Yan
+  Wang, Yutong Shu, Xuebin Su, and Xiaochun Li.
+\newblock Application of computed tomography ({CT}) in geologic {CO}$_2$
+  utilization and storage research: {A} critical review.
+\newblock \emph{Journal of Natural Gas Science and Engineering}, 83:\penalty0
+  103591, 2020.
+\newblock \doi{10.1016/j.jngse.2020.103591}.
 
 \bibitem[Goethals et~al.(2025)Goethals, Bultreys, Berg, Boone, and
   Aelterman]{goethals2025dyrect}
