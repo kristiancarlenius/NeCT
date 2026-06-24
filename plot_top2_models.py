@@ -56,8 +56,8 @@ MODEL_DISPLAY = {
 # Families absent here are excluded from the all-model plots entirely.
 MANUAL_ALL_CONFIGS = {
     "quadcubes":               ["23_4_23_4_128"],
-    "quadcubes_large_spatial": ["24_4_24_4_128"],   # keep auto top-2
-    "mixedcubes":              ["18_4_23_6_128", "24_4_24_4_128", "22_4_25_4_128"],
+    "quadcubes_large_spatial": ["24_4_24_4_128"],   
+    "mixedcubes":              ["18_4_23_6_128", "24_4_24_4_128", "16_4_25_4_128"],
     "combinedcubes":            ["18_4_23_6_64", "24_4_24_6_128", "22_4_25_4_128"],
     # quadcubes_large_temporal excluded
 }
@@ -524,44 +524,71 @@ def collect_top1_metrics(crops, ref, top2_auto):
     return result
 
 
+_METRIC_SPECS = [
+    ("psnr", "PSNR",  True,  ".2f"),   # True  = higher is better
+    ("ssim", "SSIM",  True,  ".4f"),
+    ("mae",  "MAE",   False, ".2f"),   # False = lower is better
+]
+_METRIC_COLORS = {"psnr": "#1f77b4", "ssim": "#2ca02c", "mae": "#d62728"}
+
+
 def plot_metrics_bar(metrics, filename, title):
-    """Three side-by-side bar charts: PSNR, SSIM, MAE for top-1 per family."""
-    models   = [m for m in BAR_MODELS if m in metrics]
+    """Single horizontal grouped bar chart: 3 bars per model (PSNR, SSIM, MAE)."""
+    models = [m for m in BAR_MODELS if m in metrics]
     if not models:
         print(f"  No data for {filename} — skipping.")
         return
-    displays = [MODEL_DISPLAY[m] for m in models]
-    colors   = [FAMILY_COLORS[m] for m in models]
-    xs       = np.arange(len(models))
-    bar_w    = 0.55
 
-    specs = [
-        ("psnr", "PSNR (dB)",  "↑ higher is better", ".2f"),
-        ("ssim", "SSIM",       "↑ higher is better", ".4f"),
-        ("mae",  "MAE",        "↓ lower is better",  ".2f"),
-    ]
+    # Normalise each metric to [0, 1] across models so they share one x-axis.
+    # For lower-is-better metrics the best model gets 1.0.
+    norm = {}
+    for key, _, higher_better, _ in _METRIC_SPECS:
+        vals = {m: metrics[m][key] for m in models}
+        vmin, vmax = min(vals.values()), max(vals.values())
+        span = vmax - vmin if vmax != vmin else 1.0
+        for m in models:
+            v = vals[m]
+            norm[(m, key)] = (v - vmin) / span if higher_better else (vmax - v) / span
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 5))
+    bar_h       = 0.22
+    bar_spacing = 0.27   # centre-to-centre within a group
+    group_gap   = 0.40   # extra white space between model groups
+    n_metrics   = len(_METRIC_SPECS)
+    group_h     = n_metrics * bar_spacing + group_gap
+
+    # Reverse so the first entry in BAR_MODELS appears at the top of the chart.
+    models_plot = list(reversed(models))
+
+    fig, ax = plt.subplots(figsize=(10, max(4, len(models) * 1.5)))
     fig.suptitle(title, fontsize=11, fontweight="bold")
 
-    for ax, (key, ylabel, direction, fmt) in zip(axes, specs):
-        vals = [metrics[m][key] for m in models]
-        bars = ax.bar(xs, vals, width=bar_w, color=colors,
-                      edgecolor="white", linewidth=0.8, zorder=3)
-        for bar, val in zip(bars, vals):
-            ax.text(bar.get_x() + bar.get_width() / 2,
-                    bar.get_height() * 1.005,
-                    f"{val:{fmt}}", ha="center", va="bottom", fontsize=8.5)
-        ax.set_xticks(xs)
-        ax.set_xticklabels(displays, rotation=15, ha="right", fontsize=9.5)
-        ax.set_ylabel(ylabel, fontsize=10)
-        ax.set_title(direction, fontsize=8.5, color="gray", pad=4)
-        ax.grid(True, axis="y", alpha=0.3, zorder=0)
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        # give headroom above the tallest bar for the value label
-        ymax = max(vals)
-        ax.set_ylim(0, ymax * 1.12)
+    ytick_pos, ytick_labels = [], []
+
+    for i, m in enumerate(models_plot):
+        group_y      = i * group_h
+        group_center = group_y + (n_metrics - 1) * bar_spacing / 2
+        ytick_pos.append(group_center)
+        ytick_labels.append(MODEL_DISPLAY[m])
+
+        for j, (key, label, _, fmt) in enumerate(_METRIC_SPECS):
+            y   = group_y + j * bar_spacing
+            nv  = norm[(m, key)]
+            val = metrics[m][key]
+            ax.barh(y, nv, height=bar_h,
+                    color=_METRIC_COLORS[key], alpha=0.88,
+                    label=label if i == 0 else None,
+                    zorder=3)
+            ax.text(nv + 0.02, y, f"{val:{fmt}}",
+                    va="center", ha="left", fontsize=8.5)
+
+    ax.set_yticks(ytick_pos)
+    ax.set_yticklabels(ytick_labels, fontsize=10)
+    ax.set_xlim(0, 1.35)
+    ax.set_xlabel("Relative score  (normalised per metric — best = 1.0)", fontsize=9)
+    ax.legend(fontsize=9, loc="lower right")
+    ax.grid(True, axis="x", alpha=0.3, zorder=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
     print(f"\n  [{filename}]")
     for m in models:
@@ -614,7 +641,7 @@ def main():
     print("\nCollecting top-1 metrics for bar chart ...")
     top1_metrics = collect_top1_metrics(crops, ref, top2)
     plot_metrics_bar(top1_metrics, "metrics_bar.png",
-                     "Top-1 Model — PSNR / SSIM / MAE")
+                     "Best Performing Model - PSNR / SSIM / MAE")
 
     print("\nDone. Results in", RESULTS)
 
