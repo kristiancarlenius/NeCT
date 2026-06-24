@@ -35,7 +35,7 @@ MODEL_COLORS = {
     "quadcubes_large_temporal": "#d62728",
 }
 
-TARGET_18H = 18.0  # hours
+TARGET_24H = 24.0  # hours
 
 QUADCUBES_FOCUSED_CONFIG = "23_4_23"  # config prefix for focused subset
 
@@ -256,7 +256,7 @@ def plot_model_time(model, model_data, metric):
     if not plotted:
         plt.close(fig)
         return
-    ax.axvline(TARGET_18H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="18 h")
+    ax.axvline(TARGET_24H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="24 h")
     ax.set_xlabel("Wall-clock time (hours)")
     ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=8, title="Config", loc="lower right")
@@ -304,7 +304,7 @@ def plot_combined_time(all_data, metric, filename=None, title=None):
     if not has_data:
         plt.close(fig)
         return
-    ax.axvline(TARGET_18H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="18 h")
+    ax.axvline(TARGET_24H, color="gray", linestyle="--", linewidth=1, alpha=0.6, label="24 h")
     ax.set_xlabel("Wall-clock time (hours)")
     ax.set_ylabel(METRICS[metric])
     ax.legend(fontsize=9, loc="lower right")
@@ -321,13 +321,13 @@ def plot_vram_efficiency(all_data, metric):
         color = MODEL_COLORS.get(model, "gray")
         for label, data in sorted(model_data.items()):
             vram = data["vram_gb"]
-            val_18h = None
+            val_24h = None
             if data[key]:
-                nearest = min(data[key], key=lambda p: abs(p[0] - TARGET_18H))
-                val_18h = nearest[1]
-            if vram is None or val_18h is None:
+                nearest = min(data[key], key=lambda p: abs(p[0] - TARGET_24H))
+                val_24h = nearest[1]
+            if vram is None or val_24h is None:
                 continue
-            plotted.append((vram, val_18h, model, label, color))
+            plotted.append((vram, val_24h, model, label, color))
 
     if not plotted:
         plt.close(fig)
@@ -344,11 +344,11 @@ def plot_vram_efficiency(all_data, metric):
                     xytext=(5, 3), fontsize=6.5, color=color)
 
     ax.set_xlabel("Peak Reserved VRAM (GB)")
-    ax.set_ylabel(f"{METRICS[metric]} at ~{TARGET_18H:.0f} h")
+    ax.set_ylabel(f"{METRICS[metric]} at ~{TARGET_24H:.0f} h")
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
     _finish(fig, RESULTS / f"vram_efficiency_{metric}.png",
-            f"VRAM Efficiency — {METRICS[metric]} at {TARGET_18H:.0f} h vs Peak Reserved VRAM")
+            f"VRAM Efficiency — {METRICS[metric]} at {TARGET_24H:.0f} h vs Peak Reserved VRAM")
 
 
 # ── top-2 diverging comparison ───────────────────────────────────────────────
