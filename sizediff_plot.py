@@ -2,6 +2,7 @@
 """SSIM/PSNR/MAE vs epoch/time plots for sizediff experiments, plus VRAM efficiency."""
 
 from pathlib import Path
+import copy
 import re
 import json
 import numpy as np
@@ -22,7 +23,7 @@ RESULTS.mkdir(exist_ok=True)
 MODELS = [
     "quadcubes",
     "mixedcubes",
-    "combinedcube",
+    "combinedcubes",
     "quadcubes_large_spatial",
     "quadcubes_large_temporal",
 ]
@@ -30,12 +31,21 @@ MODELS = [
 MODEL_COLORS = {
     "quadcubes": "#1f77b4",
     "mixedcubes": "#ff7f0e",
-    "combinedcube": "#2ca02c",
+    "combinedcubes": "#2ca02c",
     "quadcubes_large_spatial": "#9467bd",
     "quadcubes_large_temporal": "#d62728",
 }
 
 TARGET_24H = 24.0  # hours
+
+GPU_LINES = [
+    ("A100 40 GB", 40),
+    ("5090 32 GB", 32),
+    ("4090 24 GB", 24),
+    ("5080 16 GB", 16),
+    ("5070 12 GB", 12),
+    ("3070  8 GB",  8),
+]
 
 QUADCUBES_FOCUSED_CONFIG = "23_4_23"  # config prefix for focused subset
 
@@ -191,23 +201,21 @@ def collect_all(crops, ref_epoch_arr, ref_time_arr):
 # ── capping ──────────────────────────────────────────────────────────────────
 
 def cap_to_minimum(all_data):
-    """Trim epoch and time series per-model so no config within a family is cut short."""
+    """Per-model: cap every config to the fewest images any config in that model has."""
     for model, configs in all_data.items():
         epoch_lens = [len(d["epoch_ssim"]) for d in configs.values() if d["epoch_ssim"]]
-        max_times  = [d["time_ssim"][-1][0] for d in configs.values() if d["time_ssim"]]
+        time_lens  = [len(d["time_ssim"])  for d in configs.values() if d["time_ssim"]]
 
-        min_epoch    = min(epoch_lens) if epoch_lens else 0
-        max_time_cap = min(max_times)  if max_times  else None
+        min_epoch = min(epoch_lens) if epoch_lens else 0
+        min_time  = min(time_lens)  if time_lens  else 0
 
         for d in configs.values():
             for key in ("epoch_ssim", "epoch_psnr", "epoch_mae"):
                 d[key] = d[key][:min_epoch]
-            if max_time_cap is not None:
-                for key in ("time_ssim", "time_psnr", "time_mae"):
-                    d[key] = [p for p in d[key] if p[0] <= max_time_cap]
+            for key in ("time_ssim", "time_psnr", "time_mae"):
+                d[key] = d[key][:min_time]
 
-        time_info = f"{max_time_cap:.2f} h" if max_time_cap is not None else "n/a"
-        print(f"  {model}: capped to {min_epoch} epoch images, time trimmed to {time_info}")
+        print(f"  {model}: capped to {min_epoch} epoch images, {min_time} time images")
     return all_data
 
 
@@ -342,6 +350,13 @@ def plot_vram_efficiency(all_data, metric):
         seen_models.add(model)
         ax.annotate(label, (vram, val), textcoords="offset points",
                     xytext=(5, 3), fontsize=6.5, color=color)
+
+    x_max = max(ax.get_xlim()[1], max(gb for _, gb in GPU_LINES) * 1.08)
+    for gpu_name, gpu_gb in GPU_LINES:
+        ax.axvline(gpu_gb, color="dimgray", linewidth=0.9, linestyle="--", alpha=0.7)
+        ax.text(gpu_gb, ax.get_ylim()[0], gpu_name,
+                ha="center", va="bottom", fontsize=6.5, color="dimgray", rotation=90)
+    ax.set_xlim(left=0, right=x_max)
 
     ax.set_xlabel("Peak Reserved VRAM (GB)")
     ax.set_ylabel(f"{METRICS[metric]} at ~{TARGET_24H:.0f} h")
@@ -515,19 +530,26 @@ def print_summary(all_data: dict) -> None:
         t_p  = last(data["time_psnr"])
         t_s  = last(data["time_ssim"])
         t_m  = last(data["time_mae"])
+        c_p  = at_time(data["time_psnr"], TARGET_24H)
+        c_s  = at_time(data["time_ssim"], TARGET_24H)
+        c_m  = at_time(data["time_mae"],  TARGET_24H)
         vram = data["vram_gb"]
         ep_n = data["epoch_psnr"][-1][0] if data["epoch_psnr"] else "?"
         t_n  = f"{data['time_psnr'][-1][0]:.0f}h" if data["time_psnr"] else "?"
-        psnr_str  = f"{ep_p:.2f}" if ep_p  is not None else "  --  "
-        ssim_str  = f"{ep_s:.4f}" if ep_s  is not None else "  -- "
-        mae_str   = f"{ep_m:.1f}"  if ep_m  is not None else "  --  "
-        tpsnr_str = f"{t_p:.2f}"  if t_p   is not None else "  --  "
-        tssim_str = f"{t_s:.4f}"  if t_s   is not None else "  -- "
-        tmae_str  = f"{t_m:.1f}"  if t_m   is not None else "  --  "
-        vram_str  = f"{vram:.1f}" if vram  is not None else " -- "
+        psnr_str  = f"{ep_p:.2f}" if ep_p is not None else "  --  "
+        ssim_str  = f"{ep_s:.4f}" if ep_s is not None else "  -- "
+        mae_str   = f"{ep_m:.1f}"  if ep_m is not None else "  --  "
+        tpsnr_str = f"{t_p:.2f}"  if t_p  is not None else "  --  "
+        tssim_str = f"{t_s:.4f}"  if t_s  is not None else "  -- "
+        tmae_str  = f"{t_m:.1f}"  if t_m  is not None else "  --  "
+        cpsnr_str = f"{c_p:.2f}"  if c_p  is not None else "  --  "
+        cssim_str = f"{c_s:.4f}"  if c_s  is not None else "  -- "
+        cmae_str  = f"{c_m:.1f}"  if c_m  is not None else "  --  "
+        vram_str  = f"{vram:.1f}" if vram is not None else " -- "
         return (f"  {model:30s} {label:22s}  "
                 f"VRAM={vram_str:>5}GB  "
                 f"epoch{ep_n}: PSNR={psnr_str} SSIM={ssim_str} MAE={mae_str}  "
+                f"@{TARGET_24H:.0f}h: PSNR={cpsnr_str} SSIM={cssim_str} MAE={cmae_str}  "
                 f"@{t_n}: PSNR={tpsnr_str} SSIM={tssim_str} MAE={tmae_str}")
 
     # ── Per-model tables ──────────────────────────────────────────────────────
@@ -542,34 +564,36 @@ def print_summary(all_data: dict) -> None:
             marker = " ◀ baseline" if (model == BASELINE_MODEL and label == BASELINE_CONFIG) else ""
             print(_row(model, label, data) + marker)
 
-    # ── Cross-model comparison at last time point ─────────────────────────────
-    print("\n" + "=" * 110)
-    print("CROSS-MODEL — all configs sorted by PSNR at last time snapshot")
-    print("=" * 110)
+    # ── Cross-model comparison at 24 h ───────────────────────────────────────
+    print("\n" + "=" * 120)
+    print(f"CROSS-MODEL — all configs sorted by PSNR at {TARGET_24H:.0f} h")
+    print("=" * 120)
     rows = []
     for model, model_data in all_data.items():
         for label, data in model_data.items():
-            t_p = last(data["time_psnr"])
-            t_s = last(data["time_ssim"])
-            t_m = last(data["time_mae"])
+            c_p = at_time(data["time_psnr"], TARGET_24H)
+            c_s = at_time(data["time_ssim"], TARGET_24H)
+            c_m = at_time(data["time_mae"],  TARGET_24H)
             t_h = data["time_psnr"][-1][0] if data["time_psnr"] else None
-            if t_p is not None:
-                rows.append((t_p, model, label, data["vram_gb"], t_p, t_s, t_m, t_h))
+            if c_p is not None:
+                rows.append((c_p, model, label, data["vram_gb"], c_p, c_s, c_m, t_h))
     rows.sort(reverse=True)
     baseline_psnr = None
     bl = all_data.get(BASELINE_MODEL, {}).get(BASELINE_CONFIG)
     if bl:
-        baseline_psnr = last(bl["time_psnr"])
-    for _, model, label, vram, t_p, t_s, t_m, t_h in rows:
-        delta = f"({t_p - baseline_psnr:+.2f} dB)" if baseline_psnr is not None else ""
+        baseline_psnr = at_time(bl["time_psnr"], TARGET_24H)
+    for _, model, label, vram, c_p, c_s, c_m, t_h in rows:
+        delta = f"({c_p - baseline_psnr:+.2f} dB)" if baseline_psnr is not None else ""
         marker = " ◀ baseline" if (model == BASELINE_MODEL and label == BASELINE_CONFIG) else ""
         vram_s = f"{vram:.1f}" if vram is not None else "--"
+        t_h_s  = f"{t_h:.0f}h" if t_h is not None else "?"
         print(f"  {model:30s} {label:22s}  VRAM={vram_s:>5}GB  "
-              f"@{t_h:.0f}h: PSNR={t_p:.2f} SSIM={t_s:.4f} MAE={t_m:.1f}  {delta}{marker}")
+              f"@{TARGET_24H:.0f}h: PSNR={c_p:.2f} SSIM={c_s:.4f} MAE={c_m:.1f}  "
+              f"{delta}{marker}")
 
     # ── Baseline vs best alternative ─────────────────────────────────────────
     if baseline_psnr is not None:
-        print(f"\n  Baseline PSNR at last time: {baseline_psnr:.2f} dB")
+        print(f"\n  Baseline PSNR at {TARGET_24H:.0f} h: {baseline_psnr:.2f} dB")
         best_non_base = next(
             (r for r in rows if not (r[1] == BASELINE_MODEL and r[2] == BASELINE_CONFIG)), None)
         if best_non_base:
@@ -582,17 +606,41 @@ def print_summary(all_data: dict) -> None:
 # ── focused subset ───────────────────────────────────────────────────────────
 
 def build_focused_data(all_data):
-    """quadcubes configs matching 23_4_23 + all large-spatial/temporal configs."""
+    """quadcubes configs matching 23_4_23 + all large-spatial/temporal configs.
+
+    Deep-copies the series so the focused cap below does not affect all_data.
+    """
     focused = {}
     for model, model_data in all_data.items():
         if model == "quadcubes":
-            filtered = {label: data for label, data in model_data.items()
+            filtered = {label: copy.deepcopy(data)
+                        for label, data in model_data.items()
                         if label.startswith(QUADCUBES_FOCUSED_CONFIG)}
             if filtered:
                 focused[model] = filtered
         elif model in ("quadcubes_large_spatial", "quadcubes_large_temporal"):
-            focused[model] = model_data
+            focused[model] = {label: copy.deepcopy(data)
+                              for label, data in model_data.items()}
     return focused
+
+
+def cap_focused_data(focused_data):
+    """Cap all configs across every model in focused_data to the same minimum count.
+
+    Needed because cap_to_minimum operates per model family, so large_temporal
+    may have a longer series than the quadcubes subset after that cap.
+    """
+    all_configs = [d for md in focused_data.values() for d in md.values()]
+    time_lens  = [len(d["time_ssim"])  for d in all_configs if d["time_ssim"]]
+    epoch_lens = [len(d["epoch_ssim"]) for d in all_configs if d["epoch_ssim"]]
+    min_time  = min(time_lens)  if time_lens  else 0
+    min_epoch = min(epoch_lens) if epoch_lens else 0
+    for d in all_configs:
+        for key in ("time_ssim", "time_psnr", "time_mae"):
+            d[key] = d[key][:min_time]
+        for key in ("epoch_ssim", "epoch_psnr", "epoch_mae"):
+            d[key] = d[key][:min_epoch]
+    print(f"  focused: cross-model cap → {min_epoch} epoch images, {min_time} time images")
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
@@ -625,6 +673,7 @@ def main():
     focused_data = build_focused_data(all_data)
     if focused_data:
         print("\nGenerating focused QuadCubes plots ...")
+        cap_focused_data(focused_data)
         for metric in METRICS:
             plot_combined_epoch(
                 focused_data, metric,
