@@ -66,7 +66,7 @@ MANUAL_ALL_CONFIGS = {
 MANUAL_VRAM2_CONFIGS = {
     "quadcubes":               ["23_4_23_4_128", "22_4_22_4_128", "21_4_21_4_128"],
     "quadcubes_large_spatial": None,
-    "mixedcubes":              ["18_4_22_4_64", "18_4_23_6_128", "23_4_23_4_128", "24_4_24_4_128", "22_4_25_4_128", "16_4_25_4_128", "25_2_25_4_128"],
+    "mixedcubes":              ["18_4_22_4_64", "18_4_23_6_128", "18_4_24_4_128", "24_4_24_4_128", "22_4_25_4_128", "16_4_25_4_128", "25_2_25_4_128"],
     "combinedcubes":           ["18_4_23_6_64", "18_4_24_4_128", "24_4_24_6_128", "22_4_25_4_128", "18_2_24_4_128"],
 }
 
@@ -539,16 +539,16 @@ def plot_metrics_bar(metrics, filename, title):
         print(f"  No data for {filename} — skipping.")
         return
 
-    # Normalise each metric to [0, 1] across models so they share one x-axis.
-    # For lower-is-better metrics the best model gets 1.0.
+    # Normalise as fraction of best value so every bar is visible.
+    # Higher-is-better: norm = val / max.  Lower-is-better: norm = min / val.
+    # Worst model gets a small positive bar; best model always gets 1.0.
     norm = {}
     for key, _, higher_better, _ in _METRIC_SPECS:
         vals = {m: metrics[m][key] for m in models}
-        vmin, vmax = min(vals.values()), max(vals.values())
-        span = vmax - vmin if vmax != vmin else 1.0
+        best = max(vals.values()) if higher_better else min(vals.values())
         for m in models:
             v = vals[m]
-            norm[(m, key)] = (v - vmin) / span if higher_better else (vmax - v) / span
+            norm[(m, key)] = v / best if higher_better else best / v
 
     bar_h       = 0.22
     bar_spacing = 0.27   # centre-to-centre within a group
@@ -584,7 +584,7 @@ def plot_metrics_bar(metrics, filename, title):
     ax.set_yticks(ytick_pos)
     ax.set_yticklabels(ytick_labels, fontsize=10)
     ax.set_xlim(0, 1.35)
-    ax.set_xlabel("Relative score  (normalised per metric — best = 1.0)", fontsize=9)
+    ax.set_xlabel("Fraction of best  (per metric — best = 1.0)", fontsize=9)
     ax.legend(fontsize=9, loc="lower right")
     ax.grid(True, axis="x", alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)

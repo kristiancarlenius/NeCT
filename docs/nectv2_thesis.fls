@@ -1543,11 +1543,6 @@ INPUT ./images//psnr_arc/top2_comparison.png
 INPUT images//psnr_arc/top2_comparison.png
 INPUT ./images//psnr_arc/top2_comparison.png
 INPUT ./images//psnr_arc/top2_comparison.png
-INPUT ./images//psnr_arc/vram_efficiency_psnr.png
-INPUT ./images//psnr_arc/vram_efficiency_psnr.png
-INPUT images//psnr_arc/vram_efficiency_psnr.png
-INPUT ./images//psnr_arc/vram_efficiency_psnr.png
-INPUT ./images//psnr_arc/vram_efficiency_psnr.png
 INPUT ./images//continous_diagram.png
 INPUT ./images//continous_diagram.png
 INPUT images//continous_diagram.png
