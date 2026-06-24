@@ -28,6 +28,9 @@ import re
 import sys
 from pathlib import Path
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from skimage.metrics import structural_similarity as ssim_fn
@@ -142,10 +145,96 @@ def load_trainer(config_path: Path, ckpt_path: Path):
     return trainer
 
 
+# ── Slice visualisation ───────────────────────────────────────────────────────
+
+_VISUAL_LABELS = ["first", "middle", "last"]
+
+
+def _centre_slice(vol: np.ndarray, plane: str) -> np.ndarray:
+    """Return the centre slice of vol[z,y,x] for the named plane."""
+    mid = vol.shape[0] // 2
+    if plane == "XY":
+        return vol[mid, :, :]   # fix z → shows y (rows) vs x (cols)
+    if plane == "YZ":
+        return vol[:, :, mid]   # fix x → shows z (rows) vs y (cols)
+    if plane == "XZ":
+        return vol[:, mid, :]   # fix y → shows z (rows) vs x (cols)
+    raise ValueError(f"Unknown plane: {plane}")
+
+
+def save_gt_slice_images(
+    gt_volumes: np.ndarray,
+    gt_timesteps: np.ndarray,
+    out_dir: Path,
+) -> None:
+    """Save one PNG per plane showing GT at first, middle, and last timestep."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    n_ts = len(gt_timesteps)
+    t_indices = [0, n_ts // 2, n_ts - 1]
+    planes = ["XY", "YZ", "XZ"]
+
+    for plane in planes:
+        fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+        fig.suptitle(f"Ground truth  —  {plane} centre slice", fontsize=13)
+        for col, (t_idx, label) in enumerate(zip(t_indices, _VISUAL_LABELS)):
+            t_val = float(gt_timesteps[t_idx])
+            sl = _centre_slice(gt_volumes[t_idx], plane)
+            ax = axes[col]
+            ax.imshow(sl, cmap="gray", vmin=0.0, vmax=DATA_RANGE,
+                      origin="lower", interpolation="nearest", aspect="equal")
+            ax.set_title(f"t={t_val:.2f}  ({label})", fontsize=9)
+            ax.axis("off")
+
+        fig.tight_layout()
+        fname = f"gt_{plane}.png"
+        fig.savefig(out_dir / fname, dpi=120)
+        plt.close(fig)
+        print(f"  GT slice image → {fname}", flush=True)
+
+
+def save_slice_images(
+    exp: dict,
+    gt_volumes: np.ndarray,
+    gt_timesteps: np.ndarray,
+    recon_volumes: list[np.ndarray],
+    t_indices: list[int],
+    out_dir: Path,
+) -> None:
+    """Save one PNG per plane (XY, YZ, XZ): 2 rows (GT/Recon) × 3 cols (timesteps)."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    planes = ["XY", "YZ", "XZ"]
+
+    for plane in planes:
+        fig, axes = plt.subplots(2, 3, figsize=(12, 8))
+        fig.suptitle(
+            f"deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  {plane} centre slice",
+            fontsize=13,
+        )
+        for col, (t_idx, label, recon_vol) in enumerate(
+            zip(t_indices, _VISUAL_LABELS, recon_volumes)
+        ):
+            t_val = float(gt_timesteps[t_idx])
+            gt_sl    = _centre_slice(gt_volumes[t_idx], plane)
+            recon_sl = _centre_slice(recon_vol, plane)
+            for row, (sl, row_tag) in enumerate([(gt_sl, "GT"), (recon_sl, "Recon")]):
+                ax = axes[row, col]
+                ax.imshow(sl, cmap="gray", vmin=0.0, vmax=DATA_RANGE,
+                          origin="lower", interpolation="nearest", aspect="equal")
+                ax.set_title(f"{row_tag}  t={t_val:.2f}  ({label})", fontsize=9)
+                ax.axis("off")
+
+        fig.tight_layout()
+        fname = f"deg{exp['deg']:02d}_ac{exp['ac']:02d}_{plane}.png"
+        fig.savefig(out_dir / fname, dpi=120)
+        plt.close(fig)
+        print(f"    slice image → {fname}", flush=True)
+
+
 # ── Evaluation ────────────────────────────────────────────────────────────────
 
 def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
-                        gt_timesteps: np.ndarray) -> dict | None:
+                        gt_timesteps: np.ndarray,
+                        slices_dir: Path | None = None) -> dict | None:
     print(f"  deg={exp['deg']:2d} ac={exp['ac']:2d}  ckpt={exp['ckpt_path']}", flush=True)
 
     try:
@@ -153,6 +242,10 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
     except Exception as e:
         print(f"    [ERROR loading model]: {e}", flush=True)
         return None
+
+    n_ts = len(gt_timesteps)
+    visual_indices = [0, n_ts // 2, n_ts - 1]
+    recon_for_vis: list[np.ndarray | None] = [None, None, None]
 
     per_timestep = []
     for i, t in enumerate(gt_timesteps):
@@ -168,8 +261,18 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
         m["timestep"] = float(t)
         per_timestep.append(m)
 
+        for vi, vi_idx in enumerate(visual_indices):
+            if i == vi_idx:
+                recon_for_vis[vi] = recon
+
     if not per_timestep:
         return None
+
+    if slices_dir is not None and all(v is not None for v in recon_for_vis):
+        save_slice_images(
+            exp, gt_volumes, gt_timesteps,
+            recon_for_vis, visual_indices, slices_dir,  # type: ignore[arg-type]
+        )
 
     keys  = ("psnr", "mse", "ssim", "target_psnr", "target_mse")
     means = {k: float(np.mean([p[k] for p in per_timestep])) for k in keys}
@@ -257,9 +360,13 @@ def main() -> None:
         sys.exit(f"ERROR: no synthetic_ghost experiments found under {args.outputs_dir}")
     print(f"\nFound {len(experiments)} experiments\n")
 
+    slices_dir = args.out_dir / "slices"
+    print("\nSaving GT slice images...")
+    save_gt_slice_images(gt_volumes, gt_timesteps, slices_dir)
+
     results = []
     for exp in experiments:
-        result = evaluate_experiment(exp, gt_volumes, gt_timesteps)
+        result = evaluate_experiment(exp, gt_volumes, gt_timesteps, slices_dir=slices_dir)
         if result is not None:
             results.append(result)
 
