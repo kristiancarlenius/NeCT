@@ -461,7 +461,7 @@ def main():
     m_range = m.max() - m.min()
     grad_norm = (g - g.min()) / g_range if g_range > 0 else np.full_like(g, 0.5)
     acc_norm  = 1.0 - ((m - m.min()) / m_range if m_range > 0 else np.full_like(m, 0.5))
-    combined  = (grad_norm*0.4 + acc_norm*0.6)
+    combined  = (grad_norm*0.25 + acc_norm*0.75)
 
     fig, ax = plt.subplots(figsize=(figw, 4), constrained_layout=True)
     bars = ax.bar(x, combined, color=bar_colours, edgecolor="white", linewidth=0.5)

@@ -20,6 +20,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from PIL import Image
+from skimage.metrics import structural_similarity as _ssim_fn
 
 ROOT       = Path(__file__).parent
 SIZEDIFF   = ROOT / "sizediff"
@@ -55,10 +56,18 @@ MODEL_DISPLAY = {
 # Families absent here are excluded from the all-model plots entirely.
 MANUAL_ALL_CONFIGS = {
     "quadcubes":               ["23_4_23_4_128"],
-    "quadcubes_large_spatial": None,   # keep auto top-2
-    "mixedcubes":              ["18_4_22_4_64", "18_4_23_6_128", "24_4_24_4_128", "22_4_25_4_128"],
-    "combinedcubes":            ["18_4_23_6_64", "18_4_24_4_128", "24_4_24_6_128", "22_4_25_4_128"],
+    "quadcubes_large_spatial": ["24_4_24_4_128"],   # keep auto top-2
+    "mixedcubes":              ["18_4_23_6_128", "24_4_24_4_128", "22_4_25_4_128"],
+    "combinedcubes":            ["18_4_23_6_64", "24_4_24_6_128", "22_4_25_4_128"],
     # quadcubes_large_temporal excluded
+}
+
+# Second VRAM scatter — redefine entries here as needed.
+MANUAL_VRAM2_CONFIGS = {
+    "quadcubes":               ["23_4_23_4_128", "22_4_22_4_128", "21_4_21_4_128"],
+    "quadcubes_large_spatial": None,
+    "mixedcubes":              ["18_4_22_4_64", "18_4_23_6_128", "23_4_23_4_128", "24_4_24_4_128", "22_4_25_4_128", "16_4_25_4_128", "25_2_25_4_128"],
+    "combinedcubes":           ["18_4_23_6_64", "18_4_24_4_128", "24_4_24_6_128", "22_4_25_4_128", "18_2_24_4_128"],
 }
 
 # One color per family; solid = rank-1 config, dashed = rank-2 config
@@ -69,6 +78,13 @@ FAMILY_COLORS = {
     "quadcubes_large_spatial":  "#9467bd",
     "quadcubes_large_temporal": "#d62728",
 }
+
+BAR_MODELS = [
+    "quadcubes",
+    "quadcubes_large_spatial",
+    "mixedcubes",
+    "combinedcubes",
+]
 
 GPU_LINES = [
     ("A100 40 GB", 40),
@@ -101,6 +117,29 @@ def compute_psnr(ref, cand, crops):
         mse_vals.append(float(np.mean((r - q) ** 2)))
     mse = float(np.mean(mse_vals))
     return 10.0 * np.log10(255.0 ** 2 / mse) if mse > 0 else float("inf")
+
+
+def compute_ssim(ref, cand, crops):
+    ssim_vals = []
+    for c in crops:
+        r = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        q = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]].copy()
+        if r.std() > 0 and q.std() > 0:
+            q = (q - q.mean()) / q.std() * r.std() + r.mean()
+            q = np.clip(q, 0, 255)
+        ssim_vals.append(float(_ssim_fn(r, q, data_range=255)))
+    return float(np.mean(ssim_vals))
+
+
+def compute_mae(ref, cand, crops):
+    mae_vals = []
+    for c in crops:
+        r = ref[c["y0"]:c["y1"], c["x0"]:c["x1"]]
+        q = cand[c["y0"]:c["y1"], c["x0"]:c["x1"]].copy()
+        if r.std() > 0 and q.std() > 0:
+            q = (q - q.mean()) / q.std() * r.std() + r.mean()
+        mae_vals.append(float(np.mean(np.abs(r - q))))
+    return float(np.mean(mae_vals))
 
 
 def parse_epoch_times(path):
@@ -236,6 +275,34 @@ def collect_manual_all(crops, ref, top2_auto):
     return result
 
 
+def collect_manual_vram2(crops, ref, top2_auto):
+    """Same mechanics as collect_manual_all but driven by MANUAL_VRAM2_CONFIGS."""
+    result = {}
+    for model, cfg_names in MANUAL_VRAM2_CONFIGS.items():
+        if cfg_names is None:
+            if model in top2_auto:
+                result[model] = top2_auto[model]
+            continue
+        model_dir = SIZEDIFF / model
+        if not model_dir.exists():
+            print(f"  [skip] {model}: directory not found")
+            continue
+        entries = []
+        for name in cfg_names:
+            cfg_dir = model_dir / name
+            if not cfg_dir.exists():
+                print(f"  [skip] {model}/{name}: not found")
+                continue
+            data = load_config(cfg_dir, ref, crops)
+            if not data["epoch_psnr"] and not data["time_psnr"]:
+                print(f"  [skip] {model}/{name}: no data")
+                continue
+            entries.append((name, data))
+        if entries:
+            result[model] = entries
+    return result
+
+
 def collect_family_smallest(model, n, top2, crops, ref):
     """Return up to n configs from a model family sorted by hash-table size (smallest first).
 
@@ -265,9 +332,8 @@ def collect_family_smallest(model, n, top2, crops, ref):
 
 # ── plot functions ────────────────────────────────────────────────────────────
 
-# Marker shapes per rank within a family.
-# All lines stay solid and full-colour; configs are told apart by marker shape.
-MARKER_SHAPES = ["o", "s", "^", "D"]
+# Line styles per rank within a family: solid = rank-0, dashed = rank-1, etc.
+LINESTYLES = ["-", "--", "-.", ":"]
 
 
 def plot_psnr_epoch(models, top2, filename, title):
@@ -283,13 +349,24 @@ def plot_psnr_epoch(models, top2, filename, title):
                 continue
             xs, ys = zip(*pts)
             ax.plot(xs, ys, color=color, linewidth=1.8,
-                    linestyle="-", marker=MARKER_SHAPES[rank % len(MARKER_SHAPES)],
-                    markersize=5, label=f"{display} — {cfg_label}")
+                    linestyle=LINESTYLES[rank % len(LINESTYLES)],
+                    marker="o", markersize=3, label=f"{display} — {cfg_label}")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("PSNR (dB)")
     ax.set_title(title)
     ax.legend(fontsize=7.5, loc="lower right")
     ax.grid(True, alpha=0.3)
+    print(f"\n  [{filename}]")
+    for model in models:
+        if model not in top2:
+            continue
+        for _rank, (cfg_label, data) in enumerate(top2[model]):
+            pts = data["epoch_psnr"]
+            if not pts:
+                continue
+            print(f"    {MODEL_DISPLAY[model]} — {cfg_label}: "
+                  f"epochs {pts[0][0]}–{pts[-1][0]}, "
+                  f"PSNR {pts[0][1]:.2f}–{pts[-1][1]:.2f} dB")
     fig.tight_layout()
     out = RESULTS / filename
     fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -308,7 +385,7 @@ def _cap_time_series(entries):
 
 def plot_psnr_time(models, top2, filename, title):
     # collect all series first so we can cap them together
-    entries = []  # (shaded_color, label_str, pts)
+    entries = []  # (color, linestyle, label_str, pts)
     for model in models:
         if model not in top2:
             continue
@@ -316,7 +393,7 @@ def plot_psnr_time(models, top2, filename, title):
         display = MODEL_DISPLAY[model]
         for rank, (cfg_label, data) in enumerate(top2[model]):
             entries.append((color,
-                            MARKER_SHAPES[rank % len(MARKER_SHAPES)],
+                            LINESTYLES[rank % len(LINESTYLES)],
                             f"{display} — {cfg_label}",
                             data["time_psnr"]))
 
@@ -325,18 +402,25 @@ def plot_psnr_time(models, top2, filename, title):
     capped = {lab: pts for lab, pts in labeled}
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    for color, marker, label, _ in entries:
+    for color, ls, label, _ in entries:
         pts = capped.get(label)
         if not pts:
             continue
         xs, ys = zip(*pts)
-        ax.plot(xs, ys, color=color, linewidth=1.8, linestyle="-",
-                marker=marker, markersize=5, label=label)
+        ax.plot(xs, ys, color=color, linewidth=1.8, linestyle=ls,
+                marker="o", markersize=3, label=label)
     ax.set_xlabel("Wall-clock time (hours)")
     ax.set_ylabel("PSNR (dB)")
     ax.set_title(title)
     ax.legend(fontsize=7.5, loc="lower right")
     ax.grid(True, alpha=0.3)
+    print(f"\n  [{filename}]")
+    for _color, _ls, label, _ in entries:
+        pts = capped.get(label)
+        if not pts:
+            continue
+        print(f"    {label}: t={pts[0][0]:.2f}–{pts[-1][0]:.2f} h, "
+              f"PSNR {pts[0][1]:.2f}–{pts[-1][1]:.2f} dB")
     fig.tight_layout()
     out = RESULTS / filename
     fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -359,6 +443,7 @@ def plot_vram(models, top2, filename, title):
 
     seen_models = set()
     any_point = False
+    print(f"\n  [{filename}]")
     for model in models:
         if model not in top2:
             continue
@@ -369,6 +454,8 @@ def plot_vram(models, top2, filename, title):
             psnr = _psnr_at(data["time_psnr"], TARGET_H)
             if vram is None or psnr is None:
                 continue
+            print(f"    {display} — {cfg_label}: VRAM={vram:.1f} GB, "
+                  f"PSNR@{TARGET_H:.0f}h={psnr:.2f} dB")
             legend_label = display if model not in seen_models else None
             seen_models.add(model)
             ax.scatter(vram, psnr, color=color, marker="o",
@@ -391,13 +478,96 @@ def plot_vram(models, top2, filename, title):
                 ha="center", va="top", fontsize=9, color="black", rotation=90,
                 transform=ax.get_xaxis_transform(), clip_on=False)
 
-    ax.set_xlabel("Peak Reserved VRAM (GB)", loc="left")
+    ax.set_xlabel("")
+    ax.text(0, -0.09, "Peak Reserved VRAM (GB)",
+            transform=ax.transAxes, ha="left", va="top", fontsize=9)
     ax.set_ylabel(f"PSNR (dB) at ~{TARGET_H:.0f} h")
     ax.set_title(title)
     ax.set_xlim(left=0, right=x_max)
     ax.grid(True, alpha=0.3)
     ax.legend(fontsize=8, loc="upper right")
 
+    fig.tight_layout()
+    out = RESULTS / filename
+    fig.savefig(out, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Saved → {out}")
+
+
+# ── metrics bar chart ─────────────────────────────────────────────────────────
+
+def collect_top1_metrics(crops, ref, top2_auto):
+    """Load the last time-series image for the top-1 config of each BAR_MODELS family
+    and compute PSNR, SSIM, MAE against the reference."""
+    result = {}
+    for model in BAR_MODELS:
+        if model not in top2_auto or not top2_auto[model]:
+            print(f"  [skip] {model}: not in top2")
+            continue
+        cfg_name, _ = top2_auto[model][0]
+        time_dir = SIZEDIFF / model / cfg_name / "time"
+        imgs = sorted(time_dir.glob("*_1400.png")) if time_dir.exists() else []
+        if not imgs:
+            print(f"  [skip] {model}/{cfg_name}: no time images")
+            continue
+        img = load_gray(imgs[-1])
+        result[model] = {
+            "cfg":  cfg_name,
+            "psnr": compute_psnr(ref, img, crops),
+            "ssim": compute_ssim(ref, img, crops),
+            "mae":  compute_mae(ref, img, crops),
+        }
+        print(f"  {MODEL_DISPLAY[model]:22s}  {cfg_name}  "
+              f"PSNR={result[model]['psnr']:.2f}  "
+              f"SSIM={result[model]['ssim']:.4f}  "
+              f"MAE={result[model]['mae']:.2f}")
+    return result
+
+
+def plot_metrics_bar(metrics, filename, title):
+    """Three side-by-side bar charts: PSNR, SSIM, MAE for top-1 per family."""
+    models   = [m for m in BAR_MODELS if m in metrics]
+    if not models:
+        print(f"  No data for {filename} — skipping.")
+        return
+    displays = [MODEL_DISPLAY[m] for m in models]
+    colors   = [FAMILY_COLORS[m] for m in models]
+    xs       = np.arange(len(models))
+    bar_w    = 0.55
+
+    specs = [
+        ("psnr", "PSNR (dB)",  "↑ higher is better", ".2f"),
+        ("ssim", "SSIM",       "↑ higher is better", ".4f"),
+        ("mae",  "MAE",        "↓ lower is better",  ".2f"),
+    ]
+
+    fig, axes = plt.subplots(1, 3, figsize=(13, 5))
+    fig.suptitle(title, fontsize=11, fontweight="bold")
+
+    for ax, (key, ylabel, direction, fmt) in zip(axes, specs):
+        vals = [metrics[m][key] for m in models]
+        bars = ax.bar(xs, vals, width=bar_w, color=colors,
+                      edgecolor="white", linewidth=0.8, zorder=3)
+        for bar, val in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() * 1.005,
+                    f"{val:{fmt}}", ha="center", va="bottom", fontsize=8.5)
+        ax.set_xticks(xs)
+        ax.set_xticklabels(displays, rotation=15, ha="right", fontsize=9.5)
+        ax.set_ylabel(ylabel, fontsize=10)
+        ax.set_title(direction, fontsize=8.5, color="gray", pad=4)
+        ax.grid(True, axis="y", alpha=0.3, zorder=0)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        # give headroom above the tallest bar for the value label
+        ymax = max(vals)
+        ax.set_ylim(0, ymax * 1.12)
+
+    print(f"\n  [{filename}]")
+    for m in models:
+        d = metrics[m]
+        print(f"    {MODEL_DISPLAY[m]:22s} ({d['cfg']}): "
+              f"PSNR={d['psnr']:.2f}  SSIM={d['ssim']:.4f}  MAE={d['mae']:.2f}")
     fig.tight_layout()
     out = RESULTS / filename
     fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -421,20 +591,30 @@ def main():
     print("\nGenerating all-models plots ...")
     all_models_ordered = list(MANUAL_ALL_CONFIGS.keys())
     plot_psnr_epoch(all_models_ordered, all_top2, "all_psnr_epoch.png",
-                    "PSNR vs Epoch — selected configs")
+                    "PSNR vs Epoch")
     plot_psnr_time(all_models_ordered, all_top2, "all_psnr_time.png",
-                   "PSNR vs Time — selected configs")
+                   "PSNR vs Time")
     plot_vram(all_models_ordered, all_top2, "all_vram.png",
-              "PSNR at 24 h vs VRAM — selected configs")
+              "PSNR at 24 h vs VRAM")
+
+    print("\nCollecting vram2 configs ...")
+    vram2_top2 = collect_manual_vram2(crops, ref, top2)
+    plot_vram(list(MANUAL_VRAM2_CONFIGS.keys()), vram2_top2, "all_vram2.png",
+              "PSNR at 24 h vs VRAM")
 
     print("\nGenerating quad-only plots ...")
     plot_psnr_epoch(QUAD_MODELS, top2, "quad_psnr_epoch.png",
-                    "PSNR vs Epoch — QuadCubes variants (top-2 configs each)")
+                    "PSNR vs Epoch - QuadCubes variants (top-2 configs each)")
     plot_psnr_time(QUAD_MODELS, top2, "quad_psnr_time.png",
-                   "PSNR vs Time — QuadCubes variants (top-2 configs each)")
+                   "PSNR vs Time - QuadCubes variants (top-2 configs each)")
     plot_vram(QUAD_MODELS, top2, "quad_vram.png",
-              "PSNR at 24 h vs VRAM — QuadCubes variants (top-2 configs each)")
+              "PSNR at 24 h vs VRAM - QuadCubes variants (top-2 configs each)")
 
+
+    print("\nCollecting top-1 metrics for bar chart ...")
+    top1_metrics = collect_top1_metrics(crops, ref, top2)
+    plot_metrics_bar(top1_metrics, "metrics_bar.png",
+                     "Top-1 Model — PSNR / SSIM / MAE")
 
     print("\nDone. Results in", RESULTS)
 
