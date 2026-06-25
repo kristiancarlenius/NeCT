@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  25 JUN 2026 01:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.4)  25 JUN 2026 02:56
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1316,9 +1316,10 @@ g (\T1/lmtt/m/n/12 22_4_22_4_128\T1/lmr/m/n/12 (-20) ,
  []
 
 
-Overfull \hbox (2.83656pt too wide) in paragraph at lines 46--46
- \T1/lmr/m/sc/12 (-20) Mixed-Cubes \T1/lmtt/m/n/12 24_4_24_4_128 \T1/lmr/m/n/12
- (-20) 38.25dB (22.1GB), spatial-heavy Quad- 
+Overfull \hbox (7.79082pt too wide) in paragraph at lines 46--46
+ \T1/lmr/m/n/12 (-20) Cubes (\T1/lmtt/m/n/12 24_4_24_4_128\T1/lmr/m/n/12 (-20) 
+), three \T1/lmr/m/sc/12 (-20) Mixed-Cubes \T1/lmr/m/n/12 (-20) vari-ants (\T1/
+lmtt/m/n/12 18_4_23_6_128\T1/lmr/m/n/12 (-20) , 
  []
 
 
@@ -1334,7 +1335,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [13]
-Underfull \vbox (badness 1552) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
@@ -1411,7 +1412,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [4]
-<images//thesis_overview.pdf, id=854, 881.69403pt x 664.88402pt>
+<images//thesis_overview.pdf, id=841, 881.69403pt x 664.88402pt>
 File: images//thesis_overview.pdf Graphic file (type pdf)
 <use images//thesis_overview.pdf>
 Package pdftex.def Info: images//thesis_overview.pdf  used on input line 163.
@@ -1503,7 +1504,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [13]
-<images//nerf.png, id=1128, 1183.42125pt x 374.14781pt>
+<images//nerf.png, id=1115, 1183.42125pt x 374.14781pt>
 File: images//nerf.png Graphic file (type png)
 <use images//nerf.png>
 Package pdftex.def Info: images//nerf.png  used on input line 353.
@@ -1545,7 +1546,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [17]
-<images//nect_pipeline.png, id=1181, 986.9372pt x 250.68657pt>
+<images//nect_pipeline.png, id=1168, 986.9372pt x 250.68657pt>
 File: images//nect_pipeline.png Graphic file (type png)
 <use images//nect_pipeline.png>
 Package pdftex.def Info: images//nect_pipeline.png  used on input line 452.
@@ -1560,7 +1561,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [18 <./images//nect_pipeline.png (PNG copy)>]
-<images//static_nect.png, id=1192, 417.05812pt x 148.30406pt>
+<images//static_nect.png, id=1179, 417.05812pt x 148.30406pt>
 File: images//static_nect.png Graphic file (type png)
 <use images//static_nect.png>
 Package pdftex.def Info: images//static_nect.png  used on input line 486.
@@ -1575,11 +1576,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [19 <./images//static_nect.png (PNG copy)>]
-<images//quadcubes.png, id=1215, 615.0478pt x 312.41719pt>
+<images//quadcubes.png, id=1201, 1349.04pt x 711.65875pt>
 File: images//quadcubes.png Graphic file (type png)
 <use images//quadcubes.png>
 Package pdftex.def Info: images//quadcubes.png  used on input line 511.
-(pdftex.def)             Requested size: 405.45049pt x 205.95285pt.
+(pdftex.def)             Requested size: 405.45049pt x 213.87933pt.
 
 Overfull \hbox (17.56839pt too wide) detected at line 524
 [][][]\OT1/lmr/m/n/12 (\OML/lmm/m/it/12 x; y; z\OT1/lmr/m/n/12 )\OML/lmm/m/it/1
@@ -1598,9 +1599,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [20]
-Underfull \vbox (badness 4328) has occurred while \output is active []
-
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1610,7 +1608,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [21 <./images//quadcubes.png (PNG copy)>]
-<images//fig_golden_section.pdf, id=1239, 898.57655pt x 624.28386pt>
+<images//fig_golden_section.pdf, id=1226, 898.57655pt x 624.28386pt>
 File: images//fig_golden_section.pdf Graphic file (type pdf)
 <use images//fig_golden_section.pdf>
 Package pdftex.def Info: images//fig_golden_section.pdf  used on input line 552
@@ -1641,7 +1639,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [23 <./images//fig_golden_section.pdf>] [24
 
 ]
-<images//fig_phenomena_A.pdf, id=1355, 715.47299pt x 563.70598pt>
+<images//fig_phenomena_A.pdf, id=1342, 715.47299pt x 563.70598pt>
 File: images//fig_phenomena_A.pdf Graphic file (type pdf)
 <use images//fig_phenomena_A.pdf>
 Package pdftex.def Info: images//fig_phenomena_A.pdf  used on input line 580.
@@ -1651,7 +1649,7 @@ Overfull \hbox (71.13321pt too wide) in paragraph at lines 580--581
 []| [] 
  []
 
-<images//fig_phenomena_B.pdf, id=1356, 733.70651pt x 563.70598pt>
+<images//fig_phenomena_B.pdf, id=1343, 733.70651pt x 563.70598pt>
 File: images//fig_phenomena_B.pdf Graphic file (type pdf)
 <use images//fig_phenomena_B.pdf>
 Package pdftex.def Info: images//fig_phenomena_B.pdf  used on input line 586.
@@ -1661,7 +1659,7 @@ Overfull \hbox (56.90683pt too wide) in paragraph at lines 586--587
 []| [] 
  []
 
-<images//fig_phenomena_C.pdf, id=1357, 715.47299pt x 563.70598pt>
+<images//fig_phenomena_C.pdf, id=1344, 715.47299pt x 563.70598pt>
 File: images//fig_phenomena_C.pdf Graphic file (type pdf)
 <use images//fig_phenomena_C.pdf>
 Package pdftex.def Info: images//fig_phenomena_C.pdf  used on input line 592.
@@ -1750,21 +1748,21 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [33]
-<images//hashmap23_plots/hashmap23_epoch_psnr.png, id=1645, 714.9912pt x 367.61
+<images//hashmap23_plots/hashmap23_epoch_psnr.png, id=1632, 714.9912pt x 367.61
 34pt>
 File: images//hashmap23_plots/hashmap23_epoch_psnr.png Graphic file (type png)
 <use images//hashmap23_plots/hashmap23_epoch_psnr.png>
 Package pdftex.def Info: images//hashmap23_plots/hashmap23_epoch_psnr.png  used
  on input line 730.
 (pdftex.def)             Requested size: 469.4731pt x 241.38593pt.
-<images//hashmap23_plots/hashmap23_time_psnr.png, id=1647, 714.9912pt x 367.613
+<images//hashmap23_plots/hashmap23_time_psnr.png, id=1634, 714.9912pt x 367.613
 4pt>
 File: images//hashmap23_plots/hashmap23_time_psnr.png Graphic file (type png)
 <use images//hashmap23_plots/hashmap23_time_psnr.png>
 Package pdftex.def Info: images//hashmap23_plots/hashmap23_time_psnr.png  used 
 on input line 739.
 (pdftex.def)             Requested size: 469.4731pt x 241.38593pt.
-<images//hashmap23_plots/hashmap23_vram_psnr.png, id=1648, 638.8668pt x 440.365
+<images//hashmap23_plots/hashmap23_vram_psnr.png, id=1635, 638.8668pt x 440.365
 2pt>
 File: images//hashmap23_plots/hashmap23_vram_psnr.png Graphic file (type png)
 <use images//hashmap23_plots/hashmap23_vram_psnr.png>
@@ -1791,19 +1789,19 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [35 <./images//hashmap23_plots/hashmap23_time_psnr.png> <./images//hashmap23_pl
 ots/hashmap23_vram_psnr.png>]
-<images//arc_diagram/singlecube_diagram.png, id=1664, 691.58376pt x 253.94875pt
+<images//arc_diagram/singlecube_diagram.png, id=1651, 691.58376pt x 253.94875pt
 >
 File: images//arc_diagram/singlecube_diagram.png Graphic file (type png)
 <use images//arc_diagram/singlecube_diagram.png>
 Package pdftex.def Info: images//arc_diagram/singlecube_diagram.png  used on in
 put line 765.
 (pdftex.def)             Requested size: 298.75264pt x 109.70345pt.
-<images//compairson.png, id=1665, 1702.36pt x 1682.285pt>
+<images//compairson.png, id=1652, 1702.36pt x 1682.285pt>
 File: images//compairson.png Graphic file (type png)
 <use images//compairson.png>
 Package pdftex.def Info: images//compairson.png  used on input line 774.
 (pdftex.def)             Requested size: 256.07742pt x 253.05061pt.
-<images//singlecube.png, id=1666, 1702.36pt x 1682.285pt>
+<images//singlecube.png, id=1653, 1702.36pt x 1682.285pt>
 File: images//singlecube.png Graphic file (type png)
 <use images//singlecube.png>
 Package pdftex.def Info: images//singlecube.png  used on input line 779.
@@ -1828,19 +1826,19 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [37 <./images//compairson.png (PNG copy)> <./images//singlecube.png (PNG copy)>
 ]
-<images//nlevel_plots/nlevel_epoch_psnr.png, id=1677, 714.9912pt x 367.6134pt>
+<images//nlevel_plots/nlevel_epoch_psnr.png, id=1664, 714.9912pt x 367.6134pt>
 File: images//nlevel_plots/nlevel_epoch_psnr.png Graphic file (type png)
 <use images//nlevel_plots/nlevel_epoch_psnr.png>
 Package pdftex.def Info: images//nlevel_plots/nlevel_epoch_psnr.png  used on in
 put line 813.
 (pdftex.def)             Requested size: 469.4731pt x 241.38593pt.
-<images//nlevel_plots/nlevel_time_psnr.png, id=1678, 714.9912pt x 367.6134pt>
+<images//nlevel_plots/nlevel_time_psnr.png, id=1665, 714.9912pt x 367.6134pt>
 File: images//nlevel_plots/nlevel_time_psnr.png Graphic file (type png)
 <use images//nlevel_plots/nlevel_time_psnr.png>
 Package pdftex.def Info: images//nlevel_plots/nlevel_time_psnr.png  used on inp
 ut line 822.
 (pdftex.def)             Requested size: 469.4731pt x 241.38593pt.
-<images//nlevel_plots/nlevel_vram_psnr.png, id=1679, 639.8304pt x 440.3652pt>
+<images//nlevel_plots/nlevel_vram_psnr.png, id=1666, 639.8304pt x 440.3652pt>
 File: images//nlevel_plots/nlevel_vram_psnr.png Graphic file (type png)
 <use images//nlevel_plots/nlevel_vram_psnr.png>
 Package pdftex.def Info: images//nlevel_plots/nlevel_vram_psnr.png  used on inp
@@ -1875,21 +1873,21 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [40 <./images//nlevel_plots/nlevel_vram_psnr.png>]
-<images//features_plots/features_epoch_psnr.png, id=1697, 714.9912pt x 367.6134
+<images//features_plots/features_epoch_psnr.png, id=1683, 714.9912pt x 367.6134
 pt>
 File: images//features_plots/features_epoch_psnr.png Graphic file (type png)
 <use images//features_plots/features_epoch_psnr.png>
 Package pdftex.def Info: images//features_plots/features_epoch_psnr.png  used o
 n input line 851.
 (pdftex.def)             Requested size: 469.4731pt x 241.38593pt.
-<images//features_plots/features_time_psnr.png, id=1698, 714.9912pt x 367.6134p
+<images//features_plots/features_time_psnr.png, id=1684, 714.9912pt x 367.6134p
 t>
 File: images//features_plots/features_time_psnr.png Graphic file (type png)
 <use images//features_plots/features_time_psnr.png>
 Package pdftex.def Info: images//features_plots/features_time_psnr.png  used on
  input line 860.
 (pdftex.def)             Requested size: 469.4731pt x 241.38593pt.
-<images//features_plots/features_vram_psnr.png, id=1699, 639.8304pt x 440.3652p
+<images//features_plots/features_vram_psnr.png, id=1685, 639.8304pt x 440.3652p
 t>
 File: images//features_plots/features_vram_psnr.png Graphic file (type png)
 <use images//features_plots/features_vram_psnr.png>
@@ -1925,7 +1923,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [43 <./images//features_plots/features_vram_psnr.png>]
-<images//arc_diagram/hexcubes_diagram.png, id=1715, 697.60625pt x 485.815pt>
+<images//arc_diagram/hexcubes_diagram.png, id=1702, 697.60625pt x 485.815pt>
 File: images//arc_diagram/hexcubes_diagram.png Graphic file (type png)
 <use images//arc_diagram/hexcubes_diagram.png>
 Package pdftex.def Info: images//arc_diagram/hexcubes_diagram.png  used on inpu
@@ -1935,17 +1933,17 @@ File: images//compairson.png Graphic file (type png)
 <use images//compairson.png>
 Package pdftex.def Info: images//compairson.png  used on input line 895.
 (pdftex.def)             Requested size: 213.39568pt x 210.8755pt.
-<images//sexcubes_128_4.png, id=1716, 1702.36pt x 1682.285pt>
+<images//sexcubes_128_4.png, id=1703, 1702.36pt x 1682.285pt>
 File: images//sexcubes_128_4.png Graphic file (type png)
 <use images//sexcubes_128_4.png>
 Package pdftex.def Info: images//sexcubes_128_4.png  used on input line 900.
 (pdftex.def)             Requested size: 213.39568pt x 210.8755pt.
-<images//sexcubes_128_7.png, id=1717, 1702.36pt x 1682.285pt>
+<images//sexcubes_128_7.png, id=1704, 1702.36pt x 1682.285pt>
 File: images//sexcubes_128_7.png Graphic file (type png)
 <use images//sexcubes_128_7.png>
 Package pdftex.def Info: images//sexcubes_128_7.png  used on input line 905.
 (pdftex.def)             Requested size: 213.39568pt x 210.8755pt.
-<images//sexcubes_128_16.png, id=1718, 1702.36pt x 1682.285pt>
+<images//sexcubes_128_16.png, id=1705, 1702.36pt x 1682.285pt>
 File: images//sexcubes_128_16.png Graphic file (type png)
 <use images//sexcubes_128_16.png>
 Package pdftex.def Info: images//sexcubes_128_16.png  used on input line 910.
@@ -1983,7 +1981,7 @@ Overfull \hbox (55.19801pt too wide) in paragraph at lines 949--960
  [][] 
  []
 
-<images//psnr_arc/quadcubes_large_spatial_epoch_psnr.png, id=1742, 642.7212pt x
+<images//psnr_arc/quadcubes_large_spatial_epoch_psnr.png, id=1729, 642.7212pt x
  367.6134pt>
 File: images//psnr_arc/quadcubes_large_spatial_epoch_psnr.png Graphic file (typ
 e png)
@@ -1991,7 +1989,7 @@ e png)
 Package pdftex.def Info: images//psnr_arc/quadcubes_large_spatial_epoch_psnr.pn
 g  used on input line 966.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/quadcubes_large_spatial_time_psnr.png, id=1743, 642.7212pt x 
+<images//psnr_arc/quadcubes_large_spatial_time_psnr.png, id=1730, 642.7212pt x 
 367.6134pt>
 File: images//psnr_arc/quadcubes_large_spatial_time_psnr.png Graphic file (type
  png)
@@ -1999,7 +1997,7 @@ File: images//psnr_arc/quadcubes_large_spatial_time_psnr.png Graphic file (type
 Package pdftex.def Info: images//psnr_arc/quadcubes_large_spatial_time_psnr.png
   used on input line 975.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/quadcubes_large_temporal_epoch_psnr.png, id=1744, 642.7212pt 
+<images//psnr_arc/quadcubes_large_temporal_epoch_psnr.png, id=1731, 642.7212pt 
 x 367.6134pt>
 File: images//psnr_arc/quadcubes_large_temporal_epoch_psnr.png Graphic file (ty
 pe png)
@@ -2007,7 +2005,7 @@ pe png)
 Package pdftex.def Info: images//psnr_arc/quadcubes_large_temporal_epoch_psnr.p
 ng  used on input line 984.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/quadcubes_large_temporal_time_psnr.png, id=1745, 642.7212pt x
+<images//psnr_arc/quadcubes_large_temporal_time_psnr.png, id=1732, 642.7212pt x
  367.6134pt>
 File: images//psnr_arc/quadcubes_large_temporal_time_psnr.png Graphic file (typ
 e png)
@@ -2055,19 +2053,19 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [50 <./images//psnr_arc/quadcubes_large_temporal_time_psnr.png>]
-<images//top2/quad_psnr_epoch.png, id=1770, 714.9912pt x 352.1958pt>
+<images//top2/quad_psnr_epoch.png, id=1757, 714.9912pt x 352.1958pt>
 File: images//top2/quad_psnr_epoch.png Graphic file (type png)
 <use images//top2/quad_psnr_epoch.png>
 Package pdftex.def Info: images//top2/quad_psnr_epoch.png  used on input line 1
 010.
 (pdftex.def)             Requested size: 469.4731pt x 231.26228pt.
-<images//top2/quad_psnr_time.png, id=1771, 714.5094pt x 352.1958pt>
+<images//top2/quad_psnr_time.png, id=1758, 714.5094pt x 352.1958pt>
 File: images//top2/quad_psnr_time.png Graphic file (type png)
 <use images//top2/quad_psnr_time.png>
 Package pdftex.def Info: images//top2/quad_psnr_time.png  used on input line 10
 19.
 (pdftex.def)             Requested size: 469.4731pt x 231.41275pt.
-<images//top2/quad_vram.png, id=1772, 641.7576pt x 352.6776pt>
+<images//top2/quad_vram.png, id=1759, 641.7576pt x 352.6776pt>
 File: images//top2/quad_vram.png Graphic file (type png)
 <use images//top2/quad_vram.png>
 Package pdftex.def Info: images//top2/quad_vram.png  used on input line 1028.
@@ -2091,38 +2089,38 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [52 <./images//top2/quad_psnr_time.png> <./images//top2/quad_vram.png>]
-<images//arc_diagram/combinedcubes_diagram.png, id=1786, 691.58376pt x 326.2187
+<images//arc_diagram/combinedcubes_diagram.png, id=1773, 691.58376pt x 326.2187
 5pt>
 File: images//arc_diagram/combinedcubes_diagram.png Graphic file (type png)
 <use images//arc_diagram/combinedcubes_diagram.png>
 Package pdftex.def Info: images//arc_diagram/combinedcubes_diagram.png  used on
  input line 1044.
 (pdftex.def)             Requested size: 341.43439pt x 161.05815pt.
-<images//combinedcube_150epoch.png, id=1787, 1702.36pt x 1682.285pt>
+<images//combinedcube_150epoch.png, id=1774, 1702.36pt x 1682.285pt>
 File: images//combinedcube_150epoch.png Graphic file (type png)
 <use images//combinedcube_150epoch.png>
 Package pdftex.def Info: images//combinedcube_150epoch.png  used on input line 
 1071.
 (pdftex.def)             Requested size: 192.05481pt x 189.77512pt.
-<images//quadcube_150epoch.png, id=1788, 1702.36pt x 1682.285pt>
+<images//quadcube_150epoch.png, id=1775, 1702.36pt x 1682.285pt>
 File: images//quadcube_150epoch.png Graphic file (type png)
 <use images//quadcube_150epoch.png>
 Package pdftex.def Info: images//quadcube_150epoch.png  used on input line 1076
 .
 (pdftex.def)             Requested size: 192.05481pt x 189.77512pt.
-<images//cc_qc_comp.png, id=1789, 932.283pt x 322.3242pt>
+<images//cc_qc_comp.png, id=1776, 932.283pt x 322.3242pt>
 File: images//cc_qc_comp.png Graphic file (type png)
 <use images//cc_qc_comp.png>
 Package pdftex.def Info: images//cc_qc_comp.png  used on input line 1087.
 (pdftex.def)             Requested size: 469.4731pt x 162.31749pt.
-<images//psnr_arc/combinedcube_epoch_psnr.png, id=1790, 642.7212pt x 367.6134pt
+<images//psnr_arc/combinedcube_epoch_psnr.png, id=1777, 642.7212pt x 367.6134pt
 >
 File: images//psnr_arc/combinedcube_epoch_psnr.png Graphic file (type png)
 <use images//psnr_arc/combinedcube_epoch_psnr.png>
 Package pdftex.def Info: images//psnr_arc/combinedcube_epoch_psnr.png  used on 
 input line 1096.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/combinedcube_time_psnr.png, id=1791, 642.7212pt x 367.6134pt>
+<images//psnr_arc/combinedcube_time_psnr.png, id=1778, 642.7212pt x 367.6134pt>
 
 File: images//psnr_arc/combinedcube_time_psnr.png Graphic file (type png)
 <use images//psnr_arc/combinedcube_time_psnr.png>
@@ -2167,7 +2165,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [56 <./images//psnr_arc/combinedcube_time_psnr.png>]
-<images//arc_diagram/mixedcubes_diagram.png, id=1818, 706.64pt x 374.39874pt>
+<images//arc_diagram/mixedcubes_diagram.png, id=1805, 706.64pt x 374.39874pt>
 File: images//arc_diagram/mixedcubes_diagram.png Graphic file (type png)
 <use images//arc_diagram/mixedcubes_diagram.png>
 Package pdftex.def Info: images//arc_diagram/mixedcubes_diagram.png  used on in
@@ -2177,7 +2175,7 @@ File: images//compairson.png Graphic file (type png)
 <use images//compairson.png>
 Package pdftex.def Info: images//compairson.png  used on input line 1133.
 (pdftex.def)             Requested size: 192.05481pt x 189.77512pt.
-<images//highcontrast_nect_12h.png, id=1819, 1702.36pt x 1682.285pt>
+<images//highcontrast_nect_12h.png, id=1806, 1702.36pt x 1682.285pt>
 File: images//highcontrast_nect_12h.png Graphic file (type png)
 <use images//highcontrast_nect_12h.png>
 Package pdftex.def Info: images//highcontrast_nect_12h.png  used on input line 
@@ -2186,7 +2184,7 @@ Package pdftex.def Info: images//highcontrast_nect_12h.png  used on input line
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/lmr/m/sc/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
-<images//highcontrast_mixedcubes_12h.png, id=1820, 1702.36pt x 1682.285pt>
+<images//highcontrast_mixedcubes_12h.png, id=1807, 1702.36pt x 1682.285pt>
 File: images//highcontrast_mixedcubes_12h.png Graphic file (type png)
 <use images//highcontrast_mixedcubes_12h.png>
 Package pdftex.def Info: images//highcontrast_mixedcubes_12h.png  used on input
@@ -2202,13 +2200,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [57]
-<images//psnr_arc/mixedcubes_epoch_psnr.png, id=1825, 642.7212pt x 367.6134pt>
+<images//psnr_arc/mixedcubes_epoch_psnr.png, id=1812, 642.7212pt x 367.6134pt>
 File: images//psnr_arc/mixedcubes_epoch_psnr.png Graphic file (type png)
 <use images//psnr_arc/mixedcubes_epoch_psnr.png>
 Package pdftex.def Info: images//psnr_arc/mixedcubes_epoch_psnr.png  used on in
 put line 1160.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/mixedcubes_time_psnr.png, id=1826, 642.2394pt x 367.6134pt>
+<images//psnr_arc/mixedcubes_time_psnr.png, id=1813, 642.2394pt x 367.6134pt>
 File: images//psnr_arc/mixedcubes_time_psnr.png Graphic file (type png)
 <use images//psnr_arc/mixedcubes_time_psnr.png>
 Package pdftex.def Info: images//psnr_arc/mixedcubes_time_psnr.png  used on inp
@@ -2292,30 +2290,42 @@ Overfull \hbox (35.21365pt too wide) in paragraph at lines 1223--1238
  [] 
  []
 
-<images//psnr_arc/quadcubes_epoch_psnr.png, id=1871, 642.7212pt x 367.6134pt>
+<images//psnr_arc/quadcubes_epoch_psnr.png, id=1858, 642.7212pt x 367.6134pt>
 File: images//psnr_arc/quadcubes_epoch_psnr.png Graphic file (type png)
 <use images//psnr_arc/quadcubes_epoch_psnr.png>
 Package pdftex.def Info: images//psnr_arc/quadcubes_epoch_psnr.png  used on inp
 ut line 1244.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/quadcubes_time_psnr.png, id=1872, 642.7212pt x 367.6134pt>
+<images//psnr_arc/quadcubes_time_psnr.png, id=1859, 642.7212pt x 367.6134pt>
 File: images//psnr_arc/quadcubes_time_psnr.png Graphic file (type png)
 <use images//psnr_arc/quadcubes_time_psnr.png>
 Package pdftex.def Info: images//psnr_arc/quadcubes_time_psnr.png  used on inpu
 t line 1253.
 (pdftex.def)             Requested size: 469.4731pt x 268.5182pt.
-<images//psnr_arc/combined_epoch_psnr.png, id=1873, 787.2612pt x 440.3652pt>
-File: images//psnr_arc/combined_epoch_psnr.png Graphic file (type png)
-<use images//psnr_arc/combined_epoch_psnr.png>
-Package pdftex.def Info: images//psnr_arc/combined_epoch_psnr.png  used on inpu
-t line 1264.
-(pdftex.def)             Requested size: 469.4731pt x 262.60849pt.
-<images//psnr_arc/combined_time_psnr.png, id=1874, 786.2976pt x 440.3652pt>
-File: images//psnr_arc/combined_time_psnr.png Graphic file (type png)
-<use images//psnr_arc/combined_time_psnr.png>
-Package pdftex.def Info: images//psnr_arc/combined_time_psnr.png  used on input
- line 1273.
-(pdftex.def)             Requested size: 469.4731pt x 262.93103pt.
+<images//top2/all_psnr_epoch.png, id=1860, 714.9912pt x 352.1958pt>
+File: images//top2/all_psnr_epoch.png Graphic file (type png)
+<use images//top2/all_psnr_epoch.png>
+Package pdftex.def Info: images//top2/all_psnr_epoch.png  used on input line 12
+64.
+(pdftex.def)             Requested size: 469.4731pt x 231.26228pt.
+
+Underfull \hbox (badness 3679) in paragraph at lines 1266--1266
+\T1/lmr/m/n/12 (+20) tec-ture: Quad-Cubes base-line (\T1/lmtt/m/n/12 23_4_23_4_
+128\T1/lmr/m/n/12 (+20) ), spatial-heavy Quad-Cubes
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1266--1266
+\T1/lmtt/m/n/12 22_4_25_4_128\T1/lmr/m/n/12 (+20) ), and three Com-bined-Cubes 
+vari-ants (\T1/lmtt/m/n/12 18_4_23_6_64\T1/lmr/m/n/12 (+20) ,
+ []
+
+<images//top2/all_psnr_time.png, id=1861, 713.5458pt x 352.1958pt>
+File: images//top2/all_psnr_time.png Graphic file (type png)
+<use images//top2/all_psnr_time.png>
+Package pdftex.def Info: images//top2/all_psnr_time.png  used on input line 127
+3.
+(pdftex.def)             Requested size: 469.4731pt x 231.72444pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2343,45 +2353,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[67 <./images//psnr_arc/combined_epoch_psnr.png>]
-<images//psnr_arc/top2_comparison.png, id=1890, 1004.0712pt x 529.0164pt>
-File: images//psnr_arc/top2_comparison.png Graphic file (type png)
-<use images//psnr_arc/top2_comparison.png>
-Package pdftex.def Info: images//psnr_arc/top2_comparison.png  used on input li
-ne 1286.
-(pdftex.def)             Requested size: 469.4731pt x 247.34619pt.
+[67 <./images//top2/all_psnr_epoch.png> <./images//top2/all_psnr_time.png>]
+<images//top2/metrics_bar.png, id=1882, 715.473pt x 427.8384pt>
+File: images//top2/metrics_bar.png Graphic file (type png)
+<use images//top2/metrics_bar.png>
+Package pdftex.def Info: images//top2/metrics_bar.png  used on input line 1286.
 
-Underfull \vbox (badness 6944) has occurred while \output is active []
+(pdftex.def)             Requested size: 469.4731pt x 280.73561pt.
 
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[68 <./images//psnr_arc/combined_time_psnr.png>]
-
-LaTeX Warning: File `psnr_arc/vram_efficiency_psnr.png' not found on input line
- 1297.
-
-
-/home/user/Documents/NeCT/docs/nectv2_thesis.tex:1297: Package pdftex.def Error
-: File `psnr_arc/vram_efficiency_psnr.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1297 ...idth]{psnr_arc/vram_efficiency_psnr.png}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 3792) has occurred while \output is active []
 
 
 
@@ -2392,7 +2372,22 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[69 <./images//psnr_arc/top2_comparison.png>]
+[68 <./images//top2/metrics_bar.png>]
+<images//top2/all_vram2.png, id=1890, 640.794pt x 352.6776pt>
+File: images//top2/all_vram2.png Graphic file (type png)
+<use images//top2/all_vram2.png>
+Package pdftex.def Info: images//top2/all_vram2.png  used on input line 1297.
+(pdftex.def)             Requested size: 469.4731pt x 258.38887pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[69 <./images//top2/all_vram2.png>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2419,26 +2414,17 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[72]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[73] [74
+[72] [73
 
 ]
 Chapter 5.
-[75
+[74
 
 ]
-<images//continous_diagram.png, id=1933, 782.17218pt x 434.37282pt>
+<images//continous_diagram.png, id=1922, 782.17218pt x 434.37282pt>
 File: images//continous_diagram.png Graphic file (type png)
 <use images//continous_diagram.png>
-Package pdftex.def Info: images//continous_diagram.png  used on input line 1372
+Package pdftex.def Info: images//continous_diagram.png  used on input line 1380
 .
 (pdftex.def)             Requested size: 426.79137pt x 237.0168pt.
 
@@ -2450,7 +2436,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[76 <./images//continous_diagram.png>]
+[75 <./images//continous_diagram.png>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2459,21 +2445,21 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[77]
+[76]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 1416.
+(Font)              <14.4> on input line 1424.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 1416.
+(Font)              <10> on input line 1424.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 1416.
+(Font)              <7> on input line 1424.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1416.
+(hyperref)                removing `math shift' on input line 1424.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1416.
+(hyperref)                removing `math shift' on input line 1424.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -2487,10 +2473,19 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[78]
+[77]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 1444.
+put line 1452.
 
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[78]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2500,6 +2495,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [79]
+Overfull \hbox (19.74988pt too wide) in paragraph at lines 1514--1522
+ [][] 
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2509,7 +2508,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [80]
-Overfull \hbox (19.74988pt too wide) in paragraph at lines 1506--1514
+<images//combined_score.png, id=1965, 586.3506pt x 297.2706pt>
+File: images//combined_score.png Graphic file (type png)
+<use images//combined_score.png>
+Package pdftex.def Info: images//combined_score.png  used on input line 1553.
+(pdftex.def)             Requested size: 469.4731pt x 238.01637pt.
+
+Overfull \hbox (42.68173pt too wide) in paragraph at lines 1553--1554
  [][] 
  []
 
@@ -2522,16 +2527,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [81]
-<images//combined_score.png, id=1976, 586.3506pt x 297.2706pt>
-File: images//combined_score.png Graphic file (type png)
-<use images//combined_score.png>
-Package pdftex.def Info: images//combined_score.png  used on input line 1545.
-(pdftex.def)             Requested size: 469.4731pt x 238.01637pt.
-
-Overfull \hbox (42.68173pt too wide) in paragraph at lines 1545--1546
- [][] 
- []
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2540,64 +2535,55 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[82]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[83 <./images//combined_score.png>]
-<images//100_ac1.png, id=1992, 685.56125pt x 684.5575pt>
+[82 <./images//combined_score.png>]
+<images//100_ac1.png, id=1981, 685.56125pt x 684.5575pt>
 File: images//100_ac1.png Graphic file (type png)
 <use images//100_ac1.png>
-Package pdftex.def Info: images//100_ac1.png  used on input line 1571.
+Package pdftex.def Info: images//100_ac1.png  used on input line 1579.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//1400_ac1.png, id=1993, 685.56125pt x 684.5575pt>
-File: images//1400_ac1.png Graphic file (type png)
-<use images//1400_ac1.png>
-Package pdftex.def Info: images//1400_ac1.png  used on input line 1572.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//100_ac2.png, id=1994, 685.56125pt x 684.5575pt>
-File: images//100_ac2.png Graphic file (type png)
-<use images//100_ac2.png>
-Package pdftex.def Info: images//100_ac2.png  used on input line 1575.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-File: images//1400_ac1.png Graphic file (type png)
-<use images//1400_ac1.png>
-Package pdftex.def Info: images//1400_ac1.png  used on input line 1576.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//100_ac3.png, id=1995, 685.56125pt x 684.5575pt>
-File: images//100_ac3.png Graphic file (type png)
-<use images//100_ac3.png>
-Package pdftex.def Info: images//100_ac3.png  used on input line 1579.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+<images//1400_ac1.png, id=1982, 685.56125pt x 684.5575pt>
 File: images//1400_ac1.png Graphic file (type png)
 <use images//1400_ac1.png>
 Package pdftex.def Info: images//1400_ac1.png  used on input line 1580.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//100_ac4.png, id=1996, 685.56125pt x 684.5575pt>
-File: images//100_ac4.png Graphic file (type png)
-<use images//100_ac4.png>
-Package pdftex.def Info: images//100_ac4.png  used on input line 1583.
+<images//100_ac2.png, id=1983, 685.56125pt x 684.5575pt>
+File: images//100_ac2.png Graphic file (type png)
+<use images//100_ac2.png>
+Package pdftex.def Info: images//100_ac2.png  used on input line 1583.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 File: images//1400_ac1.png Graphic file (type png)
 <use images//1400_ac1.png>
 Package pdftex.def Info: images//1400_ac1.png  used on input line 1584.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//100_ac6.png, id=1997, 685.56125pt x 684.5575pt>
-File: images//100_ac6.png Graphic file (type png)
-<use images//100_ac6.png>
-Package pdftex.def Info: images//100_ac6.png  used on input line 1587.
+<images//100_ac3.png, id=1984, 685.56125pt x 684.5575pt>
+File: images//100_ac3.png Graphic file (type png)
+<use images//100_ac3.png>
+Package pdftex.def Info: images//100_ac3.png  used on input line 1587.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 File: images//1400_ac1.png Graphic file (type png)
 <use images//1400_ac1.png>
 Package pdftex.def Info: images//1400_ac1.png  used on input line 1588.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+<images//100_ac4.png, id=1985, 685.56125pt x 684.5575pt>
+File: images//100_ac4.png Graphic file (type png)
+<use images//100_ac4.png>
+Package pdftex.def Info: images//100_ac4.png  used on input line 1591.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+File: images//1400_ac1.png Graphic file (type png)
+<use images//1400_ac1.png>
+Package pdftex.def Info: images//1400_ac1.png  used on input line 1592.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+<images//100_ac6.png, id=1986, 685.56125pt x 684.5575pt>
+File: images//100_ac6.png Graphic file (type png)
+<use images//100_ac6.png>
+Package pdftex.def Info: images//100_ac6.png  used on input line 1595.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+File: images//1400_ac1.png Graphic file (type png)
+<use images//1400_ac1.png>
+Package pdftex.def Info: images//1400_ac1.png  used on input line 1596.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 
-Overfull \hbox (76.60802pt too wide) in paragraph at lines 1566--1590
+Overfull \hbox (76.60802pt too wide) in paragraph at lines 1574--1598
  [][] 
  []
 
@@ -2613,7 +2599,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[84]
+[83]
 Overfull \vbox (128.35396pt too high) has occurred while \output is active []
 
 
@@ -2625,56 +2611,56 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[85 <./images//100_ac1.png (PNG copy)> <./images//1400_ac1.png (PNG copy)> <./i
+[84 <./images//100_ac1.png (PNG copy)> <./images//1400_ac1.png (PNG copy)> <./i
 mages//100_ac2.png (PNG copy)> <./images//100_ac3.png (PNG copy)> <./images//10
 0_ac4.png (PNG copy)> <./images//100_ac6.png (PNG copy)>]
-<images//360_ac1.png, id=2006, 685.56125pt x 684.5575pt>
+<images//360_ac1.png, id=1995, 685.56125pt x 684.5575pt>
 File: images//360_ac1.png Graphic file (type png)
 <use images//360_ac1.png>
-Package pdftex.def Info: images//360_ac1.png  used on input line 1601.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-File: images//1400_ac1.png Graphic file (type png)
-<use images//1400_ac1.png>
-Package pdftex.def Info: images//1400_ac1.png  used on input line 1602.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//360_ac2.png, id=2007, 685.56125pt x 684.5575pt>
-File: images//360_ac2.png Graphic file (type png)
-<use images//360_ac2.png>
-Package pdftex.def Info: images//360_ac2.png  used on input line 1605.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-File: images//1400_ac1.png Graphic file (type png)
-<use images//1400_ac1.png>
-Package pdftex.def Info: images//1400_ac1.png  used on input line 1606.
-(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//360_ac3.png, id=2008, 685.56125pt x 684.5575pt>
-File: images//360_ac3.png Graphic file (type png)
-<use images//360_ac3.png>
-Package pdftex.def Info: images//360_ac3.png  used on input line 1609.
+Package pdftex.def Info: images//360_ac1.png  used on input line 1609.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 File: images//1400_ac1.png Graphic file (type png)
 <use images//1400_ac1.png>
 Package pdftex.def Info: images//1400_ac1.png  used on input line 1610.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//360_ac4.png, id=2009, 685.56125pt x 684.5575pt>
-File: images//360_ac4.png Graphic file (type png)
-<use images//360_ac4.png>
-Package pdftex.def Info: images//360_ac4.png  used on input line 1613.
+<images//360_ac2.png, id=1996, 685.56125pt x 684.5575pt>
+File: images//360_ac2.png Graphic file (type png)
+<use images//360_ac2.png>
+Package pdftex.def Info: images//360_ac2.png  used on input line 1613.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 File: images//1400_ac1.png Graphic file (type png)
 <use images//1400_ac1.png>
 Package pdftex.def Info: images//1400_ac1.png  used on input line 1614.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
-<images//360_ac6.png, id=2010, 685.56125pt x 684.5575pt>
-File: images//360_ac6.png Graphic file (type png)
-<use images//360_ac6.png>
-Package pdftex.def Info: images//360_ac6.png  used on input line 1617.
+<images//360_ac3.png, id=1997, 685.56125pt x 684.5575pt>
+File: images//360_ac3.png Graphic file (type png)
+<use images//360_ac3.png>
+Package pdftex.def Info: images//360_ac3.png  used on input line 1617.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 File: images//1400_ac1.png Graphic file (type png)
 <use images//1400_ac1.png>
 Package pdftex.def Info: images//1400_ac1.png  used on input line 1618.
 (pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+<images//360_ac4.png, id=1998, 685.56125pt x 684.5575pt>
+File: images//360_ac4.png Graphic file (type png)
+<use images//360_ac4.png>
+Package pdftex.def Info: images//360_ac4.png  used on input line 1621.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+File: images//1400_ac1.png Graphic file (type png)
+<use images//1400_ac1.png>
+Package pdftex.def Info: images//1400_ac1.png  used on input line 1622.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+<images//360_ac6.png, id=1999, 685.56125pt x 684.5575pt>
+File: images//360_ac6.png Graphic file (type png)
+<use images//360_ac6.png>
+Package pdftex.def Info: images//360_ac6.png  used on input line 1625.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
+File: images//1400_ac1.png Graphic file (type png)
+<use images//1400_ac1.png>
+Package pdftex.def Info: images//1400_ac1.png  used on input line 1626.
+(pdftex.def)             Requested size: 145.1075pt x 144.88942pt.
 
-Overfull \hbox (76.60802pt too wide) in paragraph at lines 1596--1620
+Overfull \hbox (76.60802pt too wide) in paragraph at lines 1604--1628
  [][] 
  []
 
@@ -2690,18 +2676,18 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[86 <./images//360_ac1.png (PNG copy)> <./images//360_ac2.png (PNG copy)> <./im
+[85 <./images//360_ac1.png (PNG copy)> <./images//360_ac2.png (PNG copy)> <./im
 ages//360_ac3.png (PNG copy)> <./images//360_ac4.png (PNG copy)> <./images//360
 _ac6.png (PNG copy)>]
-<images//hourglassandbox.jpg, id=2016, 4015.0pt x 3011.25pt>
+<images//hourglassandbox.jpg, id=2004, 4015.0pt x 3011.25pt>
 File: images//hourglassandbox.jpg Graphic file (type jpg)
 <use images//hourglassandbox.jpg>
-Package pdftex.def Info: images//hourglassandbox.jpg  used on input line 1636.
+Package pdftex.def Info: images//hourglassandbox.jpg  used on input line 1644.
 (pdftex.def)             Requested size: 362.77525pt x 272.0576pt.
-<images//hg_in_ct.jpg, id=2017, 4015.0pt x 3011.25pt>
+<images//hg_in_ct.jpg, id=2005, 4015.0pt x 3011.25pt>
 File: images//hg_in_ct.jpg Graphic file (type jpg)
 <use images//hg_in_ct.jpg>
-Package pdftex.def Info: images//hg_in_ct.jpg  used on input line 1643.
+Package pdftex.def Info: images//hg_in_ct.jpg  used on input line 1651.
 (pdftex.def)             Requested size: 426.79137pt x 320.07318pt.
 
 
@@ -2715,7 +2701,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[87 <./images//hourglassandbox.jpg>]
+[86 <./images//hourglassandbox.jpg>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2724,7 +2710,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[88 <./images//hg_in_ct.jpg>]
+[87 <./images//hg_in_ct.jpg>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2733,21 +2719,21 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[89]
-<images//hg_con_t0.png, id=2033, 293.59688pt x 603.75563pt>
+[88]
+<images//hg_con_t0.png, id=2022, 293.59688pt x 603.75563pt>
 File: images//hg_con_t0.png Graphic file (type png)
 <use images//hg_con_t0.png>
-Package pdftex.def Info: images//hg_con_t0.png  used on input line 1703.
+Package pdftex.def Info: images//hg_con_t0.png  used on input line 1711.
 (pdftex.def)             Requested size: 149.37958pt x 307.1835pt.
-<images//hg_con_t1.png, id=2034, 293.59688pt x 603.75563pt>
+<images//hg_con_t1.png, id=2023, 293.59688pt x 603.75563pt>
 File: images//hg_con_t1.png Graphic file (type png)
 <use images//hg_con_t1.png>
-Package pdftex.def Info: images//hg_con_t1.png  used on input line 1708.
+Package pdftex.def Info: images//hg_con_t1.png  used on input line 1716.
 (pdftex.def)             Requested size: 149.37958pt x 307.1835pt.
-<images//hg_con_t2.png, id=2035, 295.1025pt x 603.75563pt>
+<images//hg_con_t2.png, id=2024, 295.1025pt x 603.75563pt>
 File: images//hg_con_t2.png Graphic file (type png)
 <use images//hg_con_t2.png>
-Package pdftex.def Info: images//hg_con_t2.png  used on input line 1713.
+Package pdftex.def Info: images//hg_con_t2.png  used on input line 1721.
 (pdftex.def)             Requested size: 149.37958pt x 305.62657pt.
 
 
@@ -2758,26 +2744,26 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[90 <./images//hg_con_t0.png (PNG copy)> <./images//hg_con_t1.png (PNG copy)> <
+[89 <./images//hg_con_t0.png (PNG copy)> <./images//hg_con_t1.png (PNG copy)> <
 ./images//hg_con_t2.png (PNG copy)>]
-<images//continous_fail/mae_4fps.png, id=2044, 1076.3412pt x 370.986pt>
+<images//continous_fail/mae_4fps.png, id=2033, 1076.3412pt x 370.986pt>
 File: images//continous_fail/mae_4fps.png Graphic file (type png)
 <use images//continous_fail/mae_4fps.png>
 Package pdftex.def Info: images//continous_fail/mae_4fps.png  used on input lin
-e 1727.
+e 1735.
 (pdftex.def)             Requested size: 426.79137pt x 147.10677pt.
-<images//continous_fail/mae_8fps.png, id=2045, 1076.3412pt x 370.986pt>
+<images//continous_fail/mae_8fps.png, id=2034, 1076.3412pt x 370.986pt>
 File: images//continous_fail/mae_8fps.png Graphic file (type png)
 <use images//continous_fail/mae_8fps.png>
 Package pdftex.def Info: images//continous_fail/mae_8fps.png  used on input lin
-e 1734.
+e 1742.
 (pdftex.def)             Requested size: 426.79137pt x 147.10677pt.
-<images//continous_fail/subangle_vs_mae_total.png, id=2046, 650.43pt x 361.35pt
+<images//continous_fail/subangle_vs_mae_total.png, id=2035, 650.43pt x 361.35pt
 >
 File: images//continous_fail/subangle_vs_mae_total.png Graphic file (type png)
 <use images//continous_fail/subangle_vs_mae_total.png>
 Package pdftex.def Info: images//continous_fail/subangle_vs_mae_total.png  used
- on input line 1741.
+ on input line 1749.
 (pdftex.def)             Requested size: 426.79137pt x 237.1133pt.
 
 
@@ -2788,7 +2774,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[91 <./images//continous_fail/mae_4fps.png> <./images//continous_fail/mae_8fps.
+[90 <./images//continous_fail/mae_4fps.png> <./images//continous_fail/mae_8fps.
 png>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -2798,7 +2784,16 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[92 <./images//continous_fail/subangle_vs_mae_total.png>]
+[91 <./images//continous_fail/subangle_vs_mae_total.png>]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[92]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2808,17 +2803,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [93]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[94]
 Chapter 6.
-[95
+[94
 
 ]
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -2832,7 +2818,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[96]
+[95]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -2841,9 +2827,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[97] [98
+[96] (./nectv2_thesis.bbl [97
 
-] (./nectv2_thesis.bbl [99
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 138--141
@@ -2859,31 +2844,31 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
+[98]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[99])
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
 [100]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[101])
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[102]
 Appendix A.
-[103
+[101
 
 ]
 Appendix B.
-[104
+[102
 
 ] (./nectv2_thesis.aux)
 
@@ -2893,11 +2878,11 @@ Package rerunfilecheck Info: File `nectv2_thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 01135C6F2C6FA2187719E76160766A01;13252.
  ) 
 Here is how much of TeX's memory you used:
- 44724 strings out of 480247
- 1027985 string characters out of 5896152
- 1414400 words of memory out of 5000000
- 61169 multiletter control sequences out of 15000+600000
- 596575 words of font info for 295 fonts, out of 8000000 for 9000
+ 44677 strings out of 480247
+ 1026494 string characters out of 5896152
+ 1412400 words of memory out of 5000000
+ 61146 multiletter control sequences out of 15000+600000
+ 596171 words of font info for 291 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,12n,80p,1398b,947s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf/fonts/enc/d
@@ -2915,10 +2900,10 @@ f/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12
 .pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts
 /type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on nectv2_thesis.pdf (121 pages, 15642966 bytes).
+Output written on nectv2_thesis.pdf (119 pages, 15555030 bytes).
 PDF statistics:
- 2279 PDF objects out of 2487 (max. 8388607)
- 1620 compressed objects within 17 object streams
- 340 named destinations out of 1000 (max. 500000)
- 70062 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 2263 PDF objects out of 2487 (max. 8388607)
+ 1603 compressed objects within 17 object streams
+ 338 named destinations out of 1000 (max. 500000)
+ 70067 words of extra memory for PDF output out of 74296 (max. 10000000)
 

@@ -1261,46 +1261,54 @@ The QuadCubes results establish an important reference point. In the epoch plot,
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.1\textwidth]{psnr_arc/combined_epoch_psnr.png}
+    \includegraphics[width=1.1\textwidth]{top2/all_psnr_epoch.png}
     \end{adjustwidth}
-    \caption{PSNR vs.\ epoch for all architectures. At epoch~500 the top configurations are: CombinedCubes \texttt{24\_4\_24\_6\_128} 38.88\,dB (24.3\,GB), \MixedCubes{} \texttt{24\_4\_24\_4\_128} 38.25\,dB (22.1\,GB), spatial-heavy QuadCubes 37.86\,dB (24.1\,GB), and the uniform QuadCubes baseline 36.47\,dB (44.8\,GB). Temporal-heavy QuadCubes lag well behind at 34.79 and 31.77\,dB at epoch~500 despite comparable VRAM, reaching only 34.46 and 31.68\,dB at the 24\,h wall-clock mark.}
+    \caption{PSNR vs.\ epoch for representative configurations of each architecture: QuadCubes baseline (\texttt{23\_4\_23\_4\_128}), spatial-heavy QuadCubes (\texttt{24\_4\_24\_4\_128}), three \MixedCubes{} variants (\texttt{18\_4\_23\_6\_128}, \texttt{24\_4\_24\_4\_128}, \texttt{22\_4\_25\_4\_128}), and three CombinedCubes variants (\texttt{18\_4\_23\_6\_64}, \texttt{24\_4\_24\_6\_128}, \texttt{22\_4\_25\_4\_128}).}
     \label{fig:combined_epoch}
 \end{figure}
 
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.1\textwidth]{psnr_arc/combined_time_psnr.png}
+    \includegraphics[width=1.1\textwidth]{top2/all_psnr_time.png}
     \end{adjustwidth}
-    \caption{PSNR vs.\ wall-clock time for all architectures at the 24\,h comparison point. \MixedCubes{} \texttt{24\_4\_24\_4\_128} leads at 37.73\,dB (22.1\,GB), followed by spatial-heavy QuadCubes at 37.53\,dB (24.1\,GB), CombinedCubes \texttt{18\_4\_24\_4\_128} at 37.28\,dB (18.3\,GB), and the QuadCubes baseline at 35.89\,dB (44.8\,GB). All split-encoder models overtake the baseline early in training and maintain the lead throughout.}
+    \caption{PSNR vs.\ wall-clock time for the same configurations as Figure~\ref{fig:combined_epoch}. The dashed vertical line marks the 24\,h comparison point.}
     \label{fig:combined_time}
 \end{figure}
 
-The cross-architecture epoch and time plots show the full picture. At epoch~500, CombinedCubes \texttt{24\_4\_24\_6\_128} (24.3\,GB) leads at 38.88\,dB, followed by \MixedCubes{} \texttt{24\_4\_24\_4\_128} (22.1\,GB) at 38.25\,dB, then spatial-heavy QuadCubes at 37.86\,dB (24.1\,GB), and the uniform QuadCubes baseline at 36.47\,dB (44.8\,GB). The split-encoder architectures therefore achieve better epoch-500 quality than any QuadCubes variant, using roughly half the memory. The temporal-heavy QuadCubes configurations, despite consuming 34--37\,GB, fall to 34.79 and 31.77\,dB, well below the baseline, which reinforces that the QuadCubes architecture is internally misallocated rather than simply underpowered.
+The epoch plot (Figure~\ref{fig:combined_epoch}) reveals a clear separation between architectures that persists across all training stages. At epoch~500 CombinedCubes \texttt{24\_4\_24\_6\_128} leads at 38.88\,dB, followed closely by \MixedCubes{} \texttt{24\_4\_24\_4\_128} at 38.25\,dB and spatial-heavy QuadCubes at 37.86\,dB, with the uniform baseline at 36.47\,dB. The fact that CombinedCubes reaches the highest asymptotic quality suggests it has a slightly higher quality ceiling, likely because its larger decoder and hash-grid temporal encoders provide additional representational headroom when given sufficient training time.
 
-In the wall-clock time plot, \MixedCubes{} and CombinedCubes overtake the QuadCubes baseline early in training and maintain their lead throughout. This early crossover is explained by the lower per-epoch cost of the split-encoder architectures. With smaller temporal encoders, each training step is faster, so more epochs are completed within any given wall-clock budget. The result is that the quality advantage of the split-encoder design compounds over time rather than being limited to final-epoch performance. At 24\,h the ranking is as follows. \MixedCubes{} leads at 37.73\,dB, followed by spatial-heavy QuadCubes at 37.53\,dB, CombinedCubes \texttt{18\_4\_24\_4\_128} at 37.28\,dB (18.3\,GB), and the uniform baseline at 35.89\,dB (44.8\,GB). All three split-encoder alternatives exceed the baseline by at least 1.39\,dB at comparable or lower memory cost.
+The wall-clock time plot (Figure~\ref{fig:combined_time}) tells a meaningfully different story and is the more practically relevant comparison. \MixedCubes{} outperforms CombinedCubes substantially in the first twelve hours of training. Because \MixedCubes{} temporal encoders are dense grids rather than hashed tables, each training step is faster and more epochs are completed within any fixed time budget. The quality advantage that CombinedCubes eventually accumulates in epoch space is therefore not accessible within typical reconstruction turnaround windows. For any workflow constrained to 24 hours or fewer, \MixedCubes{} is the superior choice. The two architectures converge in epoch-quality performance at high epoch counts but diverge sharply in time-quality performance — the dense temporal grids of \MixedCubes{} make it both faster per step and more memory-efficient, which compounds into a large practical advantage.
 
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.1\textwidth]{psnr_arc/top2_comparison.png}
+    \includegraphics[width=1.1\textwidth]{top2/metrics_bar.png}
     \end{adjustwidth}
-    \caption{PSNR, SSIM, and MAE for the four candidate configurations at the 24-hour mark, shown as grouped bars. The consistent ranking across all three metrics confirms that the quality advantage of the split-encoder architectures over the NeCT baseline is not specific to any single measure.}
+    \caption{PSNR, SSIM, and MAE at 24\,h for the best-performing configuration of each architecture: QuadCubes baseline, spatial-heavy QuadCubes (\texttt{24\_4\_24\_4\_128}), CombinedCubes (\texttt{18\_4\_24\_4\_128}), and \MixedCubes{} (\texttt{24\_4\_24\_4\_128}). Higher bars indicate better PSNR and SSIM; lower bars indicate better MAE.}
     \label{fig:top2_comparison}
 \end{figure}
 
-Figure~\ref{fig:top2_comparison} confirms that the ranking observed in PSNR holds across all three evaluation metrics. SSIM and MAE confirm the same ranking. \MixedCubes{} and CombinedCubes both improve on the baseline in every metric simultaneously, while the spatial-heavy QuadCubes also outperforms the uniform baseline on all three. The results are therefore not an artefact of PSNR sensitivity to particular types of error.
+Figure~\ref{fig:top2_comparison} confirms that the rankings observed in PSNR are consistent across all three evaluation metrics. SSIM and MAE produce the same ordering, and the improvements over the baseline are positive on every metric simultaneously. The quality advantage of the split-encoder architectures is therefore not an artefact of PSNR sensitivity to any particular error pattern.
 
 \begin{figure}[htbp]
     \begin{adjustwidth}{-2.5cm}{-2.5cm}
     \centering
-    \includegraphics[width=1.1\textwidth]{psnr_arc/vram_efficiency_psnr.png}
+    \includegraphics[width=1.1\textwidth]{top2/all_vram2.png}
     \end{adjustwidth}
-    \caption{PSNR at the wall-clock comparison point versus peak reserved VRAM for each architecture and configuration shown. Each point is one experimental run from the representative sets selected for each architecture (8 configurations each for CombinedCubes and \MixedCubes{}, with additional QuadCubes and spatial/temporal-heavy variants). Models are colour-coded by architecture family. The Pareto frontier is occupied by \MixedCubes{} and CombinedCubes configurations, which achieve the highest quality at every memory level. The $F=2$ configurations (triangular markers within the split-encoder families) fall consistently below the $F=4$ frontier despite large hashmaps. Temporal-heavy QuadCubes configurations are dominated by every other approach at any VRAM budget.}
+    \caption{PSNR at 24\,h versus peak training VRAM for all configurations evaluated. Each point is one experimental run; colours distinguish architecture families. Triangular markers identify $F=2$ configurations within the split-encoder families.}
     \label{fig:vram_efficiency}
 \end{figure}
 
-Figure~\ref{fig:vram_efficiency} places all architectures and configurations on a common quality-versus-memory plane. Several patterns are immediately apparent. First, the Pareto frontier is occupied entirely by \MixedCubes{} and CombinedCubes configurations. For every VRAM budget from approximately 5\,GB to 25\,GB, the best reconstruction quality at that budget comes from one of the split-encoder architectures, not from QuadCubes. Second, the mid-size uniform QuadCubes configuration (23.1\,GB) is almost exactly matched in quality by the baseline (44.8\,GB) at nearly twice the memory, confirming that the added capacity in the baseline is wasted rather than useful. Third, temporal-heavy QuadCubes configurations are Pareto-dominated by virtually everything else. They use more VRAM than many split-encoder models and produce worse reconstructions. Fourth, the lightweight \MixedCubes{} configuration (5.1\,GB) and lightweight CombinedCubes (8.3\,GB) are near or above the baseline quality at a fraction of the memory, a finding that is practically significant for anyone running reconstructions on consumer-grade hardware.
+Figure~\ref{fig:vram_efficiency} places all configurations on a common quality-versus-memory plane and is the most information-dense result of this chapter. Four patterns warrant detailed discussion.
+
+The $F=2$ configurations (triangular markers) cluster in the lower portion of the plot, below the QuadCubes baseline and in some cases below the smallest QuadCubes variant. This is the most striking failure mode in the experimental set. These configurations have large hashmaps — some exceeding 25\,GB — yet they underperform models that use a fraction of their memory. The explanation lies in the split-encoder structure. In the split-encoder architectures, the temporal encoders are already operating near or at the collision-free regime; there is no forced-collision problem left for additional hash capacity to solve. Halving the feature dimension $F$ removes representational capacity that is genuinely needed for the encoder to express the temporal signal, and this capacity loss is not compensable by increasing the hashmap size. The $F=2$ models illustrate that memory budget and model quality are not simply correlated — misallocated capacity actively harms performance.
+
+The \MixedCubes{} configurations form a clear Pareto frontier, with \texttt{18\_4\_22\_4\_64} (5.1\,GB), \texttt{18\_4\_23\_6\_128} (9.1\,GB), \texttt{18\_4\_24\_4\_128} (18.3\,GB -- note this is a CombinedCubes configuration at similar VRAM), and \texttt{24\_4\_24\_4\_128} (22.1\,GB) occupying the upper-left edge of the plot. For every VRAM level from 5\,GB to 22\,GB, a \MixedCubes{} configuration achieves the highest quality of any architecture tested. No QuadCubes or CombinedCubes configuration at a given memory level outperforms the corresponding \MixedCubes{} point.
+
+The \texttt{XX\_4\_25} configurations — those with a large $\log_2 T = 25$ hashmap in either the spatial or temporal encoder — show a consistent performance shortfall relative to their \texttt{XX\_4\_24} equivalents despite consuming more VRAM. This represents a soft ceiling on the benefit of increasing hashmap size for collision reduction. At $\log_2 T = 24$ the per-level collision rate is already low enough that further reduction via a larger table returns negligible quality improvement, while the additional parameters and the longer time required to update them within a 24-hour budget actively reduce the quality achieved per unit time. The result is that \texttt{XX\_4\_25} configurations are dominated by their \texttt{XX\_4\_24} counterparts on the VRAM-quality plane.
+
+Finally, the \texttt{24\_4\_24} configuration — the top performer across spatial-heavy QuadCubes, \MixedCubes{}, and CombinedCubes — forms a visible cluster in the upper-middle region of the plot at approximately 22--24\,GB. This convergence across architectures suggests that $\log_2 T = 24$ with $F = 4$ represents a near-optimal capacity point for the spatial encoder at micro-CT resolutions: large enough to achieve low collision rates and near-saturation quality, small enough to fit within practical VRAM budgets. Within this cluster, the \MixedCubes{} implementation achieves marginally higher quality at slightly lower VRAM than the CombinedCubes equivalent, and crucially falls below the 24\,GB threshold that separates consumer and professional-grade GPUs.
 
 \section{Discussion}
 \label{sec:comp_discussion}
