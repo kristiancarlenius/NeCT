@@ -20,7 +20,7 @@ from skimage.metrics import structural_similarity as ssim_fn
 ROOT = Path(__file__).parent
 
 REFERENCE   = ROOT / "sizediff" / "perfect" / "0525_1400.png"
-COMBINEDCUBES = ROOT / "sizediff" / "combinedcube" / "24_4_24_6_128" / "0150_1400.png"
+COMBINEDCUBES = ROOT / "sizediff" / "combinedcubes" / "24_4_24_6_128" / "0150_1400.png"
 QUADCUBES   = ROOT / "sizediff" / "quadcubes" / "23_4_23_4_128" / "epoch" / "0150_1400.png"
 CROPS_FILE  = ROOT / "crops.json"
 OUT_PATH    = ROOT / "docs" / "images" / "cc_qc_comp.png"
@@ -83,10 +83,10 @@ def main():
     CC_COLOR = "#2ca02c"   # green  – CombinedCubes
     QC_COLOR = "#1f77b4"   # blue   – QuadCubes
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
-    fig.suptitle("CombinedCubes vs QuadCubes — epoch 150", fontsize=13, fontweight="bold")
+    fig, axes = plt.subplots(1, 3, figsize=(13, 5.5))
+    fig.suptitle("CombinedCubes vs QuadCubes — epoch 150", fontsize=18, fontweight="bold")
 
-    bar_w = 0.32
+    bar_w = 0.14
     x = np.array([0])
 
     for ax, metric in zip(axes, metrics):
@@ -102,15 +102,15 @@ def main():
                 bar[0].get_x() + bar[0].get_width() / 2,
                 bar[0].get_height() * 1.01,
                 f"{val:{fmt}}",
-                ha="center", va="bottom", fontsize=9,
+                ha="center", va="bottom", fontsize=13,
             )
 
         direction = "↑ better" if higher_better[metric] else "↓ better"
-        ax.set_title(f"{metric}  [{ylabels[metric]}]\n{direction}", fontsize=10)
+        ax.set_title(f"{metric}  [{ylabels[metric]}]\n{direction}", fontsize=14)
         ax.set_xticks([])
-        ax.set_xlim(-0.5, 0.5)
+        ax.set_xlim(-0.25, 0.25)
         ax.spines[["top", "right"]].set_visible(False)
-        ax.legend(fontsize=8, loc="lower right" if higher_better[metric] else "upper right")
+        ax.legend(fontsize=11, loc="lower right" if higher_better[metric] else "upper right")
 
         lo, hi = min(v_cc, v_qc), max(v_cc, v_qc)
         margin = (hi - lo) * 0.5 if hi != lo else hi * 0.05

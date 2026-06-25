@@ -1,16 +1,16 @@
 # Fdb version 3
-["bibtex nectv2_thesis"] 1782348197 "nectv2_thesis.aux" "nectv2_thesis.bbl" "nectv2_thesis" 1782348982
+["bibtex nectv2_thesis"] 1782357219 "nectv2_thesis.aux" "nectv2_thesis.bbl" "nectv2_thesis" 1782357222
   "/usr/share/texlive/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "nectv2_thesis.aux" 1782348982 88484 2670f8d632e00844d3f4247083e113ad "pdflatex"
+  "nectv2_thesis.aux" 1782357222 88248 559b3a0d9fadb797c7992c6aed4acac9 "pdflatex"
   "references.bib" 1782319495 17596 302843cdd7f1a036a4aacadf4d1d3e11 ""
   (generated)
   "nectv2_thesis.bbl"
   "nectv2_thesis.blg"
-["pdflatex"] 1782348979 "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" "nectv2_thesis.pdf" "nectv2_thesis" 1782348982
+["pdflatex"] 1782357219 "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" "nectv2_thesis.pdf" "nectv2_thesis" 1782357222
   "/etc/texmf/web2c/texmf.cnf" 1774852620 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/user/.texlive2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1775314457 4379193 d3ec2c2f0cda6fae3aba5b46e03b26ba ""
   "/home/user/.texlive2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1775314013 1405646 30759ac9d2d05d038c966fe66344f7af ""
-  "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" 1782348979 213412 6dad8827109576fde14107cdd647e184 ""
+  "/home/user/Documents/NeCT/docs/nectv2_thesis.tex" 1782357216 215732 a3e0b0bae46da86cd1a938056c253643 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1200.tfm" 1136768653 3584 f80ddd985bd00e29e9a6047ebd9d4781 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -300,7 +300,7 @@
   "images//arc_diagram/hexcubes_diagram.png" 1782256902 88405 2e3edf0e73cd0b4e292ff9304717f10c ""
   "images//arc_diagram/mixedcubes_diagram.png" 1782256958 56186 72aedbf622cad30eac9c721395dec506 ""
   "images//arc_diagram/singlecube_diagram.png" 1782256978 16554 89062fa8f6d86f9d18c01849b8288e8c ""
-  "images//cc_qc_comp.png" 1778155333 86163 7f626731e7ed474f25a960f326336536 ""
+  "images//cc_qc_comp.png" 1782356489 112709 2298f395406430d8be100519e72a4fef ""
   "images//combined_score.png" 1781197459 159330 fd33779e44868a6625fa934741b887f4 ""
   "images//combinedcube_150epoch.png" 1778524959 146982 26b8161c8782d012d2f2395f7353e640 ""
   "images//compairson.png" 1778524957 157067 cf06c0dcc4f1889594d14ec47c151cdd ""
@@ -355,13 +355,13 @@
   "images//top2/quad_psnr_epoch.png" 1782340323 121534 29c886ec7855c1754d4d016bd1e76755 ""
   "images//top2/quad_psnr_time.png" 1782340323 116234 955af98850941b249d8d99ac4c31acaf ""
   "images//top2/quad_vram.png" 1782340323 77364 f259da3f3f201761068df5610f0b9ecb ""
-  "nectv2_thesis.aux" 1782348982 88484 2670f8d632e00844d3f4247083e113ad "pdflatex"
-  "nectv2_thesis.bbl" 1782348197 12424 d65bfa959201a156037a7b891c486c07 "bibtex nectv2_thesis"
-  "nectv2_thesis.lof" 1782348982 22464 d32f3e847e11a6edea47529f32b838b1 "pdflatex"
-  "nectv2_thesis.lot" 1782348982 2161 542e3ff779f9df53615930325ba5331e "pdflatex"
-  "nectv2_thesis.out" 1782348982 13252 01135c6f2c6fa2187719e76160766a01 "pdflatex"
-  "nectv2_thesis.tex" 1782348979 213412 6dad8827109576fde14107cdd647e184 ""
-  "nectv2_thesis.toc" 1782348982 7067 339808a272250414eccc4b272e8183e9 "pdflatex"
+  "nectv2_thesis.aux" 1782357222 88248 559b3a0d9fadb797c7992c6aed4acac9 "pdflatex"
+  "nectv2_thesis.bbl" 1782357219 12424 d65bfa959201a156037a7b891c486c07 "bibtex nectv2_thesis"
+  "nectv2_thesis.lof" 1782357222 22261 4ac2dfaa232c4b6ed5e009d3b8448dec "pdflatex"
+  "nectv2_thesis.lot" 1782357222 2161 c7f4d1cec5df10c841f2aea332620f0c "pdflatex"
+  "nectv2_thesis.out" 1782357222 13249 46ba1210c785fff0c94381b2e21cc053 "pdflatex"
+  "nectv2_thesis.tex" 1782357216 215732 a3e0b0bae46da86cd1a938056c253643 ""
+  "nectv2_thesis.toc" 1782357222 7185 5b692c0c7cd8728c663a7b8123d0fe18 "pdflatex"
   (generated)
   "nectv2_thesis.aux"
   "nectv2_thesis.lof"

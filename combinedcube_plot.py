@@ -26,8 +26,8 @@ from PIL import Image
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 _HERE          = os.path.dirname(__file__)
-COMBINEDCUBE_DIR = os.path.join(_HERE, "sizediff", "combinedcube")
-PERFECT_PATH   = os.path.join(_HERE, "sizediff", "perfect", "0550_1400.png")
+COMBINEDCUBE_DIR = os.path.join(_HERE, "sizediff", "combinedcubes")
+PERFECT_PATH   = os.path.join(_HERE, "sizediff", "perfect", "0525_1400.png")
 RESULTS_DIR    = os.path.join(_HERE, "results")
 EPOCH_FILE     = "0150_1400.png"
 
@@ -120,7 +120,7 @@ def main():
         ax.set_xticks(x)
         ax.set_xticklabels(names, rotation=15, ha="right", fontsize=9)
         ax.set_ylabel(ylabel)
-        ax.set_title(f"CombinedCubes — {metric} at epoch 150", fontsize=11)
+        ax.set_title(f"CombinedCubes - {metric} at epoch 150", fontsize=11)
         ax.grid(axis="y", alpha=0.3)
         plt.tight_layout()
 

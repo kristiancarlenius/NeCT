@@ -346,15 +346,15 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt  {23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt  {22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.\relax }}{51}{figure.caption.40}\protected@file@percent }
 \newlabel{fig:quads_epoch}{{3.18}{51}{PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt {23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt {22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.\relax }{figure.caption.40}{}}
 \newlabel{fig:quads_epoch@cref}{{[figure][18][3]3.18}{[1][51][]51}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{51}{subsection.3.5.2}\protected@file@percent }
-\newlabel{subsec:combinedcubes}{{3.5.2}{51}{CombinedCubes}{subsection.3.5.2}{}}
-\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][51][]51}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.19}{\ignorespaces PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.\relax }}{52}{figure.caption.41}\protected@file@percent }
 \newlabel{fig:quads_time}{{3.19}{52}{PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.\relax }{figure.caption.41}{}}
 \newlabel{fig:quads_time@cref}{{[figure][19][3]3.19}{[1][51][]52}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.20}{\ignorespaces PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.\relax }}{52}{figure.caption.42}\protected@file@percent }
 \newlabel{fig:quads_vram}{{3.20}{52}{PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.\relax }{figure.caption.42}{}}
-\newlabel{fig:quads_vram@cref}{{[figure][20][3]3.20}{[1][51][]52}}
+\newlabel{fig:quads_vram@cref}{{[figure][20][3]3.20}{[1][52][]52}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{53}{subsection.3.5.2}\protected@file@percent }
+\newlabel{subsec:combinedcubes}{{3.5.2}{53}{CombinedCubes}{subsection.3.5.2}{}}
+\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][52][]53}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.21}{\ignorespaces The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt  {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }}{53}{figure.caption.43}\protected@file@percent }
 \newlabel{fig:combinedcubes_architecture}{{3.21}{53}{The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }{figure.caption.43}{}}
 \newlabel{fig:combinedcubes_architecture@cref}{{[figure][21][3]3.21}{[1][53][]53}}
@@ -362,31 +362,31 @@
 \newlabel{eq:combinedcubes_forward@cref}{{[equation][4][3]3.4}{[1][53][]53}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.22}{\ignorespaces Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\qopname  \relax o{log}_2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }}{54}{figure.caption.44}\protected@file@percent }
 \newlabel{fig:combinedcubes_reconstruction}{{3.22}{54}{Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\log _2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }{figure.caption.44}{}}
-\newlabel{fig:combinedcubes_reconstruction@cref}{{[figure][22][3]3.22}{[1][53][]54}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.23}{\ignorespaces PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.\relax }}{54}{figure.caption.45}\protected@file@percent }
-\newlabel{fig:combinedcubes_quality}{{3.23}{54}{PSNR, SSIM, and MAE comparison between CombinedCubes and QuadCubes at 150 epochs.\relax }{figure.caption.45}{}}
-\newlabel{fig:combinedcubes_quality@cref}{{[figure][23][3]3.23}{[1][53][]54}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.24}{\ignorespaces PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt  {18\_2\_} and \texttt  {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep. These eight configurations were selected from a larger experimental set to best illustrate the performance across varying memory, speed, and quality trade-offs.\relax }}{55}{figure.caption.46}\protected@file@percent }
-\newlabel{fig:combinedcubes_epoch}{{3.24}{55}{PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt {18\_2\_} and \texttt {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep. These eight configurations were selected from a larger experimental set to best illustrate the performance across varying memory, speed, and quality trade-offs.\relax }{figure.caption.46}{}}
-\newlabel{fig:combinedcubes_epoch@cref}{{[figure][24][3]3.24}{[1][53][]55}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.25}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt  {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt  {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt  {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive. Configurations are selected from a larger experimental set to best illustrate the performance landscape.\relax }}{56}{figure.caption.47}\protected@file@percent }
-\newlabel{fig:combinedcubes_time}{{3.25}{56}{PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive. Configurations are selected from a larger experimental set to best illustrate the performance landscape.\relax }{figure.caption.47}{}}
-\newlabel{fig:combinedcubes_time@cref}{{[figure][25][3]3.25}{[1][53][]56}}
+\newlabel{fig:combinedcubes_reconstruction@cref}{{[figure][22][3]3.22}{[1][54][]54}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.23}{\ignorespaces PSNR, SSIM, and MAE for CombinedCubes and QuadCubes at 150 epochs. CombinedCubes: PSNR 35.58\,dB, SSIM 0.908, MAE 2.55. QuadCubes: PSNR 35.16\,dB, SSIM 0.899, MAE 2.78.\relax }}{55}{figure.caption.45}\protected@file@percent }
+\newlabel{fig:combinedcubes_quality}{{3.23}{55}{PSNR, SSIM, and MAE for CombinedCubes and QuadCubes at 150 epochs. CombinedCubes: PSNR 35.58\,dB, SSIM 0.908, MAE 2.55. QuadCubes: PSNR 35.16\,dB, SSIM 0.899, MAE 2.78.\relax }{figure.caption.45}{}}
+\newlabel{fig:combinedcubes_quality@cref}{{[figure][23][3]3.23}{[1][54][]55}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.24}{\ignorespaces PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt  {18\_2\_} and \texttt  {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep.\relax }}{55}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:combinedcubes_epoch}{{3.24}{55}{PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt {18\_2\_} and \texttt {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep.\relax }{figure.caption.46}{}}
+\newlabel{fig:combinedcubes_epoch@cref}{{[figure][24][3]3.24}{[1][54][]55}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.25}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt  {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt  {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt  {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive.\relax }}{56}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:combinedcubes_time}{{3.25}{56}{PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive.\relax }{figure.caption.47}{}}
+\newlabel{fig:combinedcubes_time@cref}{{[figure][25][3]3.25}{[1][54][]56}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5.3}\textsc  {MixedCubes}}{57}{subsection.3.5.3}\protected@file@percent }
 \newlabel{subsec:mixedcubes}{{3.5.3}{57}{\MixedCubes }{subsection.3.5.3}{}}
 \newlabel{subsec:mixedcubes@cref}{{[subsection][3][3,5]3.5.3}{[1][57][]57}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.26}{\ignorespaces The \textsc  {MixedCubes}{} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt  {xyz} and three fully dense 2D grids cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }}{58}{figure.caption.48}\protected@file@percent }
-\newlabel{fig:mixedcubes_architecture}{{3.26}{58}{The \MixedCubes {} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt {xyz} and three fully dense 2D grids cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }{figure.caption.48}{}}
-\newlabel{fig:mixedcubes_architecture@cref}{{[figure][26][3]3.26}{[1][57][]58}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.27}{\ignorespaces High-contrast reconstruction slices comparing ground truth, the \textsc  {NeCT}{} baseline, and \textsc  {MixedCubes}{} at an equalised 12-hour training budget.\relax }}{59}{figure.caption.49}\protected@file@percent }
-\newlabel{fig:mixedcubes_quality}{{3.27}{59}{High-contrast reconstruction slices comparing ground truth, the \NeCT {} baseline, and \MixedCubes {} at an equalised 12-hour training budget.\relax }{figure.caption.49}{}}
-\newlabel{fig:mixedcubes_quality@cref}{{[figure][27][3]3.27}{[1][57][]59}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.28}{\ignorespaces PSNR vs.\ epoch for the eight representative \textsc  {MixedCubes}{} configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt  {20\_2\_} and \texttt  {25\_2\_} families) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }}{60}{figure.caption.50}\protected@file@percent }
-\newlabel{fig:mixedcubes_epoch}{{3.28}{60}{PSNR vs.\ epoch for the eight representative \MixedCubes {} configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt {20\_2\_} and \texttt {25\_2\_} families) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }{figure.caption.50}{}}
-\newlabel{fig:mixedcubes_epoch@cref}{{[figure][28][3]3.28}{[1][58][]60}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.26}{\ignorespaces The \textsc  {MixedCubes}{} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt  {xyz} and three fully dense 2D grids cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }}{57}{figure.caption.48}\protected@file@percent }
+\newlabel{fig:mixedcubes_architecture}{{3.26}{57}{The \MixedCubes {} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt {xyz} and three fully dense 2D grids cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }{figure.caption.48}{}}
+\newlabel{fig:mixedcubes_architecture@cref}{{[figure][26][3]3.26}{[1][57][]57}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.27}{\ignorespaces High-contrast reconstruction slices comparing ground truth, the \textsc  {NeCT}{} baseline, and \textsc  {MixedCubes}{} at an equalised 12-hour training budget.\relax }}{58}{figure.caption.49}\protected@file@percent }
+\newlabel{fig:mixedcubes_quality}{{3.27}{58}{High-contrast reconstruction slices comparing ground truth, the \NeCT {} baseline, and \MixedCubes {} at an equalised 12-hour training budget.\relax }{figure.caption.49}{}}
+\newlabel{fig:mixedcubes_quality@cref}{{[figure][27][3]3.27}{[1][57][]58}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.28}{\ignorespaces PSNR vs.\ epoch for the eight representative \textsc  {MixedCubes}{} configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt  {25\_2\_} family) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }}{60}{figure.caption.50}\protected@file@percent }
+\newlabel{fig:mixedcubes_epoch}{{3.28}{60}{PSNR vs.\ epoch for the eight representative \MixedCubes {} configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt {25\_2\_} family) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }{figure.caption.50}{}}
+\newlabel{fig:mixedcubes_epoch@cref}{{[figure][28][3]3.28}{[1][59][]60}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.29}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative \textsc  {MixedCubes}{} configurations. At 24\,h the best configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB within 0.08\,dB of the baseline at roughly one ninth of the VRAM. The $F=2$ configuration \texttt  {25\_2\_25\_4\_128} (25.5\,GB) reaches only 35.37\,dB at 24\,h, 0.52\,dB below the baseline despite its large hashmap, confirming that $F=2$ is counterproductive in the split-encoder context. These configurations were selected to best represent the experimental landscape.\relax }}{61}{figure.caption.51}\protected@file@percent }
 \newlabel{fig:mixedcubes_time}{{3.29}{61}{PSNR vs.\ wall-clock time for the eight representative \MixedCubes {} configurations. At 24\,h the best configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB within 0.08\,dB of the baseline at roughly one ninth of the VRAM. The $F=2$ configuration \texttt {25\_2\_25\_4\_128} (25.5\,GB) reaches only 35.37\,dB at 24\,h, 0.52\,dB below the baseline despite its large hashmap, confirming that $F=2$ is counterproductive in the split-encoder context. These configurations were selected to best represent the experimental landscape.\relax }{figure.caption.51}{}}
-\newlabel{fig:mixedcubes_time@cref}{{[figure][29][3]3.29}{[1][58][]61}}
+\newlabel{fig:mixedcubes_time@cref}{{[figure][29][3]3.29}{[1][59][]61}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{62}{subsection.3.5.4}\protected@file@percent }
 \newlabel{subsec:asymmetry_synthesis}{{3.5.4}{62}{Architecture and Problem Structure}{subsection.3.5.4}{}}
 \newlabel{subsec:asymmetry_synthesis@cref}{{[subsection][4][3,5]3.5.4}{[1][62][]62}}
@@ -432,148 +432,149 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{71}{subsection.4.3.2}\protected@file@percent }
 \newlabel{subsec:comp_disc_hardware}{{4.3.2}{71}{Hardware-Specific Recommendations}{subsection.4.3.2}{}}
 \newlabel{subsec:comp_disc_hardware@cref}{{[subsection][2][4,3]4.3.2}{[1][71][]71}}
-\@writefile{toc}{\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{71}{section*.59}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{72}{section*.60}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{72}{section*.61}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Additivity of the Two Improvements}{72}{subsection.4.3.3}\protected@file@percent }
-\newlabel{subsec:comp_disc_additivity}{{4.3.3}{72}{Additivity of the Two Improvements}{subsection.4.3.3}{}}
-\newlabel{subsec:comp_disc_additivity@cref}{{[subsection][3][4,3]4.3.3}{[1][72][]72}}
-\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Continuous Scanning}{73}{part.2}\protected@file@percent }
-\newlabel{part:continuous_scanning}{{II}{74}{Continuous Scanning}{part.2}{}}
-\newlabel{part:continuous_scanning@cref}{{[part][2][]II}{[1][74][]74}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{74}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Entry-level GPU (6--8\,GB VRAM, e.g.\ GTX 1060 6\,GB or RTX 4060 8\,GB).}{71}{section*.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{72}{section*.60}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{72}{section*.61}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{72}{section*.62}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Generalisability and Dataset Scope}{72}{subsection.4.3.3}\protected@file@percent }
+\newlabel{subsec:comp_disc_generalisability}{{4.3.3}{72}{Generalisability and Dataset Scope}{subsection.4.3.3}{}}
+\newlabel{subsec:comp_disc_generalisability@cref}{{[subsection][3][4,3]4.3.3}{[1][72][]72}}
+\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Continuous Scanning}{74}{part.2}\protected@file@percent }
+\newlabel{part:continuous_scanning}{{II}{75}{Continuous Scanning}{part.2}{}}
+\newlabel{part:continuous_scanning@cref}{{[part][2][]II}{[1][75][]75}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{75}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:continuous}{{5}{74}{Continuous Scanning}{chapter.5}{}}
-\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][74][]74}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Theory}{74}{section.5.1}\protected@file@percent }
-\newlabel{sec:cont_theory}{{5.1}{74}{Theory}{section.5.1}{}}
-\newlabel{sec:cont_theory@cref}{{[section][1][5]5.1}{[1][74][]74}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{74}{subsection.5.1.1}\protected@file@percent }
-\newlabel{subsec:cont_modes}{{5.1.1}{74}{Step-and-Shoot Versus Continuous Rotation}{subsection.5.1.1}{}}
-\newlabel{subsec:cont_modes@cref}{{[subsection][1][5,1]5.1.1}{[1][74][]74}}
-\newlabel{eq:angular_sweep}{{5.1}{75}{Step-and-Shoot Versus Continuous Rotation}{equation.5.1.1}{}}
-\newlabel{eq:angular_sweep@cref}{{[equation][1][5]5.1}{[1][75][]75}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{75}{figure.caption.62}\protected@file@percent }
-\newlabel{fig:continous_illu}{{5.1}{75}{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }{figure.caption.62}{}}
-\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][75][]75}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{75}{subsection.5.1.2}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_implications}{{5.1.2}{75}{Implications for Dynamic Imaging}{subsection.5.1.2}{}}
-\newlabel{subsec:cont_dynamic_implications@cref}{{[subsection][2][5,1]5.1.2}{[1][75][]75}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{76}{subsection.5.1.3}\protected@file@percent }
-\newlabel{subsec:cont_forward_theory}{{5.1.3}{76}{Continuous-Scan Forward Model}{subsection.5.1.3}{}}
-\newlabel{subsec:cont_forward_theory@cref}{{[subsection][3][5,1]5.1.3}{[1][76][]76}}
-\newlabel{eq:step_shoot_forward}{{5.2}{76}{Continuous-Scan Forward Model}{equation.5.1.2}{}}
-\newlabel{eq:step_shoot_forward@cref}{{[equation][2][5]5.2}{[1][76][]76}}
-\newlabel{eq:continuous_forward_exact}{{5.3}{76}{Continuous-Scan Forward Model}{equation.5.1.3}{}}
-\newlabel{eq:continuous_forward_exact@cref}{{[equation][3][5]5.3}{[1][76][]76}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Method}{77}{section.5.2}\protected@file@percent }
-\newlabel{sec:cont_method}{{5.2}{77}{Method}{section.5.2}{}}
-\newlabel{sec:cont_method@cref}{{[section][2][5]5.2}{[1][77][]77}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{77}{subsection.5.2.1}\protected@file@percent }
-\newlabel{subsec:cont_kstep}{{5.2.1}{77}{$K$-Step Midpoint Approximation}{subsection.5.2.1}{}}
-\newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][77][]77}}
-\newlabel{eq:continuous_forward_discrete}{{5.4}{77}{$K$-Step Midpoint Approximation}{equation.5.2.4}{}}
-\newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][77][]77}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{78}{subsection.5.2.2}\protected@file@percent }
-\newlabel{subsec:cont_implementation}{{5.2.2}{78}{Training Step Implementation}{subsection.5.2.2}{}}
-\newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][77][]78}}
-\@writefile{toc}{\contentsline {paragraph}{Time-efficient mode.}{78}{section*.63}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Training Step --- Time-Efficient\relax }}{78}{algorithm.1}\protected@file@percent }
-\newlabel{alg:memvstime_true}{{1}{78}{Continuous-Scan Training Step --- Time-Efficient\relax }{algorithm.1}{}}
-\newlabel{alg:memvstime_true@cref}{{[algorithm][1][]1}{[1][78][]78}}
-\@writefile{toc}{\contentsline {paragraph}{Memory-efficient mode.}{78}{section*.64}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Continuous-Scan Training Step --- Memory-Efficient\relax }}{79}{algorithm.2}\protected@file@percent }
-\newlabel{alg:memvstime_false}{{2}{79}{Continuous-Scan Training Step --- Memory-Efficient\relax }{algorithm.2}{}}
-\newlabel{alg:memvstime_false@cref}{{[algorithm][2][]2}{[1][78][]79}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{79}{subsection.5.2.3}\protected@file@percent }
-\newlabel{subsec:cont_training}{{5.2.3}{79}{Hyperparameters and Training Protocol}{subsection.5.2.3}{}}
-\newlabel{subsec:cont_training@cref}{{[subsection][3][5,2]5.2.3}{[1][79][]79}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{79}{section.5.3}\protected@file@percent }
-\newlabel{sec:cont_static}{{5.3}{79}{Experiments: Static Validation}{section.5.3}{}}
-\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][79][]79}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{80}{subsection.5.3.1}\protected@file@percent }
-\newlabel{subsec:cont_static_dataset}{{5.3.1}{80}{Dataset}{subsection.5.3.1}{}}
-\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][80][]80}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{80}{table.caption.65}\protected@file@percent }
-\newlabel{tab:static_cont_configs}{{5.1}{80}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.65}{}}
-\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][80][]80}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{80}{subsection.5.3.2}\protected@file@percent }
-\newlabel{subsec:cont_static_metrics}{{5.3.2}{80}{Evaluation Metrics}{subsection.5.3.2}{}}
-\newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][80][]80}}
-\newlabel{eq:combined_norm}{{5.5}{81}{Evaluation Metrics}{equation.5.3.5}{}}
-\newlabel{eq:combined_norm@cref}{{[equation][5][5]5.5}{[1][81][]81}}
-\newlabel{eq:combined_score}{{5.6}{81}{Evaluation Metrics}{equation.5.3.6}{}}
-\newlabel{eq:combined_score@cref}{{[equation][6][5]5.6}{[1][81][]81}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{81}{subsection.5.3.3}\protected@file@percent }
-\newlabel{subsec:cont_static_results}{{5.3.3}{81}{Results}{subsection.5.3.3}{}}
-\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][81][]81}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\ensuremath  {^\circ }$) and 360-projection ($\Delta \phi = 1.00\ensuremath  {^\circ }$) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }}{82}{figure.caption.66}\protected@file@percent }
-\newlabel{fig:combined_score}{{5.2}{82}{Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\degree $) and 360-projection ($\Delta \phi = 1.00\degree $) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }{figure.caption.66}{}}
-\newlabel{fig:combined_score@cref}{{[figure][2][5]5.2}{[1][81][]82}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }}{84}{figure.caption.67}\protected@file@percent }
-\newlabel{fig:static_slices_100}{{5.3}{84}{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }{figure.caption.67}{}}
-\newlabel{fig:static_slices_100@cref}{{[figure][3][5]5.3}{[1][83][]84}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }}{85}{figure.caption.68}\protected@file@percent }
-\newlabel{fig:static_slices_360}{{5.4}{85}{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }{figure.caption.68}{}}
-\newlabel{fig:static_slices_360@cref}{{[figure][4][5]5.4}{[1][85][]85}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{86}{section.5.4}\protected@file@percent }
-\newlabel{sec:cont_dynamic}{{5.4}{86}{Experiments: Dynamic Hourglass}{section.5.4}{}}
-\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][86][]86}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{86}{subsection.5.4.1}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{86}{Dataset}{subsection.5.4.1}{}}
-\newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][86][]86}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{86}{figure.caption.69}\protected@file@percent }
-\newlabel{fig:hourglass}{{5.5}{86}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.69}{}}
-\newlabel{fig:hourglass@cref}{{[figure][5][5]5.5}{[1][86][]86}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }}{87}{figure.caption.70}\protected@file@percent }
-\newlabel{fig:hourglass_in_scanner}{{5.6}{87}{The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }{figure.caption.70}{}}
-\newlabel{fig:hourglass_in_scanner@cref}{{[figure][6][5]5.6}{[1][86][]87}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{88}{table.caption.71}\protected@file@percent }
-\newlabel{tab:acquisition_params}{{5.2}{88}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.71}{}}
-\newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][86][]88}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath  {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath  {^\circ }; green: 1.72\ensuremath  {^\circ }; orange: 1.15\ensuremath  {^\circ }.\relax }}{88}{table.caption.72}\protected@file@percent }
-\newlabel{tab:dynamic_cont_configs}{{5.3}{88}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree \ (appears in all three rows); blue: 6.88\degree ; green: 1.72\degree ; orange: 1.15\degree .\relax }{table.caption.72}{}}
-\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][88][]88}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{89}{subsection.5.4.2}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_results}{{5.4.2}{89}{Results}{subsection.5.4.2}{}}
-\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][89][]89}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{89}{figure.caption.73}\protected@file@percent }
-\newlabel{fig:dynamic_cont_reconstruction}{{5.7}{89}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.73}{}}
-\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][7][5]5.7}{[1][89][]89}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }}{90}{figure.caption.74}\protected@file@percent }
-\newlabel{fig:mae_4fps}{{5.8}{90}{Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }{figure.caption.74}{}}
-\newlabel{fig:mae_4fps@cref}{{[figure][8][5]5.8}{[1][90][]90}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.9}{\ignorespaces Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }}{90}{figure.caption.75}\protected@file@percent }
-\newlabel{fig:mae_2fps}{{5.9}{90}{Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }{figure.caption.75}{}}
-\newlabel{fig:mae_2fps@cref}{{[figure][9][5]5.9}{[1][90][]90}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{90}{section.5.5}\protected@file@percent }
-\newlabel{sec:cont_discussion}{{5.5}{90}{Discussion}{section.5.5}{}}
-\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][90][]90}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{90}{subsection.5.5.1}\protected@file@percent }
-\newlabel{subsec:cont_disc_model}{{5.5.1}{90}{Validity of the Forward Model}{subsection.5.5.1}{}}
-\newlabel{subsec:cont_disc_model@cref}{{[subsection][1][5,5]5.5.1}{[1][90][]90}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.10}{\ignorespaces Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }}{91}{figure.caption.76}\protected@file@percent }
-\newlabel{fig:subangle_result}{{5.10}{91}{Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }{figure.caption.76}{}}
-\newlabel{fig:subangle_result@cref}{{[figure][10][5]5.10}{[1][90][]91}}
+\newlabel{chap:continuous}{{5}{75}{Continuous Scanning}{chapter.5}{}}
+\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][75][]75}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Theory}{75}{section.5.1}\protected@file@percent }
+\newlabel{sec:cont_theory}{{5.1}{75}{Theory}{section.5.1}{}}
+\newlabel{sec:cont_theory@cref}{{[section][1][5]5.1}{[1][75][]75}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{75}{subsection.5.1.1}\protected@file@percent }
+\newlabel{subsec:cont_modes}{{5.1.1}{75}{Step-and-Shoot Versus Continuous Rotation}{subsection.5.1.1}{}}
+\newlabel{subsec:cont_modes@cref}{{[subsection][1][5,1]5.1.1}{[1][75][]75}}
+\newlabel{eq:angular_sweep}{{5.1}{76}{Step-and-Shoot Versus Continuous Rotation}{equation.5.1.1}{}}
+\newlabel{eq:angular_sweep@cref}{{[equation][1][5]5.1}{[1][76][]76}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{76}{figure.caption.63}\protected@file@percent }
+\newlabel{fig:continous_illu}{{5.1}{76}{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }{figure.caption.63}{}}
+\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][76][]76}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{76}{subsection.5.1.2}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_implications}{{5.1.2}{76}{Implications for Dynamic Imaging}{subsection.5.1.2}{}}
+\newlabel{subsec:cont_dynamic_implications@cref}{{[subsection][2][5,1]5.1.2}{[1][76][]76}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{77}{subsection.5.1.3}\protected@file@percent }
+\newlabel{subsec:cont_forward_theory}{{5.1.3}{77}{Continuous-Scan Forward Model}{subsection.5.1.3}{}}
+\newlabel{subsec:cont_forward_theory@cref}{{[subsection][3][5,1]5.1.3}{[1][77][]77}}
+\newlabel{eq:step_shoot_forward}{{5.2}{77}{Continuous-Scan Forward Model}{equation.5.1.2}{}}
+\newlabel{eq:step_shoot_forward@cref}{{[equation][2][5]5.2}{[1][77][]77}}
+\newlabel{eq:continuous_forward_exact}{{5.3}{77}{Continuous-Scan Forward Model}{equation.5.1.3}{}}
+\newlabel{eq:continuous_forward_exact@cref}{{[equation][3][5]5.3}{[1][77][]77}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Method}{78}{section.5.2}\protected@file@percent }
+\newlabel{sec:cont_method}{{5.2}{78}{Method}{section.5.2}{}}
+\newlabel{sec:cont_method@cref}{{[section][2][5]5.2}{[1][78][]78}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{78}{subsection.5.2.1}\protected@file@percent }
+\newlabel{subsec:cont_kstep}{{5.2.1}{78}{$K$-Step Midpoint Approximation}{subsection.5.2.1}{}}
+\newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][78][]78}}
+\newlabel{eq:continuous_forward_discrete}{{5.4}{78}{$K$-Step Midpoint Approximation}{equation.5.2.4}{}}
+\newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][78][]78}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{79}{subsection.5.2.2}\protected@file@percent }
+\newlabel{subsec:cont_implementation}{{5.2.2}{79}{Training Step Implementation}{subsection.5.2.2}{}}
+\newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][78][]79}}
+\@writefile{toc}{\contentsline {paragraph}{Time-efficient mode.}{79}{section*.64}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Training Step --- Time-Efficient\relax }}{79}{algorithm.1}\protected@file@percent }
+\newlabel{alg:memvstime_true}{{1}{79}{Continuous-Scan Training Step --- Time-Efficient\relax }{algorithm.1}{}}
+\newlabel{alg:memvstime_true@cref}{{[algorithm][1][]1}{[1][79][]79}}
+\@writefile{toc}{\contentsline {paragraph}{Memory-efficient mode.}{79}{section*.65}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Continuous-Scan Training Step --- Memory-Efficient\relax }}{80}{algorithm.2}\protected@file@percent }
+\newlabel{alg:memvstime_false}{{2}{80}{Continuous-Scan Training Step --- Memory-Efficient\relax }{algorithm.2}{}}
+\newlabel{alg:memvstime_false@cref}{{[algorithm][2][]2}{[1][79][]80}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{80}{subsection.5.2.3}\protected@file@percent }
+\newlabel{subsec:cont_training}{{5.2.3}{80}{Hyperparameters and Training Protocol}{subsection.5.2.3}{}}
+\newlabel{subsec:cont_training@cref}{{[subsection][3][5,2]5.2.3}{[1][80][]80}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{80}{section.5.3}\protected@file@percent }
+\newlabel{sec:cont_static}{{5.3}{80}{Experiments: Static Validation}{section.5.3}{}}
+\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][80][]80}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{81}{subsection.5.3.1}\protected@file@percent }
+\newlabel{subsec:cont_static_dataset}{{5.3.1}{81}{Dataset}{subsection.5.3.1}{}}
+\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][81][]81}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{81}{table.caption.66}\protected@file@percent }
+\newlabel{tab:static_cont_configs}{{5.1}{81}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.66}{}}
+\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][81][]81}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{81}{subsection.5.3.2}\protected@file@percent }
+\newlabel{subsec:cont_static_metrics}{{5.3.2}{81}{Evaluation Metrics}{subsection.5.3.2}{}}
+\newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][81][]81}}
+\newlabel{eq:combined_norm}{{5.5}{82}{Evaluation Metrics}{equation.5.3.5}{}}
+\newlabel{eq:combined_norm@cref}{{[equation][5][5]5.5}{[1][82][]82}}
+\newlabel{eq:combined_score}{{5.6}{82}{Evaluation Metrics}{equation.5.3.6}{}}
+\newlabel{eq:combined_score@cref}{{[equation][6][5]5.6}{[1][82][]82}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{82}{subsection.5.3.3}\protected@file@percent }
+\newlabel{subsec:cont_static_results}{{5.3.3}{82}{Results}{subsection.5.3.3}{}}
+\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][82][]82}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\ensuremath  {^\circ }$) and 360-projection ($\Delta \phi = 1.00\ensuremath  {^\circ }$) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }}{83}{figure.caption.67}\protected@file@percent }
+\newlabel{fig:combined_score}{{5.2}{83}{Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\degree $) and 360-projection ($\Delta \phi = 1.00\degree $) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }{figure.caption.67}{}}
+\newlabel{fig:combined_score@cref}{{[figure][2][5]5.2}{[1][82][]83}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }}{85}{figure.caption.68}\protected@file@percent }
+\newlabel{fig:static_slices_100}{{5.3}{85}{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }{figure.caption.68}{}}
+\newlabel{fig:static_slices_100@cref}{{[figure][3][5]5.3}{[1][84][]85}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }}{86}{figure.caption.69}\protected@file@percent }
+\newlabel{fig:static_slices_360}{{5.4}{86}{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }{figure.caption.69}{}}
+\newlabel{fig:static_slices_360@cref}{{[figure][4][5]5.4}{[1][86][]86}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{87}{section.5.4}\protected@file@percent }
+\newlabel{sec:cont_dynamic}{{5.4}{87}{Experiments: Dynamic Hourglass}{section.5.4}{}}
+\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][87][]87}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{87}{subsection.5.4.1}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{87}{Dataset}{subsection.5.4.1}{}}
+\newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][87][]87}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{87}{figure.caption.70}\protected@file@percent }
+\newlabel{fig:hourglass}{{5.5}{87}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.70}{}}
+\newlabel{fig:hourglass@cref}{{[figure][5][5]5.5}{[1][87][]87}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }}{88}{figure.caption.71}\protected@file@percent }
+\newlabel{fig:hourglass_in_scanner}{{5.6}{88}{The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }{figure.caption.71}{}}
+\newlabel{fig:hourglass_in_scanner@cref}{{[figure][6][5]5.6}{[1][87][]88}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{89}{table.caption.72}\protected@file@percent }
+\newlabel{tab:acquisition_params}{{5.2}{89}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.72}{}}
+\newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][87][]89}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath  {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath  {^\circ }; green: 1.72\ensuremath  {^\circ }; orange: 1.15\ensuremath  {^\circ }.\relax }}{89}{table.caption.73}\protected@file@percent }
+\newlabel{tab:dynamic_cont_configs}{{5.3}{89}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree \ (appears in all three rows); blue: 6.88\degree ; green: 1.72\degree ; orange: 1.15\degree .\relax }{table.caption.73}{}}
+\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][89][]89}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{90}{subsection.5.4.2}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_results}{{5.4.2}{90}{Results}{subsection.5.4.2}{}}
+\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][90][]90}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{90}{figure.caption.74}\protected@file@percent }
+\newlabel{fig:dynamic_cont_reconstruction}{{5.7}{90}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.74}{}}
+\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][7][5]5.7}{[1][90][]90}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }}{91}{figure.caption.75}\protected@file@percent }
+\newlabel{fig:mae_4fps}{{5.8}{91}{Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }{figure.caption.75}{}}
+\newlabel{fig:mae_4fps@cref}{{[figure][8][5]5.8}{[1][91][]91}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.9}{\ignorespaces Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }}{91}{figure.caption.76}\protected@file@percent }
+\newlabel{fig:mae_2fps}{{5.9}{91}{Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }{figure.caption.76}{}}
+\newlabel{fig:mae_2fps@cref}{{[figure][9][5]5.9}{[1][91][]91}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{91}{section.5.5}\protected@file@percent }
+\newlabel{sec:cont_discussion}{{5.5}{91}{Discussion}{section.5.5}{}}
+\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][91][]91}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{91}{subsection.5.5.1}\protected@file@percent }
+\newlabel{subsec:cont_disc_model}{{5.5.1}{91}{Validity of the Forward Model}{subsection.5.5.1}{}}
+\newlabel{subsec:cont_disc_model@cref}{{[subsection][1][5,5]5.5.1}{[1][91][]91}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.10}{\ignorespaces Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }}{92}{figure.caption.77}\protected@file@percent }
+\newlabel{fig:subangle_result}{{5.10}{92}{Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }{figure.caption.77}{}}
+\newlabel{fig:subangle_result@cref}{{[figure][10][5]5.10}{[1][91][]92}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{92}{subsection.5.5.2}\protected@file@percent }
-\newlabel{subsec:cont_disc_dynamic}{{5.5.2}{92}{Dynamic Experiment and Sample Geometry}{subsection.5.5.2}{}}
-\newlabel{subsec:cont_disc_dynamic@cref}{{[subsection][2][5,5]5.5.2}{[1][92][]92}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations}{93}{subsection.5.5.3}\protected@file@percent }
-\newlabel{subsec:cont_disc_limitations}{{5.5.3}{93}{Limitations}{subsection.5.5.3}{}}
-\newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][92][]93}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{94}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{93}{subsection.5.5.2}\protected@file@percent }
+\newlabel{subsec:cont_disc_dynamic}{{5.5.2}{93}{Dynamic Experiment and Sample Geometry}{subsection.5.5.2}{}}
+\newlabel{subsec:cont_disc_dynamic@cref}{{[subsection][2][5,5]5.5.2}{[1][93][]93}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations}{94}{subsection.5.5.3}\protected@file@percent }
+\newlabel{subsec:cont_disc_limitations}{{5.5.3}{94}{Limitations}{subsection.5.5.3}{}}
+\newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][93][]94}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{95}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{6}{94}{Conclusion}{chapter.6}{}}
-\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][94][]94}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{94}{section.6.1}\protected@file@percent }
-\newlabel{sec:conclusion_summary}{{6.1}{94}{Summary of Contributions}{section.6.1}{}}
-\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][94][]94}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{96}{section.6.2}\protected@file@percent }
-\newlabel{sec:conclusion_future}{{6.2}{96}{Limitations and Future Work}{section.6.2}{}}
-\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][95][]96}}
+\newlabel{chap:conclusion}{{6}{95}{Conclusion}{chapter.6}{}}
+\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][95][]95}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{95}{section.6.1}\protected@file@percent }
+\newlabel{sec:conclusion_summary}{{6.1}{95}{Summary of Contributions}{section.6.1}{}}
+\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][95][]95}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{97}{section.6.2}\protected@file@percent }
+\newlabel{sec:conclusion_future}{{6.2}{97}{Limitations and Future Work}{section.6.2}{}}
+\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][96][]97}}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{andersen1984sart}{{1}{1984}{{Andersen and Kak}}{{}}}
@@ -611,14 +612,14 @@
 \bibcite{wang2004ssim}{{33}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
 \bibcite{withers2021ct}{{34}{2021}{{Withers et~al.}}{{}}}
 \bibcite{zha2022naf}{{35}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{101}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{103}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experimental}{{A}{101}{Supplementary Experimental Details}{appendix.A}{}}
-\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][101][]101}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{102}{appendix.B}\protected@file@percent }
+\newlabel{app:experimental}{{A}{103}{Supplementary Experimental Details}{appendix.A}{}}
+\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][103][]103}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{104}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{B}{102}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
-\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][102][]102}}
-\gdef \@abspage@last{119}
+\newlabel{app:hyperparams}{{B}{104}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
+\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][104][]104}}
+\gdef \@abspage@last{121}
