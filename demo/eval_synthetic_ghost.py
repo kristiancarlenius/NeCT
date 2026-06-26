@@ -245,6 +245,8 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
     try:
         trainer = load_trainer(exp["config_path"], exp["ckpt_path"])
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"    [ERROR loading model]: {e}", flush=True)
         return None
 
@@ -400,6 +402,23 @@ def main() -> None:
         if gpu_idx is None:
             sys.exit("ERROR: no GPU with >= 3 GB free — use --gpu N or free up GPU memory")
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_idx)
+
+    # Smoke-test: verify TCNN can allocate a tiny hash grid before running 24 experiments.
+    print("Verifying TCNN / CUDA ...", flush=True)
+    try:
+        import tinycudann as tcnn
+        _t = tcnn.Encoding(3, {"otype": "HashGrid", "n_levels": 4,
+                               "n_features_per_level": 2, "log2_hashmap_size": 16,
+                               "base_resolution": 16, "per_level_scale": 1.5})
+        del _t
+        torch.cuda.empty_cache()
+        print("  TCNN OK", flush=True)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        sys.exit("ERROR: TCNN / CUDA smoke-test failed — see traceback above.\n"
+                 "Try: rm -rf ~/.cache/torch_extensions  then re-run.\n"
+                 "If that fails, the installed TCNN may not support CUDA 12.9.")
 
     gt_volumes_path   = args.gt_dir / "gt_volumes.npy"
     gt_timesteps_path = args.gt_dir / "gt_timesteps.npy"
