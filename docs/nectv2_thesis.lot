@@ -13,4 +13,6 @@
 \contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath {^\circ }; green: 1.72\ensuremath {^\circ }; orange: 1.15\ensuremath {^\circ }.\relax }}{92}{table.caption.74}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces PSNR (dB) at each 6-hour wall-clock checkpoint for all evaluated configurations. Dashes indicate the training run did not reach that wall-clock time.\relax }}{108}{table.caption.80}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces PSNR (dB) at each 50-epoch checkpoint for all evaluated configurations.\relax }}{109}{table.caption.81}%
+\contentsline {table}{\numberline {A.3}{\ignorespaces Full metric summary at epoch~500 and at the final timed snapshot for all configurations. PSNR in dB; MAE in the same units as the attenuation coefficient.\relax }}{110}{table.caption.82}%

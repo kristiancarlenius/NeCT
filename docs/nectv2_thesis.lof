@@ -60,4 +60,3 @@
 \contentsline {figure}{\numberline {5.10}{\ignorespaces Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }}{95}{figure.caption.78}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\addvspace {10\p@ }

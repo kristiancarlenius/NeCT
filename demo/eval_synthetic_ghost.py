@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gc
 import json
 import re
 import sys
@@ -139,7 +140,9 @@ def load_trainer(config_path: Path, ckpt_path: Path):
         log=False,
         verbose=False,
     )
-    checkpoint_data = trainer.fabric.load(str(ckpt_path))
+    # Load checkpoint to CPU first so only model weights are transferred to GPU,
+    # not optimizer/scheduler states (which are 3-4× the model size in fp32).
+    checkpoint_data = torch.load(str(ckpt_path), map_location="cpu", weights_only=False)
     trainer.model.load_state_dict(checkpoint_data["model"])
     trainer.model.eval()
     return trainer
@@ -248,22 +251,27 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
     recon_for_vis: list[np.ndarray | None] = [None, None, None]
 
     per_timestep = []
-    for i, t in enumerate(gt_timesteps):
-        with torch.no_grad():
-            vol = trainer.create_volume(timestep=float(t), save=False, cpu=True)
-        if vol is None:
-            print(f"    [WARN] create_volume returned None at t={t:.1f}", flush=True)
-            continue
+    try:
+        for i, t in enumerate(gt_timesteps):
+            with torch.no_grad():
+                vol = trainer.create_volume(timestep=float(t), save=False, cpu=True)
+            if vol is None:
+                print(f"    [WARN] create_volume returned None at t={t:.1f}", flush=True)
+                continue
 
-        recon = vol.float().cpu().numpy() * trainer.geometry.max_distance_traveled
-        gt    = gt_volumes[i]
-        m     = compute_metrics(recon, gt)
-        m["timestep"] = float(t)
-        per_timestep.append(m)
+            recon = vol.float().cpu().numpy() * trainer.geometry.max_distance_traveled
+            gt    = gt_volumes[i]
+            m     = compute_metrics(recon, gt)
+            m["timestep"] = float(t)
+            per_timestep.append(m)
 
-        for vi, vi_idx in enumerate(visual_indices):
-            if i == vi_idx:
-                recon_for_vis[vi] = recon
+            for vi, vi_idx in enumerate(visual_indices):
+                if i == vi_idx:
+                    recon_for_vis[vi] = recon
+    finally:
+        del trainer
+        torch.cuda.empty_cache()
+        gc.collect()
 
     if not per_timestep:
         return None
