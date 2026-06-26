@@ -93,6 +93,18 @@ def compute_metrics(recon: np.ndarray, gt: np.ndarray) -> dict:
 
 # ── Experiment discovery ──────────────────────────────────────────────────────
 
+def _find_config_near_ckpt(ckpt_path: Path) -> Path | None:
+    """Walk up from the checkpoint file looking for config.yaml in the run directory."""
+    for parent in ckpt_path.parents:
+        candidate = parent / "config.yaml"
+        if candidate.exists():
+            return candidate
+        # Stop after leaving the run-timestamp directory (don't walk all the way to outputs/).
+        if parent.name.startswith("synthetic_ghost_"):
+            break
+    return None
+
+
 def find_experiments(outputs_dir: Path) -> list[dict]:
     experiments = []
     for exp_dir in sorted(outputs_dir.glob("synthetic_ghost_deg*_ac*")):
@@ -103,14 +115,12 @@ def find_experiments(outputs_dir: Path) -> list[dict]:
             continue
         deg, ac = int(m.group(1)), int(m.group(2))
 
-        config_path = None
-        for candidate in [exp_dir / "model" / "config.yaml", exp_dir / "config.yaml"]:
-            if candidate.exists():
-                config_path = candidate
-                break
-
+        # Pick the most recently modified last.ckpt anywhere under this experiment dir.
         ckpt_candidates = sorted(exp_dir.rglob("last.ckpt"), key=lambda p: p.stat().st_mtime)
         ckpt_path = ckpt_candidates[-1] if ckpt_candidates else None
+
+        # Find config.yaml co-located with the chosen checkpoint (walk up its directory tree).
+        config_path = _find_config_near_ckpt(ckpt_path) if ckpt_path is not None else None
 
         if config_path is None or ckpt_path is None:
             missing = []
@@ -152,87 +162,121 @@ def load_trainer(config_path: Path, ckpt_path: Path):
 
 # ── Slice visualisation ───────────────────────────────────────────────────────
 
-_VISUAL_LABELS = ["first", "middle", "last"]
+def _gt_slice(gt_vol: np.ndarray, plot_type: str) -> np.ndarray:
+    """Extract the same centre slice from GT vol[z,y,x] as generate_image() uses."""
+    mid = gt_vol.shape[0] // 2  # cubic volume
+    if plot_type == "XY":
+        return gt_vol[mid, :, :]   # fix z → shows y (rows) vs x (cols)
+    if plot_type == "XZ":
+        return gt_vol[:, mid, :]   # fix y → shows z (rows) vs x (cols)
+    if plot_type == "YZ":
+        return gt_vol[:, :, mid]   # fix x → shows z (rows) vs y (cols)
+    return gt_vol[mid, :, :]
 
 
-def _centre_slice(vol: np.ndarray, plane: str) -> np.ndarray:
-    """Return the centre slice of vol[z,y,x] for the named plane."""
-    mid = vol.shape[0] // 2
-    if plane == "XY":
-        return vol[mid, :, :]   # fix z → shows y (rows) vs x (cols)
-    if plane == "YZ":
-        return vol[:, :, mid]   # fix x → shows z (rows) vs y (cols)
-    if plane == "XZ":
-        return vol[:, mid, :]   # fix y → shows z (rows) vs x (cols)
-    raise ValueError(f"Unknown plane: {plane}")
-
-
-def save_gt_slice_images(
-    gt_volumes: np.ndarray,
-    gt_timesteps: np.ndarray,
-    out_dir: Path,
-) -> None:
-    """Save one PNG per plane showing GT at first, middle, and last timestep."""
-    out_dir.mkdir(parents=True, exist_ok=True)
-    n_ts = len(gt_timesteps)
-    t_indices = [0, n_ts // 2, n_ts - 1]
-    planes = ["XY", "YZ", "XZ"]
-
-    for plane in planes:
-        fig, axes = plt.subplots(1, 3, figsize=(12, 4))
-        fig.suptitle(f"Ground truth  —  {plane} centre slice", fontsize=13)
-        for col, (t_idx, label) in enumerate(zip(t_indices, _VISUAL_LABELS)):
-            t_val = float(gt_timesteps[t_idx])
-            sl = _centre_slice(gt_volumes[t_idx], plane)
-            ax = axes[col]
-            ax.imshow(sl, cmap="gray", vmin=0.0, vmax=DATA_RANGE,
-                      origin="lower", interpolation="nearest", aspect="equal")
-            ax.set_title(f"t={t_val:.2f}  ({label})", fontsize=9)
-            ax.axis("off")
-
-        fig.tight_layout()
-        fname = f"gt_{plane}.png"
-        fig.savefig(out_dir / fname, dpi=120)
-        plt.close(fig)
-        print(f"  GT slice image → {fname}", flush=True)
-
-
-def save_slice_images(
+def save_training_style_images(
     exp: dict,
+    trainer,
     gt_volumes: np.ndarray,
     gt_timesteps: np.ndarray,
-    recon_volumes: list[np.ndarray],
-    t_indices: list[int],
     out_dir: Path,
 ) -> None:
-    """Save one PNG per plane (XY, YZ, XZ): 2 rows (GT/Recon) × 3 cols (timesteps)."""
+    """
+    Save images in the exact same format as training's generate_image() (dynamic mode).
+
+    Output per experiment:
+      deg{dd}_ac{aa}_{plane}_recon.png  — matches the training epoch image
+      deg{dd}_ac{aa}_{plane}_gt.png     — GT in identical layout for comparison
+
+    Row 0 (top): difference from t=0  (raw model units, matching training row 0)
+    Row 1 (bot): normalised attenuation (matching training row 1 normalization)
+    Columns: t=0.25, t=0.50, t=0.75    (same timesteps as training)
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
-    planes = ["XY", "YZ", "XZ"]
+    plot_type = (getattr(trainer.config, "plot_type", None) or "XY").upper()
 
-    for plane in planes:
-        fig, axes = plt.subplots(2, 3, figsize=(12, 8))
-        fig.suptitle(
-            f"deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  {plane} centre slice",
-            fontsize=13,
-        )
-        for col, (t_idx, label, recon_vol) in enumerate(
-            zip(t_indices, _VISUAL_LABELS, recon_volumes)
-        ):
-            t_val = float(gt_timesteps[t_idx])
-            gt_sl    = _centre_slice(gt_volumes[t_idx], plane)
-            recon_sl = _centre_slice(recon_vol, plane)
-            for row, (sl, row_tag) in enumerate([(gt_sl, "GT"), (recon_sl, "Recon")]):
-                ax = axes[row, col]
-                ax.imshow(sl, cmap="gray", vmin=0.0, vmax=DATA_RANGE,
-                          origin="lower", interpolation="nearest", aspect="equal")
-                ax.set_title(f"{row_tag}  t={t_val:.2f}  ({label})", fontsize=9)
-                ax.axis("off")
+    # Replicate generate_image() grid construction exactly.
+    nVoxel = list(trainer.config.geometry.nVoxel)
+    rm = trainer.config.sample_outside
+    sample_size = [nVoxel[0], nVoxel[1] + 2 * rm, nVoxel[2] + 2 * rm]
 
+    z, y, x = torch.meshgrid(
+        [
+            torch.linspace(0, 1, steps=sample_size[0]) if plot_type != "XY" else torch.tensor(0.5),
+            torch.linspace(0, 1, steps=sample_size[1])[slice(rm, -rm) if rm > 0 else slice(None)] if plot_type != "XZ" else torch.tensor(0.5),
+            torch.linspace(0, 1, steps=sample_size[2])[slice(rm, -rm) if rm > 0 else slice(None)] if plot_type != "YZ" else torch.tensor(0.5),
+        ],
+        indexing="ij",
+    )
+    grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t().to(trainer.fabric.device)
+    slice_shape = list(z.shape)
+
+    max_dist   = trainer.geometry.max_distance_traveled
+    dset_min   = trainer.dataset.minimum.item()
+    dset_range = trainer.dataset.maximum.item() - dset_min
+
+    # t=0 forward pass (baseline for diff row).
+    with torch.no_grad():
+        avg_raw = (trainer.model(grid, torch.tensor(0))
+                   .squeeze().reshape(slice_shape).squeeze()
+                   .detach().cpu().numpy())
+
+    gt_t0_sl = _gt_slice(gt_volumes[0], plot_type)
+
+    # Build both figures (2 rows × 3 cols, matching generate_image layout).
+    fig_r, axes_r = plt.subplots(2, 3, figsize=(24, 10))
+    fig_r.suptitle(
+        f"Reconstruction  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  {plot_type}",
+        fontsize=13,
+    )
+    fig_g, axes_g = plt.subplots(2, 3, figsize=(24, 10))
+    fig_g.suptitle(
+        f"Ground truth  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  {plot_type}",
+        fontsize=13,
+    )
+
+    eval_times = [0.25, 0.50, 0.75]   # (i+1)/4 for i=0,1,2, same as training
+
+    for col, t_val in enumerate(eval_times):
+        with torch.no_grad():
+            raw = (trainer.model(grid, torch.tensor(t_val))
+                   .squeeze().reshape(slice_shape).squeeze()
+                   .detach().cpu().numpy())
+
+        # Row 0: diff from t=0  (raw units, matching training row 0)
+        axes_r[0, col].imshow(raw - avg_raw, cmap="gray", interpolation="none")
+        axes_r[0, col].set_title(f"t={t_val:.2f}  (diff from t=0)", fontsize=9)
+        axes_r[0, col].axis("off")
+
+        # Row 1: normalised attenuation  (matching training row 1: / max_dist * 2)
+        recon_norm = raw / (max_dist * 2) * dset_range + dset_min
+        axes_r[1, col].imshow(recon_norm, cmap="gray", interpolation="none")
+        axes_r[1, col].set_title(f"t={t_val:.2f}  (attenuation)", fontsize=9)
+        axes_r[1, col].axis("off")
+
+        # GT at the nearest available timestep.
+        t_idx  = int(np.argmin(np.abs(gt_timesteps - t_val)))
+        gt_sl  = _gt_slice(gt_volumes[t_idx], plot_type)
+        t_real = float(gt_timesteps[t_idx])
+
+        axes_g[0, col].imshow(gt_sl - gt_t0_sl, cmap="gray", interpolation="none")
+        axes_g[0, col].set_title(f"GT t={t_real:.2f}  (diff from t=0)", fontsize=9)
+        axes_g[0, col].axis("off")
+
+        axes_g[1, col].imshow(gt_sl, cmap="gray", vmin=0.0, vmax=DATA_RANGE,
+                               interpolation="none")
+        axes_g[1, col].set_title(f"GT t={t_real:.2f}  (attenuation)", fontsize=9)
+        axes_g[1, col].axis("off")
+
+    for fig in (fig_r, fig_g):
         fig.tight_layout()
-        fname = f"deg{exp['deg']:02d}_ac{exp['ac']:02d}_{plane}.png"
-        fig.savefig(out_dir / fname, dpi=120)
-        plt.close(fig)
-        print(f"    slice image → {fname}", flush=True)
+
+    prefix = f"deg{exp['deg']:02d}_ac{exp['ac']:02d}_{plot_type}"
+    fig_r.savefig(out_dir / f"{prefix}_recon.png", dpi=300)
+    fig_g.savefig(out_dir / f"{prefix}_gt.png",   dpi=300)
+    plt.close(fig_r)
+    plt.close(fig_g)
+    print(f"    images → {prefix}_recon.png  +  {prefix}_gt.png", flush=True)
 
 
 # ── Evaluation ────────────────────────────────────────────────────────────────
@@ -250,10 +294,6 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
         print(f"    [ERROR loading model]: {e}", flush=True)
         return None
 
-    n_ts = len(gt_timesteps)
-    visual_indices = [0, n_ts // 2, n_ts - 1]
-    recon_for_vis: list[np.ndarray | None] = [None, None, None]
-
     per_timestep = []
     try:
         for i, t in enumerate(gt_timesteps):
@@ -263,15 +303,17 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
                 print(f"    [WARN] create_volume returned None at t={t:.1f}", flush=True)
                 continue
 
-            recon = vol.float().cpu().numpy() * trainer.geometry.max_distance_traveled
+            # create_volume already denormalises to physical attenuation units.
+            recon = vol.float().cpu().numpy()
             gt    = gt_volumes[i]
             m     = compute_metrics(recon, gt)
             m["timestep"] = float(t)
             per_timestep.append(m)
 
-            for vi, vi_idx in enumerate(visual_indices):
-                if i == vi_idx:
-                    recon_for_vis[vi] = recon
+        # Generate training-style images while the trainer / model are still loaded.
+        if slices_dir is not None:
+            save_training_style_images(exp, trainer, gt_volumes, gt_timesteps, slices_dir)
+
     finally:
         del trainer
         torch.cuda.empty_cache()
@@ -279,12 +321,6 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
 
     if not per_timestep:
         return None
-
-    if slices_dir is not None and all(v is not None for v in recon_for_vis):
-        save_slice_images(
-            exp, gt_volumes, gt_timesteps,
-            recon_for_vis, visual_indices, slices_dir,  # type: ignore[arg-type]
-        )
 
     keys  = ("psnr", "mse", "ssim", "target_psnr", "target_mse")
     means = {k: float(np.mean([p[k] for p in per_timestep])) for k in keys}
@@ -439,8 +475,6 @@ def main() -> None:
     print(f"\nFound {len(experiments)} experiments\n")
 
     slices_dir = args.out_dir / "slices"
-    print("\nSaving GT slice images...")
-    save_gt_slice_images(gt_volumes, gt_timesteps, slices_dir)
 
     results = []
     for exp in experiments:
