@@ -25,7 +25,9 @@ import argparse
 import csv
 import gc
 import json
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -338,6 +340,41 @@ def print_table(results: list[dict]) -> None:
     print("=" * len(header))
 
 
+# ── GPU selection ─────────────────────────────────────────────────────────────
+
+def _gpu_free_mb() -> list[tuple[int, float, float]]:
+    """Return [(gpu_idx, free_mb, total_mb), ...] via nvidia-smi."""
+    try:
+        out = subprocess.check_output(
+            ["nvidia-smi", "--query-gpu=memory.free,memory.total",
+             "--format=csv,noheader,nounits"],
+            text=True,
+        )
+        rows = []
+        for i, line in enumerate(out.strip().splitlines()):
+            free_s, total_s = line.split(",")
+            rows.append((i, float(free_s.strip()), float(total_s.strip())))
+        return rows
+    except Exception:
+        return []
+
+
+def select_gpu(min_free_mb: float = 3000.0) -> int | None:
+    """Pick the GPU with the most free memory (>= min_free_mb). Return None if none qualify."""
+    rows = _gpu_free_mb()
+    if not rows:
+        return None
+    print("GPU memory (nvidia-smi):")
+    for idx, free, total in rows:
+        print(f"  GPU {idx}: {free/1024:.1f} GB free / {total/1024:.1f} GB total")
+    best = max(rows, key=lambda r: r[1])
+    if best[1] < min_free_mb:
+        print(f"  WARNING: no GPU has >= {min_free_mb/1024:.1f} GB free — model needs ~2 GB")
+        return None
+    print(f"  → selecting GPU {best[0]} ({best[1]/1024:.1f} GB free)")
+    return best[0]
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -348,7 +385,21 @@ def main() -> None:
                         default=Path("/cluster/home/kristiac/NeCT/Datasets/synthetic_ghost"))
     parser.add_argument("--out-dir",     type=Path,
                         default=ROOT / "results" / "synthetic_ghost_eval")
+    parser.add_argument("--gpu", type=int, default=None,
+                        help="GPU index to use (default: auto-select by free memory)")
     args = parser.parse_args()
+
+    # Pin to a single GPU before fabric/TCNN initialise CUDA.
+    # TCNN allocates hash-grid memory directly on GPU during model __init__,
+    # so CUDA_VISIBLE_DEVICES must be set before any trainer is constructed.
+    if args.gpu is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+        print(f"Using GPU {args.gpu} (--gpu flag)")
+    elif "CUDA_VISIBLE_DEVICES" not in os.environ:
+        gpu_idx = select_gpu(min_free_mb=3000.0)
+        if gpu_idx is None:
+            sys.exit("ERROR: no GPU with >= 3 GB free — use --gpu N or free up GPU memory")
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_idx)
 
     gt_volumes_path   = args.gt_dir / "gt_volumes.npy"
     gt_timesteps_path = args.gt_dir / "gt_timesteps.npy"
