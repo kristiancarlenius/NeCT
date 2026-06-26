@@ -30,6 +30,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {1.1}Background and Motivation}{1}{section.1.1}\protected@file@percent }
 \newlabel{sec:intro_background}{{1.1}{1}{Background and Motivation}{section.1.1}{}}
 \newlabel{sec:intro_background@cref}{{[section][1][1]1.1}{[1][1][]1}}
+\citation{lecun1998gradient}
 \citation{friis2025nect}
 \citation{friis2025nect}
 \@writefile{toc}{\contentsline {section}{\numberline {1.2}Research Objectives}{4}{section.1.2}\protected@file@percent }
@@ -42,32 +43,35 @@
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:thesis_overview}{{1.1}{6}{Overview of the two contributions of this thesis relative to the NeCT QuadCubes baseline (44.8\,GB, 35.89\,dB PSNR at 24\,h). Part~\ref {part:encoder_optimisation} investigates the encoder design space, with CombinedCubes reducing VRAM by 45.8\,\% (24.3\,GB) at $+1.29$\,dB and \MixedCubes {} reducing VRAM by 50.7\,\% (22.1\,GB) at $+1.84$\,dB. Part~\ref {part:continuous_scanning} extends the NeCT Beer--Lambert forward model to account for the angular integration that arises during fly-scan (continuous rotation) acquisition.\relax }{figure.caption.5}{}}
 \newlabel{fig:thesis_overview@cref}{{[figure][1][1]1.1}{[1][5][]6}}
+\@writefile{toc}{\contentsline {part}{I\hspace  {1em}Background}{7}{part.1}\protected@file@percent }
 \citation{kak2001principles}
-\@writefile{toc}{\contentsline {chapter}{\numberline {2}Background}{7}{chapter.2}\protected@file@percent }
+\newlabel{part:background}{{I}{8}{Background}{part.1}{}}
+\newlabel{part:background@cref}{{[part][1][]I}{[1][8][]8}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Background}{8}{chapter.2}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:background}{{2}{7}{Background}{chapter.2}{}}
-\newlabel{chap:background@cref}{{[chapter][2][]2}{[1][7][]7}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.1}X-ray Computed Tomography}{7}{section.2.1}\protected@file@percent }
-\newlabel{sec:ct}{{2.1}{7}{X-ray Computed Tomography}{section.2.1}{}}
-\newlabel{sec:ct@cref}{{[section][1][2]2.1}{[1][7][]7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}Physical Principles}{7}{subsection.2.1.1}\protected@file@percent }
-\newlabel{subsec:ct_physics}{{2.1.1}{7}{Physical Principles}{subsection.2.1.1}{}}
-\newlabel{subsec:ct_physics@cref}{{[subsection][1][2,1]2.1.1}{[1][7][]7}}
-\newlabel{eq:beer_lambert}{{2.1}{7}{Physical Principles}{equation.2.1.1}{}}
-\newlabel{eq:beer_lambert@cref}{{[equation][1][2]2.1}{[1][7][]7}}
-\newlabel{eq:projection_value}{{2.2}{7}{Physical Principles}{equation.2.1.2}{}}
-\newlabel{eq:projection_value@cref}{{[equation][2][2]2.2}{[1][7][]7}}
+\newlabel{chap:background}{{2}{8}{Background}{chapter.2}{}}
+\newlabel{chap:background@cref}{{[chapter][2][]2}{[1][8][]8}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}X-ray Computed Tomography}{8}{section.2.1}\protected@file@percent }
+\newlabel{sec:ct}{{2.1}{8}{X-ray Computed Tomography}{section.2.1}{}}
+\newlabel{sec:ct@cref}{{[section][1][2]2.1}{[1][8][]8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}Physical Principles}{8}{subsection.2.1.1}\protected@file@percent }
+\newlabel{subsec:ct_physics}{{2.1.1}{8}{Physical Principles}{subsection.2.1.1}{}}
+\newlabel{subsec:ct_physics@cref}{{[subsection][1][2,1]2.1.1}{[1][8][]8}}
+\newlabel{eq:beer_lambert}{{2.1}{8}{Physical Principles}{equation.2.1.1}{}}
+\newlabel{eq:beer_lambert@cref}{{[equation][1][2]2.1}{[1][8][]8}}
+\newlabel{eq:projection_value}{{2.2}{8}{Physical Principles}{equation.2.1.2}{}}
+\newlabel{eq:projection_value@cref}{{[equation][2][2]2.2}{[1][8][]8}}
 \citation{radon1917,kak2001principles}
 \citation{feldkamp1984}
 \citation{kak2001principles}
 \citation{gordon1970algebraic,andersen1984sart}
 \citation{du2017convergence}
-\newlabel{eq:discrete_projection}{{2.3}{8}{Physical Principles}{equation.2.1.3}{}}
-\newlabel{eq:discrete_projection@cref}{{[equation][3][2]2.3}{[1][8][]8}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}Classical Reconstruction Algorithms}{8}{subsection.2.1.2}\protected@file@percent }
-\newlabel{subsec:ct_algorithms}{{2.1.2}{8}{Classical Reconstruction Algorithms}{subsection.2.1.2}{}}
-\newlabel{subsec:ct_algorithms@cref}{{[subsection][2][2,1]2.1.2}{[1][8][]8}}
+\newlabel{eq:discrete_projection}{{2.3}{9}{Physical Principles}{equation.2.1.3}{}}
+\newlabel{eq:discrete_projection@cref}{{[equation][3][2]2.3}{[1][9][]9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}Classical Reconstruction Algorithms}{9}{subsection.2.1.2}\protected@file@percent }
+\newlabel{subsec:ct_algorithms}{{2.1.2}{9}{Classical Reconstruction Algorithms}{subsection.2.1.2}{}}
+\newlabel{subsec:ct_algorithms@cref}{{[subsection][2][2,1]2.1.2}{[1][9][]9}}
 \citation{kak2001principles}
 \citation{withers2021ct,gan2020application}
 \citation{chen2008piccs,myers2011dynamic}
@@ -76,505 +80,506 @@
 \citation{friis2025nect}
 \citation{withers2021ct}
 \citation{kohler2004golden}
-\newlabel{eq:tv_regularisation}{{2.4}{9}{Classical Reconstruction Algorithms}{equation.2.1.4}{}}
-\newlabel{eq:tv_regularisation@cref}{{[equation][4][2]2.4}{[1][9][]9}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.3}4D-CT and Dynamic Imaging}{9}{subsection.2.1.3}\protected@file@percent }
-\newlabel{subsec:4dct}{{2.1.3}{9}{4D-CT and Dynamic Imaging}{subsection.2.1.3}{}}
-\newlabel{subsec:4dct@cref}{{[subsection][3][2,1]2.1.3}{[1][9][]9}}
+\newlabel{eq:tv_regularisation}{{2.4}{10}{Classical Reconstruction Algorithms}{equation.2.1.4}{}}
+\newlabel{eq:tv_regularisation@cref}{{[equation][4][2]2.4}{[1][10][]10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.3}4D-CT and Dynamic Imaging}{10}{subsection.2.1.3}\protected@file@percent }
+\newlabel{subsec:4dct}{{2.1.3}{10}{4D-CT and Dynamic Imaging}{subsection.2.1.3}{}}
+\newlabel{subsec:4dct@cref}{{[subsection][3][2,1]2.1.3}{[1][10][]10}}
 \citation{cybenko1989approximation,hornik1989multilayer}
 \citation{nair2010rectified}
-\@writefile{toc}{\contentsline {section}{\numberline {2.2}Neural Networks}{10}{section.2.2}\protected@file@percent }
-\newlabel{sec:nn}{{2.2}{10}{Neural Networks}{section.2.2}{}}
-\newlabel{sec:nn@cref}{{[section][2][2]2.2}{[1][10][]10}}
-\newlabel{eq:mlp_layer}{{2.5}{10}{Neural Networks}{equation.2.2.5}{}}
-\newlabel{eq:mlp_layer@cref}{{[equation][5][2]2.5}{[1][10][]10}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Neural Networks}{11}{section.2.2}\protected@file@percent }
+\newlabel{sec:nn}{{2.2}{11}{Neural Networks}{section.2.2}{}}
+\newlabel{sec:nn@cref}{{[section][2][2]2.2}{[1][11][]11}}
+\newlabel{eq:mlp_layer}{{2.5}{11}{Neural Networks}{equation.2.2.5}{}}
+\newlabel{eq:mlp_layer@cref}{{[equation][5][2]2.5}{[1][11][]11}}
 \citation{sitzmann2020siren}
 \citation{rumelhart1986backprop}
 \citation{kingma2015adam}
 \citation{lecun1998gradient}
-\newlabel{eq:leaky_relu}{{2.6}{11}{Neural Networks}{equation.2.2.6}{}}
-\newlabel{eq:leaky_relu@cref}{{[equation][6][2]2.6}{[1][10][]11}}
-\newlabel{eq:l2_loss}{{2.7}{11}{Neural Networks}{equation.2.2.7}{}}
-\newlabel{eq:l2_loss@cref}{{[equation][7][2]2.7}{[1][11][]11}}
-\newlabel{eq:l1_loss}{{2.8}{11}{Neural Networks}{equation.2.2.8}{}}
-\newlabel{eq:l1_loss@cref}{{[equation][8][2]2.8}{[1][11][]11}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.3}Convolutional Neural Networks and Image-to-Image Architectures}{11}{section.2.3}\protected@file@percent }
-\newlabel{subsec:cnn}{{2.3}{11}{Convolutional Neural Networks and Image-to-Image Architectures}{section.2.3}{}}
-\newlabel{subsec:cnn@cref}{{[section][3][2]2.3}{[1][11][]11}}
+\newlabel{eq:leaky_relu}{{2.6}{12}{Neural Networks}{equation.2.2.6}{}}
+\newlabel{eq:leaky_relu@cref}{{[equation][6][2]2.6}{[1][11][]12}}
+\newlabel{eq:l2_loss}{{2.7}{12}{Neural Networks}{equation.2.2.7}{}}
+\newlabel{eq:l2_loss@cref}{{[equation][7][2]2.7}{[1][12][]12}}
+\newlabel{eq:l1_loss}{{2.8}{12}{Neural Networks}{equation.2.2.8}{}}
+\newlabel{eq:l1_loss@cref}{{[equation][8][2]2.8}{[1][12][]12}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Convolutional Neural Networks and Image-to-Image Architectures}{12}{section.2.3}\protected@file@percent }
+\newlabel{subsec:cnn}{{2.3}{12}{Convolutional Neural Networks and Image-to-Image Architectures}{section.2.3}{}}
+\newlabel{subsec:cnn@cref}{{[section][3][2]2.3}{[1][12][]12}}
 \citation{patwari2023hallucination}
-\newlabel{eq:conv2d}{{2.9}{12}{Convolutional Neural Networks and Image-to-Image Architectures}{equation.2.3.9}{}}
-\newlabel{eq:conv2d@cref}{{[equation][9][2]2.9}{[1][11][]12}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.4}Implicit Neural Representations}{12}{section.2.4}\protected@file@percent }
-\newlabel{subsec:inr}{{2.4}{12}{Implicit Neural Representations}{section.2.4}{}}
-\newlabel{subsec:inr@cref}{{[section][4][2]2.4}{[1][12][]12}}
-\newlabel{eq:inr_def}{{2.10}{12}{Implicit Neural Representations}{equation.2.4.10}{}}
-\newlabel{eq:inr_def@cref}{{[equation][10][2]2.10}{[1][12][]12}}
+\citation{sitzmann2020siren}
+\newlabel{eq:conv2d}{{2.9}{13}{Convolutional Neural Networks and Image-to-Image Architectures}{equation.2.3.9}{}}
+\newlabel{eq:conv2d@cref}{{[equation][9][2]2.9}{[1][12][]13}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Implicit Neural Representations}{13}{section.2.4}\protected@file@percent }
+\newlabel{subsec:inr}{{2.4}{13}{Implicit Neural Representations}{section.2.4}{}}
+\newlabel{subsec:inr@cref}{{[section][4][2]2.4}{[1][13][]13}}
+\newlabel{eq:inr_def}{{2.10}{13}{Implicit Neural Representations}{equation.2.4.10}{}}
+\newlabel{eq:inr_def@cref}{{[equation][10][2]2.10}{[1][13][]13}}
 \citation{patwari2023hallucination}
 \citation{rahaman2019spectral}
 \citation{tancik2020fourier}
 \citation{mildenhall2021nerf}
 \citation{tancik2020fourier}
-\newlabel{eq:inr_with_encoding}{{2.11}{13}{Implicit Neural Representations}{equation.2.4.11}{}}
-\newlabel{eq:inr_with_encoding@cref}{{[equation][11][2]2.11}{[1][13][]13}}
-\newlabel{eq:sinusoidal_encoding}{{2.12}{13}{Implicit Neural Representations}{equation.2.4.12}{}}
-\newlabel{eq:sinusoidal_encoding@cref}{{[equation][12][2]2.12}{[1][13][]13}}
+\newlabel{eq:inr_with_encoding}{{2.11}{14}{Implicit Neural Representations}{equation.2.4.11}{}}
+\newlabel{eq:inr_with_encoding@cref}{{[equation][11][2]2.11}{[1][14][]14}}
+\newlabel{eq:sinusoidal_encoding}{{2.12}{14}{Implicit Neural Representations}{equation.2.4.12}{}}
+\newlabel{eq:sinusoidal_encoding@cref}{{[equation][12][2]2.12}{[1][14][]14}}
 \citation{mueller2022instant}
 \citation{mildenhall2021nerf}
 \citation{kajiya1984ray}
 \citation{mildenhall2021nerf}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Neural Radiance Fields (NeRF)}{14}{subsection.2.4.1}\protected@file@percent }
-\newlabel{subsec:nerf}{{2.4.1}{14}{Neural Radiance Fields (NeRF)}{subsection.2.4.1}{}}
-\newlabel{subsec:nerf@cref}{{[subsection][1][2,4]2.4.1}{[1][14][]14}}
-\newlabel{eq:nerf_fn}{{2.13}{14}{Neural Radiance Fields (NeRF)}{equation.2.4.13}{}}
-\newlabel{eq:nerf_fn@cref}{{[equation][13][2]2.13}{[1][14][]14}}
-\newlabel{eq:volume_rendering}{{2.14}{14}{Neural Radiance Fields (NeRF)}{equation.2.4.14}{}}
-\newlabel{eq:volume_rendering@cref}{{[equation][14][2]2.14}{[1][14][]14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Neural Radiance Fields (NeRF)}{15}{subsection.2.4.1}\protected@file@percent }
+\newlabel{subsec:nerf}{{2.4.1}{15}{Neural Radiance Fields (NeRF)}{subsection.2.4.1}{}}
+\newlabel{subsec:nerf@cref}{{[subsection][1][2,4]2.4.1}{[1][15][]15}}
+\newlabel{eq:nerf_fn}{{2.13}{15}{Neural Radiance Fields (NeRF)}{equation.2.4.13}{}}
+\newlabel{eq:nerf_fn@cref}{{[equation][13][2]2.13}{[1][15][]15}}
+\newlabel{eq:volume_rendering}{{2.14}{15}{Neural Radiance Fields (NeRF)}{equation.2.4.14}{}}
+\newlabel{eq:volume_rendering@cref}{{[equation][14][2]2.14}{[1][15][]15}}
 \citation{mueller2022instant}
 \citation{mueller2022instant}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }}{15}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:nerf_pipeline}{{2.1}{15}{The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }{figure.caption.7}{}}
-\newlabel{fig:nerf_pipeline@cref}{{[figure][1][2]2.1}{[1][14][]15}}
-\newlabel{eq:nerf_discrete}{{2.15}{15}{Neural Radiance Fields (NeRF)}{equation.2.4.15}{}}
-\newlabel{eq:nerf_discrete@cref}{{[equation][15][2]2.15}{[1][15][]15}}
-\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{15}{table.caption.8}\protected@file@percent }
-\newlabel{tab:nerf_ct_analogy}{{2.1}{15}{Structural analogy between NeRF and attenuation-contrast CT.\relax }{table.caption.8}{}}
-\newlabel{tab:nerf_ct_analogy@cref}{{[table][1][2]2.1}{[1][15][]15}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }}{16}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:nerf_pipeline}{{2.1}{16}{The NeRF pipeline. A continuous 5D function mapping spatial position and viewing direction to colour and density is represented by an MLP. Rays are marched through the volume, and the rendered pixel colour is compared to the observed image to supervise training via backpropagation.\relax }{figure.caption.7}{}}
+\newlabel{fig:nerf_pipeline@cref}{{[figure][1][2]2.1}{[1][15][]16}}
+\newlabel{eq:nerf_discrete}{{2.15}{16}{Neural Radiance Fields (NeRF)}{equation.2.4.15}{}}
+\newlabel{eq:nerf_discrete@cref}{{[equation][15][2]2.15}{[1][16][]16}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Structural analogy between NeRF and attenuation-contrast CT.\relax }}{16}{table.caption.8}\protected@file@percent }
+\newlabel{tab:nerf_ct_analogy}{{2.1}{16}{Structural analogy between NeRF and attenuation-contrast CT.\relax }{table.caption.8}{}}
+\newlabel{tab:nerf_ct_analogy@cref}{{[table][1][2]2.1}{[1][16][]16}}
 \citation{mueller2022instant}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Multiresolution Hash Encoding}{16}{subsection.2.4.2}\protected@file@percent }
-\newlabel{subsubsec:hash_encoding}{{2.4.2}{16}{Multiresolution Hash Encoding}{subsection.2.4.2}{}}
-\newlabel{subsubsec:hash_encoding@cref}{{[subsection][2][2,4]2.4.2}{[1][15][]16}}
-\newlabel{eq:hash_resolution}{{2.16}{16}{Multiresolution Hash Encoding}{equation.2.4.16}{}}
-\newlabel{eq:hash_resolution@cref}{{[equation][16][2]2.16}{[1][16][]16}}
-\newlabel{eq:hash_forward}{{2.17}{16}{Multiresolution Hash Encoding}{equation.2.4.17}{}}
-\newlabel{eq:hash_forward@cref}{{[equation][17][2]2.17}{[1][16][]16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Multiresolution Hash Encoding}{17}{subsection.2.4.2}\protected@file@percent }
+\newlabel{subsubsec:hash_encoding}{{2.4.2}{17}{Multiresolution Hash Encoding}{subsection.2.4.2}{}}
+\newlabel{subsubsec:hash_encoding@cref}{{[subsection][2][2,4]2.4.2}{[1][16][]17}}
+\newlabel{eq:hash_resolution}{{2.16}{17}{Multiresolution Hash Encoding}{equation.2.4.16}{}}
+\newlabel{eq:hash_resolution@cref}{{[equation][16][2]2.16}{[1][17][]17}}
+\newlabel{eq:hash_forward}{{2.17}{17}{Multiresolution Hash Encoding}{equation.2.4.17}{}}
+\newlabel{eq:hash_forward@cref}{{[equation][17][2]2.17}{[1][17][]17}}
 \citation{mueller2022instant}
 \citation{mueller2022instant}
 \citation{zha2022naf}
 \citation{shen2022nerp}
 \citation{zha2022naf}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{17}{section.2.5}\protected@file@percent }
-\newlabel{sec:nect}{{2.5}{17}{NeCT: Neural Computed Tomography}{section.2.5}{}}
-\newlabel{sec:nect@cref}{{[section][5][2]2.5}{[1][17][]17}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}NeCT: Neural Computed Tomography}{18}{section.2.5}\protected@file@percent }
+\newlabel{sec:nect}{{2.5}{18}{NeCT: Neural Computed Tomography}{section.2.5}{}}
+\newlabel{sec:nect@cref}{{[section][5][2]2.5}{[1][18][]18}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{18}{subsection.2.5.1}\protected@file@percent }
-\newlabel{subsec:nect_pipeline}{{2.5.1}{18}{NeCT Pipeline Overview}{subsection.2.5.1}{}}
-\newlabel{subsec:nect_pipeline@cref}{{[subsection][1][2,5]2.5.1}{[1][18][]18}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces The NeCT training pipeline. Rays are sampled from recorded projections, marched through the hash-encoded network to predict attenuation values, integrated via the discretised Beer--Lambert law to produce predicted detector intensities, and compared to the measured intensities by the L1 loss. Gradients are backpropagated to update the network weights.\relax }}{18}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:nect_pipeline}{{2.2}{18}{The NeCT training pipeline. Rays are sampled from recorded projections, marched through the hash-encoded network to predict attenuation values, integrated via the discretised Beer--Lambert law to produce predicted detector intensities, and compared to the measured intensities by the L1 loss. Gradients are backpropagated to update the network weights.\relax }{figure.caption.9}{}}
-\newlabel{fig:nect_pipeline@cref}{{[figure][2][2]2.2}{[1][18][]18}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}NeCT Pipeline Overview}{19}{subsection.2.5.1}\protected@file@percent }
+\newlabel{subsec:nect_pipeline}{{2.5.1}{19}{NeCT Pipeline Overview}{subsection.2.5.1}{}}
+\newlabel{subsec:nect_pipeline@cref}{{[subsection][1][2,5]2.5.1}{[1][19][]19}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces The NeCT training pipeline. Rays are sampled from recorded projections, marched through the hash-encoded network to predict attenuation values, integrated via the discretised Beer--Lambert law to produce predicted detector intensities, and compared to the measured intensities by the L1 loss. Gradients are backpropagated to update the network weights.\relax }}{19}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:nect_pipeline}{{2.2}{19}{The NeCT training pipeline. Rays are sampled from recorded projections, marched through the hash-encoded network to predict attenuation values, integrated via the discretised Beer--Lambert law to produce predicted detector intensities, and compared to the measured intensities by the L1 loss. Gradients are backpropagated to update the network weights.\relax }{figure.caption.9}{}}
+\newlabel{fig:nect_pipeline@cref}{{[figure][2][2]2.2}{[1][19][]19}}
 \citation{kingma2015adam}
 \citation{friis2025nect}
 \citation{zha2022naf}
-\newlabel{eq:nect_forward}{{2.18}{19}{NeCT Pipeline Overview}{equation.2.5.18}{}}
-\newlabel{eq:nect_forward@cref}{{[equation][18][2]2.18}{[1][19][]19}}
-\newlabel{eq:nect_loss}{{2.19}{19}{NeCT Pipeline Overview}{equation.2.5.19}{}}
-\newlabel{eq:nect_loss@cref}{{[equation][19][2]2.19}{[1][19][]19}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{19}{subsection.2.5.2}\protected@file@percent }
-\newlabel{subsec:nect_static}{{2.5.2}{19}{Static 3D Reconstruction}{subsection.2.5.2}{}}
-\newlabel{subsec:nect_static@cref}{{[subsection][2][2,5]2.5.2}{[1][19][]19}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces Network block for static reconstruction model using one encoder and MLP.\relax }}{19}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:static_nect}{{2.3}{19}{Network block for static reconstruction model using one encoder and MLP.\relax }{figure.caption.10}{}}
-\newlabel{fig:static_nect@cref}{{[figure][3][2]2.3}{[1][19][]19}}
 \citation{friis2025nect}
+\newlabel{eq:nect_forward}{{2.18}{20}{NeCT Pipeline Overview}{equation.2.5.18}{}}
+\newlabel{eq:nect_forward@cref}{{[equation][18][2]2.18}{[1][20][]20}}
+\newlabel{eq:nect_loss}{{2.19}{20}{NeCT Pipeline Overview}{equation.2.5.19}{}}
+\newlabel{eq:nect_loss@cref}{{[equation][19][2]2.19}{[1][20][]20}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}Static 3D Reconstruction}{20}{subsection.2.5.2}\protected@file@percent }
+\newlabel{subsec:nect_static}{{2.5.2}{20}{Static 3D Reconstruction}{subsection.2.5.2}{}}
+\newlabel{subsec:nect_static@cref}{{[subsection][2][2,5]2.5.2}{[1][20][]20}}
 \citation{wang2004ssim}
 \citation{klacansky2017openscivis}
 \citation{wang2004ssim}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\newlabel{eq:psnr}{{2.20}{20}{Static 3D Reconstruction}{equation.2.5.20}{}}
-\newlabel{eq:psnr@cref}{{[equation][20][2]2.20}{[1][20][]20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{20}{subsection.2.5.3}\protected@file@percent }
-\newlabel{subsec:nect_quadcubes}{{2.5.3}{20}{Dynamic 4D Reconstruction: NeCT QuadCubes}{subsection.2.5.3}{}}
-\newlabel{subsec:nect_quadcubes@cref}{{[subsection][3][2,5]2.5.3}{[1][20][]20}}
-\newlabel{eq:quadcubes_encoders}{{2.21}{20}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.21}{}}
-\newlabel{eq:quadcubes_encoders@cref}{{[equation][21][2]2.21}{[1][20][]20}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces Network block for static reconstruction model using one encoder and MLP.\relax }}{21}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:static_nect}{{2.3}{21}{Network block for static reconstruction model using one encoder and MLP.\relax }{figure.caption.10}{}}
+\newlabel{fig:static_nect@cref}{{[figure][3][2]2.3}{[1][20][]21}}
+\newlabel{eq:psnr}{{2.20}{21}{Static 3D Reconstruction}{equation.2.5.20}{}}
+\newlabel{eq:psnr@cref}{{[equation][20][2]2.20}{[1][21][]21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Dynamic 4D Reconstruction: NeCT QuadCubes}{21}{subsection.2.5.3}\protected@file@percent }
+\newlabel{subsec:nect_quadcubes}{{2.5.3}{21}{Dynamic 4D Reconstruction: NeCT QuadCubes}{subsection.2.5.3}{}}
+\newlabel{subsec:nect_quadcubes@cref}{{[subsection][3][2,5]2.5.3}{[1][21][]21}}
 \citation{friis2025nect}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders concatenating the feature vectors are decoded by a shared MLP.\relax }}{21}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:quadcubes_architecture}{{2.4}{21}{The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders concatenating the feature vectors are decoded by a shared MLP.\relax }{figure.caption.11}{}}
-\newlabel{fig:quadcubes_architecture@cref}{{[figure][4][2]2.4}{[1][20][]21}}
-\newlabel{eq:quadcubes_forward}{{2.22}{21}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.22}{}}
-\newlabel{eq:quadcubes_forward@cref}{{[equation][22][2]2.22}{[1][21][]21}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders concatenating the feature vectors are decoded by a shared MLP.\relax }}{22}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:quadcubes_architecture}{{2.4}{22}{The NeCT QuadCubes architecture. Four independent 3D multiresolution hash encoders concatenating the feature vectors are decoded by a shared MLP.\relax }{figure.caption.11}{}}
+\newlabel{fig:quadcubes_architecture@cref}{{[figure][4][2]2.4}{[1][21][]22}}
+\newlabel{eq:quadcubes_encoders}{{2.21}{22}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.21}{}}
+\newlabel{eq:quadcubes_encoders@cref}{{[equation][21][2]2.21}{[1][21][]22}}
+\newlabel{eq:quadcubes_forward}{{2.22}{22}{Dynamic 4D Reconstruction: NeCT QuadCubes}{equation.2.5.22}{}}
+\newlabel{eq:quadcubes_forward@cref}{{[equation][22][2]2.22}{[1][22][]22}}
 \citation{gostick2019porespy}
 \citation{peksa2015bentheimer}
 \citation{friis2025nect}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{22}{subsection.2.5.4}\protected@file@percent }
-\newlabel{subsec:hybrid_golden}{{2.5.4}{22}{Hybrid Golden-Section Sampling}{subsection.2.5.4}{}}
-\newlabel{subsec:hybrid_golden@cref}{{[subsection][4][2,5]2.5.4}{[1][22][]22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\ensuremath  {^\circ }$ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\ensuremath  {^\circ }$. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\ensuremath  {^\circ }$), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }}{23}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:golden_section}{{2.5}{23}{Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\degree $ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\degree $. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\degree $), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }{figure.caption.12}{}}
-\newlabel{fig:golden_section@cref}{{[figure][5][2]2.5}{[1][22][]23}}
-\@writefile{toc}{\contentsline {part}{I\hspace  {1em}Encoder Optimisation}{24}{part.1}\protected@file@percent }
-\newlabel{part:encoder_optimisation}{{I}{25}{Encoder Optimisation}{part.1}{}}
-\newlabel{part:encoder_optimisation@cref}{{[part][1][]I}{[1][25][]25}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.6}{\ignorespaces \textbf  {Panel A --- Hash collision rate.} When more grid vertices than hash-table entries exist at the finest level, multiple vertices must share a single stored feature vector, degrading reconstruction quality. A 2D encoder ($d=2$) at $\qopname  \relax o{log}_2 T = 20$ achieves near-collision-free mapping at $N_\mathrm  {max} = 1024$. The same table applied to a 3D encoder ($d=3$) produces approximately $2^{10}$ vertices per entry at the finest level. Increasing $T$ reduces collisions but scales memory proportionally.\relax }}{26}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:phenomena_collision}{{2.6}{26}{\textbf {Panel A --- Hash collision rate.} When more grid vertices than hash-table entries exist at the finest level, multiple vertices must share a single stored feature vector, degrading reconstruction quality. A 2D encoder ($d=2$) at $\log _2 T = 20$ achieves near-collision-free mapping at $N_\mathrm {max} = 1024$. The same table applied to a 3D encoder ($d=3$) produces approximately $2^{10}$ vertices per entry at the finest level. Increasing $T$ reduces collisions but scales memory proportionally.\relax }{figure.caption.13}{}}
-\newlabel{fig:phenomena_collision@cref}{{[figure][6][2]2.6}{[1][25][]26}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.7}{\ignorespaces \textbf  {Panel B --- Resolution levels and frequency coverage.} Each level of the multiresolution hash encoding captures a distinct spatial frequency band, from coarse global structure at level 0 to fine local detail at level $L-1$. Increasing $L$ extends coverage to higher frequencies and improves asymptotic reconstruction quality, but adds one extra hash-table lookup and interpolation per sample point per training step. The dominant effect of $L$ is on per-epoch training time rather than model size.\relax }}{27}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:phenomena_freq}{{2.7}{27}{\textbf {Panel B --- Resolution levels and frequency coverage.} Each level of the multiresolution hash encoding captures a distinct spatial frequency band, from coarse global structure at level 0 to fine local detail at level $L-1$. Increasing $L$ extends coverage to higher frequencies and improves asymptotic reconstruction quality, but adds one extra hash-table lookup and interpolation per sample point per training step. The dominant effect of $L$ is on per-epoch training time rather than model size.\relax }{figure.caption.14}{}}
-\newlabel{fig:phenomena_freq@cref}{{[figure][7][2]2.7}{[1][25][]27}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.8}{\ignorespaces \textbf  {Panel C --- Spatial-temporal asymmetry.} The QuadCubes baseline assigns equal hashmap capacity to all four encoders. The $\texttt  {xyz}$-encoder must represent the full high-frequency spatial structure of the pore geometry; the three temporal encoders need only track a lower-frequency signal along two spatial dimensions at a time. CombinedCubes corrects this imbalance by assigning a large 3D hash encoder to $\texttt  {xyz}$ and small collision-free 2D encoders to the temporal pairs, reducing memory while improving reconstruction quality.\relax }}{28}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:phenomena_asymmetry}{{2.8}{28}{\textbf {Panel C --- Spatial-temporal asymmetry.} The QuadCubes baseline assigns equal hashmap capacity to all four encoders. The $\texttt {xyz}$-encoder must represent the full high-frequency spatial structure of the pore geometry; the three temporal encoders need only track a lower-frequency signal along two spatial dimensions at a time. CombinedCubes corrects this imbalance by assigning a large 3D hash encoder to $\texttt {xyz}$ and small collision-free 2D encoders to the temporal pairs, reducing memory while improving reconstruction quality.\relax }{figure.caption.15}{}}
-\newlabel{fig:phenomena_asymmetry@cref}{{[figure][8][2]2.8}{[1][25][]28}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}Encoder Design}{29}{chapter.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Hybrid Golden-Section Sampling}{23}{subsection.2.5.4}\protected@file@percent }
+\newlabel{subsec:hybrid_golden}{{2.5.4}{23}{Hybrid Golden-Section Sampling}{subsection.2.5.4}{}}
+\newlabel{subsec:hybrid_golden@cref}{{[subsection][4][2,5]2.5.4}{[1][23][]23}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\ensuremath  {^\circ }$ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\ensuremath  {^\circ }$. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\ensuremath  {^\circ }$), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }}{24}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:golden_section}{{2.5}{24}{Hybrid golden-section angle sampling illustrated across three revolutions. Each circular panel shows a top-down view of one full $360\degree $ revolution, with dots marking the angular positions of projections. Revolution~1 collects 10 equidistant projections starting at $0\degree $. Each subsequent revolution begins at a golden-angle offset ($\varphi _0 \approx 137.5\degree $), so new projections land in the largest remaining gaps. The rightmost panel shows all 30 projections combined: the coverage is nearly uniform. The timing strip at the top contrasts step-and-shoot acquisition (dead time for motor settling between exposures) with continuous rotation (full revolution time devoted to exposure). This figure is schematic; in practice 100 projections are collected per revolution.\relax }{figure.caption.12}{}}
+\newlabel{fig:golden_section@cref}{{[figure][5][2]2.5}{[1][23][]24}}
+\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Encoder Optimisation}{26}{part.2}\protected@file@percent }
+\newlabel{part:encoder_optimisation}{{II}{27}{Encoder Optimisation}{part.2}{}}
+\newlabel{part:encoder_optimisation@cref}{{[part][2][]II}{[1][27][]27}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.6}{\ignorespaces \textbf  {Panel A --- Hash collision rate.} When more grid vertices than hash-table entries exist at the finest level, multiple vertices must share a single stored feature vector, degrading reconstruction quality. A 2D encoder ($d=2$) at $\qopname  \relax o{log}_2 T = 20$ achieves near-collision-free mapping at $N_\mathrm  {max} = 1024$. The same table applied to a 3D encoder ($d=3$) produces approximately $2^{10}$ vertices per entry at the finest level. Increasing $T$ reduces collisions but scales memory proportionally. The role of the finest level is further illustrated in Figure~\ref  {fig:phenomena_freq}.\relax }}{28}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:phenomena_collision}{{2.6}{28}{\textbf {Panel A --- Hash collision rate.} When more grid vertices than hash-table entries exist at the finest level, multiple vertices must share a single stored feature vector, degrading reconstruction quality. A 2D encoder ($d=2$) at $\log _2 T = 20$ achieves near-collision-free mapping at $N_\mathrm {max} = 1024$. The same table applied to a 3D encoder ($d=3$) produces approximately $2^{10}$ vertices per entry at the finest level. Increasing $T$ reduces collisions but scales memory proportionally. The role of the finest level is further illustrated in Figure~\ref {fig:phenomena_freq}.\relax }{figure.caption.13}{}}
+\newlabel{fig:phenomena_collision@cref}{{[figure][6][2]2.6}{[1][27][]28}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.7}{\ignorespaces \textbf  {Panel B --- Resolution levels and frequency coverage.} Each level of the multiresolution hash encoding captures a distinct spatial frequency band, from coarse global structure at level 0 to fine local detail at level $L-1$. Increasing $L$ extends coverage to higher frequencies and improves asymptotic reconstruction quality, but adds one extra hash-table lookup and interpolation per sample point per training step. The dominant effect of $L$ is on per-epoch training time rather than model size.\relax }}{29}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:phenomena_freq}{{2.7}{29}{\textbf {Panel B --- Resolution levels and frequency coverage.} Each level of the multiresolution hash encoding captures a distinct spatial frequency band, from coarse global structure at level 0 to fine local detail at level $L-1$. Increasing $L$ extends coverage to higher frequencies and improves asymptotic reconstruction quality, but adds one extra hash-table lookup and interpolation per sample point per training step. The dominant effect of $L$ is on per-epoch training time rather than model size.\relax }{figure.caption.14}{}}
+\newlabel{fig:phenomena_freq@cref}{{[figure][7][2]2.7}{[1][27][]29}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.8}{\ignorespaces \textbf  {Panel C --- Spatial-temporal asymmetry.} The QuadCubes baseline assigns equal hashmap capacity to all four encoders. The $\texttt  {xyz}$-encoder must represent the full high-frequency spatial structure of the pore geometry; the three temporal encoders need only track a lower-frequency signal along two spatial dimensions at a time. CombinedCubes corrects this imbalance by assigning a large 3D hash encoder to $\texttt  {xyz}$ and small collision-free 2D encoders to the temporal pairs, reducing memory while improving reconstruction quality.\relax }}{30}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:phenomena_asymmetry}{{2.8}{30}{\textbf {Panel C --- Spatial-temporal asymmetry.} The QuadCubes baseline assigns equal hashmap capacity to all four encoders. The $\texttt {xyz}$-encoder must represent the full high-frequency spatial structure of the pore geometry; the three temporal encoders need only track a lower-frequency signal along two spatial dimensions at a time. CombinedCubes corrects this imbalance by assigning a large 3D hash encoder to $\texttt {xyz}$ and small collision-free 2D encoders to the temporal pairs, reducing memory while improving reconstruction quality.\relax }{figure.caption.15}{}}
+\newlabel{fig:phenomena_asymmetry@cref}{{[figure][8][2]2.8}{[1][27][]30}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Encoder Design}{31}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:encoder_design}{{3}{29}{Encoder Design}{chapter.3}{}}
-\newlabel{chap:encoder_design@cref}{{[chapter][3][]3}{[1][29][]29}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.1}Theory}{29}{section.3.1}\protected@file@percent }
-\newlabel{sec:enc_theory}{{3.1}{29}{Theory}{section.3.1}{}}
-\newlabel{sec:enc_theory@cref}{{[section][1][3]3.1}{[1][29][]29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Capacity Parameters}{29}{subsection.3.1.1}\protected@file@percent }
-\newlabel{subsec:enc_params_theory}{{3.1.1}{29}{Capacity Parameters}{subsection.3.1.1}{}}
-\newlabel{subsec:enc_params_theory@cref}{{[subsection][1][3,1]3.1.1}{[1][29][]29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Collision Rate and Encoder Dimensionality}{30}{subsection.3.1.2}\protected@file@percent }
-\newlabel{subsec:collision_dim_theory}{{3.1.2}{30}{Collision Rate and Encoder Dimensionality}{subsection.3.1.2}{}}
-\newlabel{subsec:collision_dim_theory@cref}{{[subsection][2][3,1]3.1.2}{[1][30][]30}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}The Spatial-Temporal Asymmetry}{31}{subsection.3.1.3}\protected@file@percent }
-\newlabel{subsec:spatial_temporal_theory}{{3.1.3}{31}{The Spatial-Temporal Asymmetry}{subsection.3.1.3}{}}
-\newlabel{subsec:spatial_temporal_theory@cref}{{[subsection][3][3,1]3.1.3}{[1][31][]31}}
+\newlabel{chap:encoder_design}{{3}{31}{Encoder Design}{chapter.3}{}}
+\newlabel{chap:encoder_design@cref}{{[chapter][3][]3}{[1][31][]31}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Theory of Multiresolution Hash Encoders}{31}{section.3.1}\protected@file@percent }
+\newlabel{sec:enc_theory}{{3.1}{31}{Theory of Multiresolution Hash Encoders}{section.3.1}{}}
+\newlabel{sec:enc_theory@cref}{{[section][1][3]3.1}{[1][31][]31}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Capacity Parameters}{31}{subsection.3.1.1}\protected@file@percent }
+\newlabel{subsec:enc_params_theory}{{3.1.1}{31}{Capacity Parameters}{subsection.3.1.1}{}}
+\newlabel{subsec:enc_params_theory@cref}{{[subsection][1][3,1]3.1.1}{[1][31][]31}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Collision Rate and Encoder Dimensionality}{32}{subsection.3.1.2}\protected@file@percent }
+\newlabel{subsec:collision_dim_theory}{{3.1.2}{32}{Collision Rate and Encoder Dimensionality}{subsection.3.1.2}{}}
+\newlabel{subsec:collision_dim_theory@cref}{{[subsection][2][3,1]3.1.2}{[1][32][]32}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}The Spatial-Temporal Asymmetry}{33}{subsection.3.1.3}\protected@file@percent }
+\newlabel{subsec:spatial_temporal_theory}{{3.1.3}{33}{The Spatial-Temporal Asymmetry}{subsection.3.1.3}{}}
+\newlabel{subsec:spatial_temporal_theory@cref}{{[subsection][3][3,1]3.1.3}{[1][33][]33}}
 \citation{friis2025nect}
 \citation{wang2004ssim}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Experimental Setup}{32}{section.3.2}\protected@file@percent }
-\newlabel{sec:enc_shared_setup}{{3.2}{32}{Experimental Setup}{section.3.2}{}}
-\newlabel{sec:enc_shared_setup@cref}{{[section][2][3]3.2}{[1][32][]32}}
-\newlabel{eq:psnr_enc}{{3.1}{32}{Evaluation Metrics}{equation.3.2.1}{}}
-\newlabel{eq:psnr_enc@cref}{{[equation][1][3]3.1}{[1][32][]32}}
-\newlabel{eq:mae_enc}{{3.2}{32}{Evaluation Metrics}{equation.3.2.2}{}}
-\newlabel{eq:mae_enc@cref}{{[equation][2][3]3.2}{[1][32][]32}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Experimental Setup}{34}{section.3.2}\protected@file@percent }
+\newlabel{sec:enc_shared_setup}{{3.2}{34}{Experimental Setup}{section.3.2}{}}
+\newlabel{sec:enc_shared_setup@cref}{{[section][2][3]3.2}{[1][34][]34}}
+\newlabel{eq:psnr_enc}{{3.1}{34}{Evaluation Metrics}{equation.3.2.1}{}}
+\newlabel{eq:psnr_enc@cref}{{[equation][1][3]3.1}{[1][34][]34}}
+\newlabel{eq:mae_enc}{{3.2}{34}{Evaluation Metrics}{equation.3.2.2}{}}
+\newlabel{eq:mae_enc@cref}{{[equation][2][3]3.2}{[1][34][]34}}
 \citation{friis2025nect}
 \citation{friis2025nect}
-\newlabel{subsec:enc_baseline}{{3.2}{33}{The NeCT Baseline Configuration and Its Cost}{section*.19}{}}
-\newlabel{subsec:enc_baseline@cref}{{[section][2][3]3.2}{[1][33][]33}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet  {friis2025nect}.\relax }}{33}{table.caption.20}\protected@file@percent }
-\newlabel{tab:baseline_config}{{3.1}{33}{Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }{table.caption.20}{}}
-\newlabel{tab:baseline_config@cref}{{[table][1][3]3.1}{[1][33][]33}}
-\newlabel{eq:params_per_encoder}{{3.3}{33}{The NeCT Baseline Configuration and Its Cost}{equation.3.2.3}{}}
-\newlabel{eq:params_per_encoder@cref}{{[equation][3][3]3.3}{[1][33][]33}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Collision Rate and Hashmap Size}{34}{section.3.3}\protected@file@percent }
-\newlabel{sec:collision_and_dim}{{3.3}{34}{Collision Rate and Hashmap Size}{section.3.3}{}}
-\newlabel{sec:collision_and_dim@cref}{{[section][3][3]3.3}{[1][34][]34}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{34}{subsection.3.3.1}\protected@file@percent }
-\newlabel{subsec:hashmap_sweep}{{3.3.1}{34}{Hashmap Size Sweep in QuadCubes}{subsection.3.3.1}{}}
-\newlabel{subsec:hashmap_sweep@cref}{{[subsection][1][3,3]3.3.1}{[1][34][]34}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces PSNR vs.\ epoch for $\qopname  \relax o{log}_2 T \in \{17,\ldots  ,23\}$ with $L = 23$ and $F = 4$ fixed.\relax }}{34}{figure.caption.21}\protected@file@percent }
-\newlabel{fig:epoch_hashmap}{{3.1}{34}{PSNR vs.\ epoch for $\log _2 T \in \{17,\ldots ,23\}$ with $L = 23$ and $F = 4$ fixed.\relax }{figure.caption.21}{}}
-\newlabel{fig:epoch_hashmap@cref}{{[figure][1][3]3.1}{[1][34][]34}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces PSNR vs.\ wall-clock time for $\qopname  \relax o{log}_2 T \in \{17,\ldots  ,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.\relax }}{35}{figure.caption.22}\protected@file@percent }
-\newlabel{fig:time_hashmap}{{3.2}{35}{PSNR vs.\ wall-clock time for $\log _2 T \in \{17,\ldots ,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.\relax }{figure.caption.22}{}}
-\newlabel{fig:time_hashmap@cref}{{[figure][2][3]3.2}{[1][34][]35}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at the 18-hour mark versus peak reserved VRAM for each $\qopname  \relax o{log}_2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.\relax }}{35}{figure.caption.23}\protected@file@percent }
-\newlabel{fig:vram_hashmap}{{3.3}{35}{PSNR at the 18-hour mark versus peak reserved VRAM for each $\log _2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.\relax }{figure.caption.23}{}}
-\newlabel{fig:vram_hashmap@cref}{{[figure][3][3]3.3}{[1][34][]35}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}SingleCube}{36}{subsection.3.3.2}\protected@file@percent }
-\newlabel{subsec:singlecube}{{3.3.2}{36}{SingleCube}{subsection.3.3.2}{}}
-\newlabel{subsec:singlecube@cref}{{[subsection][2][3,3]3.3.2}{[1][36][]36}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces The SingleCube architecture. A single 4D multiresolution hash encoder takes the full space-time coordinate $(x, y, z, t)$ as input and passes the concatenated multi-level features to a shared MLP decoder. The extreme collision load at $d=4$ makes this architecture infeasible at standard hashmap sizes.\relax }}{36}{figure.caption.24}\protected@file@percent }
-\newlabel{fig:singlecube_architecture}{{3.4}{36}{The SingleCube architecture. A single 4D multiresolution hash encoder takes the full space-time coordinate $(x, y, z, t)$ as input and passes the concatenated multi-level features to a shared MLP decoder. The extreme collision load at $d=4$ makes this architecture infeasible at standard hashmap sizes.\relax }{figure.caption.24}{}}
-\newlabel{fig:singlecube_architecture@cref}{{[figure][4][3]3.4}{[1][36][]36}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }}{37}{figure.caption.25}\protected@file@percent }
-\newlabel{fig:singlecube_reconstruction}{{3.5}{37}{Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }{figure.caption.25}{}}
-\newlabel{fig:singlecube_reconstruction@cref}{{[figure][5][3]3.5}{[1][36][]37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Precision and Collision Load}{37}{subsection.3.3.3}\protected@file@percent }
-\newlabel{subsec:collision_synthesis}{{3.3.3}{37}{Precision and Collision Load}{subsection.3.3.3}{}}
-\newlabel{subsec:collision_synthesis@cref}{{[subsection][3][3,3]3.3.3}{[1][37][]37}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{38}{section.3.4}\protected@file@percent }
-\newlabel{sec:levels_and_coupling}{{3.4}{38}{Levels, Coverage, and Coupling}{section.3.4}{}}
-\newlabel{sec:levels_and_coupling@cref}{{[section][4][3]3.4}{[1][38][]38}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{38}{subsection.3.4.1}\protected@file@percent }
-\newlabel{subsec:levels_sweep}{{3.4.1}{38}{Number of Levels Sweep in QuadCubes}{subsection.3.4.1}{}}
-\newlabel{subsec:levels_sweep@cref}{{[subsection][1][3,4]3.4.1}{[1][38][]38}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces PSNR vs.\ epoch for $L \in \{17,\ldots  ,23\}$ with $\qopname  \relax o{log}_2 T = 23$ and $F = 4$ fixed.\relax }}{39}{figure.caption.26}\protected@file@percent }
-\newlabel{fig:levels_epoch}{{3.6}{39}{PSNR vs.\ epoch for $L \in \{17,\ldots ,23\}$ with $\log _2 T = 23$ and $F = 4$ fixed.\relax }{figure.caption.26}{}}
-\newlabel{fig:levels_epoch@cref}{{[figure][6][3]3.6}{[1][38][]39}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces PSNR vs.\ wall-clock time for $L \in \{17,\ldots  ,23\}$ with $\qopname  \relax o{log}_2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.\relax }}{39}{figure.caption.27}\protected@file@percent }
-\newlabel{fig:levels_time}{{3.7}{39}{PSNR vs.\ wall-clock time for $L \in \{17,\ldots ,23\}$ with $\log _2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.\relax }{figure.caption.27}{}}
-\newlabel{fig:levels_time@cref}{{[figure][7][3]3.7}{[1][38][]39}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\qopname  \relax o{log}_2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.\relax }}{40}{figure.caption.28}\protected@file@percent }
-\newlabel{fig:vram_levels}{{3.8}{40}{PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\log _2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.\relax }{figure.caption.28}{}}
-\newlabel{fig:vram_levels@cref}{{[figure][8][3]3.8}{[1][38][]40}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{41}{subsection.3.4.2}\protected@file@percent }
-\newlabel{subsec:features_sweep}{{3.4.2}{41}{Features Per Level}{subsection.3.4.2}{}}
-\newlabel{subsec:features_sweep@cref}{{[subsection][2][3,4]3.4.2}{[1][41][]41}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces PSNR vs.\ epoch for $F \in \{1, 2, 4\}$ with $L = 23$ and $\qopname  \relax o{log}_2 T = 23$ fixed.\relax }}{42}{figure.caption.29}\protected@file@percent }
-\newlabel{fig:features_epoch}{{3.9}{42}{PSNR vs.\ epoch for $F \in \{1, 2, 4\}$ with $L = 23$ and $\log _2 T = 23$ fixed.\relax }{figure.caption.29}{}}
-\newlabel{fig:features_epoch@cref}{{[figure][9][3]3.9}{[1][41][]42}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.10}{\ignorespaces PSNR vs.\ wall-clock time for $F \in \{1, 2, 4\}$ with $L = 23$ and $\qopname  \relax o{log}_2 T = 23$ fixed. Each curve is one feature count; the dashed vertical line marks the 24-hour budget.\relax }}{42}{figure.caption.30}\protected@file@percent }
-\newlabel{fig:features_time}{{3.10}{42}{PSNR vs.\ wall-clock time for $F \in \{1, 2, 4\}$ with $L = 23$ and $\log _2 T = 23$ fixed. Each curve is one feature count; the dashed vertical line marks the 24-hour budget.\relax }{figure.caption.30}{}}
-\newlabel{fig:features_time@cref}{{[figure][10][3]3.10}{[1][41][]42}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.11}{\ignorespaces PSNR at the 24-hour mark versus peak reserved VRAM for $F \in \{1, 2, 4\}$ ($L = 23$, $\qopname  \relax o{log}_2 T = 23$). Halving $F$ from 4 to 2 roughly halves VRAM with negligible quality loss.\relax }}{43}{figure.caption.31}\protected@file@percent }
-\newlabel{fig:vram_features}{{3.11}{43}{PSNR at the 24-hour mark versus peak reserved VRAM for $F \in \{1, 2, 4\}$ ($L = 23$, $\log _2 T = 23$). Halving $F$ from 4 to 2 roughly halves VRAM with negligible quality loss.\relax }{figure.caption.31}{}}
-\newlabel{fig:vram_features@cref}{{[figure][11][3]3.11}{[1][41][]43}}
+\newlabel{subsec:enc_baseline}{{3.2}{35}{The NeCT Baseline Configuration and Its Cost}{section*.20}{}}
+\newlabel{subsec:enc_baseline@cref}{{[section][2][3]3.2}{[1][35][]35}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Baseline QuadCubes hash encoder configuration from \citet  {friis2025nect}.\relax }}{36}{table.caption.21}\protected@file@percent }
+\newlabel{tab:baseline_config}{{3.1}{36}{Baseline QuadCubes hash encoder configuration from \citet {friis2025nect}.\relax }{table.caption.21}{}}
+\newlabel{tab:baseline_config@cref}{{[table][1][3]3.1}{[1][35][]36}}
+\newlabel{eq:params_per_encoder}{{3.3}{36}{The NeCT Baseline Configuration and Its Cost}{equation.3.2.3}{}}
+\newlabel{eq:params_per_encoder@cref}{{[equation][3][3]3.3}{[1][35][]36}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Collision Rate and Hashmap Size}{36}{section.3.3}\protected@file@percent }
+\newlabel{sec:collision_and_dim}{{3.3}{36}{Collision Rate and Hashmap Size}{section.3.3}{}}
+\newlabel{sec:collision_and_dim@cref}{{[section][3][3]3.3}{[1][36][]36}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Hashmap Size Sweep in QuadCubes}{36}{subsection.3.3.1}\protected@file@percent }
+\newlabel{subsec:hashmap_sweep}{{3.3.1}{36}{Hashmap Size Sweep in QuadCubes}{subsection.3.3.1}{}}
+\newlabel{subsec:hashmap_sweep@cref}{{[subsection][1][3,3]3.3.1}{[1][36][]36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces PSNR vs.\ epoch for $\qopname  \relax o{log}_2 T \in \{17,\ldots  ,23\}$ with $L = 23$ and $F = 4$ fixed.\relax }}{37}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:epoch_hashmap}{{3.1}{37}{PSNR vs.\ epoch for $\log _2 T \in \{17,\ldots ,23\}$ with $L = 23$ and $F = 4$ fixed.\relax }{figure.caption.22}{}}
+\newlabel{fig:epoch_hashmap@cref}{{[figure][1][3]3.1}{[1][36][]37}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces PSNR vs.\ wall-clock time for $\qopname  \relax o{log}_2 T \in \{17,\ldots  ,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.\relax }}{37}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:time_hashmap}{{3.2}{37}{PSNR vs.\ wall-clock time for $\log _2 T \in \{17,\ldots ,23\}$ with $L = 23$ and $F = 4$ fixed. Each curve is one hashmap size; the dashed vertical line marks the 18-hour budget.\relax }{figure.caption.23}{}}
+\newlabel{fig:time_hashmap@cref}{{[figure][2][3]3.2}{[1][36][]37}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces PSNR at the 18-hour mark versus peak reserved VRAM for each $\qopname  \relax o{log}_2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.\relax }}{38}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:vram_hashmap}{{3.3}{38}{PSNR at the 18-hour mark versus peak reserved VRAM for each $\log _2 T$ configuration ($L = 23$, $F = 4$). The near-linear relationship confirms that hashmap size is the dominant memory driver and that quality scales directly with allocated memory.\relax }{figure.caption.24}{}}
+\newlabel{fig:vram_hashmap@cref}{{[figure][3][3]3.3}{[1][36][]38}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}SingleCube}{39}{subsection.3.3.2}\protected@file@percent }
+\newlabel{subsec:singlecube}{{3.3.2}{39}{SingleCube}{subsection.3.3.2}{}}
+\newlabel{subsec:singlecube@cref}{{[subsection][2][3,3]3.3.2}{[1][39][]39}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces The SingleCube architecture. A single 4D multiresolution hash encoder takes the full space-time coordinate $(x, y, z, t)$ as input and passes the concatenated multi-level features to a shared MLP decoder. The extreme collision load at $d=4$ makes this architecture infeasible at standard hashmap sizes.\relax }}{39}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:singlecube_architecture}{{3.4}{39}{The SingleCube architecture. A single 4D multiresolution hash encoder takes the full space-time coordinate $(x, y, z, t)$ as input and passes the concatenated multi-level features to a shared MLP decoder. The extreme collision load at $d=4$ makes this architecture infeasible at standard hashmap sizes.\relax }{figure.caption.25}{}}
+\newlabel{fig:singlecube_architecture@cref}{{[figure][4][3]3.4}{[1][39][]39}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }}{40}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:singlecube_reconstruction}{{3.5}{40}{Reconstruction comparison between QuadCubes and SingleCube at matched encoder capacity. The SingleCube output is dominated by noise from the extreme hash collision load in the 4D encoder.\relax }{figure.caption.26}{}}
+\newlabel{fig:singlecube_reconstruction@cref}{{[figure][5][3]3.5}{[1][39][]40}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Precision and Collision Load}{40}{subsection.3.3.3}\protected@file@percent }
+\newlabel{subsec:collision_synthesis}{{3.3.3}{40}{Precision and Collision Load}{subsection.3.3.3}{}}
+\newlabel{subsec:collision_synthesis@cref}{{[subsection][3][3,3]3.3.3}{[1][40][]40}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Levels, Coverage, and Coupling}{41}{section.3.4}\protected@file@percent }
+\newlabel{sec:levels_and_coupling}{{3.4}{41}{Levels, Coverage, and Coupling}{section.3.4}{}}
+\newlabel{sec:levels_and_coupling@cref}{{[section][4][3]3.4}{[1][41][]41}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Number of Levels Sweep in QuadCubes}{41}{subsection.3.4.1}\protected@file@percent }
+\newlabel{subsec:levels_sweep}{{3.4.1}{41}{Number of Levels Sweep in QuadCubes}{subsection.3.4.1}{}}
+\newlabel{subsec:levels_sweep@cref}{{[subsection][1][3,4]3.4.1}{[1][41][]41}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces PSNR vs.\ epoch for $L \in \{17,\ldots  ,23\}$ with $\qopname  \relax o{log}_2 T = 23$ and $F = 4$ fixed.\relax }}{42}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:levels_epoch}{{3.6}{42}{PSNR vs.\ epoch for $L \in \{17,\ldots ,23\}$ with $\log _2 T = 23$ and $F = 4$ fixed.\relax }{figure.caption.27}{}}
+\newlabel{fig:levels_epoch@cref}{{[figure][6][3]3.6}{[1][41][]42}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces PSNR vs.\ wall-clock time for $L \in \{17,\ldots  ,23\}$ with $\qopname  \relax o{log}_2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.\relax }}{42}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:levels_time}{{3.7}{42}{PSNR vs.\ wall-clock time for $L \in \{17,\ldots ,23\}$ with $\log _2 T = 23$ and $F = 4$ fixed. Each curve is one level count; the dashed vertical line marks the 24-hour budget.\relax }{figure.caption.28}{}}
+\newlabel{fig:levels_time@cref}{{[figure][7][3]3.7}{[1][41][]42}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\qopname  \relax o{log}_2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.\relax }}{43}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:vram_levels}{{3.8}{43}{PSNR at the 24-hour mark versus peak reserved VRAM for each $L$ configuration ($\log _2 T = 23$, $F = 4$). Unlike the hashmap sweep, quality is largely decoupled from memory usage, confirming that the level count is not a meaningful memory driver.\relax }{figure.caption.29}{}}
+\newlabel{fig:vram_levels@cref}{{[figure][8][3]3.8}{[1][41][]43}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Features Per Level}{44}{subsection.3.4.2}\protected@file@percent }
+\newlabel{subsec:features_sweep}{{3.4.2}{44}{Features Per Level}{subsection.3.4.2}{}}
+\newlabel{subsec:features_sweep@cref}{{[subsection][2][3,4]3.4.2}{[1][44][]44}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces PSNR vs.\ epoch for $F \in \{1, 2, 4\}$ with $L = 23$ and $\qopname  \relax o{log}_2 T = 23$ fixed.\relax }}{45}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:features_epoch}{{3.9}{45}{PSNR vs.\ epoch for $F \in \{1, 2, 4\}$ with $L = 23$ and $\log _2 T = 23$ fixed.\relax }{figure.caption.30}{}}
+\newlabel{fig:features_epoch@cref}{{[figure][9][3]3.9}{[1][44][]45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.10}{\ignorespaces PSNR vs.\ wall-clock time for $F \in \{1, 2, 4\}$ with $L = 23$ and $\qopname  \relax o{log}_2 T = 23$ fixed. Each curve is one feature count; the dashed vertical line marks the 24-hour budget.\relax }}{45}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:features_time}{{3.10}{45}{PSNR vs.\ wall-clock time for $F \in \{1, 2, 4\}$ with $L = 23$ and $\log _2 T = 23$ fixed. Each curve is one feature count; the dashed vertical line marks the 24-hour budget.\relax }{figure.caption.31}{}}
+\newlabel{fig:features_time@cref}{{[figure][10][3]3.10}{[1][44][]45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.11}{\ignorespaces PSNR at the 24-hour mark versus peak reserved VRAM for $F \in \{1, 2, 4\}$ ($L = 23$, $\qopname  \relax o{log}_2 T = 23$). Halving $F$ from 4 to 2 roughly halves VRAM with negligible quality loss.\relax }}{46}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:vram_features}{{3.11}{46}{PSNR at the 24-hour mark versus peak reserved VRAM for $F \in \{1, 2, 4\}$ ($L = 23$, $\log _2 T = 23$). Halving $F$ from 4 to 2 roughly halves VRAM with negligible quality loss.\relax }{figure.caption.32}{}}
+\newlabel{fig:vram_features@cref}{{[figure][11][3]3.11}{[1][44][]46}}
 \citation{fridovichkeil2023kplanes}
 \citation{cao2023hexplane}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}HexCubes}{44}{subsection.3.4.3}\protected@file@percent }
-\newlabel{subsec:sexcubes}{{3.4.3}{44}{HexCubes}{subsection.3.4.3}{}}
-\newlabel{subsec:sexcubes@cref}{{[subsection][3][3,4]3.4.3}{[1][44][]44}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.12}{\ignorespaces The HexCubes architecture. Six 2D multiresolution hash encoders cover all six coordinate pairs from the four space-time dimensions ($xy$, $xz$, $yz$, $xt$, $yt$, $zt$). Features from all six encoders are concatenated and decoded by a shared MLP. Each individual encoder is collision-free at practical 2D resolutions, but the MLP must infer three- and four-way coordinate interactions from pairwise features alone.\relax }}{44}{figure.caption.32}\protected@file@percent }
-\newlabel{fig:hexcubes_architecture}{{3.12}{44}{The HexCubes architecture. Six 2D multiresolution hash encoders cover all six coordinate pairs from the four space-time dimensions ($xy$, $xz$, $yz$, $xt$, $yt$, $zt$). Features from all six encoders are concatenated and decoded by a shared MLP. Each individual encoder is collision-free at practical 2D resolutions, but the MLP must infer three- and four-way coordinate interactions from pairwise features alone.\relax }{figure.caption.32}{}}
-\newlabel{fig:hexcubes_architecture@cref}{{[figure][12][3]3.12}{[1][44][]44}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }}{45}{figure.caption.33}\protected@file@percent }
-\newlabel{fig:sexcubes_reconstruction}{{3.13}{45}{Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }{figure.caption.33}{}}
-\newlabel{fig:sexcubes_reconstruction@cref}{{[figure][13][3]3.13}{[1][44][]45}}
-\@writefile{toc}{\contentsline {subsubsection}{MLP Decoder Depth}{46}{section*.34}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{46}{subsection.3.4.4}\protected@file@percent }
-\newlabel{subsec:levels_synthesis}{{3.4.4}{46}{Precision and Training Time}{subsection.3.4.4}{}}
-\newlabel{subsec:levels_synthesis@cref}{{[subsection][4][3,4]3.4.4}{[1][46][]46}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{47}{section.3.5}\protected@file@percent }
-\newlabel{sec:spatial_temporal_asym}{{3.5}{47}{Spatial-Temporal Asymmetry}{section.3.5}{}}
-\newlabel{sec:spatial_temporal_asym@cref}{{[section][5][3]3.5}{[1][46][]47}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{47}{subsection.3.5.1}\protected@file@percent }
-\newlabel{subsec:nonuniform_sizing}{{3.5.1}{47}{Non-Uniform Sizing in QuadCubes}{subsection.3.5.1}{}}
-\newlabel{subsec:nonuniform_sizing@cref}{{[subsection][1][3,5]3.5.1}{[1][47][]47}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt  {xyz} and the three temporal encoders are assigned different hashmap sizes. Peak training VRAM is listed for each configuration.\relax }}{47}{table.caption.35}\protected@file@percent }
-\newlabel{tab:nonuniform_configs}{{3.2}{47}{Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes. Peak training VRAM is listed for each configuration.\relax }{table.caption.35}{}}
-\newlabel{tab:nonuniform_configs@cref}{{[table][2][3]3.2}{[1][47][]47}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.14}{\ignorespaces PSNR vs.\ epoch for QuadCubes with an enlarged spatial encoder (\texttt  {xyz}) relative to the three temporal encoders. The smaller spatial-heavy config ($L=23$, $\qopname  \relax o{log}_2 T_\text  {spatial}=23$, 20.1\,GB) reaches 36.65\,dB at epoch~500. The larger config ($L=24$, $\qopname  \relax o{log}_2 T=24$, 24.1\,GB) reaches 37.86\,dB at epoch~500.\relax }}{48}{figure.caption.36}\protected@file@percent }
-\newlabel{fig:spatial_heavy_epoch}{{3.14}{48}{PSNR vs.\ epoch for QuadCubes with an enlarged spatial encoder (\texttt {xyz}) relative to the three temporal encoders. The smaller spatial-heavy config ($L=23$, $\log _2 T_\text {spatial}=23$, 20.1\,GB) reaches 36.65\,dB at epoch~500. The larger config ($L=24$, $\log _2 T=24$, 24.1\,GB) reaches 37.86\,dB at epoch~500.\relax }{figure.caption.36}{}}
-\newlabel{fig:spatial_heavy_epoch@cref}{{[figure][14][3]3.14}{[1][47][]48}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.15}{\ignorespaces PSNR vs.\ wall-clock time for spatial-heavy QuadCubes configurations. At 18\,h the larger spatial-heavy config (24.1\,GB) achieves 36.96\,dB and the smaller (20.1\,GB) achieves 36.60\,dB, both exceeding the uniform baseline (44.8\,GB) while using less than half the VRAM.\relax }}{48}{figure.caption.37}\protected@file@percent }
-\newlabel{fig:spatial_heavy_time}{{3.15}{48}{PSNR vs.\ wall-clock time for spatial-heavy QuadCubes configurations. At 18\,h the larger spatial-heavy config (24.1\,GB) achieves 36.96\,dB and the smaller (20.1\,GB) achieves 36.60\,dB, both exceeding the uniform baseline (44.8\,GB) while using less than half the VRAM.\relax }{figure.caption.37}{}}
-\newlabel{fig:spatial_heavy_time@cref}{{[figure][15][3]3.15}{[1][47][]48}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.16}{\ignorespaces PSNR vs.\ epoch for QuadCubes with enlarged temporal encoders. Despite consuming 34--37\,GB VRAM, temporal-heavy configurations plateau well below the uniform baseline. At epoch~500 the larger temporal-heavy config (36.5\,GB) reaches 34.79\,dB versus the baseline's 36.47\,dB at 44.8\,GB; the smaller (34.4\,GB) only 31.77\,dB.\relax }}{49}{figure.caption.38}\protected@file@percent }
-\newlabel{fig:temporal_heavy_epoch}{{3.16}{49}{PSNR vs.\ epoch for QuadCubes with enlarged temporal encoders. Despite consuming 34--37\,GB VRAM, temporal-heavy configurations plateau well below the uniform baseline. At epoch~500 the larger temporal-heavy config (36.5\,GB) reaches 34.79\,dB versus the baseline's 36.47\,dB at 44.8\,GB; the smaller (34.4\,GB) only 31.77\,dB.\relax }{figure.caption.38}{}}
-\newlabel{fig:temporal_heavy_epoch@cref}{{[figure][16][3]3.16}{[1][47][]49}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.17}{\ignorespaces PSNR vs.\ wall-clock time for temporal-heavy QuadCubes configurations. At 24\,h the larger temporal-heavy config (36.5\,GB) reaches 34.46\,dB and the smaller (34.4\,GB) reaches 31.68\,dB, both substantially below the baseline despite comparable VRAM budgets.\relax }}{50}{figure.caption.39}\protected@file@percent }
-\newlabel{fig:temporal_heavy_time}{{3.17}{50}{PSNR vs.\ wall-clock time for temporal-heavy QuadCubes configurations. At 24\,h the larger temporal-heavy config (36.5\,GB) reaches 34.46\,dB and the smaller (34.4\,GB) reaches 31.68\,dB, both substantially below the baseline despite comparable VRAM budgets.\relax }{figure.caption.39}{}}
-\newlabel{fig:temporal_heavy_time@cref}{{[figure][17][3]3.17}{[1][47][]50}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt  {23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt  {22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.\relax }}{51}{figure.caption.40}\protected@file@percent }
-\newlabel{fig:quads_epoch}{{3.18}{51}{PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt {23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt {22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.\relax }{figure.caption.40}{}}
-\newlabel{fig:quads_epoch@cref}{{[figure][18][3]3.18}{[1][51][]51}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.19}{\ignorespaces PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.\relax }}{52}{figure.caption.41}\protected@file@percent }
-\newlabel{fig:quads_time}{{3.19}{52}{PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.\relax }{figure.caption.41}{}}
-\newlabel{fig:quads_time@cref}{{[figure][19][3]3.19}{[1][51][]52}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.20}{\ignorespaces PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.\relax }}{52}{figure.caption.42}\protected@file@percent }
-\newlabel{fig:quads_vram}{{3.20}{52}{PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.\relax }{figure.caption.42}{}}
-\newlabel{fig:quads_vram@cref}{{[figure][20][3]3.20}{[1][52][]52}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{53}{subsection.3.5.2}\protected@file@percent }
-\newlabel{subsec:combinedcubes}{{3.5.2}{53}{CombinedCubes}{subsection.3.5.2}{}}
-\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][52][]53}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.21}{\ignorespaces The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt  {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }}{53}{figure.caption.43}\protected@file@percent }
-\newlabel{fig:combinedcubes_architecture}{{3.21}{53}{The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }{figure.caption.43}{}}
-\newlabel{fig:combinedcubes_architecture@cref}{{[figure][21][3]3.21}{[1][53][]53}}
-\newlabel{eq:combinedcubes_forward}{{3.4}{53}{CombinedCubes}{equation.3.5.4}{}}
-\newlabel{eq:combinedcubes_forward@cref}{{[equation][4][3]3.4}{[1][53][]53}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.22}{\ignorespaces Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\qopname  \relax o{log}_2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }}{54}{figure.caption.44}\protected@file@percent }
-\newlabel{fig:combinedcubes_reconstruction}{{3.22}{54}{Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\log _2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }{figure.caption.44}{}}
-\newlabel{fig:combinedcubes_reconstruction@cref}{{[figure][22][3]3.22}{[1][54][]54}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.23}{\ignorespaces PSNR, SSIM, and MAE for CombinedCubes and QuadCubes at 150 epochs. CombinedCubes: PSNR 35.58\,dB, SSIM 0.908, MAE 2.55. QuadCubes: PSNR 35.16\,dB, SSIM 0.899, MAE 2.78.\relax }}{55}{figure.caption.45}\protected@file@percent }
-\newlabel{fig:combinedcubes_quality}{{3.23}{55}{PSNR, SSIM, and MAE for CombinedCubes and QuadCubes at 150 epochs. CombinedCubes: PSNR 35.58\,dB, SSIM 0.908, MAE 2.55. QuadCubes: PSNR 35.16\,dB, SSIM 0.899, MAE 2.78.\relax }{figure.caption.45}{}}
-\newlabel{fig:combinedcubes_quality@cref}{{[figure][23][3]3.23}{[1][54][]55}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.24}{\ignorespaces PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt  {18\_2\_} and \texttt  {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep.\relax }}{55}{figure.caption.46}\protected@file@percent }
-\newlabel{fig:combinedcubes_epoch}{{3.24}{55}{PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt {18\_2\_} and \texttt {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep.\relax }{figure.caption.46}{}}
-\newlabel{fig:combinedcubes_epoch@cref}{{[figure][24][3]3.24}{[1][54][]55}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.25}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt  {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt  {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt  {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive.\relax }}{56}{figure.caption.47}\protected@file@percent }
-\newlabel{fig:combinedcubes_time}{{3.25}{56}{PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive.\relax }{figure.caption.47}{}}
-\newlabel{fig:combinedcubes_time@cref}{{[figure][25][3]3.25}{[1][54][]56}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.3}\textsc  {MixedCubes}}{57}{subsection.3.5.3}\protected@file@percent }
-\newlabel{subsec:mixedcubes}{{3.5.3}{57}{\MixedCubes }{subsection.3.5.3}{}}
-\newlabel{subsec:mixedcubes@cref}{{[subsection][3][3,5]3.5.3}{[1][57][]57}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.26}{\ignorespaces The \textsc  {MixedCubes}{} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt  {xyz} and three fully dense 2D grids cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }}{57}{figure.caption.48}\protected@file@percent }
-\newlabel{fig:mixedcubes_architecture}{{3.26}{57}{The \MixedCubes {} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt {xyz} and three fully dense 2D grids cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }{figure.caption.48}{}}
-\newlabel{fig:mixedcubes_architecture@cref}{{[figure][26][3]3.26}{[1][57][]57}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.27}{\ignorespaces High-contrast reconstruction slices comparing ground truth, the \textsc  {NeCT}{} baseline, and \textsc  {MixedCubes}{} at an equalised 12-hour training budget.\relax }}{58}{figure.caption.49}\protected@file@percent }
-\newlabel{fig:mixedcubes_quality}{{3.27}{58}{High-contrast reconstruction slices comparing ground truth, the \NeCT {} baseline, and \MixedCubes {} at an equalised 12-hour training budget.\relax }{figure.caption.49}{}}
-\newlabel{fig:mixedcubes_quality@cref}{{[figure][27][3]3.27}{[1][57][]58}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.28}{\ignorespaces PSNR vs.\ epoch for the eight representative \textsc  {MixedCubes}{} configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt  {25\_2\_} family) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }}{60}{figure.caption.50}\protected@file@percent }
-\newlabel{fig:mixedcubes_epoch}{{3.28}{60}{PSNR vs.\ epoch for the eight representative \MixedCubes {} configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt {25\_2\_} family) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }{figure.caption.50}{}}
-\newlabel{fig:mixedcubes_epoch@cref}{{[figure][28][3]3.28}{[1][59][]60}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.29}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative \textsc  {MixedCubes}{} configurations. At 24\,h the best configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB within 0.08\,dB of the baseline at roughly one ninth of the VRAM. The $F=2$ configuration \texttt  {25\_2\_25\_4\_128} (25.5\,GB) reaches only 35.37\,dB at 24\,h, 0.52\,dB below the baseline despite its large hashmap, confirming that $F=2$ is counterproductive in the split-encoder context. These configurations were selected to best represent the experimental landscape.\relax }}{61}{figure.caption.51}\protected@file@percent }
-\newlabel{fig:mixedcubes_time}{{3.29}{61}{PSNR vs.\ wall-clock time for the eight representative \MixedCubes {} configurations. At 24\,h the best configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB within 0.08\,dB of the baseline at roughly one ninth of the VRAM. The $F=2$ configuration \texttt {25\_2\_25\_4\_128} (25.5\,GB) reaches only 35.37\,dB at 24\,h, 0.52\,dB below the baseline despite its large hashmap, confirming that $F=2$ is counterproductive in the split-encoder context. These configurations were selected to best represent the experimental landscape.\relax }{figure.caption.51}{}}
-\newlabel{fig:mixedcubes_time@cref}{{[figure][29][3]3.29}{[1][59][]61}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{62}{subsection.3.5.4}\protected@file@percent }
-\newlabel{subsec:asymmetry_synthesis}{{3.5.4}{62}{Architecture and Problem Structure}{subsection.3.5.4}{}}
-\newlabel{subsec:asymmetry_synthesis@cref}{{[subsection][4][3,5]3.5.4}{[1][62][]62}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}HexCubes}{47}{subsection.3.4.3}\protected@file@percent }
+\newlabel{subsec:sexcubes}{{3.4.3}{47}{HexCubes}{subsection.3.4.3}{}}
+\newlabel{subsec:sexcubes@cref}{{[subsection][3][3,4]3.4.3}{[1][47][]47}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.12}{\ignorespaces The HexCubes architecture. Six 2D multiresolution hash encoders cover all six coordinate pairs from the four space-time dimensions ($xy$, $xz$, $yz$, $xt$, $yt$, $zt$). Features from all six encoders are concatenated and decoded by a shared MLP. Each individual encoder is collision-free at practical 2D resolutions, but the MLP must infer three- and four-way coordinate interactions from pairwise features alone.\relax }}{47}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:hexcubes_architecture}{{3.12}{47}{The HexCubes architecture. Six 2D multiresolution hash encoders cover all six coordinate pairs from the four space-time dimensions ($xy$, $xz$, $yz$, $xt$, $yt$, $zt$). Features from all six encoders are concatenated and decoded by a shared MLP. Each individual encoder is collision-free at practical 2D resolutions, but the MLP must infer three- and four-way coordinate interactions from pairwise features alone.\relax }{figure.caption.33}{}}
+\newlabel{fig:hexcubes_architecture@cref}{{[figure][12][3]3.12}{[1][47][]47}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }}{48}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:sexcubes_reconstruction}{{3.13}{48}{Reconstruction comparison between QuadCubes and HexCubes with 128 neurons per hidden layer and varying decoder depth. Structural patterns emerge from 7 layers onwards but the architecture does not converge to the QuadCubes quality level even at 16 layers.\relax }{figure.caption.34}{}}
+\newlabel{fig:sexcubes_reconstruction@cref}{{[figure][13][3]3.13}{[1][47][]48}}
+\@writefile{toc}{\contentsline {subsubsection}{MLP Decoder Depth}{49}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}Precision and Training Time}{49}{subsection.3.4.4}\protected@file@percent }
+\newlabel{subsec:levels_synthesis}{{3.4.4}{49}{Precision and Training Time}{subsection.3.4.4}{}}
+\newlabel{subsec:levels_synthesis@cref}{{[subsection][4][3,4]3.4.4}{[1][49][]49}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Spatial-Temporal Asymmetry}{50}{section.3.5}\protected@file@percent }
+\newlabel{sec:spatial_temporal_asym}{{3.5}{50}{Spatial-Temporal Asymmetry}{section.3.5}{}}
+\newlabel{sec:spatial_temporal_asym@cref}{{[section][5][3]3.5}{[1][50][]50}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Non-Uniform Sizing in QuadCubes}{50}{subsection.3.5.1}\protected@file@percent }
+\newlabel{subsec:nonuniform_sizing}{{3.5.1}{50}{Non-Uniform Sizing in QuadCubes}{subsection.3.5.1}{}}
+\newlabel{subsec:nonuniform_sizing@cref}{{[subsection][1][3,5]3.5.1}{[1][50][]50}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Non-uniform encoder configurations. The spatial encoder \texttt  {xyz} and the three temporal encoders are assigned different hashmap sizes. Peak training VRAM is listed for each configuration.\relax }}{50}{table.caption.36}\protected@file@percent }
+\newlabel{tab:nonuniform_configs}{{3.2}{50}{Non-uniform encoder configurations. The spatial encoder \texttt {xyz} and the three temporal encoders are assigned different hashmap sizes. Peak training VRAM is listed for each configuration.\relax }{table.caption.36}{}}
+\newlabel{tab:nonuniform_configs@cref}{{[table][2][3]3.2}{[1][50][]50}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.14}{\ignorespaces PSNR vs.\ epoch for QuadCubes with an enlarged spatial encoder (\texttt  {xyz}) relative to the three temporal encoders. The smaller spatial-heavy config ($L=23$, $\qopname  \relax o{log}_2 T_\text  {spatial}=23$, 20.1\,GB) reaches 36.65\,dB at epoch~500. The larger config ($L=24$, $\qopname  \relax o{log}_2 T=24$, 24.1\,GB) reaches 37.86\,dB at epoch~500.\relax }}{51}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:spatial_heavy_epoch}{{3.14}{51}{PSNR vs.\ epoch for QuadCubes with an enlarged spatial encoder (\texttt {xyz}) relative to the three temporal encoders. The smaller spatial-heavy config ($L=23$, $\log _2 T_\text {spatial}=23$, 20.1\,GB) reaches 36.65\,dB at epoch~500. The larger config ($L=24$, $\log _2 T=24$, 24.1\,GB) reaches 37.86\,dB at epoch~500.\relax }{figure.caption.37}{}}
+\newlabel{fig:spatial_heavy_epoch@cref}{{[figure][14][3]3.14}{[1][50][]51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.15}{\ignorespaces PSNR vs.\ wall-clock time for spatial-heavy QuadCubes configurations. At 24\,h the larger spatial-heavy configuration (24.1\,GB) achieves 37.53\,dB and the smaller (20.1\,GB) achieves 36.60\,dB, both exceeding the uniform baseline (44.8\,GB) while using less than half the VRAM.\relax }}{51}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:spatial_heavy_time}{{3.15}{51}{PSNR vs.\ wall-clock time for spatial-heavy QuadCubes configurations. At 24\,h the larger spatial-heavy configuration (24.1\,GB) achieves 37.53\,dB and the smaller (20.1\,GB) achieves 36.60\,dB, both exceeding the uniform baseline (44.8\,GB) while using less than half the VRAM.\relax }{figure.caption.38}{}}
+\newlabel{fig:spatial_heavy_time@cref}{{[figure][15][3]3.15}{[1][50][]51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.16}{\ignorespaces PSNR vs.\ epoch for QuadCubes with enlarged temporal encoders. Despite consuming 34--37\,GB VRAM, temporal-heavy configurations plateau well below the uniform baseline. At epoch~500 the larger temporal-heavy config (36.5\,GB) reaches 34.79\,dB versus the baseline's 36.47\,dB at 44.8\,GB; the smaller (34.4\,GB) only 31.77\,dB.\relax }}{52}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:temporal_heavy_epoch}{{3.16}{52}{PSNR vs.\ epoch for QuadCubes with enlarged temporal encoders. Despite consuming 34--37\,GB VRAM, temporal-heavy configurations plateau well below the uniform baseline. At epoch~500 the larger temporal-heavy config (36.5\,GB) reaches 34.79\,dB versus the baseline's 36.47\,dB at 44.8\,GB; the smaller (34.4\,GB) only 31.77\,dB.\relax }{figure.caption.39}{}}
+\newlabel{fig:temporal_heavy_epoch@cref}{{[figure][16][3]3.16}{[1][50][]52}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.17}{\ignorespaces PSNR vs.\ wall-clock time for temporal-heavy QuadCubes configurations. At 24\,h the larger temporal-heavy config (36.5\,GB) reaches 34.46\,dB and the smaller (34.4\,GB) reaches 31.68\,dB, both substantially below the baseline despite comparable VRAM budgets.\relax }}{53}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:temporal_heavy_time}{{3.17}{53}{PSNR vs.\ wall-clock time for temporal-heavy QuadCubes configurations. At 24\,h the larger temporal-heavy config (36.5\,GB) reaches 34.46\,dB and the smaller (34.4\,GB) reaches 31.68\,dB, both substantially below the baseline despite comparable VRAM budgets.\relax }{figure.caption.40}{}}
+\newlabel{fig:temporal_heavy_time@cref}{{[figure][17][3]3.17}{[1][50][]53}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt  {23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt  {22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.\relax }}{54}{figure.caption.41}\protected@file@percent }
+\newlabel{fig:quads_epoch}{{3.18}{54}{PSNR vs.\ epoch for all QuadCubes configurations: the uniform baseline (\texttt {23\_4\_23\_4\_128}, 44.8\,GB), the smaller uniform variant (\texttt {22\_4\_22\_4\_128}, 23.1\,GB), both spatial-heavy variants, and both temporal-heavy variants. Spatial-heavy configurations sit consistently above the baseline and smaller uniform model; temporal-heavy configurations sit well below despite comparable or larger VRAM.\relax }{figure.caption.41}{}}
+\newlabel{fig:quads_epoch@cref}{{[figure][18][3]3.18}{[1][54][]54}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.19}{\ignorespaces PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.\relax }}{55}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:quads_time}{{3.19}{55}{PSNR vs.\ wall-clock time for all QuadCubes configurations. At 24\,h the spatial-heavy configs reach 36.60 and 37.53\,dB, both above the baseline's 35.89\,dB, while the temporal-heavy configs reach only 34.46 and 31.68\,dB. The ordering is stable throughout training — the asymmetry is not a convergence speed effect but a fundamental capacity allocation effect.\relax }{figure.caption.42}{}}
+\newlabel{fig:quads_time@cref}{{[figure][19][3]3.19}{[1][54][]55}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.20}{\ignorespaces PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.\relax }}{55}{figure.caption.43}\protected@file@percent }
+\newlabel{fig:quads_vram}{{3.20}{55}{PSNR at 24\,h versus peak VRAM for all QuadCubes configurations. Spatial-heavy models occupy the upper-left region (higher quality, lower memory) relative to the baseline; temporal-heavy models occupy the lower-right region (lower quality, higher memory). The baseline is not at the Pareto frontier of its own architecture family. The direction of the asymmetry — spatial capacity is productive, temporal capacity is not — is the main finding motivating CombinedCubes.\relax }{figure.caption.43}{}}
+\newlabel{fig:quads_vram@cref}{{[figure][20][3]3.20}{[1][55][]55}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}CombinedCubes}{56}{subsection.3.5.2}\protected@file@percent }
+\newlabel{subsec:combinedcubes}{{3.5.2}{56}{CombinedCubes}{subsection.3.5.2}{}}
+\newlabel{subsec:combinedcubes@cref}{{[subsection][2][3,5]3.5.2}{[1][55][]56}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.21}{\ignorespaces The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt  {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }}{56}{figure.caption.44}\protected@file@percent }
+\newlabel{fig:combinedcubes_architecture}{{3.21}{56}{The CombinedCubes architecture. One 3D hash encoder covers the spatial coordinates \texttt {xyz} and three collision-free 2D hash encoders cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Features from all four encoders are concatenated and decoded by a shared MLP. The 2D temporal encoders require approximately 67\,\% less memory than equivalent 3D encoders while remaining collision-free at micro-CT resolutions.\relax }{figure.caption.44}{}}
+\newlabel{fig:combinedcubes_architecture@cref}{{[figure][21][3]3.21}{[1][56][]56}}
+\newlabel{eq:combinedcubes_forward}{{3.4}{56}{CombinedCubes}{equation.3.5.4}{}}
+\newlabel{eq:combinedcubes_forward@cref}{{[equation][4][3]3.4}{[1][56][]56}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.22}{\ignorespaces Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\qopname  \relax o{log}_2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }}{57}{figure.caption.45}\protected@file@percent }
+\newlabel{fig:combinedcubes_reconstruction}{{3.22}{57}{Reconstruction slices from CombinedCubes and QuadCubes after 150 epochs with the same baseline MLP configuration. The temporal encoders in CombinedCubes use $\log _2 T = 20$ (collision-free 2D grids). The slice is taken from the upper right corner of the Bentheimer dataset at the final timestep, where the brine front has reached the top of the sample.\relax }{figure.caption.45}{}}
+\newlabel{fig:combinedcubes_reconstruction@cref}{{[figure][22][3]3.22}{[1][57][]57}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.23}{\ignorespaces PSNR, SSIM, and MAE for CombinedCubes and QuadCubes at 150 epochs. CombinedCubes: PSNR 35.58\,dB, SSIM 0.908, MAE 2.55. QuadCubes: PSNR 35.16\,dB, SSIM 0.899, MAE 2.78.\relax }}{58}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:combinedcubes_quality}{{3.23}{58}{PSNR, SSIM, and MAE for CombinedCubes and QuadCubes at 150 epochs. CombinedCubes: PSNR 35.58\,dB, SSIM 0.908, MAE 2.55. QuadCubes: PSNR 35.16\,dB, SSIM 0.899, MAE 2.78.\relax }{figure.caption.46}{}}
+\newlabel{fig:combinedcubes_quality@cref}{{[figure][23][3]3.23}{[1][57][]58}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.24}{\ignorespaces PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt  {18\_2\_} and \texttt  {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep.\relax }}{58}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:combinedcubes_epoch}{{3.24}{58}{PSNR vs.\ epoch for the eight representative CombinedCubes configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_6\_128}, 24.3\,GB) reaches 38.88\,dB at epoch~500, 2.41\,dB above the QuadCubes baseline (36.47\,dB, 44.8\,GB). Configurations with $F=2$ (the \texttt {18\_2\_} and \texttt {20\_2\_} prefix families) underperform relative to $F=4$ equivalents at comparable VRAM, indicating that halving the feature dimension in the split-encoder context degrades quality unlike in the uniform QuadCubes sweep.\relax }{figure.caption.47}{}}
+\newlabel{fig:combinedcubes_epoch@cref}{{[figure][24][3]3.24}{[1][57][]58}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.25}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt  {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt  {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt  {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive.\relax }}{59}{figure.caption.48}\protected@file@percent }
+\newlabel{fig:combinedcubes_time}{{3.25}{59}{PSNR vs.\ wall-clock time for the eight representative CombinedCubes configurations. At 24\,h the best configurations are \texttt {18\_4\_24\_4\_128} (18.3\,GB) at 37.28\,dB and \texttt {24\_4\_24\_6\_128} (24.3\,GB) at 37.18\,dB, both substantially exceeding the QuadCubes baseline's 35.89\,dB. The $F=2$ configuration \texttt {18\_2\_24\_4\_128} (19.5\,GB) reaches only 35.38\,dB at 24\,h, below the baseline, confirming that halving the feature dimension in this context is counterproductive.\relax }{figure.caption.48}{}}
+\newlabel{fig:combinedcubes_time@cref}{{[figure][25][3]3.25}{[1][57][]59}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.3}\textsc  {MixedCubes}}{60}{subsection.3.5.3}\protected@file@percent }
+\newlabel{subsec:mixedcubes}{{3.5.3}{60}{\MixedCubes }{subsection.3.5.3}{}}
+\newlabel{subsec:mixedcubes@cref}{{[subsection][3][3,5]3.5.3}{[1][60][]60}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.26}{\ignorespaces The \textsc  {MixedCubes}{} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt  {xyz} and three fully dense 2D grids cover the space-time pairs \texttt  {xt}, \texttt  {yt}, and \texttt  {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }}{60}{figure.caption.49}\protected@file@percent }
+\newlabel{fig:mixedcubes_architecture}{{3.26}{60}{The \MixedCubes {} architecture. One 3D multiresolution hash encoder covers the spatial coordinates \texttt {xyz} and three fully dense 2D grids cover the space-time pairs \texttt {xt}, \texttt {yt}, and \texttt {zt}. Dense grids guarantee an exact coordinate-to-feature correspondence with no hash collisions by construction. Features from all four encoders are concatenated and decoded by a shared MLP.\relax }{figure.caption.49}{}}
+\newlabel{fig:mixedcubes_architecture@cref}{{[figure][26][3]3.26}{[1][60][]60}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.27}{\ignorespaces High-contrast reconstruction slices comparing ground truth, the \textsc  {NeCT}{} baseline, and \textsc  {MixedCubes}{} at an equalised 12-hour training budget.\relax }}{61}{figure.caption.50}\protected@file@percent }
+\newlabel{fig:mixedcubes_quality}{{3.27}{61}{High-contrast reconstruction slices comparing ground truth, the \NeCT {} baseline, and \MixedCubes {} at an equalised 12-hour training budget.\relax }{figure.caption.50}{}}
+\newlabel{fig:mixedcubes_quality@cref}{{[figure][27][3]3.27}{[1][60][]61}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.28}{\ignorespaces PSNR vs.\ epoch for the eight representative \textsc  {MixedCubes}{} configurations shown here. The best-performing configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt  {25\_2\_} family) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }}{63}{figure.caption.51}\protected@file@percent }
+\newlabel{fig:mixedcubes_epoch}{{3.28}{63}{PSNR vs.\ epoch for the eight representative \MixedCubes {} configurations shown here. The best-performing configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) reaches 38.25\,dB PSNR and SSIM 0.940 at epoch~500, 1.78\,dB above the QuadCubes baseline. The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.96\,dB, nearly matching the baseline at 11\% of its VRAM. Configurations with $F=2$ (the \texttt {25\_2\_} family) underperform relative to $F=4$ equivalents at comparable VRAM. These eight configurations were selected from a larger experimental set to best illustrate performance across the memory, speed, and quality trade-off space.\relax }{figure.caption.51}{}}
+\newlabel{fig:mixedcubes_epoch@cref}{{[figure][28][3]3.28}{[1][62][]63}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.29}{\ignorespaces PSNR vs.\ wall-clock time for the eight representative \textsc  {MixedCubes}{} configurations. At 24\,h the best configuration (\texttt  {24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt  {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB within 0.08\,dB of the baseline at roughly one ninth of the VRAM. The $F=2$ configuration \texttt  {25\_2\_25\_4\_128} (25.5\,GB) reaches only 35.37\,dB at 24\,h, 0.52\,dB below the baseline despite its large hashmap, confirming that $F=2$ is counterproductive in the split-encoder context. These configurations were selected to best represent the experimental landscape.\relax }}{64}{figure.caption.52}\protected@file@percent }
+\newlabel{fig:mixedcubes_time}{{3.29}{64}{PSNR vs.\ wall-clock time for the eight representative \MixedCubes {} configurations. At 24\,h the best configuration (\texttt {24\_4\_24\_4\_128}, 22.1\,GB) achieves 37.73\,dB PSNR, SSIM 0.936, and MAE 2.0 ($+1.84$\,dB over the baseline). The lightweight \texttt {18\_4\_22\_4\_64} (5.1\,GB) reaches 35.97\,dB within 0.08\,dB of the baseline at roughly one ninth of the VRAM. The $F=2$ configuration \texttt {25\_2\_25\_4\_128} (25.5\,GB) reaches only 35.37\,dB at 24\,h, 0.52\,dB below the baseline despite its large hashmap, confirming that $F=2$ is counterproductive in the split-encoder context. These configurations were selected to best represent the experimental landscape.\relax }{figure.caption.52}{}}
+\newlabel{fig:mixedcubes_time@cref}{{[figure][29][3]3.29}{[1][62][]64}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.4}Architecture and Problem Structure}{65}{subsection.3.5.4}\protected@file@percent }
+\newlabel{subsec:asymmetry_synthesis}{{3.5.4}{65}{Architecture and Problem Structure}{subsection.3.5.4}{}}
+\newlabel{subsec:asymmetry_synthesis@cref}{{[subsection][4][3,5]3.5.4}{[1][65][]65}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Encoder Comparison}{64}{chapter.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Encoder Comparison}{67}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:encoder_comparison}{{4}{64}{Encoder Comparison}{chapter.4}{}}
-\newlabel{chap:encoder_comparison@cref}{{[chapter][4][]4}{[1][64][]64}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Candidate Configurations}{64}{section.4.1}\protected@file@percent }
-\newlabel{sec:comp_candidates}{{4.1}{64}{Candidate Configurations}{section.4.1}{}}
-\newlabel{sec:comp_candidates@cref}{{[section][1][4]4.1}{[1][64][]64}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Unified Comparison}{65}{section.4.2}\protected@file@percent }
-\newlabel{sec:comp_results}{{4.2}{65}{Unified Comparison}{section.4.2}{}}
-\newlabel{sec:comp_results@cref}{{[section][2][4]4.2}{[1][65][]65}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \textsc  {MixedCubes}{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.\relax }}{65}{table.caption.52}\protected@file@percent }
-\newlabel{tab:full_comparison}{{4.1}{65}{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes {} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.\relax }{table.caption.52}{}}
-\newlabel{tab:full_comparison@cref}{{[table][1][4]4.1}{[1][65][]65}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt  {23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt  {22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt  {21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.\relax }}{66}{figure.caption.53}\protected@file@percent }
-\newlabel{fig:quadcubes_all_epoch}{{4.1}{66}{PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt {23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt {22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt {21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.\relax }{figure.caption.53}{}}
-\newlabel{fig:quadcubes_all_epoch@cref}{{[figure][1][4]4.1}{[1][65][]66}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces PSNR vs.\ wall-clock time for QuadCubes configurations. At 24\,h the baseline achieves 35.89\,dB (SSIM 0.912, MAE 2.5, 44.8\,GB); the mid-size config achieves 35.87\,dB (SSIM 0.909, MAE 2.6, 23.1\,GB), essentially identical quality at half the VRAM.\relax }}{66}{figure.caption.54}\protected@file@percent }
-\newlabel{fig:quadcubes_all_time}{{4.2}{66}{PSNR vs.\ wall-clock time for QuadCubes configurations. At 24\,h the baseline achieves 35.89\,dB (SSIM 0.912, MAE 2.5, 44.8\,GB); the mid-size config achieves 35.87\,dB (SSIM 0.909, MAE 2.6, 23.1\,GB), essentially identical quality at half the VRAM.\relax }{figure.caption.54}{}}
-\newlabel{fig:quadcubes_all_time@cref}{{[figure][2][4]4.2}{[1][65][]66}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces PSNR vs.\ epoch for representative configurations of each architecture: QuadCubes baseline (\texttt  {23\_4\_23\_4\_128}), spatial-heavy QuadCubes (\texttt  {24\_4\_24\_4\_128}), three \textsc  {MixedCubes}{} variants (\texttt  {18\_4\_23\_6\_128}, \texttt  {24\_4\_24\_4\_128}, \texttt  {22\_4\_25\_4\_128}), and three CombinedCubes variants (\texttt  {18\_4\_23\_6\_64}, \texttt  {24\_4\_24\_6\_128}, \texttt  {22\_4\_25\_4\_128}).\relax }}{67}{figure.caption.55}\protected@file@percent }
-\newlabel{fig:combined_epoch}{{4.3}{67}{PSNR vs.\ epoch for representative configurations of each architecture: QuadCubes baseline (\texttt {23\_4\_23\_4\_128}), spatial-heavy QuadCubes (\texttt {24\_4\_24\_4\_128}), three \MixedCubes {} variants (\texttt {18\_4\_23\_6\_128}, \texttt {24\_4\_24\_4\_128}, \texttt {22\_4\_25\_4\_128}), and three CombinedCubes variants (\texttt {18\_4\_23\_6\_64}, \texttt {24\_4\_24\_6\_128}, \texttt {22\_4\_25\_4\_128}).\relax }{figure.caption.55}{}}
-\newlabel{fig:combined_epoch@cref}{{[figure][3][4]4.3}{[1][65][]67}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces PSNR vs.\ wall-clock time for the same configurations as Figure~\ref  {fig:combined_epoch}. The dashed vertical line marks the 24\,h comparison point.\relax }}{67}{figure.caption.56}\protected@file@percent }
-\newlabel{fig:combined_time}{{4.4}{67}{PSNR vs.\ wall-clock time for the same configurations as Figure~\ref {fig:combined_epoch}. The dashed vertical line marks the 24\,h comparison point.\relax }{figure.caption.56}{}}
-\newlabel{fig:combined_time@cref}{{[figure][4][4]4.4}{[1][65][]67}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces PSNR, SSIM, and MAE at 24\,h for the best-performing configuration of each architecture: QuadCubes baseline, spatial-heavy QuadCubes (\texttt  {24\_4\_24\_4\_128}), CombinedCubes (\texttt  {18\_4\_24\_4\_128}), and \textsc  {MixedCubes}{} (\texttt  {24\_4\_24\_4\_128}). Higher bars indicate better PSNR and SSIM; lower bars indicate better MAE.\relax }}{68}{figure.caption.57}\protected@file@percent }
-\newlabel{fig:top2_comparison}{{4.5}{68}{PSNR, SSIM, and MAE at 24\,h for the best-performing configuration of each architecture: QuadCubes baseline, spatial-heavy QuadCubes (\texttt {24\_4\_24\_4\_128}), CombinedCubes (\texttt {18\_4\_24\_4\_128}), and \MixedCubes {} (\texttt {24\_4\_24\_4\_128}). Higher bars indicate better PSNR and SSIM; lower bars indicate better MAE.\relax }{figure.caption.57}{}}
-\newlabel{fig:top2_comparison@cref}{{[figure][5][4]4.5}{[1][68][]68}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces PSNR at 24\,h versus peak training VRAM for all configurations evaluated. Each point is one experimental run; colours distinguish architecture families. Triangular markers identify $F=2$ configurations within the split-encoder families.\relax }}{69}{figure.caption.58}\protected@file@percent }
-\newlabel{fig:vram_efficiency}{{4.6}{69}{PSNR at 24\,h versus peak training VRAM for all configurations evaluated. Each point is one experimental run; colours distinguish architecture families. Triangular markers identify $F=2$ configurations within the split-encoder families.\relax }{figure.caption.58}{}}
-\newlabel{fig:vram_efficiency@cref}{{[figure][6][4]4.6}{[1][69][]69}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Discussion}{70}{section.4.3}\protected@file@percent }
-\newlabel{sec:comp_discussion}{{4.3}{70}{Discussion}{section.4.3}{}}
-\newlabel{sec:comp_discussion@cref}{{[section][3][4]4.3}{[1][70][]70}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{70}{subsection.4.3.1}\protected@file@percent }
-\newlabel{subsec:comp_disc_interpretation}{{4.3.1}{70}{What the Three Configurations Represent}{subsection.4.3.1}{}}
-\newlabel{subsec:comp_disc_interpretation@cref}{{[subsection][1][4,3]4.3.1}{[1][70][]70}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{71}{subsection.4.3.2}\protected@file@percent }
-\newlabel{subsec:comp_disc_hardware}{{4.3.2}{71}{Hardware-Specific Recommendations}{subsection.4.3.2}{}}
-\newlabel{subsec:comp_disc_hardware@cref}{{[subsection][2][4,3]4.3.2}{[1][71][]71}}
-\@writefile{toc}{\contentsline {paragraph}{Entry-level GPU (6--8\,GB VRAM, e.g.\ GTX 1060 6\,GB or RTX 4060 8\,GB).}{71}{section*.59}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{72}{section*.60}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{72}{section*.61}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{72}{section*.62}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Generalisability and Dataset Scope}{72}{subsection.4.3.3}\protected@file@percent }
-\newlabel{subsec:comp_disc_generalisability}{{4.3.3}{72}{Generalisability and Dataset Scope}{subsection.4.3.3}{}}
-\newlabel{subsec:comp_disc_generalisability@cref}{{[subsection][3][4,3]4.3.3}{[1][72][]72}}
-\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Continuous Scanning}{74}{part.2}\protected@file@percent }
-\newlabel{part:continuous_scanning}{{II}{75}{Continuous Scanning}{part.2}{}}
-\newlabel{part:continuous_scanning@cref}{{[part][2][]II}{[1][75][]75}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{75}{chapter.5}\protected@file@percent }
+\newlabel{chap:encoder_comparison}{{4}{67}{Encoder Comparison}{chapter.4}{}}
+\newlabel{chap:encoder_comparison@cref}{{[chapter][4][]4}{[1][67][]67}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Candidate Configurations}{67}{section.4.1}\protected@file@percent }
+\newlabel{sec:comp_candidates}{{4.1}{67}{Candidate Configurations}{section.4.1}{}}
+\newlabel{sec:comp_candidates@cref}{{[section][1][4]4.1}{[1][67][]67}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Unified Comparison}{68}{section.4.2}\protected@file@percent }
+\newlabel{sec:comp_results}{{4.2}{68}{Unified Comparison}{section.4.2}{}}
+\newlabel{sec:comp_results@cref}{{[section][2][4]4.2}{[1][68][]68}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \textsc  {MixedCubes}{} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.\relax }}{68}{table.caption.53}\protected@file@percent }
+\newlabel{tab:full_comparison}{{4.1}{68}{Comparison of the NeCT baseline against the best spatial-heavy QuadCubes, CombinedCubes, and \MixedCubes {} configurations at 24\,h wall-clock time and at epoch~500. All results on the Bentheimer sandstone dataset.\relax }{table.caption.53}{}}
+\newlabel{tab:full_comparison@cref}{{[table][1][4]4.1}{[1][68][]68}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt  {23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt  {22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt  {21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.\relax }}{69}{figure.caption.54}\protected@file@percent }
+\newlabel{fig:quadcubes_all_epoch}{{4.1}{69}{PSNR vs.\ epoch for QuadCubes configurations. The baseline (\texttt {23\_4\_23\_4\_128}, 44.8\,GB) reaches 36.47\,dB at epoch~500. The mid-size config (\texttt {22\_4\_22\_4\_128}, 23.1\,GB) reaches 36.08\,dB, and the smallest (\texttt {21\_4\_21\_4\_128}, 11.9\,GB) reaches 35.04\,dB.\relax }{figure.caption.54}{}}
+\newlabel{fig:quadcubes_all_epoch@cref}{{[figure][1][4]4.1}{[1][68][]69}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces PSNR vs.\ wall-clock time for QuadCubes configurations. At 24\,h the baseline achieves 35.89\,dB (SSIM 0.912, MAE 2.5, 44.8\,GB); the mid-size config achieves 35.87\,dB (SSIM 0.909, MAE 2.6, 23.1\,GB), essentially identical quality at half the VRAM.\relax }}{69}{figure.caption.55}\protected@file@percent }
+\newlabel{fig:quadcubes_all_time}{{4.2}{69}{PSNR vs.\ wall-clock time for QuadCubes configurations. At 24\,h the baseline achieves 35.89\,dB (SSIM 0.912, MAE 2.5, 44.8\,GB); the mid-size config achieves 35.87\,dB (SSIM 0.909, MAE 2.6, 23.1\,GB), essentially identical quality at half the VRAM.\relax }{figure.caption.55}{}}
+\newlabel{fig:quadcubes_all_time@cref}{{[figure][2][4]4.2}{[1][68][]69}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces PSNR vs.\ epoch for representative configurations of each architecture: QuadCubes baseline (\texttt  {23\_4\_23\_4\_128}), spatial-heavy QuadCubes (\texttt  {24\_4\_24\_4\_128}), three \textsc  {MixedCubes}{} variants (\texttt  {18\_4\_23\_6\_128}, \texttt  {24\_4\_24\_4\_128}, \texttt  {22\_4\_25\_4\_128}), and three CombinedCubes variants (\texttt  {18\_4\_23\_6\_64}, \texttt  {24\_4\_24\_6\_128}, \texttt  {22\_4\_25\_4\_128}).\relax }}{70}{figure.caption.56}\protected@file@percent }
+\newlabel{fig:combined_epoch}{{4.3}{70}{PSNR vs.\ epoch for representative configurations of each architecture: QuadCubes baseline (\texttt {23\_4\_23\_4\_128}), spatial-heavy QuadCubes (\texttt {24\_4\_24\_4\_128}), three \MixedCubes {} variants (\texttt {18\_4\_23\_6\_128}, \texttt {24\_4\_24\_4\_128}, \texttt {22\_4\_25\_4\_128}), and three CombinedCubes variants (\texttt {18\_4\_23\_6\_64}, \texttt {24\_4\_24\_6\_128}, \texttt {22\_4\_25\_4\_128}).\relax }{figure.caption.56}{}}
+\newlabel{fig:combined_epoch@cref}{{[figure][3][4]4.3}{[1][68][]70}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces PSNR vs.\ wall-clock time for the same configurations as Figure~\ref  {fig:combined_epoch}. The dashed vertical line marks the 24\,h comparison point.\relax }}{70}{figure.caption.57}\protected@file@percent }
+\newlabel{fig:combined_time}{{4.4}{70}{PSNR vs.\ wall-clock time for the same configurations as Figure~\ref {fig:combined_epoch}. The dashed vertical line marks the 24\,h comparison point.\relax }{figure.caption.57}{}}
+\newlabel{fig:combined_time@cref}{{[figure][4][4]4.4}{[1][68][]70}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces PSNR, SSIM, and MAE at 24\,h for the best-performing configuration of each architecture: QuadCubes baseline, spatial-heavy QuadCubes (\texttt  {24\_4\_24\_4\_128}), CombinedCubes (\texttt  {18\_4\_24\_4\_128}), and \textsc  {MixedCubes}{} (\texttt  {24\_4\_24\_4\_128}). Higher bars indicate better PSNR and SSIM; lower bars indicate better MAE.\relax }}{71}{figure.caption.58}\protected@file@percent }
+\newlabel{fig:top2_comparison}{{4.5}{71}{PSNR, SSIM, and MAE at 24\,h for the best-performing configuration of each architecture: QuadCubes baseline, spatial-heavy QuadCubes (\texttt {24\_4\_24\_4\_128}), CombinedCubes (\texttt {18\_4\_24\_4\_128}), and \MixedCubes {} (\texttt {24\_4\_24\_4\_128}). Higher bars indicate better PSNR and SSIM; lower bars indicate better MAE.\relax }{figure.caption.58}{}}
+\newlabel{fig:top2_comparison@cref}{{[figure][5][4]4.5}{[1][71][]71}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces PSNR at 24\,h versus peak training VRAM for all configurations evaluated. Each point is one experimental run; colours distinguish architecture families. Triangular markers identify $F=2$ configurations within the split-encoder families.\relax }}{72}{figure.caption.59}\protected@file@percent }
+\newlabel{fig:vram_efficiency}{{4.6}{72}{PSNR at 24\,h versus peak training VRAM for all configurations evaluated. Each point is one experimental run; colours distinguish architecture families. Triangular markers identify $F=2$ configurations within the split-encoder families.\relax }{figure.caption.59}{}}
+\newlabel{fig:vram_efficiency@cref}{{[figure][6][4]4.6}{[1][72][]72}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Discussion}{73}{section.4.3}\protected@file@percent }
+\newlabel{sec:comp_discussion}{{4.3}{73}{Discussion}{section.4.3}{}}
+\newlabel{sec:comp_discussion@cref}{{[section][3][4]4.3}{[1][73][]73}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}What the Three Configurations Represent}{73}{subsection.4.3.1}\protected@file@percent }
+\newlabel{subsec:comp_disc_interpretation}{{4.3.1}{73}{What the Three Configurations Represent}{subsection.4.3.1}{}}
+\newlabel{subsec:comp_disc_interpretation@cref}{{[subsection][1][4,3]4.3.1}{[1][73][]73}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Hardware-Specific Recommendations}{74}{subsection.4.3.2}\protected@file@percent }
+\newlabel{subsec:comp_disc_hardware}{{4.3.2}{74}{Hardware-Specific Recommendations}{subsection.4.3.2}{}}
+\newlabel{subsec:comp_disc_hardware@cref}{{[subsection][2][4,3]4.3.2}{[1][74][]74}}
+\@writefile{toc}{\contentsline {paragraph}{Entry-level GPU (6--8\,GB VRAM, e.g.\ GTX 1060 6\,GB or RTX 4060 8\,GB).}{74}{section*.60}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Consumer GPU (24\,GB VRAM, e.g.\ RTX 3090/4090).}{75}{section*.61}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mid-range professional GPU (40\,GB VRAM, e.g.\ A100 40\,GB).}{75}{section*.62}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{High-end research GPU (80\,GB VRAM, e.g.\ A100/H100 80\,GB).}{75}{section*.63}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Generalisability and Dataset Scope}{75}{subsection.4.3.3}\protected@file@percent }
+\newlabel{subsec:comp_disc_generalisability}{{4.3.3}{75}{Generalisability and Dataset Scope}{subsection.4.3.3}{}}
+\newlabel{subsec:comp_disc_generalisability@cref}{{[subsection][3][4,3]4.3.3}{[1][75][]75}}
+\@writefile{toc}{\contentsline {part}{III\hspace  {1em}Continuous Scanning}{77}{part.3}\protected@file@percent }
+\newlabel{part:continuous_scanning}{{III}{78}{Continuous Scanning}{part.3}{}}
+\newlabel{part:continuous_scanning@cref}{{[part][3][]III}{[1][78][]78}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Continuous Scanning}{78}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:continuous}{{5}{75}{Continuous Scanning}{chapter.5}{}}
-\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][75][]75}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Theory}{75}{section.5.1}\protected@file@percent }
-\newlabel{sec:cont_theory}{{5.1}{75}{Theory}{section.5.1}{}}
-\newlabel{sec:cont_theory@cref}{{[section][1][5]5.1}{[1][75][]75}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{75}{subsection.5.1.1}\protected@file@percent }
-\newlabel{subsec:cont_modes}{{5.1.1}{75}{Step-and-Shoot Versus Continuous Rotation}{subsection.5.1.1}{}}
-\newlabel{subsec:cont_modes@cref}{{[subsection][1][5,1]5.1.1}{[1][75][]75}}
-\newlabel{eq:angular_sweep}{{5.1}{76}{Step-and-Shoot Versus Continuous Rotation}{equation.5.1.1}{}}
-\newlabel{eq:angular_sweep@cref}{{[equation][1][5]5.1}{[1][76][]76}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{76}{figure.caption.63}\protected@file@percent }
-\newlabel{fig:continous_illu}{{5.1}{76}{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }{figure.caption.63}{}}
-\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][76][]76}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{76}{subsection.5.1.2}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_implications}{{5.1.2}{76}{Implications for Dynamic Imaging}{subsection.5.1.2}{}}
-\newlabel{subsec:cont_dynamic_implications@cref}{{[subsection][2][5,1]5.1.2}{[1][76][]76}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{77}{subsection.5.1.3}\protected@file@percent }
-\newlabel{subsec:cont_forward_theory}{{5.1.3}{77}{Continuous-Scan Forward Model}{subsection.5.1.3}{}}
-\newlabel{subsec:cont_forward_theory@cref}{{[subsection][3][5,1]5.1.3}{[1][77][]77}}
-\newlabel{eq:step_shoot_forward}{{5.2}{77}{Continuous-Scan Forward Model}{equation.5.1.2}{}}
-\newlabel{eq:step_shoot_forward@cref}{{[equation][2][5]5.2}{[1][77][]77}}
-\newlabel{eq:continuous_forward_exact}{{5.3}{77}{Continuous-Scan Forward Model}{equation.5.1.3}{}}
-\newlabel{eq:continuous_forward_exact@cref}{{[equation][3][5]5.3}{[1][77][]77}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Method}{78}{section.5.2}\protected@file@percent }
-\newlabel{sec:cont_method}{{5.2}{78}{Method}{section.5.2}{}}
-\newlabel{sec:cont_method@cref}{{[section][2][5]5.2}{[1][78][]78}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{78}{subsection.5.2.1}\protected@file@percent }
-\newlabel{subsec:cont_kstep}{{5.2.1}{78}{$K$-Step Midpoint Approximation}{subsection.5.2.1}{}}
-\newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][78][]78}}
-\newlabel{eq:continuous_forward_discrete}{{5.4}{78}{$K$-Step Midpoint Approximation}{equation.5.2.4}{}}
-\newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][78][]78}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{79}{subsection.5.2.2}\protected@file@percent }
-\newlabel{subsec:cont_implementation}{{5.2.2}{79}{Training Step Implementation}{subsection.5.2.2}{}}
-\newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][78][]79}}
-\@writefile{toc}{\contentsline {paragraph}{Time-efficient mode.}{79}{section*.64}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Training Step --- Time-Efficient\relax }}{79}{algorithm.1}\protected@file@percent }
-\newlabel{alg:memvstime_true}{{1}{79}{Continuous-Scan Training Step --- Time-Efficient\relax }{algorithm.1}{}}
-\newlabel{alg:memvstime_true@cref}{{[algorithm][1][]1}{[1][79][]79}}
-\@writefile{toc}{\contentsline {paragraph}{Memory-efficient mode.}{79}{section*.65}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Continuous-Scan Training Step --- Memory-Efficient\relax }}{80}{algorithm.2}\protected@file@percent }
-\newlabel{alg:memvstime_false}{{2}{80}{Continuous-Scan Training Step --- Memory-Efficient\relax }{algorithm.2}{}}
-\newlabel{alg:memvstime_false@cref}{{[algorithm][2][]2}{[1][79][]80}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{80}{subsection.5.2.3}\protected@file@percent }
-\newlabel{subsec:cont_training}{{5.2.3}{80}{Hyperparameters and Training Protocol}{subsection.5.2.3}{}}
-\newlabel{subsec:cont_training@cref}{{[subsection][3][5,2]5.2.3}{[1][80][]80}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{80}{section.5.3}\protected@file@percent }
-\newlabel{sec:cont_static}{{5.3}{80}{Experiments: Static Validation}{section.5.3}{}}
-\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][80][]80}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{81}{subsection.5.3.1}\protected@file@percent }
-\newlabel{subsec:cont_static_dataset}{{5.3.1}{81}{Dataset}{subsection.5.3.1}{}}
-\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][81][]81}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{81}{table.caption.66}\protected@file@percent }
-\newlabel{tab:static_cont_configs}{{5.1}{81}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.66}{}}
-\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][81][]81}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{81}{subsection.5.3.2}\protected@file@percent }
-\newlabel{subsec:cont_static_metrics}{{5.3.2}{81}{Evaluation Metrics}{subsection.5.3.2}{}}
-\newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][81][]81}}
-\newlabel{eq:combined_norm}{{5.5}{82}{Evaluation Metrics}{equation.5.3.5}{}}
-\newlabel{eq:combined_norm@cref}{{[equation][5][5]5.5}{[1][82][]82}}
-\newlabel{eq:combined_score}{{5.6}{82}{Evaluation Metrics}{equation.5.3.6}{}}
-\newlabel{eq:combined_score@cref}{{[equation][6][5]5.6}{[1][82][]82}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{82}{subsection.5.3.3}\protected@file@percent }
-\newlabel{subsec:cont_static_results}{{5.3.3}{82}{Results}{subsection.5.3.3}{}}
-\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][82][]82}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\ensuremath  {^\circ }$) and 360-projection ($\Delta \phi = 1.00\ensuremath  {^\circ }$) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }}{83}{figure.caption.67}\protected@file@percent }
-\newlabel{fig:combined_score}{{5.2}{83}{Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\degree $) and 360-projection ($\Delta \phi = 1.00\degree $) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }{figure.caption.67}{}}
-\newlabel{fig:combined_score@cref}{{[figure][2][5]5.2}{[1][82][]83}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }}{85}{figure.caption.68}\protected@file@percent }
-\newlabel{fig:static_slices_100}{{5.3}{85}{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }{figure.caption.68}{}}
-\newlabel{fig:static_slices_100@cref}{{[figure][3][5]5.3}{[1][84][]85}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }}{86}{figure.caption.69}\protected@file@percent }
-\newlabel{fig:static_slices_360}{{5.4}{86}{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }{figure.caption.69}{}}
-\newlabel{fig:static_slices_360@cref}{{[figure][4][5]5.4}{[1][86][]86}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{87}{section.5.4}\protected@file@percent }
-\newlabel{sec:cont_dynamic}{{5.4}{87}{Experiments: Dynamic Hourglass}{section.5.4}{}}
-\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][87][]87}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{87}{subsection.5.4.1}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{87}{Dataset}{subsection.5.4.1}{}}
-\newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][87][]87}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{87}{figure.caption.70}\protected@file@percent }
-\newlabel{fig:hourglass}{{5.5}{87}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.70}{}}
-\newlabel{fig:hourglass@cref}{{[figure][5][5]5.5}{[1][87][]87}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }}{88}{figure.caption.71}\protected@file@percent }
-\newlabel{fig:hourglass_in_scanner}{{5.6}{88}{The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }{figure.caption.71}{}}
-\newlabel{fig:hourglass_in_scanner@cref}{{[figure][6][5]5.6}{[1][87][]88}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{89}{table.caption.72}\protected@file@percent }
-\newlabel{tab:acquisition_params}{{5.2}{89}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.72}{}}
-\newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][87][]89}}
-\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath  {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath  {^\circ }; green: 1.72\ensuremath  {^\circ }; orange: 1.15\ensuremath  {^\circ }.\relax }}{89}{table.caption.73}\protected@file@percent }
-\newlabel{tab:dynamic_cont_configs}{{5.3}{89}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree \ (appears in all three rows); blue: 6.88\degree ; green: 1.72\degree ; orange: 1.15\degree .\relax }{table.caption.73}{}}
-\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][89][]89}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{90}{subsection.5.4.2}\protected@file@percent }
-\newlabel{subsec:cont_dynamic_results}{{5.4.2}{90}{Results}{subsection.5.4.2}{}}
-\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][90][]90}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{90}{figure.caption.74}\protected@file@percent }
-\newlabel{fig:dynamic_cont_reconstruction}{{5.7}{90}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.74}{}}
-\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][7][5]5.7}{[1][90][]90}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }}{91}{figure.caption.75}\protected@file@percent }
-\newlabel{fig:mae_4fps}{{5.8}{91}{Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }{figure.caption.75}{}}
-\newlabel{fig:mae_4fps@cref}{{[figure][8][5]5.8}{[1][91][]91}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.9}{\ignorespaces Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }}{91}{figure.caption.76}\protected@file@percent }
-\newlabel{fig:mae_2fps}{{5.9}{91}{Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }{figure.caption.76}{}}
-\newlabel{fig:mae_2fps@cref}{{[figure][9][5]5.9}{[1][91][]91}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{91}{section.5.5}\protected@file@percent }
-\newlabel{sec:cont_discussion}{{5.5}{91}{Discussion}{section.5.5}{}}
-\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][91][]91}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{91}{subsection.5.5.1}\protected@file@percent }
-\newlabel{subsec:cont_disc_model}{{5.5.1}{91}{Validity of the Forward Model}{subsection.5.5.1}{}}
-\newlabel{subsec:cont_disc_model@cref}{{[subsection][1][5,5]5.5.1}{[1][91][]91}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.10}{\ignorespaces Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }}{92}{figure.caption.77}\protected@file@percent }
-\newlabel{fig:subangle_result}{{5.10}{92}{Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }{figure.caption.77}{}}
-\newlabel{fig:subangle_result@cref}{{[figure][10][5]5.10}{[1][91][]92}}
+\newlabel{chap:continuous}{{5}{78}{Continuous Scanning}{chapter.5}{}}
+\newlabel{chap:continuous@cref}{{[chapter][5][]5}{[1][78][]78}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Theory}{78}{section.5.1}\protected@file@percent }
+\newlabel{sec:cont_theory}{{5.1}{78}{Theory}{section.5.1}{}}
+\newlabel{sec:cont_theory@cref}{{[section][1][5]5.1}{[1][78][]78}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Step-and-Shoot Versus Continuous Rotation}{78}{subsection.5.1.1}\protected@file@percent }
+\newlabel{subsec:cont_modes}{{5.1.1}{78}{Step-and-Shoot Versus Continuous Rotation}{subsection.5.1.1}{}}
+\newlabel{subsec:cont_modes@cref}{{[subsection][1][5,1]5.1.1}{[1][78][]78}}
+\newlabel{eq:angular_sweep}{{5.1}{79}{Step-and-Shoot Versus Continuous Rotation}{equation.5.1.1}{}}
+\newlabel{eq:angular_sweep@cref}{{[equation][1][5]5.1}{[1][79][]79}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }}{79}{figure.caption.64}\protected@file@percent }
+\newlabel{fig:continous_illu}{{5.1}{79}{Top-down view illustrating the difference between step-and-shoot and continuous scanning. In step-and-shoot mode the sample is stationary during each exposure (discrete coloured wedges). In continuous mode the sample rotates throughout, and each projection integrates over a swept angular interval (extended coloured arcs).\relax }{figure.caption.64}{}}
+\newlabel{fig:continous_illu@cref}{{[figure][1][5]5.1}{[1][79][]79}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Implications for Dynamic Imaging}{79}{subsection.5.1.2}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_implications}{{5.1.2}{79}{Implications for Dynamic Imaging}{subsection.5.1.2}{}}
+\newlabel{subsec:cont_dynamic_implications@cref}{{[subsection][2][5,1]5.1.2}{[1][79][]79}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Continuous-Scan Forward Model}{80}{subsection.5.1.3}\protected@file@percent }
+\newlabel{subsec:cont_forward_theory}{{5.1.3}{80}{Continuous-Scan Forward Model}{subsection.5.1.3}{}}
+\newlabel{subsec:cont_forward_theory@cref}{{[subsection][3][5,1]5.1.3}{[1][80][]80}}
+\newlabel{eq:step_shoot_forward}{{5.2}{80}{Continuous-Scan Forward Model}{equation.5.1.2}{}}
+\newlabel{eq:step_shoot_forward@cref}{{[equation][2][5]5.2}{[1][80][]80}}
+\newlabel{eq:continuous_forward_exact}{{5.3}{80}{Continuous-Scan Forward Model}{equation.5.1.3}{}}
+\newlabel{eq:continuous_forward_exact@cref}{{[equation][3][5]5.3}{[1][80][]80}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Method}{81}{section.5.2}\protected@file@percent }
+\newlabel{sec:cont_method}{{5.2}{81}{Method}{section.5.2}{}}
+\newlabel{sec:cont_method@cref}{{[section][2][5]5.2}{[1][81][]81}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}$K$-Step Midpoint Approximation}{81}{subsection.5.2.1}\protected@file@percent }
+\newlabel{subsec:cont_kstep}{{5.2.1}{81}{$K$-Step Midpoint Approximation}{subsection.5.2.1}{}}
+\newlabel{subsec:cont_kstep@cref}{{[subsection][1][5,2]5.2.1}{[1][81][]81}}
+\newlabel{eq:continuous_forward_discrete}{{5.4}{81}{$K$-Step Midpoint Approximation}{equation.5.2.4}{}}
+\newlabel{eq:continuous_forward_discrete@cref}{{[equation][4][5]5.4}{[1][81][]81}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Training Step Implementation}{82}{subsection.5.2.2}\protected@file@percent }
+\newlabel{subsec:cont_implementation}{{5.2.2}{82}{Training Step Implementation}{subsection.5.2.2}{}}
+\newlabel{subsec:cont_implementation@cref}{{[subsection][2][5,2]5.2.2}{[1][81][]82}}
+\@writefile{toc}{\contentsline {paragraph}{Time-efficient mode.}{82}{section*.65}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Continuous-Scan Training Step --- Time-Efficient\relax }}{82}{algorithm.1}\protected@file@percent }
+\newlabel{alg:memvstime_true}{{1}{82}{Continuous-Scan Training Step --- Time-Efficient\relax }{algorithm.1}{}}
+\newlabel{alg:memvstime_true@cref}{{[algorithm][1][]1}{[1][82][]82}}
+\@writefile{toc}{\contentsline {paragraph}{Memory-efficient mode.}{82}{section*.66}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Continuous-Scan Training Step --- Memory-Efficient\relax }}{83}{algorithm.2}\protected@file@percent }
+\newlabel{alg:memvstime_false}{{2}{83}{Continuous-Scan Training Step --- Memory-Efficient\relax }{algorithm.2}{}}
+\newlabel{alg:memvstime_false@cref}{{[algorithm][2][]2}{[1][82][]83}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Hyperparameters and Training Protocol}{83}{subsection.5.2.3}\protected@file@percent }
+\newlabel{subsec:cont_training}{{5.2.3}{83}{Hyperparameters and Training Protocol}{subsection.5.2.3}{}}
+\newlabel{subsec:cont_training@cref}{{[subsection][3][5,2]5.2.3}{[1][83][]83}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Experiments: Static Validation}{83}{section.5.3}\protected@file@percent }
+\newlabel{sec:cont_static}{{5.3}{83}{Experiments: Static Validation}{section.5.3}{}}
+\newlabel{sec:cont_static@cref}{{[section][3][5]5.3}{[1][83][]83}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Dataset}{84}{subsection.5.3.1}\protected@file@percent }
+\newlabel{subsec:cont_static_dataset}{{5.3.1}{84}{Dataset}{subsection.5.3.1}{}}
+\newlabel{subsec:cont_static_dataset@cref}{{[subsection][1][5,3]5.3.1}{[1][84][]84}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\ensuremath  {^\circ }$ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }}{84}{table.caption.67}\protected@file@percent }
+\newlabel{tab:static_cont_configs}{{5.1}{84}{Static continuous-scan dataset configurations. The angular step $\Delta \phi $ is $360\degree $ divided by the number of projections. Each configuration is reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6\}$.\relax }{table.caption.67}{}}
+\newlabel{tab:static_cont_configs@cref}{{[table][1][5]5.1}{[1][84][]84}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Evaluation Metrics}{84}{subsection.5.3.2}\protected@file@percent }
+\newlabel{subsec:cont_static_metrics}{{5.3.2}{84}{Evaluation Metrics}{subsection.5.3.2}{}}
+\newlabel{subsec:cont_static_metrics@cref}{{[subsection][2][5,3]5.3.2}{[1][84][]84}}
+\newlabel{eq:combined_norm}{{5.5}{85}{Evaluation Metrics}{equation.5.3.5}{}}
+\newlabel{eq:combined_norm@cref}{{[equation][5][5]5.5}{[1][85][]85}}
+\newlabel{eq:combined_score}{{5.6}{85}{Evaluation Metrics}{equation.5.3.6}{}}
+\newlabel{eq:combined_score@cref}{{[equation][6][5]5.6}{[1][85][]85}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Results}{85}{subsection.5.3.3}\protected@file@percent }
+\newlabel{subsec:cont_static_results}{{5.3.3}{85}{Results}{subsection.5.3.3}{}}
+\newlabel{subsec:cont_static_results@cref}{{[subsection][3][5,3]5.3.3}{[1][85][]85}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\ensuremath  {^\circ }$) and 360-projection ($\Delta \phi = 1.00\ensuremath  {^\circ }$) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }}{86}{figure.caption.68}\protected@file@percent }
+\newlabel{fig:combined_score}{{5.2}{86}{Combined score $S$ as a function of accumulation steps $K$ for the 100-projection ($\Delta \phi = 3.60\degree $) and 360-projection ($\Delta \phi = 1.00\degree $) continuous-scan configurations. Higher is better. The 100-projection configuration starts substantially lower at $K = 1$, reflecting the more severe angular blur at the larger angular step, and benefits more from increasing $K$. Both curves increase monotonically.\relax }{figure.caption.68}{}}
+\newlabel{fig:combined_score@cref}{{[figure][2][5]5.2}{[1][85][]86}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }}{88}{figure.caption.69}\protected@file@percent }
+\newlabel{fig:static_slices_100}{{5.3}{88}{Reconstruction slice comparisons for the 100-projection continuous-scan configuration ($\Delta \phi = 3.60\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth. Row labels indicate the configuration.\relax }{figure.caption.69}{}}
+\newlabel{fig:static_slices_100@cref}{{[figure][3][5]5.3}{[1][87][]88}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\ensuremath  {^\circ }$) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }}{89}{figure.caption.70}\protected@file@percent }
+\newlabel{fig:static_slices_360}{{5.4}{89}{Reconstruction slice comparisons for the 360-projection continuous-scan configuration ($\Delta \phi = 1.00\degree $) at each accumulation step $K$, paired with the 1400-projection step-and-shoot ground truth.\relax }{figure.caption.70}{}}
+\newlabel{fig:static_slices_360@cref}{{[figure][4][5]5.4}{[1][89][]89}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Experiments: Dynamic Hourglass}{90}{section.5.4}\protected@file@percent }
+\newlabel{sec:cont_dynamic}{{5.4}{90}{Experiments: Dynamic Hourglass}{section.5.4}{}}
+\newlabel{sec:cont_dynamic@cref}{{[section][4][5]5.4}{[1][90][]90}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Dataset}{90}{subsection.5.4.1}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_dataset}{{5.4.1}{90}{Dataset}{subsection.5.4.1}{}}
+\newlabel{subsec:cont_dynamic_dataset@cref}{{[subsection][1][5,4]5.4.1}{[1][90][]90}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces The hourglass sample next to the enclosure used for mounting in the scanner.\relax }}{90}{figure.caption.71}\protected@file@percent }
+\newlabel{fig:hourglass}{{5.5}{90}{The hourglass sample next to the enclosure used for mounting in the scanner.\relax }{figure.caption.71}{}}
+\newlabel{fig:hourglass@cref}{{[figure][5][5]5.5}{[1][90][]90}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }}{91}{figure.caption.72}\protected@file@percent }
+\newlabel{fig:hourglass_in_scanner}{{5.6}{91}{The hourglass mounted in its enclosure inside the micro-CT scanner. To the left is the X-ray source (white), the sample sits in the centre on a rotating base, and to the right is the attenuating copper plate used as a beam stop.\relax }{figure.caption.72}{}}
+\newlabel{fig:hourglass_in_scanner@cref}{{[figure][6][5]5.6}{[1][90][]91}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }}{92}{table.caption.73}\protected@file@percent }
+\newlabel{tab:acquisition_params}{{5.2}{92}{Acquisition protocol parameters for the hourglass dynamic datasets. $\Delta \phi $ is the angular step per projection and $\Delta t$ is the time between consecutive projections.\relax }{table.caption.73}{}}
+\newlabel{tab:acquisition_params@cref}{{[table][2][5]5.2}{[1][90][]92}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath  {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath  {^\circ }; green: 1.72\ensuremath  {^\circ }; orange: 1.15\ensuremath  {^\circ }.\relax }}{92}{table.caption.74}\protected@file@percent }
+\newlabel{tab:dynamic_cont_configs}{{5.3}{92}{Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\degree \ (appears in all three rows); blue: 6.88\degree ; green: 1.72\degree ; orange: 1.15\degree .\relax }{table.caption.74}{}}
+\newlabel{tab:dynamic_cont_configs@cref}{{[table][3][5]5.3}{[1][92][]92}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Results}{93}{subsection.5.4.2}\protected@file@percent }
+\newlabel{subsec:cont_dynamic_results}{{5.4.2}{93}{Results}{subsection.5.4.2}{}}
+\newlabel{subsec:cont_dynamic_results@cref}{{[subsection][2][5,4]5.4.2}{[1][93][]93}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\ensuremath  {^\circ }$, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }}{93}{figure.caption.75}\protected@file@percent }
+\newlabel{fig:dynamic_cont_reconstruction}{{5.7}{93}{Dynamic reconstruction of the hourglass from dataset 1 ($\Delta \phi = 3.44\degree $, 4\,fps) at 150 epochs, shown at three time points. The redistribution of sand between the two chambers is clearly visible.\relax }{figure.caption.75}{}}
+\newlabel{fig:dynamic_cont_reconstruction@cref}{{[figure][7][5]5.7}{[1][93][]93}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }}{94}{figure.caption.76}\protected@file@percent }
+\newlabel{fig:mae_4fps}{{5.8}{94}{Volume MAE for the three 4\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. No consistent trend is visible across $K$ values or angular step sizes.\relax }{figure.caption.76}{}}
+\newlabel{fig:mae_4fps@cref}{{[figure][8][5]5.8}{[1][94][]94}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.9}{\ignorespaces Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\ensuremath  {^\circ }$, $6.88\ensuremath  {^\circ }$, $13.75\ensuremath  {^\circ }$) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }}{94}{figure.caption.77}\protected@file@percent }
+\newlabel{fig:mae_2fps}{{5.9}{94}{Volume MAE for the three 2\,fps datasets ($\Delta \phi = 3.44\degree $, $6.88\degree $, $13.75\degree $) as a function of accumulation steps $K$. As with the 4\,fps datasets, no correlation is observed between $K$ and reconstruction quality.\relax }{figure.caption.77}{}}
+\newlabel{fig:mae_2fps@cref}{{[figure][9][5]5.9}{[1][94][]94}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Discussion}{94}{section.5.5}\protected@file@percent }
+\newlabel{sec:cont_discussion}{{5.5}{94}{Discussion}{section.5.5}{}}
+\newlabel{sec:cont_discussion@cref}{{[section][5][5]5.5}{[1][94][]94}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Validity of the Forward Model}{94}{subsection.5.5.1}\protected@file@percent }
+\newlabel{subsec:cont_disc_model}{{5.5.1}{94}{Validity of the Forward Model}{subsection.5.5.1}{}}
+\newlabel{subsec:cont_disc_model@cref}{{[subsection][1][5,5]5.5.1}{[1][94][]94}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.10}{\ignorespaces Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }}{95}{figure.caption.78}\protected@file@percent }
+\newlabel{fig:subangle_result}{{5.10}{95}{Volume MAE for all thirty reconstructions plotted against effective sub-step size $\Delta \phi / K$. No correlation is observed across angular step sizes, frame rates, or accumulation steps, indicating that the $K$-step correction does not affect reconstruction quality for the hourglass dataset.\relax }{figure.caption.78}{}}
+\newlabel{fig:subangle_result@cref}{{[figure][10][5]5.10}{[1][94][]95}}
 \citation{friis2025nect}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{93}{subsection.5.5.2}\protected@file@percent }
-\newlabel{subsec:cont_disc_dynamic}{{5.5.2}{93}{Dynamic Experiment and Sample Geometry}{subsection.5.5.2}{}}
-\newlabel{subsec:cont_disc_dynamic@cref}{{[subsection][2][5,5]5.5.2}{[1][93][]93}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations}{94}{subsection.5.5.3}\protected@file@percent }
-\newlabel{subsec:cont_disc_limitations}{{5.5.3}{94}{Limitations}{subsection.5.5.3}{}}
-\newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][93][]94}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{95}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Dynamic Experiment and Sample Geometry}{96}{subsection.5.5.2}\protected@file@percent }
+\newlabel{subsec:cont_disc_dynamic}{{5.5.2}{96}{Dynamic Experiment and Sample Geometry}{subsection.5.5.2}{}}
+\newlabel{subsec:cont_disc_dynamic@cref}{{[subsection][2][5,5]5.5.2}{[1][96][]96}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Limitations}{97}{subsection.5.5.3}\protected@file@percent }
+\newlabel{subsec:cont_disc_limitations}{{5.5.3}{97}{Limitations}{subsection.5.5.3}{}}
+\newlabel{subsec:cont_disc_limitations@cref}{{[subsection][3][5,5]5.5.3}{[1][96][]97}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{98}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{6}{95}{Conclusion}{chapter.6}{}}
-\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][95][]95}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{95}{section.6.1}\protected@file@percent }
-\newlabel{sec:conclusion_summary}{{6.1}{95}{Summary of Contributions}{section.6.1}{}}
-\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][95][]95}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{97}{section.6.2}\protected@file@percent }
-\newlabel{sec:conclusion_future}{{6.2}{97}{Limitations and Future Work}{section.6.2}{}}
-\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][96][]97}}
+\newlabel{chap:conclusion}{{6}{98}{Conclusion}{chapter.6}{}}
+\newlabel{chap:conclusion@cref}{{[chapter][6][]6}{[1][98][]98}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Summary of Contributions}{98}{section.6.1}\protected@file@percent }
+\newlabel{sec:conclusion_summary}{{6.1}{98}{Summary of Contributions}{section.6.1}{}}
+\newlabel{sec:conclusion_summary@cref}{{[section][1][6]6.1}{[1][98][]98}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Limitations and Future Work}{100}{section.6.2}\protected@file@percent }
+\newlabel{sec:conclusion_future}{{6.2}{100}{Limitations and Future Work}{section.6.2}{}}
+\newlabel{sec:conclusion_future@cref}{{[section][2][6]6.2}{[1][99][]100}}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{andersen1984sart}{{1}{1984}{{Andersen and Kak}}{{}}}
@@ -612,14 +617,14 @@
 \bibcite{wang2004ssim}{{33}{2004}{{Wang et~al.}}{{Wang, Bovik, Sheikh, and Simoncelli}}}
 \bibcite{withers2021ct}{{34}{2021}{{Withers et~al.}}{{}}}
 \bibcite{zha2022naf}{{35}{2022}{{Zha et~al.}}{{Zha, Zhang, and Li}}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{103}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Experimental Details}{105}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experimental}{{A}{103}{Supplementary Experimental Details}{appendix.A}{}}
-\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][103][]103}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{104}{appendix.B}\protected@file@percent }
+\newlabel{app:experimental}{{A}{105}{Supplementary Experimental Details}{appendix.A}{}}
+\newlabel{app:experimental@cref}{{[appendix][1][2147483647]A}{[1][105][]105}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}NeCTv2 Hyperparameter Reference}{106}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{B}{104}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
-\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][104][]104}}
-\gdef \@abspage@last{121}
+\newlabel{app:hyperparams}{{B}{106}{NeCTv2 Hyperparameter Reference}{appendix.B}{}}
+\newlabel{app:hyperparams@cref}{{[appendix][2][2147483647]B}{[1][106][]106}}
+\gdef \@abspage@last{123}
