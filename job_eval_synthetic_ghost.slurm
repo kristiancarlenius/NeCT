@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=eval_synthetic_ghost
 #SBATCH --output=/cluster/home/kristiac/NeCT/run_log_eval_synthetic_ghost.txt
-#SBATCH --time=08:00:00
+#SBATCH --time=01:00:00
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:a100:1
 #SBATCH --constraint="a100|gpu80g"

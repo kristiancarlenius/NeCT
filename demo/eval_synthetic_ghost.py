@@ -152,10 +152,29 @@ def load_trainer(config_path: Path, ckpt_path: Path):
         log=False,
         verbose=False,
     )
-    # Load checkpoint to CPU first so only model weights are transferred to GPU,
-    # not optimizer/scheduler states (which are 3-4× the model size in fp32).
-    checkpoint_data = torch.load(str(ckpt_path), map_location="cpu", weights_only=False)
-    trainer.model.load_state_dict(checkpoint_data["model"])
+    # Use fabric.load() — the same API used by the training code for checkpoint
+    # resumption, ensuring the state-dict format matches what fabric.save() wrote.
+    checkpoint_data = trainer.fabric.load(str(ckpt_path))
+    state_dict = checkpoint_data["model"]
+
+    # Snapshot a parameter before load to verify the checkpoint actually changes
+    # the weights (catches the case where load_state_dict silently no-ops).
+    sample_key = next(iter(state_dict))
+    before = trainer.model.state_dict()[sample_key].detach().cpu().clone()
+
+    missing, unexpected = trainer.model.load_state_dict(state_dict, strict=False)
+    if missing:
+        print(f"    [WARN] missing keys in ckpt ({len(missing)}): {missing[:3]}", flush=True)
+    if unexpected:
+        print(f"    [WARN] unexpected keys in ckpt ({len(unexpected)}): {unexpected[:3]}", flush=True)
+
+    after = trainer.model.state_dict()[sample_key].detach().cpu()
+    if torch.allclose(before, after):
+        print("    [WARN] model weights did NOT change after load_state_dict — "
+              "checkpoint may not have loaded correctly!", flush=True)
+    else:
+        print(f"    Checkpoint loaded: {len(state_dict)} param tensors", flush=True)
+
     trainer.model.eval()
     return trainer
 
@@ -175,7 +194,7 @@ def _build_xy_grid(trainer, device):
 
     z, y, x = torch.meshgrid(
         [
-            torch.tensor(0.5),
+            torch.tensor([0.5]),   # 1-D tensor, shape (1,)
             torch.linspace(0, 1, steps=sample_size[1])[slice(rm, -rm) if rm > 0 else slice(None)],
             torch.linspace(0, 1, steps=sample_size[2])[slice(rm, -rm) if rm > 0 else slice(None)],
         ],
@@ -212,9 +231,15 @@ def save_training_style_images(
     dset_range = trainer.dataset.maximum.item() - dset_min
 
     with torch.no_grad():
-        avg_raw = (trainer.model(grid, torch.tensor(0))
+        avg_raw = (trainer.model(grid, 0.0)
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
+
+    print(f"    [diag] raw model output at t=0.0  min={avg_raw.min():.4f}  "
+          f"max={avg_raw.max():.4f}  mean={avg_raw.mean():.4f}", flush=True)
+    recon_t0 = avg_raw / max_dist * dset_range + dset_min
+    print(f"    [diag] normalised recon at t=0.0  min={recon_t0.min():.4f}  "
+          f"max={recon_t0.max():.4f}  (DATA_RANGE={DATA_RANGE})", flush=True)
 
     # GT z=0.5 slice (all objects visible here)
     z_mid = gt_volumes[0].shape[0] // 2
@@ -235,7 +260,7 @@ def save_training_style_images(
 
     for col, t_val in enumerate(eval_times):
         with torch.no_grad():
-            raw = (trainer.model(grid, torch.tensor(t_val))
+            raw = (trainer.model(grid, float(t_val))
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
 
@@ -303,15 +328,26 @@ def save_model_gif(
     frames = []
     with torch.no_grad():
         for t in timesteps:
-            raw = (trainer.model(grid, torch.tensor(float(t)))
+            raw = (trainer.model(grid, float(t))
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
-            # Use same formula as create_volume: / max_dist (NOT / max_dist*2)
             recon = raw / max_dist * dset_range + dset_min
             frames.append(recon)
 
-    vmin = 0.0
-    vmax = DATA_RANGE
+    all_vals = np.concatenate([f.flatten() for f in frames])
+    print(f"    [GIF diag] recon min={all_vals.min():.4f}  max={all_vals.max():.4f}  "
+          f"p99={float(np.percentile(all_vals, 99)):.4f}", flush=True)
+
+    # Adaptive colour scale: show the real signal range.
+    # Fall back to [0, DATA_RANGE] if the reconstruction is clearly in the
+    # correct physical attenuation range (values reach at least 10 % of DATA_RANGE).
+    vmin = max(0.0, float(np.percentile(all_vals, 1)))
+    vmax_adaptive = float(np.percentile(all_vals, 99))
+    if vmax_adaptive > 0.1 * DATA_RANGE:
+        vmax = vmax_adaptive
+    else:
+        # Model outputs are tiny — still show something meaningful.
+        vmax = vmax_adaptive if vmax_adaptive > 1e-6 else DATA_RANGE
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.axis("off")
@@ -368,6 +404,12 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
             # create_volume already denormalises to physical attenuation units.
             recon = vol.float().cpu().numpy()
             gt    = gt_volumes[i]
+
+            if i == 0:
+                print(f"    [diag] create_volume t={t:.2f}: "
+                      f"recon [{recon.min():.4f}, {recon.max():.4f}]  "
+                      f"gt [{gt.min():.4f}, {gt.max():.4f}]", flush=True)
+
             m     = compute_metrics(recon, gt)
             m["timestep"] = float(t)
             per_timestep.append(m)
