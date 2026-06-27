@@ -18,6 +18,7 @@
 \usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\usepackage{url}
 \usepackage{cleveref}
 \usepackage{natbib}
 \usepackage{listings}
@@ -1937,7 +1938,7 @@ This thesis set out to address two practical barriers to the wider adoption of N
 
 \textbf{CombinedCubes architecture.} Replacing the three temporal 3D hash encoders with collision-free 2D hash encoders reduces encoder memory by approximately 67\% and training time by approximately 30\% relative to the baseline, while improving reconstruction quality. The architectural change exploits the spatial-temporal asymmetry directly.
 
-\textbf{\MixedCubes{} architecture.} Replacing the hashed 2D temporal encoders with fully dense 2D grids eliminates hash collisions in the temporal encoders and achieves the best reconstruction quality of any architecture tested at the 24-hour wall-clock mark. The best \MixedCubes{} configuration achieves 37.73\,dB PSNR at 24 hours at 22.1\,GB GPU memory — the highest quality at 24\,h of any architecture evaluated, achieved at the lowest VRAM among the top-performing configurations. This places \MixedCubes{} as the best overall choice when balancing reconstruction quality, memory consumption, and training time: it leads at the practical wall-clock comparison point at roughly half the baseline VRAM. A lightweight variant reaches within 0.08\,dB of the QuadCubes baseline at 5.1\,GB, approximately 11\% of the original memory requirement, making \NeCTv{} accessible for all CUDA-compatible consumer GPUs for the first time.
+\textbf{\MixedCubes{} architecture.}\footnote{All architectures described in this thesis are implemented in the publicly available \NeCTv{} codebase at \url{https://github.com/kristiancarlenius/NeCTv2}.} Replacing the hashed 2D temporal encoders with fully dense 2D grids eliminates hash collisions in the temporal encoders and achieves the best reconstruction quality of any architecture tested at the 24-hour wall-clock mark. The best \MixedCubes{} configuration achieves 37.73\,dB PSNR at 24 hours at 22.1\,GB GPU memory — the highest quality at 24\,h of any architecture evaluated, achieved at the lowest VRAM among the top-performing configurations. This places \MixedCubes{} as the best overall choice when balancing reconstruction quality, memory consumption, and training time: it leads at the practical wall-clock comparison point at roughly half the baseline VRAM. A lightweight variant reaches within 0.08\,dB of the QuadCubes baseline at 5.1\,GB, approximately 11\% of the original memory requirement, making \NeCTv{} accessible for all CUDA-compatible consumer GPUs for the first time.
 
 \textbf{Continuous-scan forward model.} The NeCT Beer--Lambert forward model was extended to account for continuous rotation during each exposure. A $K$-step midpoint approximation is derived that converges to the true angular integral with error scaling as $\mathcal{O}((\Delta\phi / K)^2)$. Two training step implementations are provided: a time-efficient mode with $\mathcal{O}(K)$ activation memory and a memory-efficient gradient checkpointing mode with $\mathcal{O}(1)$ memory overhead.
 
@@ -1957,6 +1958,12 @@ The model currently assumes constant angular velocity within each projection's e
 The encoder experiments were conducted on a single dataset. The governing design principles have theoretical grounding in hash collision rates and encoder dimensionality and should transfer across sample types, but the specific optimal configurations may need adjustment for datasets with different pore geometry, faster dynamics, or different spatial-temporal signal ratios. Establishing whether the recommended configurations generalise, and identifying conditions under which they might not, is an important direction for future work.
 
 Finally, reconstruction time remains on the order of hours on a single GPU. Possible directions for further reduction include exploiting multiple GPUs through data-parallel training, reducing the number of training iterations needed through better initialisation strategies, and investigating whether the dense temporal grids in \MixedCubes{} can be further compressed without quality loss by reducing the grid resolution at the coarsest levels.
+
+% ─── Code Availability ──────────────────────────────────────────────────────
+\section*{Code Availability}
+\addcontentsline{toc}{section}{Code Availability}
+
+The full source code for \NeCTv{}, including all encoder architectures (\QuadCubes, \CombinedCubes, and \MixedCubes{}) and the continuous-scan forward model, is publicly available at \url{https://github.com/kristiancarlenius/NeCTv2}.
 
 % ─── Bibliography ────────────────────────────────────────────────────────────
 \cleardoublepage

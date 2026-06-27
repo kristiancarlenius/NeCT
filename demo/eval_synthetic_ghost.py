@@ -230,16 +230,36 @@ def save_training_style_images(
     dset_min   = trainer.dataset.minimum.item()
     dset_range = trainer.dataset.maximum.item() - dset_min
 
+    eval_times = [0.25, 0.50, 0.75]
+
+    # Pre-compute all reconstruction slices so we can derive a shared adaptive
+    # colour scale (same logic as save_model_gif).
     with torch.no_grad():
         avg_raw = (trainer.model(grid, 0.0)
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
+        raws = []
+        for t_val in eval_times:
+            raws.append(
+                trainer.model(grid, float(t_val))
+                .squeeze().reshape(slice_shape).squeeze()
+                .detach().cpu().numpy()
+            )
 
+    recon_norms = [r / max_dist * dset_range + dset_min for r in raws]
+
+    all_recon_vals = np.concatenate([n.flatten() for n in recon_norms])
     print(f"    [diag] raw model output at t=0.0  min={avg_raw.min():.4f}  "
           f"max={avg_raw.max():.4f}  mean={avg_raw.mean():.4f}", flush=True)
-    recon_t0 = avg_raw / max_dist * dset_range + dset_min
-    print(f"    [diag] normalised recon at t=0.0  min={recon_t0.min():.4f}  "
-          f"max={recon_t0.max():.4f}  (DATA_RANGE={DATA_RANGE})", flush=True)
+    print(f"    [diag] normalised recon (all t)  min={all_recon_vals.min():.4f}  "
+          f"max={all_recon_vals.max():.4f}  "
+          f"p99={float(np.percentile(all_recon_vals, 99)):.4f}  "
+          f"(DATA_RANGE={DATA_RANGE})", flush=True)
+
+    # Adaptive vmin/vmax: same logic as save_model_gif so images and GIF match.
+    vmin_r = max(0.0, float(np.percentile(all_recon_vals, 1)))
+    vmax_r_adapt = float(np.percentile(all_recon_vals, 99))
+    vmax_r = vmax_r_adapt if vmax_r_adapt > 1e-6 else DATA_RANGE
 
     # GT z=0.5 slice (all objects visible here)
     z_mid = gt_volumes[0].shape[0] // 2
@@ -247,7 +267,8 @@ def save_training_style_images(
 
     fig_r, axes_r = plt.subplots(2, 3, figsize=(24, 10))
     fig_r.suptitle(
-        f"Reconstruction  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  XY (z=0.5)",
+        f"Reconstruction  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  XY (z=0.5)"
+        f"  [vmax={vmax_r:.3f}]",
         fontsize=13,
     )
     fig_g, axes_g = plt.subplots(2, 3, figsize=(24, 10))
@@ -256,22 +277,13 @@ def save_training_style_images(
         fontsize=13,
     )
 
-    eval_times = [0.25, 0.50, 0.75]
-
-    for col, t_val in enumerate(eval_times):
-        with torch.no_grad():
-            raw = (trainer.model(grid, float(t_val))
-                   .squeeze().reshape(slice_shape).squeeze()
-                   .detach().cpu().numpy())
-
+    for col, (t_val, raw, recon_norm) in enumerate(zip(eval_times, raws, recon_norms)):
         axes_r[0, col].imshow(raw - avg_raw, cmap="gray", interpolation="none")
         axes_r[0, col].set_title(f"t={t_val:.2f}  (diff from t=0)", fontsize=9)
         axes_r[0, col].axis("off")
 
-        # Use same formula as create_volume: / max_dist (NOT / max_dist*2)
-        recon_norm = raw / max_dist * dset_range + dset_min
         axes_r[1, col].imshow(recon_norm, cmap="gray", interpolation="none",
-                               vmin=0.0, vmax=DATA_RANGE)
+                               vmin=vmin_r, vmax=vmax_r)
         axes_r[1, col].set_title(f"t={t_val:.2f}  (attenuation)", fontsize=9)
         axes_r[1, col].axis("off")
 
@@ -373,6 +385,54 @@ def save_model_gif(
     ani.save(str(gif_path), writer="pillow", fps=fps)
     plt.close(fig)
     print(f"    GIF  → {gif_path}", flush=True)
+
+
+def save_gt_gif(
+    gt_volumes: np.ndarray,
+    gt_timesteps: np.ndarray,
+    out_dir: Path,
+    n_frames: int = 100,
+    fps: int = 10,
+) -> None:
+    """
+    Save a single GT GIF of the XY (z=0.5) slice across n_frames timesteps.
+
+    Nearest-neighbour selection from the available GT volumes (typically 11).
+    Uses fixed [0, DATA_RANGE] scale so it is directly comparable to GT images.
+    Saved once per run as gt_XY_video.gif.
+    """
+    from matplotlib.animation import FuncAnimation
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    gif_path = out_dir / "gt_XY_video.gif"
+    if gif_path.exists():
+        print(f"GT GIF already exists → {gif_path}", flush=True)
+        return
+
+    z_mid = gt_volumes.shape[1] // 2  # gt_volumes: (N_GT, D, H, W)
+    timesteps = np.linspace(0.0, 1.0, n_frames, dtype=np.float32)
+
+    frames = []
+    for t in timesteps:
+        idx = int(np.argmin(np.abs(gt_timesteps - float(t))))
+        frames.append(gt_volumes[idx][z_mid, :, :])
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.axis("off")
+    im = ax.imshow(frames[0], cmap="gray", vmin=0.0, vmax=DATA_RANGE,
+                   interpolation="none", origin="upper")
+    title = ax.set_title(f"GT  t={timesteps[0]:.3f}  [XY z=0.5]", fontsize=11)
+    fig.tight_layout()
+
+    def _update(i):
+        im.set_data(frames[i])
+        title.set_text(f"GT  t={timesteps[i]:.3f}  [XY z=0.5]")
+        return im, title
+
+    ani = FuncAnimation(fig, _update, frames=n_frames, interval=1000 // fps, repeat=True)
+    ani.save(str(gif_path), writer="pillow", fps=fps)
+    plt.close(fig)
+    print(f"GT GIF  → {gif_path}", flush=True)
 
 
 # ── Evaluation ────────────────────────────────────────────────────────────────
@@ -591,6 +651,7 @@ def main() -> None:
 
     if gifs_dir is not None:
         print(f"GIF output → {gifs_dir}  ({args.gif_frames} frames per model)", flush=True)
+        save_gt_gif(gt_volumes, gt_timesteps, gifs_dir, n_frames=args.gif_frames)
 
     results = []
     for exp in experiments:
