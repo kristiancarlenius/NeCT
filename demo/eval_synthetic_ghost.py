@@ -162,16 +162,27 @@ def load_trainer(config_path: Path, ckpt_path: Path):
 
 # ── Slice visualisation ───────────────────────────────────────────────────────
 
-def _gt_slice(gt_vol: np.ndarray, plot_type: str) -> np.ndarray:
-    """Extract the same centre slice from GT vol[z,y,x] as generate_image() uses."""
-    mid = gt_vol.shape[0] // 2  # cubic volume
-    if plot_type == "XY":
-        return gt_vol[mid, :, :]   # fix z → shows y (rows) vs x (cols)
-    if plot_type == "XZ":
-        return gt_vol[:, mid, :]   # fix y → shows z (rows) vs x (cols)
-    if plot_type == "YZ":
-        return gt_vol[:, :, mid]   # fix x → shows z (rows) vs y (cols)
-    return gt_vol[mid, :, :]
+# XY at z=0.5: the only view where target (y=0.35), obstructor (y=0.65) and
+# reference spheres (y=0.5) are all visible simultaneously (all at z=0.5).
+PLOT_TYPE = "XY"
+
+
+def _build_xy_grid(trainer, device):
+    """Return (grid, slice_shape) for the XY slice at z=0.5."""
+    nVoxel = list(trainer.config.geometry.nVoxel)
+    rm = trainer.config.sample_outside
+    sample_size = [nVoxel[0], nVoxel[1] + 2 * rm, nVoxel[2] + 2 * rm]
+
+    z, y, x = torch.meshgrid(
+        [
+            torch.tensor(0.5),
+            torch.linspace(0, 1, steps=sample_size[1])[slice(rm, -rm) if rm > 0 else slice(None)],
+            torch.linspace(0, 1, steps=sample_size[2])[slice(rm, -rm) if rm > 0 else slice(None)],
+        ],
+        indexing="ij",
+    )
+    grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t().to(device)
+    return grid, list(z.shape)
 
 
 def save_training_style_images(
@@ -182,60 +193,45 @@ def save_training_style_images(
     out_dir: Path,
 ) -> None:
     """
-    Save images in the exact same format as training's generate_image() (dynamic mode).
+    Save comparison images using XY slice at z=0.5.
 
-    Output per experiment:
-      deg{dd}_ac{aa}_{plane}_recon.png  — matches the training epoch image
-      deg{dd}_ac{aa}_{plane}_gt.png     — GT in identical layout for comparison
+    XY at z=0.5 shows all objects: target sphere (y=0.35), moving obstructor
+    (y=0.65) and both reference spheres (y=0.5) — matching the training's
+    generate_image() normalization (vmin=dataset.min, vmax=99th-percentile).
 
-    Row 0 (top): difference from t=0  (raw model units, matching training row 0)
-    Row 1 (bot): normalised attenuation (matching training row 1 normalization)
-    Columns: t=0.25, t=0.50, t=0.75    (same timesteps as training)
+    Row 0 (top): difference from t=0
+    Row 1 (bot): normalised attenuation
+    Columns: t=0.25, t=0.50, t=0.75
     """
     out_dir.mkdir(parents=True, exist_ok=True)
-    plot_type = (getattr(trainer.config, "plot_type", None) or "XY").upper()
 
-    # Replicate generate_image() grid construction exactly.
-    nVoxel = list(trainer.config.geometry.nVoxel)
-    rm = trainer.config.sample_outside
-    sample_size = [nVoxel[0], nVoxel[1] + 2 * rm, nVoxel[2] + 2 * rm]
-
-    z, y, x = torch.meshgrid(
-        [
-            torch.linspace(0, 1, steps=sample_size[0]) if plot_type != "XY" else torch.tensor(0.5),
-            torch.linspace(0, 1, steps=sample_size[1])[slice(rm, -rm) if rm > 0 else slice(None)] if plot_type != "XZ" else torch.tensor(0.5),
-            torch.linspace(0, 1, steps=sample_size[2])[slice(rm, -rm) if rm > 0 else slice(None)] if plot_type != "YZ" else torch.tensor(0.5),
-        ],
-        indexing="ij",
-    )
-    grid = torch.stack((z.flatten(), y.flatten(), x.flatten())).t().to(trainer.fabric.device)
-    slice_shape = list(z.shape)
+    grid, slice_shape = _build_xy_grid(trainer, trainer.fabric.device)
 
     max_dist   = trainer.geometry.max_distance_traveled
     dset_min   = trainer.dataset.minimum.item()
     dset_range = trainer.dataset.maximum.item() - dset_min
 
-    # t=0 forward pass (baseline for diff row).
     with torch.no_grad():
         avg_raw = (trainer.model(grid, torch.tensor(0))
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
 
-    gt_t0_sl = _gt_slice(gt_volumes[0], plot_type)
+    # GT z=0.5 slice (all objects visible here)
+    z_mid = gt_volumes[0].shape[0] // 2
+    gt_t0_sl = gt_volumes[0][z_mid, :, :]
 
-    # Build both figures (2 rows × 3 cols, matching generate_image layout).
     fig_r, axes_r = plt.subplots(2, 3, figsize=(24, 10))
     fig_r.suptitle(
-        f"Reconstruction  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  {plot_type}",
+        f"Reconstruction  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  XY (z=0.5)",
         fontsize=13,
     )
     fig_g, axes_g = plt.subplots(2, 3, figsize=(24, 10))
     fig_g.suptitle(
-        f"Ground truth  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  {plot_type}",
+        f"Ground truth  deg={exp['deg']:02d}  ac={exp['ac']:02d}  —  XY (z=0.5)",
         fontsize=13,
     )
 
-    eval_times = [0.25, 0.50, 0.75]   # (i+1)/4 for i=0,1,2, same as training
+    eval_times = [0.25, 0.50, 0.75]
 
     for col, t_val in enumerate(eval_times):
         with torch.no_grad():
@@ -243,20 +239,20 @@ def save_training_style_images(
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
 
-        # Row 0: diff from t=0  (raw units, matching training row 0)
         axes_r[0, col].imshow(raw - avg_raw, cmap="gray", interpolation="none")
         axes_r[0, col].set_title(f"t={t_val:.2f}  (diff from t=0)", fontsize=9)
         axes_r[0, col].axis("off")
 
-        # Row 1: normalised attenuation  (matching training row 1: / max_dist * 2)
         recon_norm = raw / (max_dist * 2) * dset_range + dset_min
-        axes_r[1, col].imshow(recon_norm, cmap="gray", interpolation="none")
+        vmin_r = float(dset_min)
+        vmax_r = float(np.percentile(recon_norm, 99))
+        axes_r[1, col].imshow(recon_norm, cmap="gray", interpolation="none",
+                               vmin=vmin_r, vmax=vmax_r)
         axes_r[1, col].set_title(f"t={t_val:.2f}  (attenuation)", fontsize=9)
         axes_r[1, col].axis("off")
 
-        # GT at the nearest available timestep.
         t_idx  = int(np.argmin(np.abs(gt_timesteps - t_val)))
-        gt_sl  = _gt_slice(gt_volumes[t_idx], plot_type)
+        gt_sl  = gt_volumes[t_idx][z_mid, :, :]
         t_real = float(gt_timesteps[t_idx])
 
         axes_g[0, col].imshow(gt_sl - gt_t0_sl, cmap="gray", interpolation="none")
@@ -271,7 +267,7 @@ def save_training_style_images(
     for fig in (fig_r, fig_g):
         fig.tight_layout()
 
-    prefix = f"deg{exp['deg']:02d}_ac{exp['ac']:02d}_{plot_type}"
+    prefix = f"deg{exp['deg']:02d}_ac{exp['ac']:02d}_XY"
     fig_r.savefig(out_dir / f"{prefix}_recon.png", dpi=300)
     fig_g.savefig(out_dir / f"{prefix}_gt.png",   dpi=300)
     plt.close(fig_r)
@@ -279,11 +275,78 @@ def save_training_style_images(
     print(f"    images → {prefix}_recon.png  +  {prefix}_gt.png", flush=True)
 
 
+# ── GIF generation ────────────────────────────────────────────────────────────
+
+def save_model_gif(
+    exp: dict,
+    trainer,
+    out_dir: Path,
+    n_frames: int = 100,
+    fps: int = 10,
+) -> None:
+    """
+    Save a GIF of the XY (z=0.5) reconstruction across n_frames timesteps.
+
+    Each frame shows the normalised attenuation slice at a different t ∈ [0, 1].
+    """
+    from matplotlib.animation import FuncAnimation
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    grid, slice_shape = _build_xy_grid(trainer, trainer.fabric.device)
+
+    max_dist   = trainer.geometry.max_distance_traveled
+    dset_min   = trainer.dataset.minimum.item()
+    dset_range = trainer.dataset.maximum.item() - dset_min
+
+    timesteps = np.linspace(0.0, 1.0, n_frames, dtype=np.float32)
+
+    frames = []
+    with torch.no_grad():
+        for t in timesteps:
+            raw = (trainer.model(grid, torch.tensor(float(t)))
+                   .squeeze().reshape(slice_shape).squeeze()
+                   .detach().cpu().numpy())
+            recon = raw / (max_dist * 2) * dset_range + dset_min
+            frames.append(recon)
+
+    all_vals = np.concatenate([f.flatten() for f in frames])
+    vmin = float(dset_min)
+    vmax = float(np.percentile(all_vals, 99))
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.axis("off")
+    im = ax.imshow(frames[0], cmap="gray", vmin=vmin, vmax=vmax,
+                   interpolation="none", origin="upper")
+    title = ax.set_title(
+        f"deg={exp['deg']:02d} ac={exp['ac']:02d}  t={timesteps[0]:.3f}  [XY z=0.5]",
+        fontsize=11,
+    )
+    fig.tight_layout()
+
+    def _update(i):
+        im.set_data(frames[i])
+        title.set_text(
+            f"deg={exp['deg']:02d} ac={exp['ac']:02d}  t={timesteps[i]:.3f}  [XY z=0.5]"
+        )
+        return im, title
+
+    ani = FuncAnimation(fig, _update, frames=n_frames, interval=1000 // fps, repeat=True)
+
+    prefix   = f"deg{exp['deg']:02d}_ac{exp['ac']:02d}"
+    gif_path = out_dir / f"{prefix}_XY_video.gif"
+    ani.save(str(gif_path), writer="pillow", fps=fps)
+    plt.close(fig)
+    print(f"    GIF  → {gif_path}", flush=True)
+
+
 # ── Evaluation ────────────────────────────────────────────────────────────────
 
 def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
                         gt_timesteps: np.ndarray,
-                        slices_dir: Path | None = None) -> dict | None:
+                        slices_dir: Path | None = None,
+                        gifs_dir: Path | None = None,
+                        gif_frames: int = 100) -> dict | None:
     print(f"  deg={exp['deg']:2d} ac={exp['ac']:2d}  ckpt={exp['ckpt_path']}", flush=True)
 
     try:
@@ -310,9 +373,13 @@ def evaluate_experiment(exp: dict, gt_volumes: np.ndarray,
             m["timestep"] = float(t)
             per_timestep.append(m)
 
-        # Generate training-style images while the trainer / model are still loaded.
+        # Generate comparison images while the trainer / model are still loaded.
         if slices_dir is not None:
             save_training_style_images(exp, trainer, gt_volumes, gt_timesteps, slices_dir)
+
+        # Generate GIF while the trainer / model are still loaded.
+        if gifs_dir is not None:
+            save_model_gif(exp, trainer, gifs_dir, n_frames=gif_frames)
 
     finally:
         del trainer
@@ -425,6 +492,10 @@ def main() -> None:
                         default=ROOT / "results" / "synthetic_ghost_eval")
     parser.add_argument("--gpu", type=int, default=None,
                         help="GPU index to use (default: auto-select by free memory)")
+    parser.add_argument("--gif", action="store_true",
+                        help="Generate 100-frame GIF for each model (XY z=0.5, t=0..1)")
+    parser.add_argument("--gif-frames", type=int, default=100,
+                        help="Number of timestep frames in each GIF (default: 100)")
     args = parser.parse_args()
 
     # Pin to a single GPU before fabric/TCNN initialise CUDA.
@@ -475,10 +546,19 @@ def main() -> None:
     print(f"\nFound {len(experiments)} experiments\n")
 
     slices_dir = args.out_dir / "slices"
+    gifs_dir   = (args.out_dir / "gifs") if args.gif else None
+
+    if gifs_dir is not None:
+        print(f"GIF output → {gifs_dir}  ({args.gif_frames} frames per model)", flush=True)
 
     results = []
     for exp in experiments:
-        result = evaluate_experiment(exp, gt_volumes, gt_timesteps, slices_dir=slices_dir)
+        result = evaluate_experiment(
+            exp, gt_volumes, gt_timesteps,
+            slices_dir=slices_dir,
+            gifs_dir=gifs_dir,
+            gif_frames=args.gif_frames,
+        )
         if result is not None:
             results.append(result)
 
