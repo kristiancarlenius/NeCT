@@ -77,5 +77,5 @@
 \contentsline {subsection}{\numberline {5.5.2}Sample Geometry and the Hourglass Result}{101}{subsection.5.5.2}%
 \contentsline {chapter}{\numberline {6}Conclusion}{103}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Further Work}{104}{section.6.1}%
-\contentsline {section}{Code Availability}{104}{section*.83}%
-\contentsline {chapter}{\numberline {A}Complete Experimental Results}{109}{appendix.A}%
+\contentsline {section}{Code Availability}{105}{section*.83}%
+\contentsline {chapter}{\numberline {A}Complete Experimental Results}{111}{appendix.A}%

@@ -13,6 +13,6 @@
 \contentsline {table}{\numberline {5.3}{\ignorespaces Effective angular sub-step $\Delta \phi / K$ (degrees) for all combinations of dataset and accumulation steps $K$. Colour-coded entries share the same effective sub-step across different datasets, enabling controlled matched-pair comparisons. Red: 3.44\ensuremath {^\circ }\ (appears in all three rows); blue: 6.88\ensuremath {^\circ }; green: 1.72\ensuremath {^\circ }; orange: 1.15\ensuremath {^\circ }.}}{97}{table.caption.78}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces PSNR (dB) at each 6-hour wall-clock checkpoint for all evaluated configurations. Dashes indicate the training run did not reach that wall-clock time.}}{110}{table.caption.85}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces PSNR (dB) at each 50-epoch checkpoint for all evaluated configurations.}}{111}{table.caption.86}%
-\contentsline {table}{\numberline {A.3}{\ignorespaces Full metric summary at epoch~500 and at the final timed snapshot for all configurations. PSNR in dB; MAE in the same units as the attenuation coefficient.}}{112}{table.caption.87}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces PSNR (dB) at each 6-hour wall-clock checkpoint for all evaluated configurations. Dashes indicate the training run did not reach that wall-clock time.}}{112}{table.caption.85}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces PSNR (dB) at each 50-epoch checkpoint for all evaluated configurations.}}{113}{table.caption.86}%
+\contentsline {table}{\numberline {A.3}{\ignorespaces Full metric summary at epoch~500 and at the final timed snapshot for all configurations. PSNR in dB; MAE in the same units as the attenuation coefficient.}}{114}{table.caption.87}%
