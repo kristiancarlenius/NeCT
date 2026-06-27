@@ -243,11 +243,10 @@ def save_training_style_images(
         axes_r[0, col].set_title(f"t={t_val:.2f}  (diff from t=0)", fontsize=9)
         axes_r[0, col].axis("off")
 
-        recon_norm = raw / (max_dist * 2) * dset_range + dset_min
-        vmin_r = float(dset_min)
-        vmax_r = float(np.percentile(recon_norm, 99))
+        # Use same formula as create_volume: / max_dist (NOT / max_dist*2)
+        recon_norm = raw / max_dist * dset_range + dset_min
         axes_r[1, col].imshow(recon_norm, cmap="gray", interpolation="none",
-                               vmin=vmin_r, vmax=vmax_r)
+                               vmin=0.0, vmax=DATA_RANGE)
         axes_r[1, col].set_title(f"t={t_val:.2f}  (attenuation)", fontsize=9)
         axes_r[1, col].axis("off")
 
@@ -307,12 +306,12 @@ def save_model_gif(
             raw = (trainer.model(grid, torch.tensor(float(t)))
                    .squeeze().reshape(slice_shape).squeeze()
                    .detach().cpu().numpy())
-            recon = raw / (max_dist * 2) * dset_range + dset_min
+            # Use same formula as create_volume: / max_dist (NOT / max_dist*2)
+            recon = raw / max_dist * dset_range + dset_min
             frames.append(recon)
 
-    all_vals = np.concatenate([f.flatten() for f in frames])
-    vmin = float(dset_min)
-    vmax = float(np.percentile(all_vals, 99))
+    vmin = 0.0
+    vmax = DATA_RANGE
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.axis("off")

@@ -1440,6 +1440,57 @@ The inner integral is the standard Beer--Lambert line integral along the ray def
 
 It is instructive to consider the limiting cases. When $\Delta\phi \to 0$, the outer integral collapses to a point evaluation and Equation~\ref{eq:continuous_forward_exact} reduces to the step-and-shoot forward model~\ref{eq:step_shoot_forward}. When $\Delta\phi$ is large, each stored feature vector must represent the average transmission over a wide range of angles, which washes out fine angular detail in the projection and manifests as blurring in the reconstructed volume.
 
+\subsection{Sub-angle Decoupling Through Multiple Rotations}
+\label{subsec:cont_decoupling}
+
+The $K$-step approximation divides each projection's swept angular interval into $K$ sub-rays and evaluates the Beer--Lambert integral at each sub-angle midpoint. The predicted intensity is the average of these $K$ sub-ray transmissions. A natural question arises: if the model only ever observes this average, can it actually learn what the attenuation field looks like at each individual sub-angle, or are those contributions permanently entangled?
+
+With a single projection the answer is no. Figures~\ref{fig:subangle_1} and \ref{fig:subangle_2} illustrate this. Consider a projection sweeping from $0\degree$ to $60\degree$ with $K = 3$ sub-steps, placing sub-rays at $a_1 = 10\degree$, $a_2 = 30\degree$, and $a_3 = 50\degree$. The model receives one scalar measurement $S_A$, the average transmission across all three sub-angles. From this single constraint, the individual contributions $f(a_1)$, $f(a_2)$, and $f(a_3)$ are completely indistinguishable. The signal bar graph is flat across all three sub-angles, as each is assigned equal weight, while the true signal at those angles may vary substantially. There is no way to separate them.
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-1cm}{0cm}
+    \centering
+    \includegraphics[width=1.15\textwidth]{fig_subangle_1.png}
+    \end{adjustwidth}
+    \caption{Top-down view of one continuous-scan projection sweeping from $0\degree$ to $60\degree$. Three sub-angle midpoints are placed at $a_1 = 10\degree$, $a_2 = 30\degree$, and $a_3 = 50\degree$ (accumulation steps $K = 3$). The coloured wedge represents the angular interval integrated by the detector during this exposure.}
+    \label{fig:subangle_1}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-1cm}{0cm}
+    \centering
+    \includegraphics[width=1.15\textwidth]{fig_subangle_2.png}
+    \end{adjustwidth}
+    \caption{Signal contribution at each sub-angle for a single projection. The three bars for $a_1$, $a_2$, and $a_3$ are all equal, representing the uniform average constraint the model receives from one measurement $S_A$. The shaded curve in the background shows the true signal at each angle, which is unknown to the model at this stage.}
+    \label{fig:subangle_2}
+\end{figure}
+
+The situation changes as soon as a second projection arrives from a different angular position. The hybrid golden-section scheme described in Section~\ref{subsec:hybrid_golden} places the second revolution's starting angle at the golden-angle offset of approximately $137.5\degree$, so its sub-angles land in gaps between those of the first revolution. In this example, Projection~2 sweeps from $40\degree$ to $100\degree$, placing sub-rays at $b_1 = 50\degree$, $b_2 = 70\degree$, and $b_3 = 90\degree$. Critically, $b_1 = 50\degree = a_3$. This angle appears in both projections, once as the third sub-step of Projection~1 and once as the first sub-step of Projection~2.
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-1cm}{0cm}
+    \centering
+    \includegraphics[width=1.15\textwidth]{fig_subangle_3.png}
+    \end{adjustwidth}
+    \caption{Top-down view of two overlapping continuous-scan projections. Projection~1 (blue) covers $0\degree$ to $60\degree$ with sub-angles $a_1 = 10\degree$, $a_2 = 30\degree$, $a_3 = 50\degree$. Projection~2 (orange) covers $40\degree$ to $100\degree$ with sub-angles $b_1 = 50\degree$, $b_2 = 70\degree$, $b_3 = 90\degree$. The angle $50\degree$ is shared between $a_3$ and $b_1$, creating a coupled constraint between the two measurements.}
+    \label{fig:subangle_3}
+\end{figure}
+
+The shared angle creates a coupled system. The model now has two scalar measurements, $S_A$ and $S_B$, and five distinct unknowns at $10\degree$, $30\degree$, $50\degree$, $70\degree$, and $90\degree$. The value at $50\degree$ contributes to both $S_A$ and $S_B$ with different weightings relative to its neighbours, because in $S_A$ it appears alongside values at $10\degree$ and $30\degree$, while in $S_B$ it appears alongside values at $70\degree$ and $90\degree$. The two equations are therefore not proportional, and the system is partially constrained in a way that the single-projection case was not. The model can begin to separate the contribution at $50\degree$ from its neighbours in each projection.
+
+\begin{figure}[htbp]
+    \begin{adjustwidth}{-1cm}{0cm}
+    \centering
+    \includegraphics[width=1.15\textwidth]{fig_subangle_4.png}
+    \end{adjustwidth}
+    \caption{Combined signal bar graph for both projections. The bars for $a_1$, $a_2$, $a_3 = b_1$, $b_2$, $b_3$ now match the true signal curve more closely at the shared angle $50\degree$, illustrating how the overlapping constraint allows the model to begin decoupling individual sub-angle contributions.}
+    \label{fig:subangle_4}
+\end{figure}
+
+As additional revolutions accumulate, each following the golden-angle offset, new sub-angles continue to land in the largest remaining gaps. The result is a progressively denser and more uniform coverage of the angular domain, and a growing number of shared sub-angle constraints between projection pairs. With enough revolutions the system becomes sufficiently constrained that each sub-angle position is effectively determined by the aggregate of overlapping measurements, and the model learns the true signal variation across angles rather than just the projection averages.
+
+This mechanism is the reason why the $K$-step continuous-scan model can improve over the $K = 1$ step-and-shoot approximation, and why that improvement grows with the number of sample rotations. It also explains why the benefit depends on sample geometry. For samples with directional structure such as the Bentheimer sandstone, the true signal varies meaningfully between sub-angles, so the decoupling yields real information. For angularly isotropic samples such as the hourglass, the true signal is nearly constant across angles, the overlapping constraints carry little additional information, and no improvement is observed regardless of how many rotations are accumulated.
+
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Method}
@@ -1530,7 +1581,9 @@ The static experiment validates the continuous-scan forward model in a setting w
 \subsection{Dataset}
 \label{subsec:cont_static_dataset}
 
-The static dataset uses the same Bentheimer sandstone sample as the encoder experiments, scanned without fluid invasion so that the attenuation field is constant throughout. Three independent scans were acquired of the same physical sample, each covering one full rotation of $360\degree$. The first is a step-and-shoot acquisition with 1400 projections and serves as the ground truth reference, reconstructed with the standard NeCT static model to produce a high-quality 3D volume. The remaining two are continuous-scan acquisitions at 360 and 100 projections respectively, spanning a wide range of angular step sizes. The standard NeCT static model is used for all reconstructions, with a single 3D \texttt{xyz} hash encoder and no temporal encoder.
+The static dataset uses the same Bentheimer sandstone sample as the encoder experiments, scanned without fluid invasion so that the attenuation field is constant throughout. Three independent scans were acquired of the same physical sample, each covering one full single rotation of $360\degree$. The first is a step-and-shoot acquisition with 1400 projections and serves as the ground truth reference, reconstructed with the standard NeCT static model to produce a high-quality 3D volume. The remaining two are continuous-scan acquisitions at 360 and 100 projections respectively, spanning a range of angular step sizes. The standard NeCT static model is used for all reconstructions, with a single 3D \texttt{xyz} hash encoder and no temporal encoder.
+
+A key constraint of this dataset is that each continuous-scan acquisition covers only a single revolution. As described in Section~\ref{subsec:cont_decoupling}, the sub-angle decoupling mechanism that progressively resolves individual sub-angle contributions depends on projections from multiple revolutions placing sub-rays at overlapping angles. With a single revolution, consecutive projections are angularly adjacent and their sub-angles do not cross-constrain each other in a way that allows decoupling. Any improvement from increasing $K$ in this experiment therefore reflects better approximation of the angular integral rather than genuine sub-angle resolution. The gains are expected to be real but limited.
 
 \begin{table}[h]
     \centering
@@ -1584,7 +1637,7 @@ Figure~\ref{fig:combined_score} shows the combined score as a function of $K$ fo
 
 For the 100-projection configuration ($\Delta\phi = 3.60\degree$), the $K = 1$ score of 0.242 reflects substantially degraded reconstruction quality. Increasing $K$ produces improvement at every accumulation step, reaching 0.363 at $K = 2$, 0.367 at $K = 3$, 0.372 at $K = 4$, and 0.400 at $K = 6$. The gains are real but diminishing: the jump from $K = 1$ to $K = 2$ is 0.120 points, while the jump from $K = 4$ to $K = 6$ is only 0.028 points. The correction is working, but the rate of improvement decreases with each additional sub-step. At $K = 6$ the combined score reaches 0.400, which remains well below the 360-projection score at $K = 1$ (0.593). The 100-projection configuration does not approach 360-projection quality at any value of $K$ tested. This is expected: reducing the projection count from 360 to 100 introduces a degree of angular undersampling that the $K$-step forward model cannot correct, because the correction addresses angular blur within each existing projection but does not add new independent projection angles. The quality ceiling of the 100-projection dataset is set by its projection count, not by its angular step size alone.
 
-It should also be noted that because this is a static sample, continuous scanning provides no additional temporal information over step-and-shoot. The benefit of continuous scanning in a static context is purely about dead-time efficiency, and since the datasets were acquired at fixed projection counts, the experiment isolates the effect of the forward model correction in the absence of any temporal advantage.
+It should also be noted that because this is a static sample, continuous scanning provides no additional temporal information over step-and-shoot. The benefit of continuous scanning in a static context is purely about dead-time efficiency, and since the datasets were acquired at fixed projection counts, the experiment isolates the effect of the forward model correction in the absence of any temporal advantage. Furthermore, because the acquisitions consist of a single revolution, the sub-angle decoupling mechanism discussed in Section~\ref{subsec:cont_decoupling} cannot operate. The gains here represent the best case for the forward model approximation alone, without the additional benefit of cross-projection sub-angle resolution that multiple revolutions would provide.
 
 For the 360-projection configuration ($\Delta\phi = 1.00\degree$), the $K = 1$ score of 0.593 is already high, and the improvement from increasing $K$ is small. The score rises to 0.649 at $K = 2$, then 0.672 at $K = 3$, 0.697 at $K = 4$, and 0.708 at $K = 6$, a total gain of 0.115 points. The largest single step is again from $K = 1$ to $K = 2$ (0.056 points), with each subsequent step contributing less. At $1\degree$ per projection the angular sweep is already small enough that the forward model mismatch at $K = 1$ is not the dominant source of error, and additional sub-steps return diminishing benefit. Both curves increase monotonically with no decline at higher $K$, confirming that the correction does not introduce new artefacts.
 
@@ -1790,6 +1843,43 @@ The results show no correlation between accumulation steps, angular step size, f
 
 
 % ─────────────────────────────────────────────────────────────────────────────
+\section{Experiments: Synthetic Multi-Rotation Dataset}
+\label{sec:cont_synthetic}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The static Bentheimer and dynamic hourglass experiments isolate different failure modes: the former is limited by single-revolution acquisition preventing sub-angle decoupling, and the latter by angular isotropy making angular structure unresolvable. A third experiment is designed to eliminate both limitations simultaneously. A synthetic dataset with directional structure and multiple golden-angle revolutions provides the conditions under which the full benefit of the $K$-step continuous-scan model should be observable.
+
+\subsection{Dataset and Configurations}
+\label{subsec:cont_synthetic_dataset}
+
+The synthetic dataset is acquired across multiple revolutions following the hybrid golden-section scheme, ensuring that sub-angles from later revolutions land in gaps between earlier ones and enabling progressive cross-projection sub-angle decoupling. Four angular step sizes per projection ($\Delta\phi = 4\degree$, $8\degree$, $12\degree$, $24\degree$) are tested, each reconstructed with accumulation steps $K \in \{1, 2, 3, 4, 6, 8\}$. Table~\ref{tab:synthetic_subangles} shows the effective sub-step size $\Delta\phi / K$ for every combination.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Effective sub-step size $\Delta\phi / K$ in degrees for all combinations of angular step size $\Delta\phi$ and accumulation steps $K$ in the synthetic dataset experiments. Colour-coded entries share the same effective sub-step across different $(\Delta\phi, K)$ pairs, enabling matched-pair comparisons: \textcolor{matchred}{red} 4.00\degree, \textcolor{matchblue}{blue} 8.00\degree, \textcolor{matchgreen}{green} 2.00\degree, \textcolor{matchorange}{orange} 12.00\degree.}
+    \label{tab:synthetic_subangles}
+    \begin{tabular}{ccccccc}
+        \toprule
+        & \multicolumn{6}{c}{Accumulation steps $K$} \\
+        \cmidrule(lr){2-7}
+        $\Delta\phi$ & 1 & 2 & 3 & 4 & 6 & 8 \\
+        \midrule
+        $4\degree$  & \textcolor{matchred}{4.00}  & \textcolor{matchgreen}{2.00}  & 1.33 & 1.00 & 0.67 & 0.50 \\
+        $8\degree$  & \textcolor{matchblue}{8.00}  & \textcolor{matchred}{4.00}   & 2.67 & \textcolor{matchgreen}{2.00} & 1.33 & 1.00 \\
+        $12\degree$ & \textcolor{matchorange}{12.00} & 6.00 & \textcolor{matchred}{4.00} & 3.00 & \textcolor{matchgreen}{2.00} & 1.50 \\
+        $24\degree$ & 24.00 & \textcolor{matchorange}{12.00} & \textcolor{matchblue}{8.00} & 6.00 & \textcolor{matchred}{4.00} & 3.00 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The matched-pair structure allows direct testing of whether the $K$-step approximation fully compensates for a larger native angular step. For example, $\Delta\phi = 4\degree$ at $K = 1$ and $\Delta\phi = 8\degree$ at $K = 2$ both have an effective sub-step of $4.00\degree$. If the approximation is adequate and sub-angle decoupling is operating, these two should yield equivalent reconstruction quality. The same logic applies to all colour-matched pairs in Table~\ref{tab:synthetic_subangles}.
+
+\subsection{Results}
+\label{subsec:cont_synthetic_results}
+
+\todo{Insert synthetic dataset results.}
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section{Discussion}
 \label{sec:cont_discussion}
 % ─────────────────────────────────────────────────────────────────────────────
@@ -1797,9 +1887,11 @@ The results show no correlation between accumulation steps, angular step size, f
 \subsection{Validity of the Forward Model}
 \label{subsec:cont_disc_model}
 
-The static results confirm that the $K$-step correction is implemented correctly and produces measurable improvement when angular blur is the limiting factor. For the 100-projection configuration ($\Delta\phi = 3.60\degree$) the combined score rises from 0.242 at $K = 1$ to 0.400 at $K = 6$, with positive gains at every accumulation step. The correction is working. The gains follow a diminishing pattern: the step from $K = 1$ to $K = 2$ contributes 0.120 points while the step from $K = 4$ to $K = 6$ contributes only 0.028 points, suggesting convergence toward a practical quality ceiling for this projection count.
+The static results confirm that the $K$-step correction is implemented correctly and produces measurable improvement when angular blur is the limiting factor. For the 100-projection configuration ($\Delta\phi = 3.60\degree$) the combined score rises from 0.242 at $K = 1$ to 0.400 at $K = 6$, with positive gains at every accumulation step. The gains follow a diminishing pattern: the step from $K = 1$ to $K = 2$ contributes 0.120 points while the step from $K = 4$ to $K = 6$ contributes only 0.028 points.
 
-For the 360-projection configuration ($\Delta\phi = 1.00\degree$) the improvement is small throughout, rising from 0.593 at $K = 1$ to 0.708 at $K = 6$. At an angular step of $1\degree$, the forward model mismatch at $K = 1$ is already small enough that additional sub-steps return diminishing benefit. A $1\degree$ sweep is close to the threshold below which angular blur is no longer the dominant source of reconstruction error, and the correction has little to recover.
+The improvement is real but limited, and the single-revolution acquisition design is a key reason. As established in Section~\ref{subsec:cont_decoupling}, sub-angle decoupling requires projections from different revolutions to place sub-rays at overlapping angles, creating cross-projection constraints that allow the model to resolve individual sub-angle contributions. With only one revolution, consecutive projections are angularly adjacent and no such cross-constraints arise. The gains observed here therefore reflect improved approximation of the angular integral within each projection, not genuine sub-angle resolution. The quality ceiling is set by the combination of projection count and the single-revolution limitation.
+
+For the 360-projection configuration ($\Delta\phi = 1.00\degree$) the improvement is small throughout, rising from 0.593 at $K = 1$ to 0.708 at $K = 6$. At an angular step of $1\degree$ the forward model mismatch at $K = 1$ is already small, and with only one revolution the decoupling mechanism again cannot operate.
 
 The 100-projection configuration does not reach 360-projection quality at any value of $K$ tested. The score at $K = 6$ is 0.400, well below the 360-projection score at $K = 1$ of 0.593. This gap reflects the projection count difference, not the angular step size. The $K$-step forward model corrects angular smear within each projection interval but cannot substitute for the additional independent views that additional projections provide. The quality ceiling of a sparse acquisition is set by how many projections were collected, not by how finely each one's angular interval is subdivided.
 
@@ -1808,9 +1900,11 @@ The approximation error of the midpoint rule scales as $\mathcal{O}((\Delta\phi/
 \subsection{Dynamic Experiment and Sample Geometry}
 \label{subsec:cont_disc_dynamic}
 
-The hourglass dynamic experiment produced a negative result: no meaningful correlation was found between accumulation steps $K$, angular step size $\Delta\phi$, frame rate, and reconstruction quality as measured by the volume MAE metric. This outcome is informative. The most probable explanation lies in the geometric properties of the hourglass sample.
+The hourglass dynamic experiment produced a negative result: no meaningful correlation was found between accumulation steps $K$, angular step size $\Delta\phi$, frame rate, and reconstruction quality as measured by the volume MAE metric. This outcome is informative, and the failure mode is distinct from that of the static Bentheimer experiment.
 
-Angular blur degrades reconstruction quality when the sample has fine directional structure that is visible from some angles but not others. The blur integrates over a range of angles, effectively averaging projection views that carry different structural information. For a sample such as the Bentheimer sandstone, which contains sharp pore boundaries whose projection varies strongly with angle, this averaging causes real information loss. The hourglass, by contrast, is largely angularly isotropic from the scanner's perspective. Sand is a dense granular medium with near-circular cross-section, and the overall geometry of the two chambers is cylindrically symmetric around the rotation axis. A projection of the hourglass at any angle carries essentially the same structural information as a projection at a nearby angle. Averaging over a wide angular interval therefore does not meaningfully degrade the information content of each projection, and the $K$-step correction has nothing to recover. The model reconstructs the sand distribution accurately regardless of $K$ because the projections are informative regardless of angular smear.
+The static Bentheimer experiment is limited by the single-revolution acquisition design, which prevents cross-projection sub-angle decoupling. The hourglass experiment, by contrast, spans multiple revolutions, so the decoupling mechanism is not the limiting factor. The negative result here has a different root cause: the geometric properties of the hourglass sample itself.
+
+Angular blur degrades reconstruction quality when the sample has fine directional structure that is visible from some angles but not others. The hourglass, by contrast, is largely angularly isotropic. Sand is a dense granular medium with near-circular cross-section, and the two-chamber geometry is cylindrically symmetric around the rotation axis. A projection at any angle carries essentially the same structural information as a projection at a nearby angle. Averaging over a wide angular interval therefore does not meaningfully degrade the information content of each projection, and neither the angular blur correction nor the sub-angle decoupling mechanism has anything to recover. The model reconstructs the sand distribution accurately regardless of $K$ because the projections are uniformly informative across all angles.
 
 This interpretation suggests that the practical benefit of the continuous-scan forward model is sample-dependent. Samples with strong directional features, such as fine stratification, crack networks, or elongated pores aligned with the rotation plane, are the primary candidates for meaningful improvement. Isotropic or angularly symmetric samples are unlikely to benefit from the correction, and using the hourglass as a test case for the forward model was ill-suited to revealing the benefit that the static sandstone experiment successfully demonstrated. A more appropriate dynamic test would use a sample with directional structure that evolves over time, such as a rock undergoing anisotropic fracture propagation or a layered sample experiencing differential dissolution.
 
